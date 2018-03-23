@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>Logs</title>
+
+{% load static %}
+<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+
+
+</head>
+
+<body>
+{% include 'classy/navbar.html' %}
+{% include 'classy/pagi.html' %}
+<table class="table">
+<thead>
+	<tr>
+		
+		<th>ID</th>
+		<th>Action Time</th>
+		<th>Action Flag</th>
+		<th>Old Clas.</th>
+		<th>New Clas.</th>
+		<th>User</th>
+		<th>State</th>
+	</tr>
+</thead>
+<tbody>
+	{% for tuple in queryset %}
+	<tr>
+		
+		<td>{{tuple.classy_id}}</td>
+		<td>{{tuple.action_time}}</td>
+		{% if tuple.action_flag == 0 %}
+		<td>DELETE</td>
+		{% elif tuple.action_flag == 1 %}
+		<td>MODIFY</td>
+		{% elif tuple.action_flag == 2 %}
+		<td>CREATE</td>
+		{% endif %}
+		<td>{{tuple.o_classification}}</td>
+		<td>{{tuple.n_classification}}</td>
+		<td>{{tuple.user_id}}</td>
+		<td>{{tuple.state}}</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+
+{% include 'classy/pagi.html' %}
+
+</body>
+</html>

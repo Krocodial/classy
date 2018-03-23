@@ -1,0 +1,8 @@
+.collapsing{
+ 	-webkit-transition:height .01s ease;
+  	transition:height .01s ease
+}
+
+.hiddenRow {
+	padding: 0 !important;
+}

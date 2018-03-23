@@ -1,0 +1,18 @@
+<!--This is a test -->
+
+<nav class="navbar navbar-expand navbar-toggleable-sm navbar-light bg-faded"> 
+
+	<a class="navbar-brand" href="/home">DSC</a>
+	<div class="navbar-nav">
+		<a class="nav-item nav-link" href="/data">Data</a>
+		{% if request.user.is_staff %}
+		<a class="nav-item nav-link" href="/review">Review{% if num != 0 %} <span class="badge badge-info">{{num}}</span>{% endif %}</a>
+		<a class="nav-item nav-link" href="/uploader">Upload</a>
+		<a class="nav-item nav-link" href="/log_list">Logs</a>
+		<a class="nav-item nav-link" href="/admin">Admin</a>
+		{% endif %}
+		<a class="nav-item nav-link" href="/user_logout">Logout</a>
+	</div>
+</nav>
+
+

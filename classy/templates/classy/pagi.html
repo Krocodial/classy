@@ -1,0 +1,25 @@
+{% if queryset %}
+<div class="container-fluid">
+<div class="row">
+<div class="col-sm-8">
+<div class="pagination">
+    <span class="step-links">
+        {% if queryset.has_previous %}
+            <a href="?page=1&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
+                &column={{co}}&classi={{classi}}">&laquo; first</a>
+            <a href="?page={{ queryset.previous_page_number }}&query={{query}}&data_source={{ds}}&
+                schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ queryset.number }} of {{ queryset.paginator.num_pages }}.
+        </span>
+
+        {% if queryset.has_next %}
+            <a href="?page={{ queryset.next_page_number }}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">next</a>
+            <a href="?page={{ queryset.paginator.num_pages }}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+</div>
+{% endif %}

@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+
+</head>
+<body>
+
+
+<nav class="navbar navbar-toggleable-sm navbar-expand navbar-light bg-faded">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="/home">Classy</a>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/data">Data <span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="/uploader">Upload </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/user_logout">Logout </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="/admin">Admin</a>
+      </li>
+    </ul>
+</div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+<div class="container">
+<div class="row">
+<div class="col">
+</div>
+<div class="col">
+        <form action="uploader" method="POST" enctype='multipart/form-data' class="form">
+                {% csrf_token %}
+                <div class="form-group">
+                        <label class="custom-file">
+                                <input type="file" id="file" class="custom-file-input">
+                                <span class="custom-file-control"></span>
+                        </label>
+
+                        <label for="fileupload">Select csv file to upload and merge</label>
+                        <input type="file" class="form-control-file form-control-sm" name="Myfile" id="fileupload">
+                </div>
+
+                        <!--<input type='file' name='Myfile'/>-->
+                <button type="submit" class="btn-primary form-control form-control-sm">Upload</button>
+        </form>
+</div>
+<div class="col">
+</div>
+</div>
+</div>
+<br/>
+<br/>
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+</body>
+</html>

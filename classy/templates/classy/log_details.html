@@ -1,0 +1,82 @@
+<html>
+<head>
+<title>History</title>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+<link rel="stylesheet" href="{% static 'classy/bstyle.css' %}"/>
+<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+
+</head>
+<body>
+
+{% include 'classy/navbar.html' %}
+
+<h5 class="text-center">Detailed view</h5>
+
+<br/>
+
+<div class="container-fluid">
+<div class="row">
+{% if obj %}
+
+
+
+<div class="col-sm-4">
+<p><strong>ID:</strong> {{obj.id}}</p>
+<p><strong>Status:</strong> {{obj.state}}</p>
+<p><strong>Category:</strong> {{obj.category}}</p>
+<p><strong>Classification:</strong> {{obj.classification_name}}</p>
+<p><strong>Datasource:</strong> {{obj.datasource_description}}</p>
+<p><strong>Schema:</strong> {{obj.schema}}</p>
+<p><strong>Table:</strong> {{obj.table_name}}</p>
+<p><strong>Column:</strong> {{obj.column_name}}</p>
+<br/>
+<p><strong>Creation Date:</strong> {{obj.creation_date}}</p>
+<p><strong>User:</strong> {{obj.created_by}}</p>
+
+</div>
+<div class="col-sm-8">
+<table class="table">
+<thead>
+	<tr>
+		<th>Date</th>
+		<th>Action</th>
+		<th>User</th>
+		<th>Old Classification</th>
+		<th>New Classification</th>
+		<th>Status</th>
+	</tr>
+</thead>
+<tbody>
+	{% for item in result %}
+		<tr>
+			<td>{{item.action_time}}</td>
+			{% if item.action_flag == 1 %}
+				<td>MODIFY</td>
+			{% elif item.action_flag == 0 %}
+				<td>DELETE</td>
+			{% elif item.action_flag == 2 %}
+				<td>CREATE</td>
+			{% endif %}
+			<td>{{item.user_id}}</td>
+			<td>{{item.o_classification}}</td>
+			<td>{{item.n_classification}}</td>
+			<td>{{item.state}}</td>
+		</tr>
+	{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+	<div class="col">
+	<p class="text-center"><strong>Invalid ID</strong></p>
+	</div>
+{% endif %}
+</div>
+</div>
+</body>
+</html>

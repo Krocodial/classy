@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'classy/clusterize.css' %}"/>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+
+</head>
+<body id="bootstrap-override">
+
+<nav class="navbar navbar-toggleable-sm navbar-light bg-faded">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="/home">Classy</a>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav" style="color: #fff;">
+      <li class="nav-item">
+        <a class="nav-link" href="/data">Data <span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="/uploader">Upload </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/user_logout">Logout </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="/admin">Admin</a>
+      </li>
+    </ul>
+</div>
+</nav>
+<br/>
+
+<div class="container-fluid">
+<form class="form-group row" action="search" method="GET">
+        <div class="col">
+        </div>
+        <div class="col-sm-8">
+	<div class="input-group">
+        <input type="text" class="form-control" name="query" aria-describedby="descrip" placeholder="What would you like to search for?"/>
+        <span class="input-group-btn">
+		<button type="submit" class="btn btn-success" type="button">Search</button>
+	</span>
+	</div>
+	<small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
+	
+	<br/>
+	<a class="align-center" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
+	</div>
+
+        <div class="col">
+        <!--<button type="submit" class="btn btn-success">Search</button>-->
+        </div>
+
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalLab">Advanced Search</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="search" method="GET">
+			<div class="modal-body">
+			{% csrf_token %}
+			<div class="form-group">
+			<label for="datasource">Datasource</label>
+			<input id="datasource" type="text" class="form-control" name="data_source" placeholder="eg: xxxx.xxxx.xxxx.com"/>
+			</div>
+			<div class="form-group">
+			<label for="schema">Schema</label>
+			<input id="schema" type="text" class="form-control" name="schema" placeholder="project name"/>
+			</div>
+			<div class="form-group">
+			<label for="table">Table</label>
+			<input id="table" type="text" class="form-control" name="table"/>
+			</div>
+			<div class="form-group">
+			<label for="column">Column</label>
+			<input id="column" type="text" class="form-control" name="column"/>
+			</div>
+			<div class="form-group">
+				<label class="mr-sm-2" for "customSel">Classification</label>
+				<select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="customSel">
+					<option selected>Any</option>
+					<option value="1">Protected A</option>
+					<option value="2">Protected B</option>
+					<option value="3">Confidential</option>
+					<option value="4">Unclassified</option>
+				</select>
+			</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				<button type="submit" class="btn btn-success">Search</button>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+
+</form>
+</div>
+<br/>
+<div class="clusterize">
+<div class="clusterize-headers">
+<table class="table table-sm">
+<thead class="thead-inverse">
+	<tr>
+		<th style="width: 20%;">Datasource</th>
+		<th style="width: 20%;">Schema</th>
+		<th style="width: 30%;">Table</th>
+		<th style="width: 30%;">Column</th>
+	</tr>
+</thead>
+</table>
+</div>
+<div id="scrollArea" class="clusterize-scroll">
+<table class="table table-sm table-striped">
+		{% if message %} 
+			<br/>
+                        <p class="text-center">{{message}}</p>
+                {% endif %}
+	<tbody id="contentArea" class="clusterize-content">
+		{% if message %}
+		<tr>
+			<td>{{message}}</td>
+		</tr>
+		{% endif %}
+		<tr class="clusterize-no-data">
+			<td>Loading data....</td>
+		</tr>
+	</tbody>
+
+</table>
+</div>
+</div>
+
+<script src="{% static 'classy/clusterize.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script>
+
+var data = [
+{% for tuple in queryset %}
+	'<tr data-toggle="collapse" data-target=".row{{ forloop.counter }}"' +
+        'class="accordion-toggle"><td style="width: 20%;">{{tuple.datasource_description}}</td>' +
+        '<td style="width: 20%;">{{tuple.schema}}</td><td style="width: 30%;">' +
+        '{{tuple.table_name}}</td><td style="width: 30%;">{{tuple.column_name}}</td>' +
+        '</tr>','<tr><td></td><td>' +
+        '<div class="collapse row{{forloop.counter}} accordion-body">' +
+        'testo</div></td><td>' +
+        '</td></tr>', 
+{% endfor %}
+
+];
+var clusterize = new Clusterize({
+	rows: data,
+	scrollId: 'scrollArea',
+	contentId: 'contentArea'
+
+
+});
+
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang='en-US'>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Review</title>
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'classy/clusterize.css' %}"/>
+<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+</head>
+<body>
+
+{% include 'classy/navbar.html' %}
+<br/>
+<h5 class="text-center">Review user changes</h5>
+<br/>
+{% if message %}
+<div class="container-fluid">
+<div class="row">
+<div class="col"></div>
+<div class="col-sm-10">
+{% if message == 'success' %}
+<div class="alert alert-success alert-dismissable fade show" role="alert" id="suc">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	</button>
+	<strong>Success! </strong> Data successfully changed.
+</div>
+{% elif message == 'failure' %}
+<div class="alert alert-failure alert-dismissable fade show" role="alert" id="suc">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>Oops!  </strong> Looks like something went wrong.
+</div>
+{% endif %}
+</div>
+<div class="col"></div>
+</div>
+</div>
+{% endif %}
+
+<div id="accordion">
+<!--<div class="card">-->
+<!--<ul class="list-group list-group-flush">-->
+<div class="container-fluid">
+{% for group in groups %}
+	<div class="row">
+<!--	<li class="list-group-item" id="{{group.id}}">-->
+	
+	<!--<div class="card-block" id="heading{{forloop.counter}}">-->
+	<div class="col"><h5>User: <small class="text-muted"> {{group.user}}</small></h5></div>
+	<div class="col"><h5>Time: <small class="text-muted"> {{group.timestamp}}</small></h5></div>
+	<div class="col"><button class="btn btn-primary" style="width: 250px; background-color: #417690;" data-toggle="collapse" data-target=".hidden{{forloop.counter}}" class="accordion-toggle">View Modifications</button>	
+	</div><!--</div>-->
+	</div>
+	<div class="collapse accordion-body hidden{{forloop.counter}}" id="hidden{{forloop.counter}}">
+	<div class="row">
+	<div class="col">
+	<table class="table table-sm">
+	<thead>
+	<tr>
+		<th>Datasource</th>
+		<th>Schema</th>
+		<th>Table</th>
+		<th>Column</th>
+		<th>Old Class.</th>
+		<th>New Class.</th>
+		<th>Action</th>
+		<th></th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for tuple in queryset %}
+	{% if tuple.group == group %}
+	<tr class={% if tuple.action_flag == 0 %}'delete'{% else %}'modify'{% endif %}>
+		<td>{{tuple.datasource_description}}</td>
+		<td>{{tuple.schema}}</td>
+		<td>{{tuple.table_name}}</td>
+		<td>{{tuple.column_name}}</td>
+		<td>{{tuple.o_classification}}</td>
+		<td>{{tuple.classification_name}}</td>
+		{% if tuple.action_flag == 0 %}
+		<td>DELETE</td>
+		{% else %}
+		<td>MODIFY</td>
+		{% endif %}
+		<td><button data-toggle="button" class="btn-sm btn btn-secondary remo" id="{{ tuple.id }}"><img src="{% static 'classy/open-iconic/svg/ban.svg' %}" class="iconBan" id="{{tuple.id}}"></img></button></td>
+		
+	</tr>		
+	{% endif %}
+	{% endfor %}
+	</tbody>
+	</table>
+	</div>
+	</div>
+	<div class="row">
+		<div class="col">
+		<button class="btn btn-success subby" id={{group.id}} type="submit">Finalize changes</button>
+		</div>
+		<div class="col">
+		<button class="btn btn-danger deny" id={{group.id}} type="submit">Reject changes</button>
+		</div>
+	</div>
+	</div>
+	<br/>
+{% endfor %}
+</div>
+</div>
+
+<form action="review" method="post" id="succ">
+{% csrf_token %}
+<input type="hidden" name="response" value="success">
+</form>
+
+<form action="review" method="post" id="faig">
+{% csrf_token %}
+<input type="hidden" name="response" value="failure">
+</form>
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="{% static 'classy/review.js' %}"></script>
+
+</body>
+</html>
