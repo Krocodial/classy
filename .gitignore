@@ -53,6 +53,8 @@ staticfiles/
 settings.py
 *.pyc
 *.json
+*__init__.py
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

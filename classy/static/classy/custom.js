@@ -1,6 +1,58 @@
 
 //$('li').attr('unselectable', 'on'); //IE
 var keys = [];
+var shifted = false;
+var ctr = false;
+var last = -1;
+var cur;
+var init, end;
+
+$(document).on('keyup keydown', function(e){shifted = e.shiftKey});
+$(document).on('keyup keydown', function(e){ctr = e.ctrlKey});
+
+$(document).on('click', '.accordion-toggle', function() {
+	if(shifted) {
+		$.each(keys, function(index,value) {
+			$('#' + value).toggleClass('selected');
+		});
+		keys = [];
+		cur = this.id;
+		if(last == -1){
+		} else {	
+			if(cur < last) {
+				init = cur;
+				end = last;
+			} else {
+				init = last;
+				end = cur;
+			}			
+
+			for(i = init; i <= end; i++) {
+				$('#' + i).toggleClass('selected');
+				keys.push(i);
+			}
+		}
+        } else if(ctr) {
+		if($(this).hasClass('selected')) {
+			var index = keys.indexOf(this.id)
+			if(index > -1){
+				keys.splice(index, 1);
+			}
+		} else {
+			keys.push(this.id)
+		}
+		$(this).toggleClass('selected');
+	} else {
+                 $.each(keys, function(index, value) {
+                           $('#' + value).toggleClass('selected');
+                 });
+                 keys = [];
+        }
+        last = this.id;
+	
+
+});
+/*
 $(document).ready(function() {
 
 	var ctr_pressed = false;
@@ -57,7 +109,7 @@ $(document).ready(function() {
 		last = this.id;
 	});
 });
-		
+*/		
 /*$(document).on('click', '#edito', function() {
 	var rows = $.map(keys, function(value, index) {
 	return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td></tr>';
@@ -72,13 +124,13 @@ $(document).on('click', '#changeC', function() {
 	});*/
 	var newy = $('#newC').find(':selected').text();
 	$.each(keys, function(index, value) {
-		chan = {id: $('#prodId' + $(value).attr('id')).attr('value'), classy: newy};
+		chan = {id: $('#prodId' + value).attr('value'), classy: newy};
 		toMod.push(chan);
 	});
 
 	//console.log($('#newC').find(':selected').text());
 	$.each(keys, function(index, value) {
-		$(value).toggleClass('selected');
+		$('#' + value).toggleClass('selected');
 	});
 	keys = [];
 });

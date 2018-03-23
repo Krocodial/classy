@@ -122,7 +122,6 @@ def log_detail(request, classy_id):
 def modi(request):
 	if not request.user.is_authenticated:
 		return redirect('index')
-
 	if request.method == 'POST':
 		toMod = request.POST['toMod']
 		toModRed = json.loads(toMod)
