@@ -1,0 +1,367 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Data</title>
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'classy/clusterize.css' %}"/>
+<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+
+</head>
+<body id="bootstrap-override">
+
+<nav class="navbar navbar-toggleable-sm navbar-light bg-faded">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="/home">Classy</a>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav" style="color: #fff;">
+      <li class="nav-item">
+        <a class="nav-link" href="/data">Data <span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="/uploader">Upload </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/user_logout">Logout </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/admin">Admin</a>
+      </li>
+    </ul>
+</div>
+</nav>
+<br/>
+
+<div class="container-fluid">
+<form class="form-group row" style="margin-bottom: 0px;" action="search" method="GET">
+        <div class="col">
+        </div>
+        <div class="col-sm-8">
+	<div class="input-group">
+	{% csrf_token %}
+	{{form.query}}
+        <!--<input type="text" class="form-control" name="query" aria-describedby="descrip" placeholder="What would you like to search for?"/>
+        --><span class="input-group-btn">
+		<button type="submit" class="btn btn-success" type="button">Search</button>
+	</span>
+	</div>
+	<small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
+	<nav class="nav justify-content-center">
+		<a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
+	</nav>	
+	</div>
+        <div class="col">
+	
+	<!--<button class="btn btn-secondary" id="subby" data-toggle="modal" data-target="#confModal">Do not press</button>
+        --><!--<button type="submit" class="btn btn-success">Search</button>-->
+        </div>
+
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalLab">Advanced Search</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="search" method="GET">
+			<div class="modal-body">
+			
+			<div class="form-group">
+			<label for="data_source">Datasource</label>
+			{{form.data_source}}
+			</div>
+			<div class="form-group">
+			<label for="schema">Schema</label>
+			{{form.schema}}
+			</div>
+			<div class="form-group">
+			<label for="table">Table</label>
+			{{form.table}}
+			</div>
+			<div class="form-group">
+			<label for="column">Column</label>
+			{{form.column}}
+			</div>
+			<div class="form-group">
+				<label class="mr-sm-2" for "customSel">Classification</label>
+				{{form.classi}}<!--
+
+
+				<select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="customSel">
+					<option selected>Any</option>
+					<option value="1">Protected A</option>
+					<option value="2">Protected B</option>
+					<option value="3">Confidential</option>
+					<option value="4">Unclassified</option>
+				</select>-->
+			</div>
+			</div>
+			<div class="modal-footer">
+				<!--<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				-->
+				<button type="submit" class="btn btn-success">Search</button>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" id="modalBo">Confirm changes</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+			</div>
+                        <form action="modi">
+                        <div class="modal-body">
+			<h6 class="text-center">Pending modifications</h6>
+			<table class="table table-sm table-hover" id="modTable">
+			<thead class="thead thead-sm thead-inverse">
+				<tr>
+					<th class="th-cus">ID</th>
+					<th class="th-cus">New Classification</th>
+					<th class="actions th-cus">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			</table><br/>
+			<h6 class="text-center">Pending deletions</h6>
+			<table class="table table-sm table-hover" id="delTable">
+			<thead class="thead thead-inverse">
+				<tr>
+					<th class="th-cus">ID</th>
+					<th class="actions th-cus">Actions</th>
+				</tr>	
+			</thead>
+			<tbody>
+			</tbody>
+			</table>
+
+                        </div>
+                        <div class="modal-footer">
+                        <!--<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                        -->
+			<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
+                        </div>
+                        </form>
+                </div>
+        </div>
+</div>
+
+</form>
+</div>
+
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-3">
+<button class="btn btn-success btn-sm" id="subby" data-toggle="modal" data-target="#confModal">Commit Changes</button>
+</div>
+<div class="col-sm-8"></div>
+</div>
+<br/>
+
+<div class="clusterize">
+<div class="clusterize-headers">
+<table class="table table-sm">
+<thead class="thead-inverse">
+	<tr>
+		<th style="width: 20%;">Datasource</th>
+		<th style="width: 20%;">Schema</th>
+		<th style="width: 30%;">Table</th>
+		<th style="width: 30%;">Column</th>
+	</tr>
+</thead>
+</table>
+</div>
+<div id="scrollArea" class="clusterize-scroll">
+<table class="table table-sm table-striped table-hover">
+	{% if message %} 
+		<br/>
+		<p class="text-center">{{message}}</p>
+        {% endif %}
+	<tbody id="contentArea" class="clusterize-content">
+		<tr class="clusterize-no-data">
+			<td>Loading data....</td>
+		</tr>
+	</tbody>
+
+</table>
+</div>
+</div>
+<script src="{% static 'classy/clusterize.js' %}"></script>
+<!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+-->
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script>
+
+var options = ['Classified', 'Unclassified', 'PROTECTED A', 'PROTECTED B'];
+
+var data = [
+{% for tuple in queryset %}
+	'<tr data-toggle="collapse" data-target=".row{{ forloop.counter }}"' +
+        'class="accordion-toggle mrow{{forloop.counter}}"><td style="width: 20%;">{{tuple.datasource_description}}</td>' +
+        '<td style="width: 20%;">{{tuple.schema}}</td><td style="width: 30%;">' +
+        '{{tuple.table_name}}</td><td style="width: 30%;">{{tuple.column_name}}</td>' +
+        '</tr>','<tr class="hiddenRows{{forloop.counter}}">' +
+	'<td colspan="4">' +
+        '<div class="collapse row{{forloop.counter}} accordion-body">' +
+	'<div class="row">' +
+	'<div class="col-sm-2"><strong>Created by:</strong> {{tuple.created_by}}</div>' +
+	'<div class="col-sm-3"><a class="cus-link" href="/data/{{tuple.id}}" target="_blank">View edit history</a></div>' +
+	'<div class="col-sm-1"><strong>Classification:</strong></div>' +
+	'<div class="col-sm-2">' +
+	'<select class="form-control form-control-sm cla" id="{{forloop.counter}}">' +
+	'<option selected>{{tuple.classification_name}}</option>' +
+	{% for op in options %}
+		'<option value="{{forloop.counter}}">{{op}}</option>' +
+	{% endfor %}
+	'</select></div>' +
+	'<div class="col-sm-1"></div>' +
+	'<div class="col-sm-2"><button class="btn btn-cus btn-sm btn-primary saver">Stage for commit</button>' +
+	'</div><div class="col-sm-1"><button id="{{forloop.counter}}" ' +
+	'class="btn btn-sm btn-danger del">Delete</button>' +
+	'<input id="prodId{{forloop.counter}}" name="prodId" type="hidden" value="{{tuple.id}}"/></div>' +
+	'</div></div></td>' +
+        '</tr>', 
+{% endfor %}
+
+];
+var clusterize = new Clusterize({
+	rows: data,
+	scrollId: 'scrollArea',
+	contentId: 'contentArea',
+	blocks_in_cluster: 2
+});
+//script to modify vals.
+
+var toDel = [];
+var toMod = [];
+
+$('#contentArea').on('click', '.del', function() {
+	var row = '.hiddenRows' + event.target.id;
+	var mrow = '.mrow' + event.target.id;
+	var rowId = '#prodId' + event.target.id;
+
+	var id = $(rowId).attr('value');
+	toDel.push(id);
+	$(row).remove();
+	$(mrow).remove();
+});
+
+$(document).on('change', '.cla', function(e) {
+	var row = '.hiddenRows' + event.target.id;
+	var rowId = '#prodId' + event.target.id;
+	var newCl = this.options[e.target.selectedIndex].text;
+	var fid = $(rowId).attr('value');
+
+	chan = {id:fid, classy: newCl};
+	toMod.push(chan);
+});
+
+$(document).on('click', '#subby', function() {
+	var rows = $.map(toDel, function(value, index) {
+        return '<tr><td>' + value + '</td><td>' +
+                '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
+                '</td></tr>';
+});
+
+	$('#delTable tbody').html(rows.join(''));
+
+	var rows = $.map(toMod, function(value, index) {
+        return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td><td>' +
+                '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
+                '</td></tr>';
+});
+
+	$('#modTable tbody').html(rows.join(''));
+
+       
+});
+
+$('#modTable').on('click', 'button', function() {
+      var row = $(this).closest('tr');
+      toMod.splice(row.index(), 1);
+      row.remove();
+});
+
+$('#delTable').on('click', 'button', function() {
+      var row = $(this).closest('tr');
+      toDel.splice(row.index(), 1);
+      row.remove(); 
+});
+
+$(document).on('click', '#finSubby', function() {
+	//alert(JSON.stringify(toDel));
+	$.ajax({
+		type: "POST",
+		url: 'modi',
+		traditional: true,
+		data: {'toDel': JSON.stringify(toDel), 'toMod': JSON.stringify(toMod), 'csrfmiddlewaretoken': '{{ csrf_token }}'}
+	});
+
+
+        /*$.post('modi', {'toDel': toDel, 'toMod': toMod,
+	'csrfmiddlewaretoken': '{{ csrf_token }}'});*/
+});
+
+
+/*
+$(document).ready(function(){
+
+function getCookie(name) {
+	var cookieValue = null;
+	if (document.cookie && document.cookie !== '') {
+		var cookies = document.cookie.split(';');
+		for( var i=0; i < cookies.length; i++) {
+			var cookie = jQuery.trim(cookies[i]);
+			if(cookie.substring(o, name.length + 1) ===(name + '=')) {
+				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				break;
+		}}}
+	return cookieValue;
+	}
+
+	var csrftoken = getCookie('csrftoken');
+
+
+function csrfSafeMethod(method) {
+	return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+$.ajaxSetup({
+	beforeSend: function(xhr, settings) {
+		if(!csrfSafeMethod(settings.type) && !this.crossDomain) {
+			xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		}
+	}
+});
+});
+
+$(document).on('click', '#subby', function() {
+	$.post('modi', {'toDel': toDel, 'toMod': toMod});
+});
+*/
+</script>
+</body>
+</html>
+
+
