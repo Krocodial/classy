@@ -1,0 +1,54 @@
+<div id="mynetwork"></div>
+
+<script type="text/javascript">
+	
+
+	var nodes = new vis.DataSet([
+		{id: 'Unclassified', label: 'Unclassified'},
+		{id: 'PUBLIC', label: 'PUBLIC'},
+		{id: 'CONFIDENTIAL', label: 'CONFIDENTIAL'},
+		{id: 'PROTECTED A', label: 'PROTECTED A'},
+		{id: 'PROTECTED B', label: 'PROTECTED B'},
+		{id: 'PROTECTED C', label: 'PROTECTED C'}
+		{% for tuple in all_tuples %}
+		,{id: {{tuple.id}}, label: '{{tuple.id}}'}
+		{% endfor %}
+	]);
+
+
+	var edges = new vis.DataSet([
+		{from: 0, to: -1},
+		{from: 0, to: -2},
+		{from: 0, to: -3},
+		{from: 0, to: -4},
+		{from: 0, to: -5}
+		{% for tuple in all_tuples %}
+			,{from: {{tuple.id}}, to: '{{tuple.classification_name}}'}	
+		{% endfor %}
+	]);
+
+	var container = document.getElementById('mynetwork');
+
+	var data = {
+		nodes: nodes,
+		edges: edges
+	};
+	
+	var options = {
+		autoResize: true,
+		height: '100%',
+		width: '100%',
+		clickToUse: false,
+		edges:{
+		color: {
+			color: '#FF5733'
+		}
+		}
+};
+
+	var network = new vis.Network(container, data, options);	
+
+
+
+</script>
+

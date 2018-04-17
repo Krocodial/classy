@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+
+<table class="table table-sm table-hover table-striped" style="border-collapse:collapse;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Credit</th>
+            <th>Debit</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr data-toggle="collapse" data-target=".demo1" class="accordion-toggle">
+            <td>1</td>
+            <td>05 May 2013</td>
+            <td>Credit Account</td>
+            <td class="text-success">$150.00</td>
+            <td class="text-error"></td>
+            <td class="text-success">$150.00</td>
+        </tr>
+        <tr >
+            <td colspan="6" style="padding: 0 !important;" class="hiddenRow"><div class="accordian-body collapse demo1" id="demo1"> Demo1 </div> </td>
+        </tr>
+	<tr>
+		<td colspan="6" style="padding: 0 !important;"><div class="accordian-body collapse demo1">Demo2</div></td>
+	</tr>
+        <tr data-toggle="collapse" data-target="#demo2" class="accordion-toggle">
+            <td>2</td>
+            <td>05 May 2013</td>
+            <td>Credit Account</td>
+            <td class="text-success">$11.00</td>
+            <td class="text-error"></td>
+            <td class="text-success">$161.00</td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding: 0 !important;" class="hiddenRow"><div id="demo2" class="accordian-body collapse">Demo2</div></td>
+        
+	</tr>
+        <tr data-toggle="collapse" data-target="#demo3" class="accordion-toggle">
+            <td>3</td>
+            <td>05 May 2013</td>
+            <td>Credit Account</td>
+            <td class="text-success">$500.00</td>
+            <td class="text-error"></td>
+            <td class="text-success">$661.00</td>
+        </tr>
+        <tr>
+            <td colspan="6"  style="padding: 0 !important;" class="hiddenRow"><div id="demo3" class="accordian-body collapse">Demo3</div></td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
+
+
+<br/><br/>
+
+<table id="tableId" class="table table-condensed">
+	<tr>
+	<th>num</th>
+	<th>name</th>
+	<th>bran</th>
+	<th>tmp</th>
+	</tr>
+	<tr class="clickable">
+	<td>1</td>
+	<td>mark</td>
+	<td>otto</td>
+	<td>badic</td>
+	</tr>
+	<tr class="card-body collapse row" id=row1>
+	<td colspan="4">Howdy</td>
+	</tr>
+
+	<tr class="clickable">
+        <td>2</td>
+        <td>mark</td>
+        <td>otto</td>
+        <td>badic</td>
+        </tr>
+        <tr class="collapse" id="row2">
+	<td colspan="3">	
+        
+        <div id="row2">
+                Details 1
+        Hid_det
+        lsdkf
+        </div></td>
+        </tr>
+
+	
+
+        <tr class="accordion-toggle" data-toggle="collapse" data-target="#collapseThre">
+        <td>1</td>
+        <td>mark</td>
+        <td>otto</td>
+        <td>badic</td>
+        </tr>
+        <tr id='collapseThre' class="collapse">
+        <td colspan="1"></td>
+        <td colspan="3">
+        <div class="accordion-body">
+                Details 1
+        Hid_det
+        lsdkf
+        </div></td>
+        </tr>
+
+
+
+
+</table>
+
+
+
+
+
+<br/><br/>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script>
+function tog() {
+	$("tr").click(function() {
+		$("tr.row").toggle("slow", function() {
+	});
+});
+</script>
+
+<script>function addRowHandlers() {
+    var table = document.getElementById("tableId");
+    var rows = table.getElementsByTagName("tr");
+    for (i = 0; i < rows.length; i++) {
+        var currentRow = table.rows[i];
+        var createClickHandler = 
+            function(row) 
+            {
+                return function() { 
+                                        var cell = row.getElementsByTagName("td")[0];
+                                        var id = cell.innerHTML;
+
+                                        //alert("id:" + id);
+					$('#row' + id).toggle("slow", function() {
+});)
+                                 };
+            };
+
+        currentRow.onclick = createClickHandler(currentRow);
+    }
+}
+window.onload = addRowHandlers();
+</script>
+
+</body>
+
+
+</html>
