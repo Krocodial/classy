@@ -6,17 +6,18 @@
 <title>Data</title>
 
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/clusterize.css' %}"/>
-<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
 
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 
-<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+
+{% include 'classy/head.html' %}
 
 </head>
-<body id="bootstrap-override">
+<body id="bootstrapoverride">
 
 {% include 'classy/navbar.html' %}
 <br/>
@@ -44,12 +45,19 @@
 </div>
 </div>
 
+<form class="form-group" action="search">
+
 <div class="container-fluid">
 <div class="row">
         <div class="col-sm-2">
 	<br/><br/>
-	<form class="form-inline">
-	<label for="sizi">Show</label>
+<!--	<form class="form-inline">-->
+	<div class="input-group">
+	<label for="id_size">Results per page: &nbsp</label>
+	
+	{{form.size}}
+	</div>
+	<!--
 	<select class="custom-select custom-select-sm" id="sizi">
 		<option selected>{{size}}</option>
 		{% for siz in sizes %}
@@ -57,11 +65,11 @@
 			<option value="{{siz}}">{{siz}}</option>
 		{% endif %}
 		{% endfor %}
-	</select>
-	</form>
+	</select>-->
+<!--	</form>-->
         </div>
         <div class="col-sm-8">
-	<form class="form-group" style="margin-bottom: 0px;" action="search" method="GET">
+<!--	<form class="form-group" style="margin-bottom: 0px;" action="search" method="GET">-->
 	<div class="input-group">	
 	{{form.query}}
 	<span class="input-group-btn">
@@ -76,7 +84,7 @@
 	<nav class="nav justify-content-center">
 		<a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
 	</nav>	
-	</form>
+<!--	</form>-->
 	</div>
         <div class="col"></div>
 </div>
@@ -91,7 +99,7 @@
 				<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<form action="search" method="GET">
+<!--			<form action="search" method="GET">-->
 			<div class="modal-body">	
 			<div class="form-group">
 				<label for="data_source">Datasource</label>
@@ -121,10 +129,13 @@
 			<div class="modal-footer">
 				<button type="submit" class="btn btn-success">Search</button>
 			</div>
-			</form>
+<!--			</form>-->
 		</div>
 	</div>
 </div>
+
+</form>
+
 <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -201,10 +212,10 @@
 	<thead class="thead-inverse">
 		<tr>
 			<th></th>
-			<th>Datasource</th>
-			<th>Schema</th>
-			<th>Table</th>
-			<th>Column</th>
+			<th class='th-cus'>Datasource</th>
+			<th class='th-cus'>Schema</th>
+			<th class='th-cus'>Table</th>
+			<th class='th-cus'>Column</th>
 		</tr>
 	</thead>
 
@@ -215,7 +226,7 @@
 				<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
                                         class="accordion-toggle">
 				<button data-toggle="button" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align">
-				<img src="{% static 'classy/open-iconic/svg/chevron-bottom.svg' %}" class="icon"></use>
+				<img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></use>
 				</button>	
 				</div>
 			</td>
@@ -271,47 +282,30 @@
 <nav aria-label="Page navigation example">
   <ul class="pagination">
 {% if not queryset.has_previous %}
-    <li class="page-item disabled"><a class="page-link" href="#">First ...</a></li>
+    <li class="page-item disabled"><a class="page-link" href="#">&laquo; First ...</a></li>
     <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
 {% else %}
-    <li class="page-item"><a class="page-link" href="?page=1&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
-                &column={{co}}&classi={{classi}}">First ...</a></li>
-    <li class="page-item"><a class="page-link" href="#">{{queryset.previous_page_number}}</a></li>
+    <li class="page-item"><a class="page-link" href="?page=1&size={{size}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
+                &column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">&laquo; First ...</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ queryset.previous_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}&
+                schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.previous_page_number}}</a></li>
 {% endif %}
 
     <li class="page-item active"><a class="page-link" href="#">{{queryset.number}}</a></li>
 
 {% if not queryset.has_next %}
     <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-    <li class="page-item disabled"><a class="page-link" href="#">{{queryset.paginator.num_pages}}</a></li>
+    <li class="page-item disabled"><a class="page-link" href="#">... {{queryset.paginator.num_pages}} &raquo;</a></li>
 {% else %} 
-    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-    <li class="page-item"><a class="page-link" href="#">{{queryset.paginator.num_pages}}</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ queryset.next_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}
+	&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.next_page_number}}</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ queryset.paginator.num_pages }}&size={{size}}&query={{query}}&data_source={{ds}}
+		&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">... {{queryset.paginator.num_pages}} &raquo;</a></li>
 
 {% endif %}
   </ul>
 </nav>
 
-
-<div class="pagination">
-    <span class="step-links">
-        {% if queryset.has_previous %}
-            <a href="?page=1&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
-		&column={{co}}&classi={{classi}}">&laquo; first</a>
-            <a href="?page={{ queryset.previous_page_number }}&query={{query}}&data_source={{ds}}&
-		schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ queryset.number }} of {{ queryset.paginator.num_pages }}.
-        </span>
-
-        {% if queryset.has_next %}
-            <a href="?page={{ queryset.next_page_number }}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">next</a>
-            <a href="?page={{ queryset.paginator.num_pages }}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>
 </div>
 <div class="col-sm-1">
 	<button class="btn btn-sm btn secondary" id="edito" data-toggle="modal" data-target="#batchModal">Edit Selected</button>
@@ -335,6 +329,8 @@
 <input type="hidden" name="failure" value="failure">
 </form>
 
+<div class="modal" id="wheel"></div>
+
 <br/><br/>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
 -->
@@ -342,7 +338,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 
-<script src="{% static 'classy/custom.js' %}"></script>
+<script src="{% static 'classy/js/custom.js' %}"></script>
 
 <script>
 /*
@@ -406,7 +402,15 @@ $('#delTable').on('click', 'button', function() {
       row.remove(); 
 });
 */
+
+$body = $('body');
+$(document).on({
+	ajaxStart: function() { $body.addClass('loading'); },
+	ajaxStop: function() { $body.removeClass('loading'); }
+});
+
 $(document).on('click', '#finSubby', function() {
+	$body.addClass('loading');
 	//alert(JSON.stringify(toDel));
 	$.ajax({
 		type: "POST",

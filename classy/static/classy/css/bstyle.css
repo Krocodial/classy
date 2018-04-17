@@ -1,0 +1,15 @@
+body, html {
+        height: 100%;
+        margin: 0;
+       
+}
+
+.bg {
+
+	max-height: 100%;
+        background-image: url('bcgov-logo.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+}

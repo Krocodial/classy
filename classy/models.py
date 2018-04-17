@@ -4,6 +4,19 @@ from django.utils import timezone
 
 # Create your models here.
 
+class classification_count(models.Model):
+    classification_choices = (
+	('Unclassified', 'unclassified'),
+	('PUBLIC', 'public'),
+	('CONFIDENTIAL', 'confidential'),
+	('PROTECTED A', 'protected_a'),
+	('PROTECTED B', 'protected_b'),
+	('PROTECTED C', 'protected_c'),
+    )
+    classification_name = models.CharField(max_length=50, choices=classification_choices, null=True)
+    count = models.IntegerField()
+    date = models.DateField()
+
 class classification(models.Model):
     classification_choices = (
 	('Unclassified', 'unclassified'),
@@ -23,12 +36,12 @@ class classification(models.Model):
     created_by = models.CharField(max_length=50, null=True)
 
     state_choices = (
-    ('Active', 0),
-    ('Inactive', 1),
-    ('Pending Review', 2),
+    ('Active', 'Active'),
+    ('Inactive', 'Inactive'),
+    ('Pending', 'Pending'),
     )
 
-    state = models.CharField(max_length=15, choices=state_choices, default=0)
+    state = models.CharField(max_length=15, choices=state_choices, null=True)
 
     #date_added = models.DateTimeField(auto_now_add=True)
     #date_last_updated = models.DateTimeField(auto_now=True)

@@ -8,11 +8,19 @@ An easy to use GUI that allows users to view/edit/create centralized classified 
 ## Technology Stack Used
 Django, and POSTgres. Although will soon be migrated to MySQL  
 Django==2.0.1  
-Python==3.5  
+Python==3.5.2  
 
 ## Third-Party Products/Libraries used and the the License they are covered by
 psycopg2==2.7.3.2 -- (http://initd.org/psycopg/license/)  
 pytz==2017.3 -- Covered by the MIT license (https://pypi.python.org/pypi/pytz)  
+mysqlclient  
+libmysqlclient-dev  
+python3-venv  
+python3-pip  
+apache2  
+apache2-dev  
+libapache2-mod-wsgi-py3  
+(or another HTTP server with python 3 interface)  
 
 ## Project Status
 In-Development  
@@ -27,24 +35,55 @@ Authentication & Authorization are handled by Django's built in security. Howeve
 Policies for use will be provided by the FLNR security team.  
 
 ## Files in this repository
-
+Note: This is just a directory tree.  
 ```
-classy/         - Main project folder
-└── views.py        
-└── models.py         
-
-dsc/		- Setup folder
-
-dsc_env/	- Directory for our virtual environment dependencies
+classy/	
+├── classy			-The app itself, model definitions, views, templates, scripts, etc.
+│   ├── migrations		-Here are the migrations for our DB
+│   │   └── __pycache__
+│   ├── __pycache__
+│   ├── static
+│   │   └── classy
+│   └── templates
+│       └── classy
+├── dsc				-Configuration information
+│   └── __pycache__
+├── envs			-Contains our virtual environment, as well as the admin pages
+│   ├── bin
+│   │   └── __pycache__
+│   ├── include
+│   ├── lib
+│   │   └── python3.5
+│   ├── lib64 -> lib
+│   └── share
+│       └── python-wheels
+└── static			-Static files for our webserver
+    ├── admin
+    │   ├── css
+    │   ├── fonts
+    │   ├── img
+    │   └── js
+    └── classy
+        ├── css
+        ├── images
+        └── js
 ```
 
 ## Deployment (Local Development)
 
-* Since all dependencies are contained in a virtualenv the only requirement is to be able to activate this localized environment. See (https://virtualenv.pypa.io/en/stable/) for setup instructions. Command to activate the environment is 'source dsc_env/bin/activate')
+Using apt or another package manager install  
+*libmysqlclient-dev  
+*python3-venv  
+*python3-pip  
+*apache2  
+*apache2-dev  
+*libapache2-mod-wsgi-py3  
 
-* Edit the dsc/settings.py file to include your secret, database connection credentials, and allowed hosts
+* Since the rest of the dependencies are contained in a virtual environment the only requirement is to be able to activate this localized environment. See (https://virtualenv.pypa.io/en/stable/) for setup instructions. Command to activate the environment is 'source env/bin/activate')
 
-* Once in the virtual environment run the server with 'python3 manage.py runserver host:port'
+* Create environment variables with corresponding variable names in dsc/settings.py. These include you database credentials, secret, and host IP  
+
+* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
 
 
 ## Deployment (OpenShift)

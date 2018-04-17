@@ -6,13 +6,15 @@
 <title>Review</title>
 
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/clusterize.css' %}"/>
-<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+
+{% include 'classy/head.html' %}
+
 </head>
-<body>
+<body id='bootstrapoverride'>
 
 {% include 'classy/navbar.html' %}
 <br/>
@@ -42,8 +44,9 @@
 <div class="col"></div>
 </div>
 </div>
+{% else %}
+<p class="text-center">No pending user changes</p>
 {% endif %}
-
 <div id="accordion">
 <!--<div class="card">-->
 <!--<ul class="list-group list-group-flush">-->
@@ -89,7 +92,7 @@
 		{% else %}
 		<td>MODIFY</td>
 		{% endif %}
-		<td><button data-toggle="button" class="btn-sm btn btn-secondary remo" id="{{ tuple.id }}"><img src="{% static 'classy/open-iconic/svg/ban.svg' %}" class="iconBan" id="{{tuple.id}}"></img></button></td>
+		<td><button data-toggle="button" class="btn-sm btn btn-secondary remo" id="{{ tuple.classy.id }}"><img src="{% static 'classy/open-iconic/x.svg' %}" class="iconBan" id="{{tuple.classy.id}}"></img></button></td>
 		
 	</tr>		
 	{% endif %}
@@ -117,15 +120,17 @@
 <input type="hidden" name="response" value="success">
 </form>
 
-<form action="review" method="post" id="faig">
+<form action="review" method="post" id="fail">
 {% csrf_token %}
 <input type="hidden" name="response" value="failure">
 </form>
 
+<div class="modal" id="wheel"></div>
+
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-<script src="{% static 'classy/review.js' %}"></script>
+<script src="{% static 'classy/js/review.js' %}"></script>
 
 </body>
 </html>

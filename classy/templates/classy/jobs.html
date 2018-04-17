@@ -8,14 +8,14 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
-<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
 
-
+{% include 'classy/head.html' %}
 
 </head>
-<body>
+<body id='bootstrapoverride'>
 {% include 'classy/navbar.html' %}
 
 {% if message %}
@@ -27,7 +27,7 @@
 <div class="col">
 </div>
 <div class="col">
-        <form action="uploader" method="POST" enctype='multipart/form-data' class="form">
+        <form action="uploader" method="POST" id="uploadform" enctype='multipart/form-data' class="form">
                 {% csrf_token %}
                 <div class="form-group">
                         <label class="custom-file">
@@ -52,30 +52,33 @@
 <table class="table table-sm">
 <thead style="color:#fff;" class="thead-inverse">
 	<tr>
-		<th>Current jobs</th>
-		<th>Status</th>
-		<th>Uploaded</th>
-		<th>Time in Queue</th>
-		<th>User</th>
+		<th class="th-cus">Current jobs</th>
+		<th class="th-cus">Status</th>
+		<th class="th-cus">Uploaded</th>
+		<th class="th-cus">Time in Queue (H/M/S)</th>
+		<th class="th-cus">User</th>
 	</tr>
 </thead>
 <tbody>
 	{% for thread in threads %}
 	<tr>
 		<td>{{thread.name}}</td>
-		<td>{{thread.state}}</td>
+		<td>{{thread.state}} {{thread.progress}}%</td>
 		<td>{{thread.startdate}}</td>
-		<td>{{thread.uptime}}s</td>
+		<td>{{thread.uptime}}</td>
 		<td>{{thread.user}}</td>
 	</tr>
 	{% endfor %}
 </tbody>
 </table>
-
-
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<!--
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 
+<script type="text/javascript" src="{% static 'classy/js/bootstrap-uploadprogress.js' %}"></script>
+<script>$('#uploadform').uploadprogress({redirect_url: '/uploader'});</script>
 </body>
 </html>

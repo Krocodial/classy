@@ -14,11 +14,11 @@ class thread:
 		self.state = state
 		self.uptime = 0
 		self.user = user
+		self.progress = 0
 
 class advancedSearch(forms.Form):
 	
 	classi_choices = (
-		('', 'All (default)'),
 		('Unclassified', 'Unclassified'),
 		('PUBLIC', 'PUBLIC'),
 		('CONFIDENTIAL', 'CONFIDENTIAL'),
@@ -30,15 +30,25 @@ class advancedSearch(forms.Form):
 	schema = forms.CharField(required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 	table = forms.CharField(required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 	column = forms.CharField(required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-	classi = forms.ChoiceField(required=False, choices=classi_choices, widget=forms.Select(attrs={'class': 'form-control'}))
+	#classi = forms.ChoiceField(required=False, choices=classi_choices, widget=forms.Select(attrs={'class': 'form-control'}))
+	classi = forms.MultipleChoiceField(required=False, choices=classi_choices, widget=forms.SelectMultiple(attrs={'class':'form-control'}))
+
 	query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))
 	state_choices = (
-		('', 'Active/Pending (default)'),
 		('Inactive', 'Inactive'),
 		('Active', 'Active'),
 		('Pending', 'Pending'),
 	)
 	stati = forms.MultipleChoiceField(required=False, choices=state_choices, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+	#size for pagination
+	size_choices = (
+		(10, '10'),
+		(25, '25'),
+		(50, '50'),
+		(100, '100'),
+	)
+	size = forms.ChoiceField(required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm'}))
+
 
 class loginform(forms.Form):
 	username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={
