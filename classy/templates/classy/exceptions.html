@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>Logs</title>
+
+{% load static %}
+<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+
+{% include 'classy/head.html' %}
+
+</head>
+
+<body id="bootstrapoverride">
+{% include 'classy/navbar.html' %}
+{% include 'classy/pagi.html' %}
+<table class="table">
+<thead>
+	<tr>
+		<th>ID</th>
+		<th>Datasource</th>
+		<th>Schema</th>
+		<th>Table</th>
+		<th>Column</th>
+		<th>Classification</th>
+		<th>User</th>
+		<th>Creation Date</th>
+	</tr>
+</thead>
+<tbody>
+	{% for tuple in queryset %}
+	<tr>
+		<td>{{tuple.classy.id}}</td>
+		<td>{{tuple.classy.datasource_description}}</td>
+		<td>{{tuple.classy.schema}}</td>
+		<td>{{tuple.classy.table_name}}</td>
+		<td>{{tuple.classy.column_name}}</td>
+		<td>{{tuple.classy.classification_name}}</td>
+		<td>{{tuple.classy.created_by}}</td>
+		<td>{{tuple.classy.creation_date}}</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+
+{% include 'classy/pagi.html' %}
+
+</body>
+</html>

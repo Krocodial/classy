@@ -5,6 +5,8 @@ td {
 	-webkit-user-select: none; /* Webkit (Safari, Chrome) */
 }
 
+{% load static %}
+
 #wheel {
     display:    none;
     position:   fixed;
@@ -14,7 +16,7 @@ td {
     height:     100%;
     width:      100%;
     background: rgba( 255, 255, 255, .6 ) 
-                url('images/ajax-loader.gif') 
+                url('https://loading.io/spinners/spookyghost/index.spooky-ghost-ajax-preloader.svg') 
                 50% 50% 
                 no-repeat;
 }

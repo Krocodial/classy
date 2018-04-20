@@ -130,21 +130,22 @@ var config = {
 			pointBackgroundColor: '#94778B',
 			pointBorderColor: '#fff',
 			pointHoverBorderColor: '#94778B',
-                        data: [
+                        data: 
+				{{unc}}/*
                                 {% for val in unc %}
                                 {{val.count}},
-                                {% endfor %}
-                        ],
+                                {% endfor %}*/
+                        ,
                         fill: 'origin',
                         }, {
                         label: 'Confidential',
                         backgroundColor: 'rgb(160,204,218, 0.2)',
                         borderColor: '#A0CCDA',
-                        data: [
+                        data: {{conf}}/*[
                                 {% for val in conf %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Public',
@@ -153,41 +154,41 @@ var config = {
 			pointBackgroundColor: '#7CE577',
 			pointBorderColor: '#fff',
 			pointHoverBorderColor: '#7CE577',
-                        data: [
+                        data: {{pub}}/*[
                                 {% for val in pub %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Protected A',
                         backgroundColor: 'rgb(233,206,44, 0.2)',
                         borderColor: '#E9CE2C',
-                        data: [
+                        data: {{prota}}/*[
                                 {% for val in prota %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Protected B',
                         backgroundColor: 'rgb(222,84,30, 0.2)',
                         borderColor: '#DE541E',
-                        data: [
+                        data: {{protb}}/*[
                                 {% for val in protb %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Protected C',
 			 backgroundColor: 'rgb(191,33,30, 0.2)',
                         borderColor: '#BF211E',
-                        data: [
+                        data: {{protc}}/*[
                                 {% for val in protc %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }]
                 },

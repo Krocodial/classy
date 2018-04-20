@@ -25,8 +25,15 @@ $(document).on('click', '.remo', function() {
 	row.remove();
 });
 
-$(document).on('click', '.subby', function() {
+$body = $('body');
 
+/*$(document).on({
+	ajaxStart: function() {	$body.addClass('loading'); },
+	ajaxStop: function() { $body.removeClass('loading'); }
+});*/
+
+$(document).on('click', '.subby', function() {
+	$body.addClass('loading');
 
 	var tmp = event.target.id;
 	$.ajax({
@@ -37,16 +44,32 @@ $(document).on('click', '.subby', function() {
 
 		success: function(data){
 			if(data.status == 1) {
-				console.log(tmp);
 				$('#succ').submit();
-				//location.reload(true);
-				
 			} else {
-				$('#faig').submit();
-				console.log('failure');
-				//location.reload(true);
+				$('#fail').submit();
 			}
 		}
 	});
 
 });
+
+$(document).on('click', '.deny', function() {
+	$body.addClass('loading');
+	var tmp = event.target.id;
+	$.ajax({
+		type: 'POST',
+		url: 'review',
+		traditional: true,
+		data: {'csrfmiddlewaretoken': csrftoken, 'group': event.target.id},
+
+		success: function(data) {
+			if(data.status == 1) {
+				$('#succ').submit();
+			} else {
+				$('#fail').submit();
+			}
+		}
+	});
+});
+		
+

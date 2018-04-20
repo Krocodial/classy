@@ -1,7 +1,7 @@
 import io
 import csv
 from django.core import files
-from .models import classification, classification_logs
+from .models import classification, classification_logs, classification_exception
 from .forms import ClassificationForm
 import re
 import multiprocessing, time, signal
@@ -67,13 +67,12 @@ def create_thread(request, lock, th, threads, user):
 	lock.acquire()	
 
 	inp = request.FILES['file']
-
 	if(inp.closed):
                 threads.remove(th)
                 lock.release()
                 return
-
-	name = request.FILES['file'].name
+	
+	name = inp.name
 	name = spaces.sub('_', name)
 	fs = FileSystemStorage()
 	filename = fs.save(name, inp)
@@ -81,22 +80,23 @@ def create_thread(request, lock, th, threads, user):
 	th.state = 'active'
 
 	try:
-		row_count = sum(1 for i in csv.reader(open(uploaded_file_url)))		
+		
+		row_count = sum(1 for i in csv.reader(open(uploaded_file_url)))	
 		row_count = int(row_count/100)
 		if row_count <= 0:
-			row_count = 1
-
+			row_count = 1	
 		reader = csv.DictReader(open(uploaded_file_url))
 		counter = 0
 		for row in reader:
 			counter = counter + 1
 			th.progress = str(counter//row_count)
-			data_list = re.split(':', row['Datasource Description'])
+			data_list = re.split(':', row['Datasource Description'])	
 			if not classification.objects.filter(
 			schema__exact=row['Schema'], 
 			table_name__exact=row['Table Name'], 
 			column_name__exact=row['Column Name'], 
-			datasource_description=data_list[3]):
+			datasource_description=str.strip(data_list[3])):
+				
 				data = {}
 				data['classification_name'] = row['Classification Name']
 				data['schema'] = row['Schema']
@@ -110,15 +110,19 @@ def create_thread(request, lock, th, threads, user):
 					form = ClassificationForm(data)
 					if form.is_valid():
 						tmp = form.save()
-						log = classification_logs(classy_id = tmp.id, action_flag=2, n_classification=row['Classification Name'], o_classification=row['Classification Name'], user_id = user, state='Active')
+						log = classification_logs(classy_id = tmp.id, action_flag=2, n_classification=row['Classification Name'], o_classification=row['Classification Name'], user_id = user, state='Active', approved_by='N/a')
 						log.save()
+						if row['Classification Name'] != 'Unclassified':
+							e = classification_exception(classy=tmp)
+							e.save()
 					else:
 						print(form.errors)
 				except Exception as e:
 					print(e)
 					pass
+		
 		print('finished')
-		inp.close()
+		f.close()
 		fs.delete(filename)
 		threads.remove(th)
 		lock.release()

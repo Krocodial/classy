@@ -34,7 +34,6 @@ class classification(models.Model):
     datasource_description = models.CharField(max_length=200, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     created_by = models.CharField(max_length=50, null=True)
-
     state_choices = (
     ('Active', 'Active'),
     ('Inactive', 'Inactive'),
@@ -45,6 +44,8 @@ class classification(models.Model):
 
     #date_added = models.DateTimeField(auto_now_add=True)
     #date_last_updated = models.DateTimeField(auto_now=True)
+class classification_exception(models.Model):
+	classy = models.ForeignKey(classification, on_delete=models.CASCADE)
 
 class classification_logs(models.Model):
 	classy = models.ForeignKey(classification, on_delete=models.CASCADE)
@@ -54,6 +55,7 @@ class classification_logs(models.Model):
 	o_classification = models.CharField(max_length=50, null=True)
 	user_id = models.CharField(max_length=100, null=True)
 	state = models.CharField(max_length=15, null=True)
+	approved_by = models.CharField(max_length=50, null=True)
 
 class classification_review_groups(models.Model):
 	user = models.CharField(max_length=50, null=True)

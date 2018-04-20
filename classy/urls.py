@@ -19,4 +19,5 @@ urlpatterns = [
 	path('review', views.review, name='review'),
 	path('exceptions', views.exceptions, name='exceptions'),
 	path('log_list', views.log_list, name='log_list'),
+	path('download', views.download, name='download'),
 ]
