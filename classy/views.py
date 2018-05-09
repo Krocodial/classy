@@ -38,10 +38,10 @@ def download(request):
 	if form.is_valid():
 		if(form.cleaned_data['query'] != ''):
 			value = form.cleaned_data['query']
-			cols = classification.objects.filter(column_name__contains=value);
-			tabs = classification.objects.filter(table_name__contains=value);
-			schemas = classification.objects.filter(schema__contains=value);
-			data = classification.objects.filter(datasource_description__contains=value);
+			cols = classification.objects.filter(column_name__icontains=value)
+			tabs = classification.objects.filter(table_name__icontains=value)
+			schemas = classification.objects.filter(schema__icontains=value)
+			data = classification.objects.filter(datasource_description__icontains=value)
 			queryset = cols | tabs | schemas | data
 			queryset = queryset.exclude(state__exact='Inactive')
 		else:
@@ -55,7 +55,7 @@ def download(request):
 				stati = ['Active', 'Pending']
 			if len(classi) == 0:
 				classi = options
-			sql = classification.objects.filter(column_name__contains=co, table_name__contains=tab, schema__contains=sch, datasource_description__contains=ds, classification_name__in=classi, state__in=stati);
+			sql = classification.objects.filter(column_name__icontains=co, table_name__icontains=tab, schema__icontains=sch, datasource_description__icontains=ds, classification_name__in=classi, state__in=stati)
 			queryset = sql
 		queryset = queryset.order_by('datasource_description', 'schema', 'table_name')
 	
@@ -64,7 +64,7 @@ def download(request):
 
 		writer = csv.writer(response)
 		writer.writerow(['classification', 'schema', 'table', 'column', 'category', 'datasource', 'creation date', 'created by', 'state'])
-		
+		print(queryset)		
 		for tuple in queryset:
 			writer.writerow([tuple.classification_name, tuple.schema, tuple.table_name, tuple.column_name, tuple.category, tuple.datasource_description, tuple.creation_date, tuple.created_by, tuple.state])
 		return response
