@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Data</title>
+
+{% load static %}
+<link rel="shortcut icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/watching.jpg' %}" type="image/x-icon">
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.16/datatables.min.css"/>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'classy/style.css' %}"/>
+
+<!--
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.1.2/css/buttons.dataTables.min.css"/> 
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.1.2/css/select.dataTables.min.css"/> 
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.0.2/css/responsive.dataTables.min.css"/>
+-->
+
+</head>
+<body id="bootstrap-override">
+
+<nav class="navbar navbar-toggleable-sm navbar-light bg-faded">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="/home">Classy</a>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav" style="color: #fff;">
+      <li class="nav-item">
+        <a class="nav-link" href="/data">Data <span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="/uploader">Upload </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="/user_logout">Logout </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/admin">Admin</a>
+      </li>
+    </ul>
+</div>
+</nav>
+<br/>
+
+<div class="container-fluid">
+<form class="form-group row" style="margin-bottom: 0px;" action="search" method="GET">
+        <div class="col">
+        </div>
+        <div class="col-sm-8">
+	<div class="input-group">
+	{% csrf_token %}
+	{{form.query}}
+        <!--<input type="text" class="form-control" name="query" aria-describedby="descrip" placeholder="What would you like to search for?"/>
+        --><span class="input-group-btn">
+		<button type="submit" class="btn btn-success" type="button">Search</button>
+	</span>
+	</div>
+	<small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
+	<nav class="nav justify-content-center">
+		<a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
+	</nav>	
+	</div>
+        <div class="col">
+	
+	<!--<button class="btn btn-secondary" id="subby" data-toggle="modal" data-target="#confModal">Do not press</button>
+        --><!--<button type="submit" class="btn btn-success">Search</button>-->
+        </div>
+
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalLab">Advanced Search</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="search" method="GET">
+			<div class="modal-body">
+			
+			<div class="form-group">
+			<label for="data_source">Datasource</label>
+			{{form.data_source}}
+			</div>
+			<div class="form-group">
+			<label for="schema">Schema</label>
+			{{form.schema}}
+			</div>
+			<div class="form-group">
+			<label for="table">Table</label>
+			{{form.table}}
+			</div>
+			<div class="form-group">
+			<label for="column">Column</label>
+			{{form.column}}
+			</div>
+			<div class="form-group">
+				<label class="mr-sm-2" for "customSel">Classification</label>
+				{{form.classi}}<!--
+
+
+				<select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="customSel">
+					<option selected>Any</option>
+					<option value="1">Protected A</option>
+					<option value="2">Protected B</option>
+					<option value="3">Confidential</option>
+					<option value="4">Unclassified</option>
+				</select>-->
+			</div>
+			</div>
+			<div class="modal-footer">
+				<!--<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				-->
+				<button type="submit" class="btn btn-success">Search</button>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" id="modalBo">Confirm changes</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+			</div>
+                        <form action="modi">
+                        <div class="modal-body">
+			<h6 class="text-center">Pending modifications</h6>
+			<table class="table table-sm table-hover" id="modTable">
+			<thead class="thead thead-sm thead-inverse">
+				<tr>
+					<th class="th-cus">ID</th>
+					<th class="th-cus">New Classification</th>
+					<th class="actions th-cus">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			</table><br/>
+			<h6 class="text-center">Pending deletions</h6>
+			<table class="table table-sm table-hover" id="delTable">
+			<thead class="thead thead-inverse">
+				<tr>
+					<th class="th-cus">ID</th>
+					<th class="actions th-cus">Actions</th>
+				</tr>	
+			</thead>
+			<tbody>
+			</tbody>
+			</table>
+
+                        </div>
+                        <div class="modal-footer">
+                        <!--<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                        -->
+			<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
+                        </div>
+                        </form>
+                </div>
+        </div>
+</div>
+</form>
+</div>
+
+<div class="row"><div class="col-sm-12 col-md-6"><div class="dataTables_length" id="data_length"><label>Show <select name="data_length" aria-controls="data" class="form-control form-control-sm"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label></div></div><div class="col-sm-12 col-md-6"></div></div>
+
+<table id="data" class="table table-sm">
+<thead>
+	<tr>
+		<th>test</th>
+	</tr>
+</thead>
+<tbody>
+
+	{% for i in queryset %}
+	<tr id='{{forloop.counter}}'>
+		<td>slkd;fj</td>
+	</tr>
+	{% endfor %}
+
+</tbody>
+</table>
+
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-3">
+<button class="btn btn-success btn-sm" id="subby" data-toggle="modal" data-target="#confModal">Commit Changes</button>
+</div>
+<div class="col-sm-8"></div>
+</div>
+<br/>
+
+
+
+<!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+-->
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<!--<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.16/r-2.2.1/datatables.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/1.1.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.1.2/js/dataTables.select.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.0.2/js/dataTables.responsive.min.js"></script>
+
+<script src="{% static 'classy/custom.js' %}"></script>
+
+<script>
+
+var dataSet = [
+	{% for tuple in queryset %}
+	['{{tuple.datasource_description}}', '{{tuple.schema}}', '{{tuple.table_name}}', '{{tuple.column_name}}'],
+	{% endfor %}
+];
+</script>
+</body>
+</html>

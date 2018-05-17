@@ -1,0 +1,16 @@
+<!doctype html>
+<head>
+<title>register</title>
+</head>
+<body>
+	<form action='register' method='POST'/>
+	<fieldset>
+	<legend>Create a user account</legend>
+		{% csrf_token %}
+		<input type='text' name='username' placeholder='username'/>
+		<input type='password' name='password' placeholder='password'/>
+		<input type='submit' value='submit'/>
+	</fieldset>
+	</form>
+</body>
+</html>
