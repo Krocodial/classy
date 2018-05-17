@@ -28,7 +28,7 @@
 <div class="container">
 <div class="row">
   <div class="col-lg-12">
-    <h3 class="text-center mt-4">Welcome {{user}}</h3>
+    <h2 class="display-4 text-center mt-4">Welcome {{user}}</h2>
 	<!--<canvas id="lineChart"></canvas>-->		
   </div>
 </div>
@@ -43,7 +43,7 @@
 <div class="row">
 <div class="col-sm-7">
   <h2 class="mt-4">About this application</h2>
-  <p>The Data Security Classification application, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
+  <p>The Data Security Classification repository, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
 the purpose of keeping an inventory of the data that is managed, and where that data is stored. This tool will allow users to view high level information about 
   tables, modify table classifications, upload new information, and flag deprecated data</p>
 
@@ -69,7 +69,7 @@ the purpose of keeping an inventory of the data that is managed, and where that 
       <p class="card-text">Lost and not sure where to start? This page will give you a quick overview of DSC's main functionality.</p>
     </div>
     <div class="card-footer">
-      <a href="#" class="btn btn-primary">Find Out More!</a>
+      <a href="tutorial" target="_blank" class="btn btn-info">Tutorial</a>
     </div>
   </div>
 </div>
@@ -81,7 +81,7 @@ the purpose of keeping an inventory of the data that is managed, and where that 
       <p class="card-text">Confused as to what the different classifications mean? Take a look at our Classification guide for examples, and in-depth descriptions.</p>
     </div>
     <div class="card-footer">
-      <a href="#" class="btn btn-primary">Find Out More!</a>
+      <a href="" class="btn btn-info">Classifications</a>
     </div>
   </div>
 </div>
@@ -93,7 +93,7 @@ the purpose of keeping an inventory of the data that is managed, and where that 
       <p class="card-text">Found an issue in this application? Please take the time to send me a message using the link below.</p>
     </div>
     <div class="card-footer">
-      <a href="#" class="btn btn-primary">Find Out More!</a>
+      <a href="https://github.com/Krocodial/DSC/issues" target="_blank" class="btn btn-info">Bugtracker</a>
     </div>
   </div>
 </div>
@@ -125,69 +125,70 @@ var config = {
                 labels: {{dates|safe}},
                 datasets: [{
                         label: 'Unclassified',
-                        backgroundColor: 'rgb(148,119,139, 0.2)',
+                        backgroundColor: 'rgb(148,119,139, 0.3)',
                         borderColor: '#94778B',
 			pointBackgroundColor: '#94778B',
 			pointBorderColor: '#fff',
 			pointHoverBorderColor: '#94778B',
-                        data: [
+                        data: 
+				{{unc}}/*
                                 {% for val in unc %}
                                 {{val.count}},
-                                {% endfor %}
-                        ],
+                                {% endfor %}*/
+                        ,
                         fill: 'origin',
                         }, {
                         label: 'Confidential',
-                        backgroundColor: 'rgb(160,204,218, 0.2)',
+                        backgroundColor: 'rgb(160,204,218, 0.3)',
                         borderColor: '#A0CCDA',
-                        data: [
+                        data: {{conf}}/*[
                                 {% for val in conf %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Public',
-                        backgroundColor: 'rgb(124,229,119, 0.2)',
+                        backgroundColor: 'rgb(124,229,119, 0.3)',
                         borderColor: '#7CE577',
 			pointBackgroundColor: '#7CE577',
 			pointBorderColor: '#fff',
 			pointHoverBorderColor: '#7CE577',
-                        data: [
+                        data: {{pub}}/*[
                                 {% for val in pub %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Protected A',
-                        backgroundColor: 'rgb(233,206,44, 0.2)',
+                        backgroundColor: 'rgb(233,206,44, 0.3)',
                         borderColor: '#E9CE2C',
-                        data: [
+                        data: {{prota}}/*[
                                 {% for val in prota %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Protected B',
-                        backgroundColor: 'rgb(222,84,30, 0.2)',
+                        backgroundColor: 'rgb(222,84,30, 0.3)',
                         borderColor: '#DE541E',
-                        data: [
+                        data: {{protb}}/*[
                                 {% for val in protb %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }, {
                         label: 'Protected C',
-			 backgroundColor: 'rgb(191,33,30, 0.2)',
+			 backgroundColor: 'rgb(191,33,30, 0.3)',
                         borderColor: '#BF211E',
-                        data: [
+                        data: {{protc}}/*[
                                 {% for val in protc %}
                                 {{val.count}},
                                 {% endfor %}
-                        ],
+                        ]*/,
                         fill: '-1',
                         }]
                 },
@@ -201,7 +202,7 @@ var config = {
                         responsive: false,
                         title: {
                                 display: true,
-				text: 'Past 10 days of Activity',
+				text: 'Activity over last 2 months',
 				position: 'top',
 				fontSize: '13'
                         },
@@ -218,7 +219,7 @@ var config = {
                                         display: true,
                                         scaleLabel: {
                                                 display: true,
-                                                labelString: 'Day'
+                                                labelString: 'Date'
                                         }
                                 }],
                                 yAxes: [{

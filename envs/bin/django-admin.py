@@ -1,4 +1,4 @@
-#!/home/krocodial/classy/envs/bin/python3
+#!/var/www/classy/envs/bin/python3.5
 from django.core import management
 
 if __name__ == "__main__":

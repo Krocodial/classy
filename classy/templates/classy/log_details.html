@@ -38,7 +38,7 @@
 <p><strong>Column:</strong> {{obj.column_name}}</p>
 <br/>
 <p><strong>Creation Date:</strong> {{obj.creation_date}}</p>
-<p><strong>User:</strong> {{obj.created_by}}</p>
+<p><strong>Created By:</strong> {{obj.created_by}}</p>
 
 </div>
 <div class="col-sm-8">
@@ -48,6 +48,7 @@
 		<th>Date</th>
 		<th>Action</th>
 		<th>User</th>
+		<th>Approver</th>
 		<th>Old Classification</th>
 		<th>New Classification</th>
 		<th>Status</th>
@@ -65,6 +66,7 @@
 				<td>CREATE</td>
 			{% endif %}
 			<td>{{item.user_id}}</td>
+			<td>{{item.approved_by}}</td>
 			<td>{{item.o_classification}}</td>
 			<td>{{item.n_classification}}</td>
 			<td>{{item.state}}</td>

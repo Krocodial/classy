@@ -47,6 +47,50 @@
 
 <form class="form-group" action="search">
 
+<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+                <div class="modal-header">
+                        <h5 class="modal-title" id="modalLab">Advanced Search</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                </div>
+<!--                    <form action="search" method="GET">-->
+                <div class="modal-body">
+                <div class="form-group">
+                        <label for="data_source">Datasource</label>
+                        {{form.data_source}}
+                </div>
+                <div class="form-group">
+                        <label for="schema">Schema</label>
+                        {{form.schema}}
+                </div>
+                <div class="form-group">
+                        <label for="table">Table</label>
+                        {{form.table}}
+                </div>
+                <div class="form-group">
+                        <label for="column">Column</label>
+                        {{form.column}}
+                </div>
+                <div class="form-group">
+                        <label class="mr-sm-2" for "customSel">Classification</label>
+                        {{form.classi}}
+                </div>
+                <div class="form-group">
+                        <label class="mr-sm-2">State</label>
+                        {{form.stati}}
+                </div>
+                </div>
+                <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Search</button>
+                </div>
+<!--                    </form>-->
+        </div>
+</div>
+</div>
+
 <div class="container-fluid">
 <div class="row">
         <div class="col-sm-2">
@@ -84,193 +128,211 @@
 	<nav class="nav justify-content-center">
 		<a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
 	</nav>	
-<!--	</form>-->
+	</form>
 	</div>
-        <div class="col"></div>
-</div>
-</div>
-
-<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="modalLab">Advanced Search</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-<!--			<form action="search" method="GET">-->
-			<div class="modal-body">	
-			<div class="form-group">
-				<label for="data_source">Datasource</label>
-				{{form.data_source}}
-			</div>
-			<div class="form-group">
-				<label for="schema">Schema</label>
-				{{form.schema}}
-			</div>
-			<div class="form-group">
-				<label for="table">Table</label>
-				{{form.table}}
-			</div>
-			<div class="form-group">
-				<label for="column">Column</label>
-				{{form.column}}
-			</div>
-			<div class="form-group">
-				<label class="mr-sm-2" for "customSel">Classification</label>
-				{{form.classi}}
-			</div>
-			<div class="form-group">
-				<label class="mr-sm-2">State</label>
-				{{form.stati}}
-			</div>
-			</div>
-			<div class="modal-footer">
-				<button type="submit" class="btn btn-success">Search</button>
-			</div>
-<!--			</form>-->
-		</div>
-	</div>
-</div>
-
+        <div class="col">
+	{% if queryset %}
+	<form action="download" method="post">
+{% csrf_token %}
+<input type="hidden" name="schema" value='{{sch}}'>
+<input type="hidden" name='query' value='{{query}}'>
+<input type="hidden" name='data_source' value='{{ds}}'>
+<input type="hidden" name='table' value='{{tab}}'>
+<input type="hidden" name='column' value='{{col}}'>
+{% for i in classi %}
+<input type="hidden" name='classi' value='{{i}}'>
+{% endfor %}
+{% for st in stati %}
+<input type="hidden" name='stati' value='{{st}}'>
+{% endfor %}
+<button type="submit" class="btn btn-info btn-sm float-right" style="position: absolute; bottom: 0;">Export results</button>
 </form>
+{% endif %}
 
+</div>
+</div>
+</div>
+
+<!--<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title" id="modalLab">Advanced Search</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+			<form action="search" method="GET">
+		<div class="modal-body">	
+		<div class="form-group">
+			<label for="data_source">Datasource</label>
+			{{form.data_source}}
+		</div>
+		<div class="form-group">
+			<label for="schema">Schema</label>
+			{{form.schema}}
+		</div>
+		<div class="form-group">
+			<label for="table">Table</label>
+			{{form.table}}
+		</div>
+		<div class="form-group">
+			<label for="column">Column</label>
+			{{form.column}}
+		</div>
+		<div class="form-group">
+			<label class="mr-sm-2" for "customSel">Classification</label>
+			{{form.classi}}
+		</div>
+		<div class="form-group">
+			<label class="mr-sm-2">State</label>
+			{{form.stati}}
+		</div>
+		</div>
+		<div class="modal-footer">
+			<button type="submit" class="btn btn-success">Search</button>
+		</div>
+			</form>
+	</div>
+</div>
+</div>
+</form>
+-->
 <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <h5 class="modal-title" id="modalBo">Confirm changes</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                                </button>
-			</div>
-                        <!--<form action="modi">-->
-                        <div class="modal-body">
-			<h6 class="text-center">Pending modifications</h6>
-			<table class="table table-sm table-hover" id="modTable">
-			<thead class="thead thead-sm thead-inverse">
-				<tr>
-					<th class="th-cus">ID</th>
-					<th class="th-cus">New Classification</th>
-					<th class="actions th-cus">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-			</table><br/>
-			<h6 class="text-center">Pending deletions</h6>
-			<table class="table table-sm table-hover" id="delTable">
-			<thead class="thead thead-inverse">
-				<tr>
-					<th class="th-cus">ID</th>
-					<th class="actions th-cus">Actions</th>
-				</tr>	
-			</thead>
-			<tbody>
-			</tbody>
-			</table>
+<div class="modal-dialog modal-dialog-centered" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title" id="modalBo">Confirm changes</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<!--<form action="modi">-->
+		<div class="modal-body">
+		<h6 class="text-center">Pending modifications</h6>
+		<table class="table table-sm table-hover" id="modTable">
+		<thead class="thead thead-sm thead-inverse">
+			<tr>
+				<th class="th-cus">ID</th>
+				<th class="th-cus">New Classification</th>
+				<th class="actions th-cus">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+		</table><br/>
+		<h6 class="text-center">Pending deletions</h6>
+		<table class="table table-sm table-hover" id="delTable">
+		<thead class="thead thead-inverse">
+			<tr>
+				<th class="th-cus">ID</th>
+				<th class="actions th-cus">Actions</th>
+			</tr>	
+		</thead>
+		<tbody>
+		</tbody>
+		</table>
 
-                        </div>
-                        <div class="modal-footer">
-                        <!--<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
-                        -->
-			<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
-                        </div>
-                        <!--</form>-->
-                </div>
-        </div>
+		</div>
+		<div class="modal-footer">
+		<!--<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+		-->
+		<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
+		</div>
+		<!--</form>-->
+	</div>
+</div>
 </div>
 
 <div class="modal fade" id="batchModal" tabindex="-1" role="dialog" aria-labelledby="batchH" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-	<div class="modal-content">
-	<div class="modal-header">
-		<h5 class="modal-title" id="batchH">Change Classification</h5>
-		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	<div class="modal-body">
-	<label for="newC"><strong>Classification</strong></label>
-	<select class="form-control form-control-sm" id="newC">
-                         <option selected>Please select a new classification...</option>
-                         {% for op in options %}
-                         <option value="{{forloop.counter}}">{{op}}</option>
-                         {% endfor %}
-        </select>
-	</div>
-	<div class="modal-footer">
-	<p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
-	<button type="submit" id="changeC" class="btn btn-success" data-dismiss="modal">Change</button>
-	</div>
-	</div>
-	</div>
+<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header">
+	<h5 class="modal-title" id="batchH">Change Classification</h5>
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<div class="modal-body">
+<label for="newC"><strong>Classification</strong></label>
+<select class="form-control form-control-sm" id="newC">
+		 <option selected>Please select a new classification...</option>
+		 {% for op in options %}
+		 <option value="{{forloop.counter}}">{{op}}</option>
+		 {% endfor %}
+</select>
+</div>
+<div class="modal-footer">
+<p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
+<button type="submit" id="changeC" class="btn btn-success" data-dismiss="modal">Change</button>
+</div>
+</div>
+</div>
 </div>
 
 <table class="table table-sm data">
-	<thead class="thead-inverse">
-		<tr>
-			<th></th>
-			<th class='th-cus'>Datasource</th>
-			<th class='th-cus'>Schema</th>
-			<th class='th-cus'>Table</th>
-			<th class='th-cus'>Column</th>
-		</tr>
-	</thead>
+<thead class="thead-inverse">
+	<tr>
+		<th></th>
+		<th class='th-cus'>Datasource</th>
+		<th class='th-cus'>Schema</th>
+		<th class='th-cus'>Table</th>
+		<th class='th-cus'>Column</th>
+	</tr>
+</thead>
 
-	<tbody id="contentArea">
-		{% for tuple in queryset %}
-		<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}}" id="{{forloop.counter}}">
-			<td>
-				<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
-                                        class="accordion-toggle">
-				<button data-toggle="button" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align">
-				<img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></use>
-				</button>	
-				</div>
-			</td>
-			<td>{{tuple.datasource_description}}</td>
-			<td>{{tuple.schema}}</td>
-			<td>{{tuple.table_name}}</td>
-			<td>{{tuple.column_name}}</td>
-		</tr>
-		<tr class="hiddenRows{{forloop.counter}}">
-			<td colspan="5">
-				<div class="collapse row{{forloop.counter}} accordion-body">
-				<div class="row">
-				<div class="col-sm-1"></div>
-				<div class="col-sm-2">
-					<p><strong>Created by: </strong> {{tuple.created_by}}</p>
-				</div>
-				<div class="col-sm-2">
-				<a class="cus-link" href="/data/{{tuple.id}}" target="_blank">Detailed View</a>
-				</div>
-				<div class="col-sm-4">
-				<form class="form-inline">
-				<label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
-				<select class="form-control form-control-sm cla"
-					id="{{forloop.counter}}">
-					<option selected>{{tuple.classification_name}}</option>
-					{% for op in options %}
-					<option value="{{forloop.counter}}">{{op}}</option>
-					{% endfor %}
-				</select>
-				</form>
-				</div>
-				<div class="col-sm-2">
-					<button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
-					
-				<input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
-				value="{{tuple.id}}"/>
-				</div>
-				<div class="col-sm-1"></div>
-				</div>
-				</div>
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
+<tbody id="contentArea">
+	{% for tuple in queryset %}
+	<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}}" id="{{forloop.counter}}">
+		<td>
+			<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
+				class="accordion-toggle">
+			<button data-toggle="button" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align">
+			<img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></use>
+			</button>	
+			</div>
+		</td>
+		<td>{{tuple.datasource_description}}</td>
+		<td>{{tuple.schema}}</td>
+		<td>{{tuple.table_name}}</td>
+		<td>{{tuple.column_name}}</td>
+	</tr>
+	<tr class="hiddenRows{{forloop.counter}}">
+		<td colspan="5">
+			<div class="collapse row{{forloop.counter}} accordion-body">
+			<div class="row">
+			<div class="col-sm-1"></div>
+			<div class="col-sm-2">
+				<p><strong>Created by: </strong> {{tuple.created_by}}</p>
+			</div>
+			<div class="col-sm-2">
+			<a class="cus-link" href="/data/{{tuple.id}}" target="_blank">Detailed View</a>
+			</div>
+			<div class="col-sm-4">
+			<form class="form-inline">
+			<label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
+			<select class="form-control form-control-sm cla"
+				id="{{forloop.counter}}">
+				<option selected>{{tuple.classification_name}}</option>
+				{% for op in options %}
+				<option value="{{forloop.counter}}">{{op}}</option>
+				{% endfor %}
+			</select>
+			</form>
+			</div>
+			<div class="col-sm-2">
+				<button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
+				
+			<input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
+			value="{{tuple.id}}"/>
+			</div>
+			<div class="col-sm-1"></div>
+			</div>
+			</div>
+		</td>
+	</tr>
+	{% endfor %}
+</tbody>
 
 </table>
 
@@ -280,38 +342,38 @@
 <div class="col-sm-8">
 
 <nav aria-label="Page navigation example">
-  <ul class="pagination">
+<ul class="pagination">
 {% if not queryset.has_previous %}
-    <li class="page-item disabled"><a class="page-link" href="#">&laquo; First ...</a></li>
-    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+<li class="page-item disabled"><a class="page-link" href="#">&laquo; First ...</a></li>
+<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
 {% else %}
-    <li class="page-item"><a class="page-link" href="?page=1&size={{size}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
-                &column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">&laquo; First ...</a></li>
-    <li class="page-item"><a class="page-link" href="?page={{ queryset.previous_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}&
-                schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.previous_page_number}}</a></li>
+<li class="page-item"><a class="page-link" href="?page=1&size={{size}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
+	&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">&laquo; First ...</a></li>
+<li class="page-item"><a class="page-link" href="?page={{ queryset.previous_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}&
+	schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.previous_page_number}}</a></li>
 {% endif %}
 
-    <li class="page-item active"><a class="page-link" href="#">{{queryset.number}}</a></li>
+<li class="page-item active"><a class="page-link" href="#">{{queryset.number}}</a></li>
 
 {% if not queryset.has_next %}
-    <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-    <li class="page-item disabled"><a class="page-link" href="#">... {{queryset.paginator.num_pages}} &raquo;</a></li>
+<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+<li class="page-item disabled"><a class="page-link" href="#">... {{queryset.paginator.num_pages}} &raquo;</a></li>
 {% else %} 
-    <li class="page-item"><a class="page-link" href="?page={{ queryset.next_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}
-	&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.next_page_number}}</a></li>
-    <li class="page-item"><a class="page-link" href="?page={{ queryset.paginator.num_pages }}&size={{size}}&query={{query}}&data_source={{ds}}
-		&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">... {{queryset.paginator.num_pages}} &raquo;</a></li>
+<li class="page-item"><a class="page-link" href="?page={{ queryset.next_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}
+&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.next_page_number}}</a></li>
+<li class="page-item"><a class="page-link" href="?page={{ queryset.paginator.num_pages }}&size={{size}}&query={{query}}&data_source={{ds}}
+	&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">... {{queryset.paginator.num_pages}} &raquo;</a></li>
 
 {% endif %}
-  </ul>
+</ul>
 </nav>
 
 </div>
 <div class="col-sm-1">
-	<button class="btn btn-sm btn secondary" id="edito" data-toggle="modal" data-target="#batchModal">Edit Selected</button>
+<button class="btn btn-sm btn secondary" id="edito" data-toggle="modal" data-target="#batchModal">Edit Selected</button>
 </div>
 <div class="col-sm-1">
-        <button class="btn btn-success btn-sm" id="subby" data-toggle="modal" data-target="#confModal">Commit Changes</button>
+<button class="btn btn-success btn-sm" id="subby" data-toggle="modal" data-target="#confModal">Commit Changes</button>
 </div>
 </div>
 </div>

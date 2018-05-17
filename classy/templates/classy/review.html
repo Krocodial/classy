@@ -44,9 +44,11 @@
 <div class="col"></div>
 </div>
 </div>
-{% else %}
+{% endif %}
+{% if num == 0 %}
 <p class="text-center">No pending user changes</p>
 {% endif %}
+<hr/>
 <div id="accordion">
 <!--<div class="card">-->
 <!--<ul class="list-group list-group-flush">-->

@@ -4,8 +4,8 @@
 
 }
 
-.business-header{
-	color: #f5dd5d;
+#bootstrapoverride .business-header{
+	color: #fff;/*#f5dd5d;*/
 }
 
 #lineChart{
