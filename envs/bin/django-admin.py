@@ -1,4 +1,4 @@
-#!/var/www/classy/envs/bin/python3.5
+#!/var/www/classy/envs/bin/python3
 from django.core import management
 
 if __name__ == "__main__":

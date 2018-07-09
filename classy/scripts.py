@@ -122,7 +122,7 @@ def create_thread(request, lock, th, threads, user):
 					pass
 		
 		print('finished')
-		f.close()
+		#f.close()
 		fs.delete(filename)
 		threads.remove(th)
 		lock.release()
