@@ -64,14 +64,10 @@ canvas {
 	*/
 }
 
-/*#bootstrapoverride {
-
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #292b2c;
-    background-color: #fff;
-}*/
+#bootstrapoverride {
+	/*font-family: 'Dosis', sans-serif;
+	font-family: 'Roboto', sans-serif;*/
+}
 
 .navbar {
 	background-color: #417690;/*#003366;*/

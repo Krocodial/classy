@@ -54,7 +54,7 @@ ROOT_URLCONF = 'dsc.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['classy.templates.admin.classy'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,7 +123,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-MEDIA_URL = '/tmp/'
-MEDIA_ROOT = os.path.join('/tmp/')#BASE_DIR, 'tmp/')
-FILE_UPLOAD_TEMP_DIR = os.path.join('/tmp/')#BASE_DIR, 'tmp/')
+MEDIA_URL = '/tmp/'#os.path.join(BASE_DIR, 'classy/tmp/'
+FILE_UPLOAD_PERMISSIONS = 0o600
+MEDIA_ROOT = os.path.join(BASE_DIR, '/tmp/')
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, '/tmp/')
+
 
