@@ -1,21 +1,12 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Data</title>
 
+{% include 'classy/base_links.html' %}
+
 {% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
-{% include 'classy/head.html' %}
-
 </head>
 <body id="bootstrapoverride">
 
@@ -336,11 +327,15 @@
 
 </table>
 
+
+
+
 {% if queryset %}
 <div class="container-fluid">
 <div class="row">
 <div class="col-sm-8">
-
+{% include 'classy/pagi.html' %}
+<!--
 <nav aria-label="Page navigation example">
 <ul class="pagination">
 {% if not queryset.has_previous %}
@@ -367,7 +362,7 @@
 {% endif %}
 </ul>
 </nav>
-
+-->
 </div>
 <div class="col-sm-1">
 <button class="btn btn-sm btn secondary" id="edito" data-toggle="modal" data-target="#batchModal">Edit Selected</button>

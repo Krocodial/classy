@@ -2,17 +2,12 @@
 <html>
 <head>
 
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Uploads</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+{% include 'classy/base_links.html' %}
 
 {% load static %}
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-{% include 'classy/head.html' %}
 
 </head>
 <body id='bootstrapoverride'>
@@ -27,14 +22,12 @@
 <div class="col">
 </div>
 <div class="col">
+	<br/>
+	<h5 class="text-center">Upload a .CSV file</h5>
         <form action="uploader" method="POST" id="uploadform" enctype='multipart/form-data' class="form">
-                {% csrf_token %}
+		<br/>
+		{% csrf_token %}
                 <div class="form-group">
-                        <label class="custom-file">
-                                <input type="file" id="file" class="custom-file-input">
-                                <span class="custom-file-control"></span>
-                        </label>
-                        <label for="fileupload"><strong>Select csv file to upload and merge</strong></label>
 			{{form.file}}
                    <!--     <input type="file" class="form-control-file form-control-sm" name="Myfile" id="fileupload">
                 --></div>

@@ -1,57 +1,67 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Exceptions</title>
 
-<title>Logs</title>
-
+{%include 'classy/base_links.html'%}
 {% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
-{% include 'classy/head.html' %}
 
 </head>
 
 <body id="bootstrapoverride">
 {% include 'classy/navbar.html' %}
-{% include 'classy/pagi.html' %}
-<table class="table">
-<thead>
+
+<div class='container-fluid'>
+<br/>
+<div class="row">
+	<div class='col'>
+		{% include 'classy/basic_pagi.html' %}
+	</div>
+	<div class='col'>
+		<form class='form-group' action='exceptions'>
+			<div class='input-group'>
+				{{form.query}}
+				<span class='input-group-btn'>
+					<button type='submit' class='btn btn-primary btn-small' type='button'>Search</button>
+				</span>
+			</div>
+		</form>
+	</div>
+	<div class='col'></div>
+</div>
+</div>
+
+<table class="table table-sm">
+<thead style="color:#fff;" class="thead-inverse">
 	<tr>
-		<th>ID</th>
-		<th>Datasource</th>
-		<th>Schema</th>
-		<th>Table</th>
-		<th>Column</th>
-		<th>Classification</th>
-		<th>User</th>
-		<th>Creation Date</th>
+		<th class="th-cus">ID</th>
+		<th class="th-cus">Creation Date</th>
+		<th class="th-cus">Datasource</th>
+		<th class="th-cus">Schema</th>
+		<th class="th-cus">Table</th>
+		<th class="th-cus">Column</th>
+		<th class="th-cus">Classification</th>
+		<th class="th-cus">User</th>
 	</tr>
 </thead>
 <tbody>
 	{% for tuple in queryset %}
 	<tr>
 		<td>{{tuple.classy.id}}</td>
+		<td>{{tuple.classy.creation_date}}</td>
 		<td>{{tuple.classy.datasource_description}}</td>
 		<td>{{tuple.classy.schema}}</td>
 		<td>{{tuple.classy.table_name}}</td>
 		<td>{{tuple.classy.column_name}}</td>
 		<td>{{tuple.classy.classification_name}}</td>
 		<td>{{tuple.classy.created_by}}</td>
-		<td>{{tuple.classy.creation_date}}</td>
 	</tr>
 	{% endfor %}
 </tbody>
 </table>
 
-{% include 'classy/pagi.html' %}
+{% include 'classy/basic_pagi.html' %}
 
 </body>
 </html>

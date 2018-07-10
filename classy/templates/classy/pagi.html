@@ -1,25 +1,29 @@
 {% if queryset %}
-<div class="container-fluid">
-<div class="row">
-<div class="col-sm-8">
-<div class="pagination">
-    <span class="step-links">
+<nav aria-label='Page navigation'>
+        <ul class='pagination pagination-sm'>
         {% if queryset.has_previous %}
-            <a href="?page=1&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
-                &column={{co}}&classi={{classi}}">&laquo; first</a>
-            <a href="?page={{ queryset.previous_page_number }}&query={{query}}&data_source={{ds}}&
-                schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">previous</a>
+        <li class='page-item'><a class='page-link' href='?page={{queryset.previous_page_number}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>&lt; PREV</a></li>
+        <li><p>&nbsp;&nbsp;</p></li>
         {% endif %}
+        {% if first %}
+        <li class='page-item'><a class='page-link' href='?page=1&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>1</a></li>
+        <li><p>&nbsp;....&nbsp;</p></li>
+        {% endif %}
+        {% for value in pags %}
 
-        <span class="current">
-            Page {{ queryset.number }} of {{ queryset.paginator.num_pages }}.
-        </span>
+        <li class='page-item{% if value == queryset.number %} active {% endif%}'><a class='page-link' href='?page={{value}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>{{value}}</a></li>
+        {% endfor %}
+
+        {% if last %}
+        <li><p>&nbsp;....&nbsp;</p></li>
+        <li class='page-item'><a class='page-link' href='?page={{queryset.paginator.num_pages}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>{{queryset.paginator.num_pages}}</a></li>
+        {% endif %}
 
         {% if queryset.has_next %}
-            <a href="?page={{ queryset.next_page_number }}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">next</a>
-            <a href="?page={{ queryset.paginator.num_pages }}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}&classi={{classi}}">last &raquo;</a>
+        <li><p>&nbsp;&nbsp;</p></li>
+        <li class='page-item'><a class='page-link' href='?page={{queryset.next_page_number}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'> NEXT &gt;</a></li>
         {% endif %}
-    </span>
-</div>
-</div>
+        </ul>
+</nav>
+
 {% endif %}

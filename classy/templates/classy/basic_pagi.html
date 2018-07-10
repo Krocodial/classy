@@ -1,0 +1,30 @@
+{% if queryset %}
+<nav aria-label='Page navigation'>
+	<ul class='pagination pagination-sm'>
+	{% if queryset.has_previous %}
+	<li class='page-item'><a class='page-link' href='?page={{queryset.previous_page_number}}&query={{query}}'>&lt; PREV</a></li>
+	<li><p>&nbsp;&nbsp;</p></li>
+	{% endif %}
+	{% if first %}
+	<li class='page-item'><a class='page-link' href='?page=1&query={{query}}'>1</a></li>
+	<li><p>&nbsp;....&nbsp;</p></li>
+	{% endif %}
+	{% for value in pags %}
+
+	<li class='page-item{% if value == queryset.number %} active {% endif%}'><a class='page-link' href='?page={{value}}&query={{query}}'>{{value}}</a></li>
+	{% endfor %}
+					
+	{% if last %}
+	<li><p>&nbsp;....&nbsp;</p></li>
+	<li class='page-item'><a class='page-link' href='?page={{queryset.paginator.num_pages}}&query={{query}}'>{{queryset.paginator.num_pages}}</a></li>
+	{% endif %}
+				
+	{% if queryset.has_next %}
+	<li><p>&nbsp;&nbsp;</p></li>
+	<li class='page-item'><a class='page-link' href='?page={{queryset.next_page_number}}&query={{query}}'> NEXT &gt;</a></li>
+	{% endif %}
+	</ul>
+</nav>
+{% endif %}
+				
+

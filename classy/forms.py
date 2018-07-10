@@ -16,6 +16,9 @@ class thread:
 		self.user = user
 		self.progress = 0
 
+class basic_search(forms.Form):
+    query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
+
 class advancedSearch(forms.Form):
 	
 	classi_choices = (
