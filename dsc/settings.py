@@ -24,7 +24,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.getenv('DJANGO_HOST_IP')]
+ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True

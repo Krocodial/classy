@@ -6,9 +6,9 @@
 An easy to use GUI that allows users to view/edit/create centralized classified data
 
 ## Technology Stack Used
-Django, and POSTgres. Although will soon be migrated to MySQL  
 Django==2.0.1  
-Python==3.5.2  
+Python==3.5.2 
+mysql-server==5.7.22 
 
 ## Third-Party Products/Libraries used and the the License they are covered by
 psycopg2==2.7.3.2 -- (http://initd.org/psycopg/license/)  
@@ -23,7 +23,7 @@ libapache2-mod-wsgi-py3
 (or another HTTP server with python 3 interface)  
 
 ## Project Status
-In-Development  
+Alpha  
 
 ## Documentation
 
@@ -79,16 +79,15 @@ Using apt or another package manager install
 *apache2-dev  
 *libapache2-mod-wsgi-py3  
 
-* Since the rest of the dependencies are contained in a virtual environment the only requirement is to be able to activate this localized environment. See (https://virtualenv.pypa.io/en/stable/) for setup instructions. Command to activate the environment is 'source env/bin/activate')
+* Create a virtual environment, 'python -m venv envs'.  
 
+* Activate this virtual environment 'source /envs/bin/activate'.  
+
+* Install local dependencies. 'pip install django mysqlclient'.  
+ 
 * Create environment variables with corresponding variable names in dsc/settings.py. These include you database credentials, secret, and host IP  
 
 * Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
-
-
-## Deployment (OpenShift)
-
-See (openshift/Readme.md)
 
 ## Getting Help or Reporting an Issue
 
