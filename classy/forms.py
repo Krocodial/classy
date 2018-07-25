@@ -2,6 +2,7 @@ from django import forms
 import datetime
 from django.forms import ModelForm
 from .models import classification
+from django.contrib.auth.models import Permission
 
 class UploadFileForm(forms.Form):
 	#title = forms.CharField(max_length=50)
@@ -54,12 +55,17 @@ class advancedSearch(forms.Form):
 
 
 class loginform(forms.Form):
-	username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={
+    username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={
 	'class': 'form-control', 'placeholder': 'Username'}))
-	password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
+    password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'AUTOCOMPLETE': 'off'}))
 
 class new_tuple(forms.Form):
 	process = forms.CharField(max_length=100)
+
+class permissionForm(ModelForm):
+        class Meta:
+                model = Permission
+                fields = ['name', 'content_type', 'codename']
 
 class ClassificationForm(ModelForm):
 	class Meta:
