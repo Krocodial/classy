@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
+import base64
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -79,14 +81,13 @@ WSGI_APPLICATION = 'dsc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-	'NAME': os.getenv('MYSQL_DATABASE'),
-	'USER': os.getenv('MYSQL_USER'),
-	'PASSWORD': os.getenv('MYSQL_PASS'),
-	'HOST': os.getenv('MYSQL_HOST'),
-	'PORT': os.getenv('MYSQL_PORT')
+	'NAME': base64.b64decode(os.getenv('MYSQL_DATABASE').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+	'USER': base64.b64decode(os.getenv('MYSQL_USER').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+	'PASSWORD': base64.b64decode(os.getenv('MYSQL_PASS').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+	'HOST': base64.b64decode(os.getenv('MYSQL_HOST').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+	'PORT': base64.b64decode(os.getenv('MYSQL_PORT').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -126,8 +127,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
 MEDIA_URL = '/tmp/'#os.path.join(BASE_DIR, 'classy/tmp/'
 FILE_UPLOAD_PERMISSIONS = 0o600
+
 MEDIA_ROOT = os.path.join(BASE_DIR, '/tmp/')
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, '/tmp/')
 

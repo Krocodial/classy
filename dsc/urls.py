@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls import url
 
 urlpatterns = [
-    path('int/dcs/', include('classy.urls')),
+    path('int/dsc/', include('classy.urls')),
 ]
 """
 if settings.DEBUG:
