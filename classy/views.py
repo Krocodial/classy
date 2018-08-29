@@ -529,8 +529,78 @@ def search(request):
     return redirect('classy:index')
 
 
+    
+
 def test(request):
-    return render(request, 'classy/home.html', context)
+
+    if request.method == 'POST':
+        arr = request.POST['node'].split('::')
+        if len(arr) < 2:
+            response = {'status': 1, 'message': 'ok'}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        elif len(arr) == 2:
+            ds = arr[0]
+            schema = arr[1]
+            tables = classification.objects.filter(datasource_description=ds, schema=schema).values('table_name').distinct()
+            nodes = []
+            links = []
+            for each in tables:
+                table = each['table_name']
+                nodes.append({'id': table, 'group': 1})
+                links.append({'source': table, 'target': schema, 'value': random.randint(0, 10)}) 
+            nodes.append({'id': schema, 'group': 0})
+            response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        else: #len(arr) == 3:
+            ds = arr[0]
+            schema = arr[1]
+            table = arr[2]
+            columns = classification.objects.filter(datasource_description=ds, schema=schema, table_name=table).values('column_name').distinct()
+            nodes = []
+            links = []
+            for each in columns:
+                nodes.append({'id': each['column_name'], 'group': 1})
+                links.append({'source': each['column_name'], 'target': table, 'value': 0})
+            nodes.append({'id': table, 'group': 0})
+            response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+
+
+    else:
+        sources = classification.objects.values('datasource_description').distinct()
+        schemas = classification.objects.values('datasource_description', 'schema').distinct()
+        tables = classification.objects.values('schema', 'table_name', 'datasource_description').distinct()
+        trans = {}
+        group = 0
+        for each in sources:
+            trans[each['datasource_description']] = group
+            group = group + 1
+
+
+        nodes = []
+        links = [] 
+        for each in sources:
+            ds = each['datasource_description']
+            nodes.append({'id': ds, 'group': trans[ds]})
+        for each in schemas:
+            nodes.append({'id': each['datasource_description'] + '::' + each['schema'], 'group': trans[each['datasource_description']]})
+    #for each in tables:
+    #    nodes.append({'id': each['datasource_description'] + each['schema'] + each['table_name'], 'group': trans[each['datasource_description']]})
+    
+    #first = sources[0]
+    #for index in range(len(sources)-1):
+    #    links.append({'source': sources[index]['datasource_description'], 'target': sources[index+1]['datasource_description'], 'value': random.randint(0, 10)})
+
+    #links.append({'source': sources.last()['datasource_description'], 'target': sources[0]['datasource_description'], 'value': random.randint(0, 10)})    
+
+        for each in schemas:
+            links.append({'source': each['datasource_description'] + '::' + each['schema'], 'target': each['datasource_description'], 'value': random.randint(0, 10)})
+    #for each in tables:
+    #    links.append({'source': each['datasource_description'] + each['schema'] + each['table_name'], 'target': each['datasource_description'] + each['schema'], 'value': random.randint(0, 10)})
+
+
+        context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
+        return render(request, 'classy/test.html', context)
 
 def index(request):
     if request.user.is_authenticated:
