@@ -30,6 +30,8 @@ lock = threading.Lock()
 sizes = [10, 25, 50, 100]
 
 def tutorial(request):
+    if not request.user.is_authenticated:
+        return redirect('classy:index')
     if request.user.is_staff:
         return render(request, 'classy/tutorial.html')
     if request.user.is_authenticated:
@@ -329,13 +331,18 @@ def modi(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')
     if request.method == 'POST':
-        toMod = request.POST['toMod']
-        toModRed = json.loads(toMod)
-        toDel = request.POST['toDel']
-        toDelRed = json.loads(toDel)
-
-        if len(toDelRed) == 0 and len(toModRed) == 0:
-                    return redirect('classy:data')
+        if 'toMod' in request.POST:
+            toMod = request.POST['toMod']
+            toModRed = json.loads(toMod)
+        else:
+            toModRed = []
+        if 'toDel' in request.POST:
+            toDel = request.POST['toDel']
+            toDelRed = json.loads(toDel)
+        else:
+            toDelRed = []
+#        if len(toDelRed) == 0 and len(toModRed) == 0:
+#                    return redirect('classy:data')
 
         if not request.user.is_staff:
             new_group = classification_review_groups(user=request.user.username)
@@ -407,18 +414,6 @@ def modi(request):
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         return redirect('classy:data')
-
-def logs(request):
-    if not request.user.is_authenticated:
-            return redirect('classy:index');
-    num = classification_review_groups.objects.all().count()
-    if id in request.GET:
-        logs = classification_logs.objects.filter(classy_id__exact=request.GET['id'])
-        context = {'logs': logs,
-            'num': num}
-        return render(request, 'classy/logs.html', context)
-    else:
-            return redirect('classy:data')
 
 def search(request):
     if not request.user.is_authenticated:
