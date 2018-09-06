@@ -45,6 +45,8 @@ class unAuthTests(TestCase):
         self.assertEqual(response.status_code, 302)
         response = self.client.get(reverse('classy:tutorial'))
         self.assertEqual(response.status_code, 302)
+        response = self.client.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 302)
 
     def test_base_user_access(self):
         c = Client()
@@ -77,6 +79,9 @@ class unAuthTests(TestCase):
         self.assertEqual(response.status_code, 302)
         response = c.get(reverse('classy:data'))
         self.assertEqual(response.status_code, 302)
+        response = c.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 302)
+
 
     def test_staff_user_access(self):
         c = Client()
@@ -107,7 +112,8 @@ class unAuthTests(TestCase):
         response = c.get(reverse('classy:tutorial'))
         self.assertEqual(response.status_code, 200)
 
-
+        response = c.get(reverse('admin:index'))
+        self.assertEqual(response.status_code, 200)
 
         response = c.get(reverse('classy:user_logout'))
         self.assertEqual(response.status_code, 302)
