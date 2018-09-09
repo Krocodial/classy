@@ -17,6 +17,15 @@ from django.conf import settings
 
 
 options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
+
+def construct_query(request, queryset):
+    if settings.BYPASS_AUTH:
+        return classification.objects.all()
+
+    user_queryset = classification.objects.all()
+
+    return queryset & user_queryset
+
 '''
 counts:
     confidential, public, unclassified, prot a, prot b, prot c
@@ -134,7 +143,6 @@ def create_thread(request, lock, th, threads, user):
                         print(form.errors)
                 except Exception as e:
                     print(e)
-                    pass
         
         #f.close()
         fs.delete(filename)
@@ -144,7 +152,6 @@ def create_thread(request, lock, th, threads, user):
         threads.remove(th)
         lock.release()
         print(e)
-        pass
 
 
 def demo():
