@@ -6,12 +6,12 @@ from django.utils import timezone
 
 class classification_count(models.Model):
     classification_choices = (
-	('Unclassified', 'unclassified'),
-	('PUBLIC', 'public'),
-	('CONFIDENTIAL', 'confidential'),
-	('PROTECTED A', 'protected_a'),
-	('PROTECTED B', 'protected_b'),
-	('PROTECTED C', 'protected_c'),
+    ('Unclassified', 'unclassified'),
+    ('PUBLIC', 'public'),
+    ('CONFIDENTIAL', 'confidential'),
+    ('PROTECTED A', 'protected_a'),
+    ('PROTECTED B', 'protected_b'),
+    ('PROTECTED C', 'protected_c'),
     )
     classification_name = models.CharField(max_length=50, choices=classification_choices)
     count = models.IntegerField()
@@ -19,12 +19,12 @@ class classification_count(models.Model):
 
 class classification(models.Model):
     classification_choices = (
-	('Unclassified', 'unclassified'),
-	('PUBLIC', 'public'),
+    ('Unclassified', 'unclassified'),
+    ('PUBLIC', 'public'),
         ('CONFIDENTIAL', 'confidential'),
         ('PROTECTED A', 'protected_a'),
         ('PROTECTED B', 'protected_b'),
-	('PROTECTED C', 'protected_c'),
+    ('PROTECTED C', 'protected_c'),
     )
     classification_name = models.CharField(max_length=50, choices=classification_choices)
     schema = models.CharField(max_length=50)
@@ -45,31 +45,39 @@ class classification(models.Model):
     #date_added = models.DateTimeField(auto_now_add=True)
     #date_last_updated = models.DateTimeField(auto_now=True)
 class classification_exception(models.Model):
-	classy = models.ForeignKey(classification, on_delete=models.PROTECT)
+    classy = models.ForeignKey(classification, on_delete=models.PROTECT)
 
 class classification_logs(models.Model):
-	classy = models.ForeignKey(classification, on_delete=models.PROTECT)
-	action_time = models.DateTimeField(auto_now_add=True)
-	action_flag = models.SmallIntegerField()
-	n_classification = models.CharField(max_length=50)
-	o_classification = models.CharField(max_length=50)
-	user_id = models.CharField(max_length=100)
-	state = models.CharField(max_length=15)
-	approved_by = models.CharField(max_length=50)
+    classification_choices = (
+        ('Unclassified', 'unclassified'),
+        ('PUBLIC', 'public'),
+        ('CONFIDENTIAL', 'confidential'),
+        ('PROTECTED A', 'protected_a'),
+        ('PROTECTED B', 'protected_b'),
+        ('PROTECTED C', 'protected_c')
+    )
+    classy = models.ForeignKey(classification, on_delete=models.PROTECT)
+    action_time = models.DateTimeField(auto_now_add=True)
+    action_flag = models.SmallIntegerField()
+    n_classification = models.CharField(max_length=50, choices=classification_choices)
+    o_classification = models.CharField(max_length=50, choices=classification_choices)
+    user_id = models.CharField(max_length=100)
+    state = models.CharField(max_length=15)
+    approved_by = models.CharField(max_length=50)
 
 class classification_review_groups(models.Model):
-	user = models.CharField(max_length=50)
-	timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.CharField(max_length=50)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class classification_review(models.Model):
-	classy = models.ForeignKey(classification, on_delete=models.CASCADE)
-	group = models.ForeignKey(classification_review_groups, on_delete=models.CASCADE)
-	classification_name = models.CharField(max_length=50)
-	schema = models.CharField(max_length=50)
-	table_name = models.CharField(max_length=50)
-	column_name = models.CharField(max_length=50)
-	datasource_description = models.CharField(max_length=100)
-	action_flag = models.SmallIntegerField()
-	o_classification = models.CharField(max_length=50)
+    classy = models.ForeignKey(classification, on_delete=models.CASCADE)
+    group = models.ForeignKey(classification_review_groups, on_delete=models.CASCADE)
+    classification_name = models.CharField(max_length=50)
+    schema = models.CharField(max_length=50)
+    table_name = models.CharField(max_length=50)
+    column_name = models.CharField(max_length=50)
+    datasource_description = models.CharField(max_length=100)
+    action_flag = models.SmallIntegerField()
+    o_classification = models.CharField(max_length=50)
 

@@ -1,7 +1,7 @@
 from django import forms
 import datetime
 from django.forms import ModelForm
-from .models import classification
+from .models import classification, classification_count, classification_exception, classification_logs, classification_review_groups, classification_review
 from django.contrib.auth.models import Permission
 
 class UploadFileForm(forms.Form):
@@ -71,4 +71,33 @@ class ClassificationForm(ModelForm):
 	class Meta:
 		model = classification
 		fields = ['classification_name', 'schema', 'table_name', 'column_name', 'category', 'datasource_description', 'created_by', 'state']
+
+class classificationCountForm(ModelForm):
+    class Meta:
+        model = classification_count
+        fields = ['classification_name', 'count', 'date']	
+
+class classificationExceptionForm(ModelForm):
+    class Meta:
+        model = classification_exception
+        fields = ['classy']
+
+class classificationLogForm(ModelForm):
+    class Meta:
+        model = classification_logs
+        fields = ['classy', 'action_flag', 'n_classification', 'o_classification', 'user_id', 'state', 'approved_by']
+
+class classificationReviewGroupForm(ModelForm):
+    class Meta:
+        model = classification_review_groups
+        fields = ['user']
+
+class classificationReviewForm(ModelForm):
+    class Meta:
+        model = classification_review
+        fields = ['classy', 'group', 'classification_name', 'schema', 'table_name', 'column_name', 'datasource_description', 'action_flag', 'o_classification']
+
+
+
+
 

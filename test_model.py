@@ -2,8 +2,11 @@ from django.test import TestCase, Client
 from django.test.utils import setup_test_environment
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.db.utils import *
+
 from classy.models import *
-from classy.forms import ClassificationForm
+from classy.forms import *
+
 
 choices = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
 states = ['Active', 'Inactive', 'Pending']
@@ -74,14 +77,60 @@ class existanceTests(TestCase):
             form = ClassificationForm(data)
             self.assertEqual(form.is_valid(), False)
 
-
-class deletionTests(TestCase):
+class creationTests(TestCase):
     def setUp(self):
-        data = {'classification_name': 'PUBLIC', 'datasource_description': 'testo', 'schema': 'testo', 'table_name': 'testo', 'column_name': 'testo', 'created_by': 'admin', 'state': 'Active'}
+        data = {'classification_name': 'PUBLIC', 'schema': 'testo', 'table_name': 'testo', 'column_name': 'testo', 'datasource_description': 'testo', 'created_by': 'admin', 'state': 'Active'}
         form = ClassificationForm(data)
-        self.assertEqual(form.is_valid(), True)
         tmp = form.save()
-        data = {'classy': tmp, 'action_flag': 0, 'n_classification': 'PUBLIC', 'o_classification': 'CONFIDENTIAL', 'user_id': 0, 'state': 'Active', 'approved_by': 'admin'}
+        self.classy = tmp.pk#classification.objects.get(pk=tmp.pk)
+    
+        data = {'user': 'admin'}
+        form = classificationReviewGroupForm(data)
+        tmp = form.save()
+        self.group = tmp.pk
+        new = classification_review_groups.objects.get(pk=tmp.pk)
+        self.assertIsNotNone(new)
+
+
+    def test_classification_count(self):
+        data = {'classification_name': 'PUBLIC', 'count': 99, 'date': datetime.datetime.now()}
+        form = classificationCountForm(data)
+        tmp = form.save()
+        new = classification_count.objects.get(pk=tmp.pk)
+        self.assertIsNotNone(new)
+
+    def test_classification_exception(self):
+        data = {'classy': self.classy}
+        form = classificationExceptionForm(data)
+        tmp = form.save()
+        new = classification_exception.objects.get(pk=tmp.pk)
+        self.assertIsNotNone(new)
+
+    def test_classification_log(self):
+        data = {'classy': self.classy, 'action_flag': 2, 'n_classification': 'PUBLIC', 'o_classification': 'CONFIDENTIAL', 'user_id': 'admin', 'state': 'Active', 'approved_by': 'admin'}
+        form = classificationLogForm(data)
+        tmp = form.save()
+        new = classification_logs.objects.get(pk=tmp.pk)
+        self.assertIsNotNone(new)
+
+    def test_classification_review(self):
+        data = {'classy': self.classy, 'group': self.group, 'classification_name': 'PUBLIC', 'schema': 'testo', 'table_name': 'testo', 'column_name': 'testo', 'datasource_description': 'testo', 'action_flag': 0, 'o_classification': 'PUBLIC'}
+        form = classificationReviewForm(data)
+        tmp = form.save()
+        new = classification_review.objects.get(pk=tmp.pk)
+        self.assertIsNotNone(new)
+
+    def test_deletion_protection(self):
+        data = {'classy': self.classy, 'action_flag': 2, 'n_classification': 'PUBLIC', 'o_classification': 'CONFIDENTIAL', 'user_id': 'admin', 'state': 'Active', 'approved_by': 'admin'}
+        form = classificationLogForm(data)
+        tmp = form.save()
+    
+        with self.assertRaises(IntegrityError):
+            classification.objects.get(pk=self.classy).delete() 
+
+        tmp.delete()
+        classification.objects.get(pk=self.classy).delete()
+
             
 
 

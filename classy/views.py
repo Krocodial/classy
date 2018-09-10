@@ -711,15 +711,13 @@ def home(request):
 @csrf_exempt
 def uploader(request):
     if not request.user.is_staff:
-            return redirect('classy:index')
+        return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
     for th in threads:
         th.uptime = str(timezone.now() - th.start)
-        #time.time() - th.start)
         th.uptime = th.uptime[:7]
 
-    #if request.method == 'POST':
-    try:
+    if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = form.cleaned_data['file']
@@ -743,36 +741,17 @@ def uploader(request):
                     'form': form,
                     'message': message,
                     'num': num,
-                    'status': '422',
                     'threads': threads
                 }
-                return render(request, 'classy/jobs.html', context)
-            '''
-            th = thread(f.name, timezone.now(), 'pending', request.user.username)
-            #time.time()
-            threads.append(th)
-            t = threading.Thread(target=create_thread, args=(f, lock, th, threads, request.user.username))
-            th.startdate = timezone.now()
-            #th.startdate = datetime.datetime.now()
-            t.start()
-            '''
+                return render(request, 'classy/jobs.html', context, status=422)
         else:
             context = {
-                'status': '422',
                 'form': UploadFileForm(),
                 'threads': threads,
                 'num': num
             }
-            return render(request, 'classy/jobs.html', context)
-    except Exception as e:
-        print(e)
-        #if 'Myfile' in request.FILES:
-        #   inp = request.FILES['Myfile']
-        #   th = thread(inp.name, time.time(), 'pending')
-        #   threads.append(th)
-        #   t = threading.Thread(target=create_thread, args=(inp, lock, th, threads, request.user.username))
-        #   th.startdate = datetime.datetime.now()
-        #   t.start()
+            return render(request, 'classy/jobs.html', context, status=422)
+    
     form = UploadFileForm()
     context = {'threads': threads, 'form': form, 'num': num}
     return render(request, 'classy/jobs.html', context)
