@@ -25,12 +25,14 @@ load_dotenv(os.path.join(BASE_DIR, '.envs'))
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)sximez5*pr+&3%o') #If key not set in environment use default for dev
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-BYPASS_AUTH = False
+BYPASS_AUTH = True
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
 #SECURE_SSL_REDIRECT = True
 #SESSION_COOKIE_SECURE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE=True
+SESSION_COOKIE_AGE=3600
 #CSRF_COOKIE_SECURE = True
 #CSRF_COOKIE_HTTPONLY = True
 

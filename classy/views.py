@@ -13,6 +13,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.utils.dateparse import *
+from django.conf import settings
+from django.urls import reverse
 
 import threading, time, csv#, datetime
 #from pytz import timezone
@@ -492,6 +494,15 @@ def search(request):
                 for i in range(paginator.num_pages):
                     pags.append(init + i)
             form = advancedSearch(initial={'size': size})
+        
+            recent = {}
+            for tup in query:
+                if tup.creation_date - datetime.timedelta(days=14):
+                    recent[tup.id] = True
+                else:
+                    recent[tup.id] = False
+            
+
             context = {
                 'num': num,
                 'form': form,
@@ -506,11 +517,12 @@ def search(request):
                 'stati': stati,
                 'size': size,
                 'sizes': sizes,
-                                'prev': prev,
-                                'next': nex,
-                                'pags': pags,
-                                'first': first,
-                                'last': last
+                'prev': prev,
+                'next': nex,
+                'pags': pags,
+                'first': first,
+                'last': last,
+                'recent': recent
         }
             return render(request, 'classy/data_tables.html', context)
         else:
@@ -529,85 +541,119 @@ def search(request):
 def test(request):
 
     if request.method == 'POST':
-        arr = request.POST['node'].split('::')
+        arr = request.POST['node'].split('/')
         if len(arr) < 2:
             response = {'status': 1, 'message': 'ok'}
             return HttpResponse(json.dumps(response), content_type='application/json')
         elif len(arr) == 2:
-            ds = arr[0]
-            schema = arr[1]
+            schema = arr[0]
+            ds = arr[1]
             tables = classification.objects.filter(datasource_description=ds, schema=schema).values('table_name').distinct()
             nodes = []
             links = []
             for each in tables:
                 table = each['table_name']
-                nodes.append({'id': table, 'group': 1})
-                links.append({'source': table, 'target': schema, 'value': random.randint(0, 10)}) 
-            nodes.append({'id': schema, 'group': 0})
+                name = table + '/' + schema + '/' + ds
+                nodes.append({'id': name, 'group': 1})
+                links.append({'source': name, 'target': schema + '/' + ds, 'value': random.randint(1, 5)}) 
+            nodes.append({'id': schema + '/' + ds, 'group': 0})
             response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
             return HttpResponse(json.dumps(response), content_type='application/json')
-        else: #len(arr) == 3:
-            ds = arr[0]
+        elif len(arr) == 3:
+            table = arr[0]
             schema = arr[1]
-            table = arr[2]
+            ds = arr[2]
             columns = classification.objects.filter(datasource_description=ds, schema=schema, table_name=table).values('column_name').distinct()
             nodes = []
             links = []
             for each in columns:
-                nodes.append({'id': each['column_name'], 'group': 1})
-                links.append({'source': each['column_name'], 'target': table, 'value': 0})
-            nodes.append({'id': table, 'group': 0})
+                name = each['column_name'] + '/' + table + '/' + schema + '/' + ds
+                hlvl = table + '/' + schema + '/' + ds
+                nodes.append({'id': name, 'group': 1})
+                links.append({'source': name, 'target': hlvl, 'value': 0})
+            nodes.append({'id': hlvl, 'group': 0})
             response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
             return HttpResponse(json.dumps(response), content_type='application/json')
+        else:
+            column = arr[0]
+            table = arr[1]
+            schema = arr[2]
+            ds = arr[3]
+
+            tup = classification.objects.get(datasource_description=ds, schema=schema, table_name=table, column_name=column)
+            response = {'status': 2, 'message': 'ok', 'url': reverse('classy:data') + '/' + str(tup.id)}            
+            return HttpResponse(json.dumps(response), content_type='application/json')
+    sources = classification.objects.values('datasource_description').distinct()
+    schemas = classification.objects.values('datasource_description', 'schema').distinct()
+    tables = classification.objects.values('schema', 'table_name', 'datasource_description').distinct()
+    trans = {}
+    group = 0
+    for each in sources:
+        trans[each['datasource_description']] = group
+        group = group + 1
 
 
-    else:
-        sources = classification.objects.values('datasource_description').distinct()
-        schemas = classification.objects.values('datasource_description', 'schema').distinct()
-        tables = classification.objects.values('schema', 'table_name', 'datasource_description').distinct()
-        trans = {}
-        group = 0
-        for each in sources:
-            trans[each['datasource_description']] = group
-            group = group + 1
+    nodes = []
+    links = [] 
+    for each in sources:
+        ds = each['datasource_description']
+        nodes.append({'id': ds, 'group': trans[ds]})
+    for each in schemas:
+        nodes.append({'id': each['schema'] + '/' + each['datasource_description'], 'group': trans[each['datasource_description']]})
+
+    for each in schemas:
+        links.append({'source': each['schema'] + '/' + each['datasource_description'], 'target': each['datasource_description'], 'value': random.randint(1, 10)})
+
+    context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
+    return render(request, 'classy/test.html', context)
 
 
-        nodes = []
-        links = [] 
-        for each in sources:
-            ds = each['datasource_description']
-            nodes.append({'id': ds, 'group': trans[ds]})
-        for each in schemas:
-            nodes.append({'id': each['datasource_description'] + '::' + each['schema'], 'group': trans[each['datasource_description']]})
-    #for each in tables:
-    #    nodes.append({'id': each['datasource_description'] + each['schema'] + each['table_name'], 'group': trans[each['datasource_description']]})
-    
-    #first = sources[0]
-    #for index in range(len(sources)-1):
-    #    links.append({'source': sources[index]['datasource_description'], 'target': sources[index+1]['datasource_description'], 'value': random.randint(0, 10)})
-
-    #links.append({'source': sources.last()['datasource_description'], 'target': sources[0]['datasource_description'], 'value': random.randint(0, 10)})    
-
-        for each in schemas:
-            links.append({'source': each['datasource_description'] + '::' + each['schema'], 'target': each['datasource_description'], 'value': random.randint(0, 10)})
-    #for each in tables:
-    #    links.append({'source': each['datasource_description'] + each['schema'] + each['table_name'], 'target': each['datasource_description'] + each['schema'], 'value': random.randint(0, 10)})
-
-
-        context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
-        return render(request, 'classy/test.html', context)
 
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
+    
+    #SiteMinder Authentication
+    if settings.BYPASS_AUTH:
+        pass
+    else:
 
+        user_name = request.META.get('HTTP_SM_UNIVERSALID')
+        user_id = request.META.get('HTTP_SMGOV_USERIDENTIFIER')
+
+        user_email = request.META.get('HTTP_SMGOV_USEREMAIL')
+        user_display = request.META.get('HTTP_SMGOV_USERDISPLAYNAME')
+
+        user_type = request.META.get('HTTP_SMGOV_USERTYPE')
+
+        if user_type != 'Internal':
+            form = loginform()
+            context = {'form': form}
+            return render(request, 'classy/index.html', context) 
+
+
+        user = authenticate(request, username=user_name, password=user_id)
+        if user is not None:
+            login(request, user)
+            return redirect('classy:home') 
+
+    #First time login
     if request.method == 'POST':
         form = loginform(request.POST)
         if form.is_valid():
-            usern = form.cleaned_data['username']
+            if settings.BYPASS_AUTH:
+                usern = form.cleaned_data['username']
+            else:
+                usern = user_name
             passw = form.cleaned_data['password']
             user = authenticate(request, username=usern, password=passw)
             if user is not None:
+
+                if not settings.BYPASS_AUTH:
+                    user.set_password(user_id)
+                    user.email = user_email
+                    user.last_name = user_display
+                    user.save()
                 login(request, user)
                 return redirect('classy:home')
             else:

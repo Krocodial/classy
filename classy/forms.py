@@ -3,6 +3,7 @@ import datetime
 from django.forms import ModelForm
 from .models import classification, classification_count, classification_exception, classification_logs, classification_review_groups, classification_review
 from django.contrib.auth.models import Permission
+from django.conf import settings
 
 class UploadFileForm(forms.Form):
 	#title = forms.CharField(max_length=50)
@@ -55,8 +56,8 @@ class advancedSearch(forms.Form):
 
 
 class loginform(forms.Form):
-    username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={
-	'class': 'form-control', 'placeholder': 'Username'}))
+    if settings.BYPASS_AUTH:
+        username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
     password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'AUTOCOMPLETE': 'off'}))
 
 class new_tuple(forms.Form):

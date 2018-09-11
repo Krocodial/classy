@@ -95,11 +95,13 @@ d3.selectAll("circle").on("click", function() {
         db_path = db_path + '::' + d3.select(this).text();
     }
 
+	console.log(d3.select(this).text());
+
 	$.ajax({
 		type: "POST",
 		url: "test",
 		traditional: true,
-		data: {'node': db_path, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+		data: {'node': d3.select(this).text(), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
 	success: function(stuff) {
 		if(stuff.status == 1) {
             var new_n = JSON.parse(stuff.nodes);
@@ -107,6 +109,10 @@ d3.selectAll("circle").on("click", function() {
             new_graph = {'nodes': new_n, 'links': new_l};
             update();
 			
+
+		} else if(stuff.status == 2) {
+
+		window.location.href = stuff.url;
 
 		} else {
 			console.log('error');

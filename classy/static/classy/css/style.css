@@ -93,6 +93,11 @@ canvas {
 	max-height: 30vh;
 }
 
+
+.pending {
+	background-color: #e6ffff;
+}
+
 .selected {
 	background-color: #ffecb3;
 }

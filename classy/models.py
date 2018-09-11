@@ -1,8 +1,15 @@
 from django.db import models
 import datetime
 from django.utils import timezone
+from django.contrib.auth.models import User
 
-# Create your models here.
+
+class permissions(models.Model):
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    datasource = models.CharField(max_length=100)
+    schema = models.CharField(max_length=50, blank=True)
+    table = models.CharField(max_length=50, blank=True)
+    column = models.CharField(max_length=50, blank=True)
 
 class classification_count(models.Model):
     classification_choices = (
@@ -27,11 +34,11 @@ class classification(models.Model):
     ('PROTECTED C', 'protected_c'),
     )
     classification_name = models.CharField(max_length=50, choices=classification_choices)
+    datasource_description = models.CharField(max_length=100)
     schema = models.CharField(max_length=50)
     table_name = models.CharField(max_length=50)
     column_name = models.CharField(max_length=50)
     category = models.CharField(max_length=40, blank=True)
-    datasource_description = models.CharField(max_length=200)
     creation_date = models.DateTimeField(auto_now_add=True)
     created_by = models.CharField(max_length=50)
     state_choices = (
@@ -42,8 +49,7 @@ class classification(models.Model):
 
     state = models.CharField(max_length=15, choices=state_choices)
     summary = models.CharField(max_length=500, null=True)
-    #date_added = models.DateTimeField(auto_now_add=True)
-    #date_last_updated = models.DateTimeField(auto_now=True)
+
 class classification_exception(models.Model):
     classy = models.ForeignKey(classification, on_delete=models.PROTECT)
 

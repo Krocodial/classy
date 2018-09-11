@@ -41,7 +41,6 @@ $(document).on('click', '.subby', function() {
 		url: 'review',
 		traditional: true,
 		data: {'denied': JSON.stringify(denied), 'csrfmiddlewaretoken': csrftoken, 'group': event.target.id},
-
 		success: function(data){
 			if(data.status == 1) {
 				$('#succ').submit();
