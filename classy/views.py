@@ -678,22 +678,12 @@ def home(request):
         tmp = classification.objects.filter(classification_name__exact=op).count()
         data_cons.append(tmp)
         mapping[op] = tmp
-    '''
-    unclassified = classification.objects.filter(classification_name__exact='Unclassified').count()
-    public = classification.objects.filter(classification_name__exact='PUBLIC').count()
-    confidential = classification.objects.filter(classification_name__exact='CONFIDENTIAL').count()
-    protected_a = classification.objects.filter(classification_name__exact='PROTECTED A').count()
-    protected_b = classification.objects.filter(classification_name__exact='PROTECTED B').count()
-    protected_c = classification.objects.filter(classification_name__exact='PROTECTED C').count()
-    '''
     num = classification_review_groups.objects.all().count()
 
-    #data_cons = [unclassified, public, confidential, protected_a, protected_b, protected_c]
-    label_cons = options#["unclassified", 'public', 'confidential', 'protected a', 'protected b', 'protected c']
-
-    #Line Graph
-    #d = datetime.datetime.now() - datetime.timedelta(days=10)
+    label_cons = options    
+    
     d = timezone.now().date() - timezone.timedelta(days=60)
+    
     linee = classification_count.objects.filter(date__gte=d, classification_name__exact='Unclassified')
 
     if linee.count() < 60:
@@ -708,16 +698,10 @@ def home(request):
     for tuple in dat:
         if str(tuple.date) not in dates:
             dates.append(str(tuple.date))
+
     #print(dates)
     assoc = {}
-    '''
-    unclassified = vals.filter(classification_name__exact='Unclassified').order_by('date')
-    public = vals.filter(classification_name__exact='PUBLIC').order_by('date')
-    confidential = vals.filter(classification_name__exact='CONFIDENTIAL').order_by('date')
-    protected_a = vals.filter(classification_name__exact='PROTECTED A').order_by('date')
-    protected_b = vals.filter(classification_name__exact='PROTECTED B').order_by('date')
-    protected_c = vals.filter(classification_name__exact='PROTECTED C').order_by('date')
-    '''
+    
     unclassified = []
     public = []
     confidential = []
