@@ -1,30 +1,24 @@
-from django.shortcuts import render
 
-# Create your views here.
-
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django import forms
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
-from django.utils import timezone
+from django.contrib.auth.models import User
 from django.utils.dateparse import *
+from django.shortcuts import render
+from django.template import loader
+from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
+from django import forms
 
-import threading, time, csv#, datetime
-#from pytz import timezone
-import pytz
-import json, random
-#from datetime import datetime, timedelta
+import threading, time, csv, pytz, json, random
 
-from .forms import UploadFileForm, thread, advancedSearch, loginform, basic_search
-from .models import classification, classification_exception, classification_logs, classification_review, classification_review_groups, classification_count
-from .scripts import create_thread, parent, example, calculate_count
+from .forms import *
+from .models import *
+from .scripts import *
 
 options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
 threads = []
@@ -79,15 +73,6 @@ def download(request):
             writer.writerow([tuple.classification_name, tuple.schema, tuple.table_name, tuple.column_name, tuple.category, tuple.datasource_description, tuple.creation_date, tuple.created_by, tuple.state])
         return response
 
-    '''
-        file_path = os.path.join(settings.MEDIA_ROOT, path)
-        if os.path.exists(file_path):
-            with open(file_path, 'rb') as fh:
-                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
-                return response
-        raise Http404
-    '''
     return redirect('classy:index')
 
 def review(request):
@@ -232,7 +217,6 @@ def log_list(request):
 
         if form.is_valid():
             value = form.cleaned_data['query']
-            #tim = classification_logs.objects.filter(action_time__gt=datetime.date(int(value)))
             nclas = classification_logs.objects.filter(n_classification__icontains=value)
             oclas = classification_logs.objects.filter(o_classification__icontains=value)
             flag = classification_logs.objects.filter(action_flag__icontains=value)
@@ -299,19 +283,7 @@ def log_list(request):
                     'last': last
             }
             return render(request, 'classy/log_list.html', context)
-        '''
-        logs = classification_logs.objects.all();
-        logs = logs.order_by('-action_time')
-        page = request.GET.get('page')
-        paginator = Paginator(logs, 100)
-        query = paginator.get_page(page)
 
-
-        context = {
-        'queryset': query,
-        'num': num}
-        return render(request, 'classy/log_list.html', context)
-        '''
 def log_detail(request, classy_id):
     if not request.user.is_authenticated:
             return redirect('classy:index')
@@ -343,8 +315,6 @@ def modi(request):
             toDelRed = json.loads(toDel)
         else:
             toDelRed = []
-#        if len(toDelRed) == 0 and len(toModRed) == 0:
-#                    return redirect('classy:data')
 
         if not request.user.is_staff:
             new_group = classification_review_groups(user=request.user.username)
@@ -446,8 +416,7 @@ def search(request):
                     stati = ['Active', 'Pending']
                 if len(classi) == 0:
                     classi = options
-            #if len(classi) == 0:
-            #   classi = []
+                
                 sql = classification.objects.filter(column_name__icontains=co, table_name__icontains=tab, schema__icontains=sch, datasource_description__icontains=ds, classification_name__in=classi, state__in=stati);
                 queryset = sql
             queryset = queryset.order_by('datasource_description', 'schema', 'table_name')
@@ -738,7 +707,7 @@ def home(request):
     }
     return render(request, 'classy/home.html', context);
 
-@csrf_exempt
+#@csrf_exempt
 def uploader(request):
     if not request.user.is_staff:
         return redirect('classy:index')

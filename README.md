@@ -6,31 +6,50 @@
 An easy to use GUI that allows users to view/edit/create centralized classified data
 
 ## Technology Stack Used
-Django==2.0.1  
-Python==3.5.2 
-mysql-server==5.7.22 
+Python 3 (Django)  
+Full support for most DBs, this was built for MySQL so PostgreSQL will work flawlessly as well  
 
 ## Third-Party Products/Libraries used and the the License they are covered by
-psycopg2==2.7.3.2 -- (http://initd.org/psycopg/license/)  
-pytz==2017.3 -- Covered by the MIT license (https://pypi.python.org/pypi/pytz)  
 mysqlclient  
-libmysqlclient-dev  
-python3-venv  
-python3-pip  
-apache2  
-apache2-dev  
-libapache2-mod-wsgi-py3  
-(or another HTTP server with python 3 interface)  
+Django
+python-dotenv
 
 ## Project Status
-Alpha  
+Stable  
 
-## Documentation
+## Deployment (Local Development)
 
-GitHub Pages (https://guides.github.com/features/pages/) are a neat way to document you application/project.
+An example of this process on Ubuntu is included in bash script 'install.sh'  
+  
+Using apt or another package manager install  
+*libmysqlclient-dev  
+*python3-venv  
+*python3-pip  
+*apache2  
+*apache2-dev  
+*libapache2-mod-wsgi-py3  
+  
+* Create a virtual environment, 'python -m venv envs'.  
+   
+* Activate this virtual environment 'source /envs/bin/activate'.  
+  
+* Install local dependencies. 'pip install -r requirements.txt'.  
+  
+* Create environment variables with corresponding variable names in '.envs' in the project directory. These include your database credentials, secret, and host IP.  
+  
+* Customize the dsc/settings.py file. This includes changing the database connections, and ensuring that debug mode is turned off. If in-doubt follow the instructions included in this file.  
+  
+* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
+ 
+## Running Tests
+  
+Tests are built using Django's testing libraries. Navigate to the project directory and run the tests via 'python manage.py test' once in the virtual environment. If the application is not setup correctly this will now work. The tests are included in the project directory, with the prefix 'test'.  
+ 
 
 ## Security  
-Authentication & Authorization are handled by Django's built in security. However once this project progresses it will be modified to use the existing Authenication process. 
+Authentication can be handled by SiteMinder or alternatively Django's built-in authentication by changing the BYPASS_AUTH variable in the settings file.  
+
+Authorization is a customization of Django's provided authorization functionality. This allows segmentation of data as well as user authorization.  
 
 Policies for use will be provided by the FLNR security team.  
 
@@ -68,26 +87,6 @@ classy/
         ├── images
         └── js
 ```
-
-## Deployment (Local Development)
-
-Using apt or another package manager install  
-*libmysqlclient-dev  
-*python3-venv  
-*python3-pip  
-*apache2  
-*apache2-dev  
-*libapache2-mod-wsgi-py3  
-
-* Create a virtual environment, 'python -m venv envs'.  
-
-* Activate this virtual environment 'source /envs/bin/activate'.  
-
-* Install local dependencies. 'pip install django mysqlclient'.  
- 
-* Create environment variables with corresponding variable names in dsc/settings.py. These include you database credentials, secret, and host IP  
-
-* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
 
 ## Getting Help or Reporting an Issue
 
