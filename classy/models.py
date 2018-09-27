@@ -40,35 +40,13 @@ class classification(models.Model):
     column_name = models.CharField(max_length=50)
     category = models.CharField(max_length=40, blank=True)
     creation_date = models.DateTimeField(auto_now_add=True)
-<<<<<<< HEAD
-    created_by = models.CharField(max_length=50, null=True)
-=======
     created_by = models.CharField(max_length=50)
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
     state_choices = (
     ('Active', 'Active'),
     ('Inactive', 'Inactive'),
     ('Pending', 'Pending'),
     )
 
-<<<<<<< HEAD
-    state = models.CharField(max_length=15, choices=state_choices, null=True)
-    summary = models.CharField(max_length=500, null=True)
-    #date_added = models.DateTimeField(auto_now_add=True)
-    #date_last_updated = models.DateTimeField(auto_now=True)
-class classification_exception(models.Model):
-	classy = models.ForeignKey(classification, on_delete=models.CASCADE)
-
-class classification_logs(models.Model):
-	classy = models.ForeignKey(classification, on_delete=models.CASCADE)
-	action_time = models.DateTimeField(auto_now_add=True)
-	action_flag = models.SmallIntegerField()
-	n_classification = models.CharField(max_length=50, null=True)
-	o_classification = models.CharField(max_length=50, null=True)
-	user_id = models.CharField(max_length=100, null=True)
-	state = models.CharField(max_length=15, null=True)
-	approved_by = models.CharField(max_length=50, null=True)
-=======
     state = models.CharField(max_length=15, choices=state_choices)
     summary = models.CharField(max_length=500, null=True)
 
@@ -92,7 +70,6 @@ class classification_logs(models.Model):
     user_id = models.CharField(max_length=100)
     state = models.CharField(max_length=15)
     approved_by = models.CharField(max_length=50)
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 
 class classification_review_groups(models.Model):
     user = models.CharField(max_length=50)

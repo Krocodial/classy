@@ -128,62 +128,10 @@
 </form>
 {% endif %}
 
-<<<<<<< HEAD
 </div>
 </div>
 </div>
 
-<!--<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-	<div class="modal-content">
-		<div class="modal-header">
-			<h5 class="modal-title" id="modalLab">Advanced Search</h5>
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-			</button>
-		</div>
-			<form action="search" method="GET">
-		<div class="modal-body">	
-		<div class="form-group">
-			<label for="data_source">Datasource</label>
-			{{form.data_source}}
-		</div>
-		<div class="form-group">
-			<label for="schema">Schema</label>
-			{{form.schema}}
-		</div>
-		<div class="form-group">
-			<label for="table">Table</label>
-			{{form.table}}
-		</div>
-		<div class="form-group">
-			<label for="column">Column</label>
-			{{form.column}}
-		</div>
-		<div class="form-group">
-			<label class="mr-sm-2" for "customSel">Classification</label>
-			{{form.classi}}
-		</div>
-		<div class="form-group">
-			<label class="mr-sm-2">State</label>
-			{{form.stati}}
-		</div>
-		</div>
-		<div class="modal-footer">
-			<button type="submit" class="btn btn-success">Search</button>
-		</div>
-			</form>
-	</div>
-</div>
-</div>
-</form>
--->
-=======
-</div>
-</div>
-</div>
-
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
 	<div class="modal-content">
@@ -193,10 +141,6 @@
 			<span aria-hidden="true">&times;</span>
 			</button>
 		</div>
-<<<<<<< HEAD
-		<!--<form action="modi">-->
-=======
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 		<div class="modal-body">
 		<h6 class="text-center">Pending modifications</h6>
 		<table class="table table-sm table-hover" id="modTable">
@@ -224,16 +168,8 @@
 
 		</div>
 		<div class="modal-footer">
-<<<<<<< HEAD
-		<!--<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
-		-->
 		<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
 		</div>
-		<!--</form>-->
-=======
-		<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
-		</div>
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</div>
 </div>
 </div>
@@ -277,11 +213,7 @@
 
 <tbody id="contentArea">
 	{% for tuple in queryset %}
-<<<<<<< HEAD
-	<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}}" id="{{forloop.counter}}">
-=======
 	<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 		<td>
 			<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
 				class="accordion-toggle">
@@ -304,15 +236,9 @@
 				<p><strong>Created by: </strong> {{tuple.created_by}}</p>
 			</div>
 			<div class="col-sm-2">
-<<<<<<< HEAD
-			<a class="cus-link" href="/data/{{tuple.id}}" target="_blank">Detailed View</a>
-			</div>
-			<div class="col-sm-4">
-=======
 			<a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
 			</div>
 			<div class="col-sm-3">
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 			<form class="form-inline">
 			<label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
 			<select class="form-control form-control-sm cla"
@@ -323,12 +249,9 @@
 				{% endfor %}
 			</select>
 			</form>
-<<<<<<< HEAD
-=======
             </div>
             <div class="col-sm-1">
             {% if recent|get_item:tuple.id %} NEW {%endif%}
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 			</div>
 			<div class="col-sm-2">
 				<button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
@@ -353,38 +276,7 @@
 <div class="container-fluid">
 <div class="row">
 <div class="col-sm-8">
-<<<<<<< HEAD
-
-<nav aria-label="Page navigation example">
-<ul class="pagination">
-{% if not queryset.has_previous %}
-<li class="page-item disabled"><a class="page-link" href="#">&laquo; First ...</a></li>
-<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-{% else %}
-<li class="page-item"><a class="page-link" href="?page=1&size={{size}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}
-	&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">&laquo; First ...</a></li>
-<li class="page-item"><a class="page-link" href="?page={{ queryset.previous_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}&
-	schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.previous_page_number}}</a></li>
-{% endif %}
-
-<li class="page-item active"><a class="page-link" href="#">{{queryset.number}}</a></li>
-
-{% if not queryset.has_next %}
-<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-<li class="page-item disabled"><a class="page-link" href="#">... {{queryset.paginator.num_pages}} &raquo;</a></li>
-{% else %} 
-<li class="page-item"><a class="page-link" href="?page={{ queryset.next_page_number }}&size={{size}}&query={{query}}&data_source={{ds}}
-&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">{{queryset.next_page_number}}</a></li>
-<li class="page-item"><a class="page-link" href="?page={{ queryset.paginator.num_pages }}&size={{size}}&query={{query}}&data_source={{ds}}
-	&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}">... {{queryset.paginator.num_pages}} &raquo;</a></li>
-
-{% endif %}
-</ul>
-</nav>
-
-=======
 {% include 'classy/pagi.html' %}
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 </div>
 <div class="col-sm-1">
 <button class="btn btn-sm btn secondary" id="edito" data-toggle="modal" data-target="#batchModal">Edit Selected</button>

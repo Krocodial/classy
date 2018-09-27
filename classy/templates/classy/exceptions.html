@@ -1,49 +1,16 @@
 <!doctype html>
 <html>
 <head>
-<<<<<<< HEAD
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-<title>Logs</title>
-
-{% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
-{% include 'classy/head.html' %}
-
-=======
 <title>Exceptions</title>
 
 {%include 'classy/base_links.html'%}
 {% load static %}
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
 
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 </head>
 
 <body id="bootstrapoverride">
 {% include 'classy/navbar.html' %}
-<<<<<<< HEAD
-{% include 'classy/pagi.html' %}
-<table class="table">
-<thead>
-	<tr>
-		<th>ID</th>
-		<th>Datasource</th>
-		<th>Schema</th>
-		<th>Table</th>
-		<th>Column</th>
-		<th>Classification</th>
-		<th>User</th>
-		<th>Creation Date</th>
-=======
 
 <div class='container-fluid'>
 <br/>
@@ -76,37 +43,25 @@
 		<th class="th-cus">Column</th>
 		<th class="th-cus">Classification</th>
 		<th class="th-cus">User</th>
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</tr>
 </thead>
 <tbody>
 	{% for tuple in queryset %}
 	<tr>
 		<td>{{tuple.classy.id}}</td>
-<<<<<<< HEAD
-=======
 		<td>{{tuple.classy.creation_date}}</td>
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 		<td>{{tuple.classy.datasource_description}}</td>
 		<td>{{tuple.classy.schema}}</td>
 		<td>{{tuple.classy.table_name}}</td>
 		<td>{{tuple.classy.column_name}}</td>
 		<td>{{tuple.classy.classification_name}}</td>
 		<td>{{tuple.classy.created_by}}</td>
-<<<<<<< HEAD
-		<td>{{tuple.classy.creation_date}}</td>
-=======
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</tr>
 	{% endfor %}
 </tbody>
 </table>
 
-<<<<<<< HEAD
-{% include 'classy/pagi.html' %}
-=======
 {% include 'classy/basic_pagi.html' %}
->>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 
 </body>
 </html>
