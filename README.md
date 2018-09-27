@@ -21,25 +21,25 @@ Stable
 
 An example of this process on Ubuntu is included in bash script 'install.sh'  
   
-Using apt or another package manager install
-*libmysqlclient-dev
-*python3-venv
-*python3-pip
-*apache2
-*apache2-dev
-*libapache2-mod-wsgi-py3
-
-* Create a virtual environment, 'python -m venv envs'.
+Using apt or another package manager install  
+*libmysqlclient-dev  
+*python3-venv  
+*python3-pip  
+*apache2  
+*apache2-dev  
+*libapache2-mod-wsgi-py3  
   
-* Activate this virtual environment 'source /envs/bin/activate'.
+* Create a virtual environment, 'python -m venv envs'.  
+   
+* Activate this virtual environment 'source /envs/bin/activate'.  
   
-* Install local dependencies. 'pip install -r requirements.txt'.
+* Install local dependencies. 'pip install -r requirements.txt'.  
   
-* Create environment variables with corresponding variable names in '.envs' in the project directory. These include your database credentials, secret, and host IP.
+* Create environment variables with corresponding variable names in '.envs' in the project directory. These include your database credentials, secret, and host IP.  
   
-* Customize the dsc/settings.py file. This includes changing the database connections, and ensuring that debug mode is turned off. If in-doubt follow the instructions included in this file.
+* Customize the dsc/settings.py file. This includes changing the database connections, and ensuring that debug mode is turned off. If in-doubt follow the instructions included in this file.  
   
-* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.
+* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
  
 ## Running Tests
   
@@ -87,28 +87,6 @@ classy/
         ├── images
         └── js
 ```
-
-## Deployment (Local Development)
-
-Using apt or another package manager install  
-*libmysqlclient-dev  
-*python3-venv  
-*python3-pip  
-*apache2  
-*apache2-dev  
-*libapache2-mod-wsgi-py3  
-
-* Create a virtual environment, 'python -m venv envs'.  
-
-* Activate this virtual environment 'source /envs/bin/activate'.  
-
-* Install local dependencies. 'pip install -r requirements.txt'.  
- 
-* Create environment variables with corresponding variable names in '.envs' in the project directory. These include your database credentials, secret, and host IP.   
-
-* Customize the dsc/settings.py file. This includes changing the database connections, and ensuring that debug mode is turned off. If in-doubt follow the instructions included in this file.  
-
-* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
 
 ## Getting Help or Reporting an Issue
 
