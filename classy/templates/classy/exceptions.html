@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+<<<<<<< HEAD
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -17,10 +18,19 @@
 
 {% include 'classy/head.html' %}
 
+=======
+<title>Exceptions</title>
+
+{%include 'classy/base_links.html'%}
+{% load static %}
+<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 </head>
 
 <body id="bootstrapoverride">
 {% include 'classy/navbar.html' %}
+<<<<<<< HEAD
 {% include 'classy/pagi.html' %}
 <table class="table">
 <thead>
@@ -33,25 +43,70 @@
 		<th>Classification</th>
 		<th>User</th>
 		<th>Creation Date</th>
+=======
+
+<div class='container-fluid'>
+<br/>
+<div class="row">
+	<div class='col'>
+		{% include 'classy/basic_pagi.html' %}
+	</div>
+	<div class='col'>
+		<form class='form-group' action='exceptions'>
+			<div class='input-group'>
+				{{form.query}}
+				<span class='input-group-btn'>
+					<button type='submit' class='btn btn-primary btn-small' type='button'>Search</button>
+				</span>
+			</div>
+		</form>
+	</div>
+	<div class='col'></div>
+</div>
+</div>
+
+<table class="table table-sm">
+<thead style="color:#fff;" class="thead-inverse">
+	<tr>
+		<th class="th-cus">ID</th>
+		<th class="th-cus">Creation Date</th>
+		<th class="th-cus">Datasource</th>
+		<th class="th-cus">Schema</th>
+		<th class="th-cus">Table</th>
+		<th class="th-cus">Column</th>
+		<th class="th-cus">Classification</th>
+		<th class="th-cus">User</th>
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</tr>
 </thead>
 <tbody>
 	{% for tuple in queryset %}
 	<tr>
 		<td>{{tuple.classy.id}}</td>
+<<<<<<< HEAD
+=======
+		<td>{{tuple.classy.creation_date}}</td>
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 		<td>{{tuple.classy.datasource_description}}</td>
 		<td>{{tuple.classy.schema}}</td>
 		<td>{{tuple.classy.table_name}}</td>
 		<td>{{tuple.classy.column_name}}</td>
 		<td>{{tuple.classy.classification_name}}</td>
 		<td>{{tuple.classy.created_by}}</td>
+<<<<<<< HEAD
 		<td>{{tuple.classy.creation_date}}</td>
+=======
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</tr>
 	{% endfor %}
 </tbody>
 </table>
 
+<<<<<<< HEAD
 {% include 'classy/pagi.html' %}
+=======
+{% include 'classy/basic_pagi.html' %}
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 
 </body>
 </html>

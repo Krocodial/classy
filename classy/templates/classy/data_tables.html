@@ -1,21 +1,12 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Data</title>
+{% load classy_extras %}
+{% include 'classy/base_links.html' %}
 
 {% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
-{% include 'classy/head.html' %}
-
 </head>
 <body id="bootstrapoverride">
 
@@ -95,25 +86,13 @@
 <div class="row">
         <div class="col-sm-2">
 	<br/><br/>
-<!--	<form class="form-inline">-->
 	<div class="input-group">
 	<label for="id_size">Results per page: &nbsp</label>
 	
 	{{form.size}}
 	</div>
-	<!--
-	<select class="custom-select custom-select-sm" id="sizi">
-		<option selected>{{size}}</option>
-		{% for siz in sizes %}
-		{% if siz != size %}
-			<option value="{{siz}}">{{siz}}</option>
-		{% endif %}
-		{% endfor %}
-	</select>-->
-<!--	</form>-->
         </div>
         <div class="col-sm-8">
-<!--	<form class="form-group" style="margin-bottom: 0px;" action="search" method="GET">-->
 	<div class="input-group">	
 	{{form.query}}
 	<span class="input-group-btn">
@@ -149,6 +128,7 @@
 </form>
 {% endif %}
 
+<<<<<<< HEAD
 </div>
 </div>
 </div>
@@ -198,6 +178,12 @@
 </div>
 </form>
 -->
+=======
+</div>
+</div>
+</div>
+
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
 	<div class="modal-content">
@@ -207,7 +193,10 @@
 			<span aria-hidden="true">&times;</span>
 			</button>
 		</div>
+<<<<<<< HEAD
 		<!--<form action="modi">-->
+=======
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 		<div class="modal-body">
 		<h6 class="text-center">Pending modifications</h6>
 		<table class="table table-sm table-hover" id="modTable">
@@ -235,11 +224,16 @@
 
 		</div>
 		<div class="modal-footer">
+<<<<<<< HEAD
 		<!--<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
 		-->
 		<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
 		</div>
 		<!--</form>-->
+=======
+		<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
+		</div>
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</div>
 </div>
 </div>
@@ -283,7 +277,11 @@
 
 <tbody id="contentArea">
 	{% for tuple in queryset %}
+<<<<<<< HEAD
 	<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}}" id="{{forloop.counter}}">
+=======
+	<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 		<td>
 			<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
 				class="accordion-toggle">
@@ -306,9 +304,15 @@
 				<p><strong>Created by: </strong> {{tuple.created_by}}</p>
 			</div>
 			<div class="col-sm-2">
+<<<<<<< HEAD
 			<a class="cus-link" href="/data/{{tuple.id}}" target="_blank">Detailed View</a>
 			</div>
 			<div class="col-sm-4">
+=======
+			<a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
+			</div>
+			<div class="col-sm-3">
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 			<form class="form-inline">
 			<label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
 			<select class="form-control form-control-sm cla"
@@ -319,6 +323,12 @@
 				{% endfor %}
 			</select>
 			</form>
+<<<<<<< HEAD
+=======
+            </div>
+            <div class="col-sm-1">
+            {% if recent|get_item:tuple.id %} NEW {%endif%}
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 			</div>
 			<div class="col-sm-2">
 				<button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
@@ -336,10 +346,14 @@
 
 </table>
 
+
+
+
 {% if queryset %}
 <div class="container-fluid">
 <div class="row">
 <div class="col-sm-8">
+<<<<<<< HEAD
 
 <nav aria-label="Page navigation example">
 <ul class="pagination">
@@ -368,6 +382,9 @@
 </ul>
 </nav>
 
+=======
+{% include 'classy/pagi.html' %}
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 </div>
 <div class="col-sm-1">
 <button class="btn btn-sm btn secondary" id="edito" data-toggle="modal" data-target="#batchModal">Edit Selected</button>
@@ -394,8 +411,6 @@
 <div class="modal" id="wheel"></div>
 
 <br/><br/>
-<!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
--->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
@@ -403,67 +418,6 @@
 <script src="{% static 'classy/js/custom.js' %}"></script>
 
 <script>
-/*
-
-//var options = ['Unclassified', 'PUBLIC', 'CLASSIFIED',  'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
-
-//script to modify vals.
-var toDel = [];
-var toMod = [];
-
-$('#contentArea').on('click', '.del', function() {
-	var row = '.hiddenRows' + event.target.id;
-	var mrow = '.mrow' + event.target.id;
-	var rowId = '#prodId' + event.target.id;
-
-	var id = $(rowId).attr('value');
-	toDel.push(id);
-	$(row).remove();
-	$(mrow).remove();
-});
-
-$(document).on('change', '.cla', function(e) {
-	var row = '.hiddenRows' + event.target.id;
-	var rowId = '#prodId' + event.target.id;
-	var newCl = this.options[e.target.selectedIndex].text;
-	var fid = $(rowId).attr('value');
-
-	chan = {id:fid, classy: newCl};
-	toMod.push(chan);
-});
-
-$(document).on('click', '#subby', function() {
-	var rows = $.map(toDel, function(value, index) {
-        return '<tr><td>' + value + '</td><td>' +
-                '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
-                '</td></tr>';
-});
-
-	$('#delTable tbody').html(rows.join(''));
-
-	var rows = $.map(toMod, function(value, index) {
-        return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td><td>' +
-                '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
-                '</td></tr>';
-});
-
-	$('#modTable tbody').html(rows.join(''));
-
-       
-});
-
-$('#modTable').on('click', 'button', function() {
-      var row = $(this).closest('tr');
-      toMod.splice(row.index(), 1);
-      row.remove();
-});
-
-$('#delTable').on('click', 'button', function() {
-      var row = $(this).closest('tr');
-      toDel.splice(row.index(), 1);
-      row.remove(); 
-});
-*/
 
 $body = $('body');
 $(document).on({
@@ -483,10 +437,8 @@ $(document).on('click', '#finSubby', function() {
 	success: function(data){
 		if(data.status == 1) {
 		$('#succ').submit();
-		console.log('test');
 	} else {
 		$('#fai').submit();
-		console.log('error');
 		//window.location('url')
 	}
 

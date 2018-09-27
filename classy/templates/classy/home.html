@@ -1,22 +1,15 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Data</title>
+<meta http-equiv="X-UA-Compatible" content="IE-edge" />
 
+<title>Data</title>
+{%include 'classy/base_links.html'%}
 {% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-{% include 'classy/head.html' %}
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
 <link rel="stylesheet" href="{% static 'classy/css/home.css' %}">
-
-
-
 </head>
 <body id="bootstrapoverride">
 
@@ -28,7 +21,11 @@
 <div class="container">
 <div class="row">
   <div class="col-lg-12">
+<<<<<<< HEAD
     <h2 class="display-4 text-center mt-4">Welcome {{user}}</h2>
+=======
+    <h2 class="display-4 text-center mt-4">Welcome {{user.last_name}}</h2>
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	<!--<canvas id="lineChart"></canvas>-->		
   </div>
 </div>
@@ -49,8 +46,8 @@ the purpose of keeping an inventory of the data that is managed, and where that 
 
   <p>This tool is managed by the FLNR security team, with custom access granted to business areas based on privilege. All changes will be reviewed and approved before 
 	they reflect in the main dataset. If you need access to a larger dataset due to business changes, please send a request to 
-<a href=''>CSNR@informationsecurityemail.com</a></p>
-<!--<p>
+ the FLNR security team.
+	<!--<p>
     <a class="btn btn-primary btn-lg" href="#">Call to Action &raquo;</a>
   </p>-->
 </div>

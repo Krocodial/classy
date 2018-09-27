@@ -1,31 +1,42 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 <title>Logs</title>
+{% include 'classy/base_links.html' %}
 
 {% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
-{% include 'classy/head.html' %}
-
 </head>
 
 <body id="bootstrapoverride">
 {% include 'classy/navbar.html' %}
-{% include 'classy/pagi.html' %}
-<table class="table">
-<thead>
+
+<div class="container-fluid">
+<br/>
+<div class="row">
+	<div class="col">
+		{% include 'classy/basic_pagi.html' %}
+	</div>
+	<div class="col">
+		<form class="form-group" action="log_list">
+			<div class="input-group">
+				{{form.query}}
+				<span class="input-group-btn">
+				<button type="submit" class="btn btn-primary btn-small" type="button">Search</button>
+				</span>
+			</div>
+		</form>
+	</div>
+	<div class="col"></div>
+</div>
+</div>
+
+<table class="table table-sm">
+<thead style="color:#fff;" class="thead-inverse">
 	<tr>
 		
+<<<<<<< HEAD
 		<th>ID</th>
 		<th>Action Time</th>
 		<th>Action Flag</th>
@@ -34,6 +45,16 @@
 		<th>User</th>
 		<th>Approver</th>
 		<th>State</th>
+=======
+		<th class="th-cus">ID</th>
+		<th class="th-cus">Action Time</th>
+		<th class="th-cus">Action Flag</th>
+		<th class="th-cus">Old Clas.</th>
+		<th class="th-cus">New Clas.</th>
+		<th class="th-cus">User</th>
+		<th class="th-cus">Approver</th>
+		<th class="th-cus">State</th>
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 	</tr>
 </thead>
 <tbody>
@@ -59,7 +80,6 @@
 </tbody>
 </table>
 
-{% include 'classy/pagi.html' %}
-
+{%include 'classy/basic_pagi.html'%}
 </body>
 </html>

@@ -16,7 +16,7 @@ td {
     height:     100%;
     width:      100%;
     background: rgba( 255, 255, 255, .6 ) 
-                url('https://loading.io/spinners/spookyghost/index.spooky-ghost-ajax-preloader.svg') 
+                url('../images/index.spooky-ghost-ajax-preloader.svg') 
                 50% 50% 
                 no-repeat;
 }
@@ -45,7 +45,7 @@ body.loading #wheel {
 .business-header{
   height: 40vh !important;
   min-height: 300px;
-  background: url('http://absarokarealty.com/wp-content/uploads/mountains.jpg') center center no-repeat scroll;
+  background: url('../images/mountains.jpg') center center no-repeat scroll;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   background-size: cover;
@@ -65,8 +65,11 @@ canvas {
 }
 
 #bootstrapoverride {
+<<<<<<< HEAD
 	/*font-family: 'Dosis', sans-serif;
 	font-family: 'Roboto', sans-serif;*/
+=======
+>>>>>>> 4ae3ddc16cb17e3c7c8091a5a9cfb757c6935700
 }
 
 .navbar {
@@ -93,6 +96,11 @@ canvas {
 
 .recents {
 	max-height: 30vh;
+}
+
+
+.pending {
+	background-color: #e6ffff;
 }
 
 .selected {
