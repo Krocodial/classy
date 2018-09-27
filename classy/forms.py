@@ -1,7 +1,9 @@
 from django import forms
 import datetime
 from django.forms import ModelForm
-from .models import classification
+from .models import classification, classification_count, classification_exception, classification_logs, classification_review_groups, classification_review
+from django.contrib.auth.models import Permission
+from django.conf import settings
 
 class UploadFileForm(forms.Form):
 	#title = forms.CharField(max_length=50)
@@ -15,6 +17,9 @@ class thread:
 		self.uptime = 0
 		self.user = user
 		self.progress = 0
+
+class basic_search(forms.Form):
+    query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
 
 class advancedSearch(forms.Form):
 	
@@ -51,15 +56,49 @@ class advancedSearch(forms.Form):
 
 
 class loginform(forms.Form):
-	username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={
-	'class': 'form-control', 'placeholder': 'Username'}))
-	password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
+    if settings.BYPASS_AUTH:
+        username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
+    password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'AUTOCOMPLETE': 'off'}))
 
 class new_tuple(forms.Form):
 	process = forms.CharField(max_length=100)
+
+class permissionForm(ModelForm):
+        class Meta:
+                model = Permission
+                fields = ['name', 'content_type', 'codename']
 
 class ClassificationForm(ModelForm):
 	class Meta:
 		model = classification
 		fields = ['classification_name', 'schema', 'table_name', 'column_name', 'category', 'datasource_description', 'created_by', 'state']
+
+class classificationCountForm(ModelForm):
+    class Meta:
+        model = classification_count
+        fields = ['classification_name', 'count', 'date']	
+
+class classificationExceptionForm(ModelForm):
+    class Meta:
+        model = classification_exception
+        fields = ['classy']
+
+class classificationLogForm(ModelForm):
+    class Meta:
+        model = classification_logs
+        fields = ['classy', 'action_flag', 'n_classification', 'o_classification', 'user_id', 'state', 'approved_by']
+
+class classificationReviewGroupForm(ModelForm):
+    class Meta:
+        model = classification_review_groups
+        fields = ['user']
+
+class classificationReviewForm(ModelForm):
+    class Meta:
+        model = classification_review
+        fields = ['classy', 'group', 'classification_name', 'schema', 'table_name', 'column_name', 'datasource_description', 'action_flag', 'o_classification']
+
+
+
+
 

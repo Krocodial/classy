@@ -132,7 +132,61 @@
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-<script src="{% static 'classy/js/review.js' %}"></script>
+<script>
+
+denied = [];
+
+$(document).on('click', '.remo', function() {
+        var row = $(this).closest('tr');
+        denied.push(event.target.id);
+        row.remove();
+});
+
+$body = $('body');
+
+$(document).on('click', '.subby', function() {
+        $body.addClass('loading');
+
+        var tmp = event.target.id;
+        $.ajax({
+                type: 'POST',
+                url: 'review',
+                traditional: true,
+                data: {'denied': JSON.stringify(denied), 'csrfmiddlewaretoken': '{{csrf_token}}', 'group': event.target.id},
+                success: function(data){
+                        if(data.status == 1) {
+                                $('#succ').submit();
+                        } else {
+                                $('#fail').submit();
+                        }
+                }
+        });
+
+});
+
+$(document).on('click', '.deny', function() {
+        $body.addClass('loading');
+        var tmp = event.target.id;
+        $.ajax({
+                type: 'POST',
+                url: 'review',
+                traditional: true,
+                data: {'csrfmiddlewaretoken': '{{csrf_token}}', 'group': event.target.id},
+
+                success: function(data) {
+                        if(data.status == 1) {
+                                $('#succ').submit();
+                        } else {
+                                $('#fail').submit();
+                        }
+                }
+        });
+});
+
+
+</script>
+
+
 
 </body>
 </html>
