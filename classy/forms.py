@@ -1,12 +1,13 @@
 from django import forms
-import datetime
 from django.forms import ModelForm
-from .models import classification, classification_count, classification_exception, classification_logs, classification_review_groups, classification_review
 from django.contrib.auth.models import Permission
 from django.conf import settings
 
+import datetime
+
+from .models import *
+
 class UploadFileForm(forms.Form):
-	#title = forms.CharField(max_length=50)
 	file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
 
 class thread:
@@ -35,7 +36,6 @@ class advancedSearch(forms.Form):
 	schema = forms.CharField(required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 	table = forms.CharField(required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 	column = forms.CharField(required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-	#classi = forms.ChoiceField(required=False, choices=classi_choices, widget=forms.Select(attrs={'class': 'form-control'}))
 	classi = forms.MultipleChoiceField(required=False, choices=classi_choices, widget=forms.SelectMultiple(attrs={'class':'form-control'}))
 
 	query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))

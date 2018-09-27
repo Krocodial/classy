@@ -1,20 +1,14 @@
-import io
-import csv
 from django.core import files
-from .models import classification, classification_logs, classification_exception, classification_count
-from .forms import ClassificationForm, permissionForm
 from django.contrib.auth.models import Permission
-import re
-import multiprocessing, time, signal
-import threading
-import queue, re
-#from datetime import datetime, timedelta
-import pytz
 from django.utils import timezone
 from django.utils.dateparse import *
 from django.core.files.storage import FileSystemStorage, Storage
 from django.conf import settings
 
+import re, io, csv, multiprocessing, time, signal, threading, queue, pytz
+
+from .models import classification, classification_logs, classification_exception, classification_count
+from .forms import ClassificationForm, permissionForm
 
 options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
 
@@ -26,23 +20,15 @@ def construct_query(request, queryset):
 
     return queryset & user_queryset
 
-'''
-counts:
-    confidential, public, unclassified, prot a, prot b, prot c
-'''
 def calculate_count(logs, counts):  
     today = timezone.now().date()
-    #print(today.date())
     for classi, value in counts.items():
         new = classification_count(classification_name=classi, count=value, date=today)
         new.save()
     for i in range(1, 60):
-        #s = today - timedelta(days=i)
-        #e = today - timedelta(days=i+1)
         d = today - timezone.timedelta(days=i)
         dLogs = logs.filter(action_time__date=d)#action_time__gte=e, action_time__lte=s)
         dLogs.order_by('-action_time')
-        #print(dLogs)
         for log in dLogs:
             if log.o_classification not in options:
                 log.delete()
@@ -64,6 +50,8 @@ def calculate_count(logs, counts):
         for classi, value in counts.items():
             new = classification_count(classification_name=classi, count=value, date=d-timezone.timedelta(days=1))
             new.save()
+
+
 #File for generic scripts
 class parent:
     def __init__(self, iden):
@@ -100,21 +88,6 @@ def create_thread(request, lock, th, threads, user):
             counter = counter + 1
             th.progress = str(counter//row_count)
             data_list = re.split(':', row['Datasource Description'])
-            '''
-            funky = str.strip(data_list[3]) + ':-' + row['Schema'] + ':-' + row['Table Name']
-            if not Permission.objects.filter(name__exact=funky):
-                    data = {}
-                    data['name'] = row['Schema'] + ':' + row['Table Name']
-                    data['content_type'] = 1
-                    data['codename'] = funky 
-                    form = permissionForm(data)
-                    if form.is_valid():
-                        form.save()
-                        print('yes')
-                    else:
-                        print(form.errors)
-                        print(funky)
-            '''
 
             if not classification.objects.filter(
             schema__exact=row['Schema'], 
@@ -154,48 +127,3 @@ def create_thread(request, lock, th, threads, user):
         print(e)
 
 
-def demo():
-    sql = classification(
-    classification_name=row['Classification Name'], 
-    schema=row['Schema'], 
-    table_name=row['Table Name'], 
-    column_name=row['Column Name'], 
-    category=row['Category'], 
-    datasource_description=data_list[3],
-    created_by = user,
-    state='Active')
-    sql.save()
-
-    log = classification_logs(classy_id = sql.id, action_flag=2, n_classification=row['Classification Name'], o_classification=row['Classification Name'], user_id = user, state='Active')
-    log.save()
-
-        
-        #log = classification_logs(classy_id = , action_flag=2, n_classification=row['Classification Name'], o_classification=row['Classification Name'], user_id = user)
-        #log.save()
-
-    inp.close()
-    threads.remove(th)
-    lock.release()
-            #print('tuple inserted')
-        
-        #print(row['Classification Name'])
-        
-    #   print(row['Classification Name'])   
-#function to be called by view.uploader
-
-
-def example(lock):
-    lock.acquire()
-    print('executing')
-    time.sleep(10)
-    lock.release()
-
-    
-    
-
-    
-
-    
-
-    
-    
