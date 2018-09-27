@@ -1,0 +1,28 @@
+from django.test import LiveServerTestCase
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+
+class searchTestCase(LiveServerTestCase):
+	def setUp(self):
+		self.selenium = webdriver.Firefox()
+		super(searchTestCase, self).setUp()
+
+	def tearDown(self):
+		self.selenium.quit()
+		super(searchTestCase, self).tearDown()
+
+	def test_login(self):
+		selenium = self.selenium
+
+		selenium.get(reverse('classy:index'))
+		username = selenium.find_element_by_id('id_first_name')
+
+		submit = selenium.find_element_by_name('submit')
+
+		username.send_keys('testaccount')
+
+		submit.send_keys(Keys.RETURN)
+
+		assert 'welcome user' in selenium.page_source
+
