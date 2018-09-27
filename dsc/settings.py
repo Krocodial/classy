@@ -28,6 +28,7 @@ DEBUG = True
 BYPASS_AUTH = True
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
+
 '''
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
@@ -36,6 +37,7 @@ SESSION_COOKIE_AGE=3600
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 '''
+
 # Application definition
 
 INSTALLED_APPS = [
