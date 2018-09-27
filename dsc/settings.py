@@ -23,9 +23,13 @@ load_dotenv(os.path.join(BASE_DIR, '.envs'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)sximez5*pr+&3%o') #If key not set in environment use default for dev
+
 # SECURITY WARNING: don't run with debug turned on in production!
+# For production set DEBUG: False, BYPASS_AUTH: False, USE_MYSQL_DB: True
+
 DEBUG = True
 BYPASS_AUTH = True
+USE_MYSQL_DB = False
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
@@ -83,16 +87,24 @@ WSGI_APPLICATION = 'dsc.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-	'NAME': base64.b64decode(os.getenv('MYSQL_DATABASE').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
-	'USER': base64.b64decode(os.getenv('MYSQL_USER').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
-	'PASSWORD': base64.b64decode(os.getenv('MYSQL_PASS').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
-	'HOST': base64.b64decode(os.getenv('MYSQL_HOST').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
-	'PORT': base64.b64decode(os.getenv('MYSQL_PORT').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
-    }
-}
+if USE_MYSQL_DB:
+	DATABASES = {
+	    'default': {
+	        'ENGINE': 'django.db.backends.mysql',
+		'NAME': base64.b64decode(os.getenv('MYSQL_DATABASE').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+		'USER': base64.b64decode(os.getenv('MYSQL_USER').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+		'PASSWORD': base64.b64decode(os.getenv('MYSQL_PASS').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+		'HOST': base64.b64decode(os.getenv('MYSQL_HOST').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+		'PORT': base64.b64decode(os.getenv('MYSQL_PORT').encode('ascii', 'ignore')).decode('ascii', 'ignore'),
+	    }
+	}
+else:
+	DATABASES = { 
+		'default': {
+			'ENGINE': 'django.db.backends.sqlite3', 
+			'NAME': 'mydatabase',
+		}
+	}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
