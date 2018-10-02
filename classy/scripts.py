@@ -59,51 +59,38 @@ class parent:
         self.iden = iden 
 
 
-def create_thread(request, lock, th, threads, user):
-    spaces = re.compile(' ')
+def create_thread(fs, filename, request, lock, th, threads, user):
     lock.acquire()  
 
-    inp = request.FILES['file']
-    if(inp.closed):
-                threads.remove(th)
-                lock.release()
-                return
-    
-    name = inp.name
-    name = spaces.sub('_', name)
-    fs = FileSystemStorage()
-    filename = fs.save(name, inp)
     uploaded_file_url = fs.url(filename)
     th.state = 'active'
 
     try:
-        
         row_count = sum(1 for i in csv.reader(open(uploaded_file_url))) 
         row_count = int(row_count/100)
         if row_count <= 0:
             row_count = 1   
         reader = csv.DictReader(open(uploaded_file_url))
         counter = 0
-        for row in reader:
-            counter = counter + 1
-            th.progress = str(counter//row_count)
-            data_list = re.split(':', row['Datasource Description'])
-
-            if not classification.objects.filter(
-            schema__exact=row['Schema'], 
-            table_name__exact=row['Table Name'], 
-            column_name__exact=row['Column Name'], 
-            datasource_description=str.strip(data_list[3])):    
-                data = {}
-                data['classification_name'] = row['Classification Name']
-                data['schema'] = row['Schema']
-                data['table_name'] =  row['Table Name']
-                data['column_name'] = row['Column Name']
-                data['category'] = row['Category']
-                data['datasource_description'] = data_list[3]
-                data['created_by'] = user
-                data['state'] = 'Active'
-                try:
+        if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
+            for row in reader:
+                counter = counter + 1
+                th.progress = str(counter//row_count)
+                data_list = re.split(':', row['Datasource Description'])
+                if not classification.objects.filter(
+                schema__exact=row['Schema'], 
+                table_name__exact=row['Table Name'], 
+                column_name__exact=row['Column Name'], 
+                datasource_description=str.strip(data_list[3])):    
+                    data = {}
+                    data['classification_name'] = row['Classification Name']
+                    data['schema'] = row['Schema']
+                    data['table_name'] =  row['Table Name']
+                    data['column_name'] = row['Column Name']
+                    data['category'] = row['Category']
+                    data['datasource_description'] = data_list[3]
+                    data['created_by'] = user
+                    data['state'] = 'Active'
                     form = ClassificationForm(data)
                     if form.is_valid():
                         tmp = form.save()
@@ -113,17 +100,17 @@ def create_thread(request, lock, th, threads, user):
                             e = classification_exception(classy=tmp)
                             e.save()
                     else:
-                        print(form.errors)
-                except Exception as e:
-                    print(e)
-        
-        #f.close()
+                        print('Invalid value in form')
+        else:
+            #This is not a guardium report
+            pass        
         fs.delete(filename)
         threads.remove(th)
         lock.release()
     except Exception as e:
+        print(e)
+        fs.delete(filename)
         threads.remove(th)
         lock.release()
-        print(e)
 
 

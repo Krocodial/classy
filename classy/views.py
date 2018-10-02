@@ -705,6 +705,7 @@ def home(request):
 
 #@csrf_exempt
 def uploader(request):
+    spaces = re.compile(' ')
     if not request.user.is_staff:
         return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
@@ -717,9 +718,14 @@ def uploader(request):
         if form.is_valid():
             f = form.cleaned_data['file']
             if f.name.endswith('.csv'):
+                inp = request.FILES['file']
+                name = spaces.sub('_', inp.name)
+                fs = FileSystemStorage()
+                filename = fs.save(name, inp)
+
                 th = thread(f.name, timezone.now(), 'pending', request.user.username)
                 threads.append(th)
-                t = threading.Thread(target=create_thread, args=(request, lock, th, threads, request.user.username))
+                t = threading.Thread(target=create_thread, args=(fs, filename, request, lock, th, threads, request.user.username))
                 th.startdate = timezone.now()
                 t.start()
                 context = {
@@ -745,7 +751,7 @@ def uploader(request):
                 'threads': threads,
                 'num': num
             }
-            return render(request, 'classy/jobs.html', context, status=422)
+            return render(request, 'classy/jobs.html', context, status=423)
     
     form = UploadFileForm()
     context = {'threads': threads, 'form': form, 'num': num}

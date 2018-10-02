@@ -144,11 +144,9 @@ USE_TZ = True
 
 STATIC_URL = '/int/dsc/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-
 MEDIA_URL = '/tmp/'#os.path.join(BASE_DIR, 'classy/tmp/'
 FILE_UPLOAD_PERMISSIONS = 0o600
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '/tmp/')
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, '/tmp/')
-
 
