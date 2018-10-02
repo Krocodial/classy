@@ -115,13 +115,10 @@ def review(request):
                             log.save()
                             item.save()
                         else:
-                            print('unexpected value')
-
-
+                            pass
+                            #print('unexpected value')
                         tup.delete()
-
                     group_info.delete()
-
                 else:
                     group_set.delete()
                     group_info.delete()
@@ -129,7 +126,6 @@ def review(request):
                 response = {'status': 1, 'message': 'ok'}
                 return HttpResponse(json.dumps(response), content_type='application/json')
             except Exception as e:
-                print(e)
                 pass
     queryset = classification_review.objects.all();
     groups = classification_review_groups.objects.all();
