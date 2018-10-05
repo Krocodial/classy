@@ -3,6 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
@@ -16,9 +17,9 @@ from django import forms
 
 import threading, time, csv, pytz, json, random
 
-from .forms import *
-from .models import *
-from .scripts import *
+from classy.models import *
+from classy.forms import *
+from classy.scripts import calculate_count, create_thread
 
 options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
 threads = []
@@ -425,7 +426,6 @@ def search(request):
                 page = 1
             paginator = Paginator(queryset, size)
             query = paginator.get_page(page)
-                        
             prev = False
             nex = False
             first = False
@@ -466,8 +466,6 @@ def search(request):
                     recent[tup.id] = True
                 else:
                     recent[tup.id] = False
-            
-
             context = {
                 'num': num,
                 'form': form,
@@ -488,7 +486,7 @@ def search(request):
                 'first': first,
                 'last': last,
                 'recent': recent
-        }
+            }
             return render(request, 'classy/data_tables.html', context)
         else:
             form = advancedSearch()
@@ -722,7 +720,7 @@ def uploader(request):
                 name = spaces.sub('_', inp.name)
                 fs = FileSystemStorage()
                 filename = fs.save(name, inp)
-
+                
                 th = thread(f.name, timezone.now(), 'pending', request.user.username)
                 threads.append(th)
                 t = threading.Thread(target=create_thread, args=(fs, filename, request, lock, th, threads, request.user.username))

@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)
 
 DEBUG = True
 BYPASS_AUTH = True
-USE_MYSQL_DB = False
+USE_MYSQL_DB = True
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'classy',
 ]
 
 MIDDLEWARE = [
@@ -101,8 +102,8 @@ if USE_MYSQL_DB:
 else:
 	DATABASES = { 
 		'default': {
-			'ENGINE': 'django.db.backends.sqlite3', 
-			'NAME': 'mydatabase',
+			'ENGINE': 'django.db.backends.sqlite3',
+			 
 		}
 	}
 

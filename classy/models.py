@@ -28,11 +28,10 @@ class classification(models.Model):
     classification_choices = (
     ('Unclassified', 'unclassified'),
     ('PUBLIC', 'public'),
-        ('CONFIDENTIAL', 'confidential'),
-        ('PROTECTED A', 'protected_a'),
-        ('PROTECTED B', 'protected_b'),
-    ('PROTECTED C', 'protected_c'),
-    )
+    ('CONFIDENTIAL', 'confidential'),
+    ('PROTECTED A', 'protected_a'),
+    ('PROTECTED B', 'protected_b'),
+    ('PROTECTED C', 'protected_c'))
     classification_name = models.CharField(max_length=50, choices=classification_choices)
     datasource_description = models.CharField(max_length=100)
     schema = models.CharField(max_length=50)
@@ -44,8 +43,7 @@ class classification(models.Model):
     state_choices = (
     ('Active', 'Active'),
     ('Inactive', 'Inactive'),
-    ('Pending', 'Pending'),
-    )
+    ('Pending', 'Pending'))
 
     state = models.CharField(max_length=15, choices=state_choices)
     summary = models.CharField(max_length=500, null=True)

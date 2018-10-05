@@ -1,16 +1,17 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, TransactionTestCase, LiveServerTestCase
 from django.test.utils import setup_test_environment
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.db.utils import *
 
 import tempfile, json, time
 
 from classy.forms import *
 from classy.models import *
 
-class postTests(TestCase):
+class postTests(TransactionTestCase):
     def setUp(self):
         user = User.objects.create(username='basic', is_staff=False)
         user.set_password('password')
@@ -182,7 +183,7 @@ class postTests(TestCase):
             response = c.post(reverse('classy:uploader'), {'file': fp})
             self.assertEqual(response.status_code, 200)
             response = c.get(reverse('classy:search'), {'query': ''})
-            self.assertNotContains(response, '<td>testo</td>')
+            self.assertNotContains(response,'<td>testo</td>')
 
         #valid file, valid values, invalid headers
         with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv') as fp:
@@ -192,18 +193,17 @@ class postTests(TestCase):
             response = c.post(reverse('classy:uploader'), {'file': fp})
             self.assertEqual(response.status_code, 200) 
             response = c.get(reverse('classy:search'), {'query': ''})
-            self.assertNotContains(response, '<td>testo</td>')
+            self.assertNotContains(response,'<td>ACS</td>')
 
         #valid file, valid values, valid headers
         with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv') as fp:
             fp.write('Classification Name,Category,Schema,Table Name,Column Name,Datasource Description\n')
             fp.write('Unclassified,Sensitive,ACS,COI_IU_STATUS,BYTES,DB:DB:IP:DB_NAME::PORT\n')
-            fp.write('PUBLIC,Sensitive,ACL,IO_SECRETS,GIT,DBQ,DBQ,IPADDR,DB_NAME::PORT\n')
+            fp.write('PUBLIC,Sensitive,ACL,IO_SECRETS,GIT,DBQ:DBQ:IPADDR:DB_NAME::PORT\n')
             fp.seek(0)
             response = c.post(reverse('classy:uploader'), {'file': fp})
             self.assertEqual(response.status_code, 200)
+            time.sleep(1)
             response = c.get(reverse('classy:search'), {'query': ''})
             self.assertContains(response, '<td>ACS</td>')
-
-
  
