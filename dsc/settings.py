@@ -156,3 +156,4 @@ FILE_UPLOAD_PERMISSIONS = 0o600
 MEDIA_ROOT = os.path.join(BASE_DIR, '/tmp/')
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, '/tmp/')
 
+
