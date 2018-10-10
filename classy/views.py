@@ -725,6 +725,7 @@ def uploader(request):
                 threads.append(th)
                 t = threading.Thread(target=create_thread, args=(fs, filename, request, lock, th, threads, request.user.username))
                 th.startdate = timezone.now()
+                #django.db.connections.close_all()
                 t.start()
                 context = {
                     'status': '200',

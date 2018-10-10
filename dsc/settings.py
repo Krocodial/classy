@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)
 
 DEBUG = True
 BYPASS_AUTH = True
-USE_MYSQL_DB = True
+USE_MYSQL_DB = True 
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
@@ -46,6 +46,7 @@ CSRF_COOKIE_HTTPONLY = True
 
 INSTALLED_APPS = [
     'classy.apps.ClassyConfig',
+    #'background_task',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -103,9 +104,13 @@ else:
 	DATABASES = { 
 		'default': {
 			'ENGINE': 'django.db.backends.sqlite3',
-			 
+		    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),	
+		    'OPTIONS': {
+                'timeout': 20,
+            }	 
 		}
 	}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

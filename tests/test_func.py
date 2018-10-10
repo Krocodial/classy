@@ -19,6 +19,9 @@ class postTests(TransactionTestCase):
         user = User.objects.create(username='staff', is_staff=True)
         user.set_password('staff_password')
         user.save()
+        user = User.objects.create_superuser('super', 'xx@xx.com', 'super_password')
+        user.save()
+
 
     def tearDown(self):
            pass 
@@ -206,4 +209,20 @@ class postTests(TransactionTestCase):
             time.sleep(1)
             response = c.get(reverse('classy:search'), {'query': ''})
             self.assertContains(response, '<td>ACS</td>')
- 
+
+    def test_admin(self):
+        c = Client()
+        response = c.post(reverse('classy:index'), {'username': 'super', 'password': 'super_password'})
+        self.assertEqual(response.status_code, 302)
+        response = c.get(reverse('admin:index') + 'auth/user/')
+        self.assertEqual(response.status_code, 200)
+
+        creds = {'username': 'new_user', 'password1': 'password', 'password2': 'password', '_save': 'Save'}
+        response = c.post(reverse('admin:index') + 'auth/user/add/', data=creds)
+        self.assertEqual(response.status_code, 200)
+
+        c.get(reverse('classy:user_logout'))
+        response = c.get(reverse('classy:home'))
+        self.assertEqual(response.status_code, 302)
+        
+
