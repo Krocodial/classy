@@ -46,7 +46,7 @@ class existanceTests(TestCase):
             form = ClassificationForm(data)
             self.assertEqual(form.is_valid(), True)
             tmp = form.save()
-            new = classification.objects.get(classification_name=val)
+            new = classification.objects.get(classification_name=val,column_name='testo')
             self.assertEqual(tmp.pk, new.pk)
 
     def test_invalid_states(self):

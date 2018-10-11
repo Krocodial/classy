@@ -1,24 +1,10 @@
-from django.core import files
-from django.contrib.auth.models import Permission
-from django.utils import timezone
-from django.utils.dateparse import *
-from django.core.files.storage import FileSystemStorage, Storage
-from django.conf import settings
+import csv, re
 
-import re, io, csv, multiprocessing, time, signal, threading, queue, pytz
-
-from .models import classification, classification_logs, classification_exception, classification_count
-from .forms import ClassificationForm, permissionForm
+from classy.models import * 
+from classy.forms import *
 
 options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
 
-def construct_query(request, queryset):
-    if settings.BYPASS_AUTH:
-        return classification.objects.all()
-
-    user_queryset = classification.objects.all()
-
-    return queryset & user_queryset
 
 def calculate_count(logs, counts):  
     today = timezone.now().date()
@@ -53,77 +39,71 @@ def calculate_count(logs, counts):
 
 
 #File for generic scripts
-class parent:
-    def __init__(self, iden):
-        children = []
-        self.iden = iden 
+def create_thread(fs, filename, request, lock, th, threads, user):
+    lock.acquire() 
 
+    try: 
+        uploaded_file_url = fs.url(filename)
+        th.state = 'active'
 
-def create_thread(request, lock, th, threads, user):
-    spaces = re.compile(' ')
-    lock.acquire()  
-
-    inp = request.FILES['file']
-    if(inp.closed):
-                threads.remove(th)
-                lock.release()
-                return
-    
-    name = inp.name
-    name = spaces.sub('_', name)
-    fs = FileSystemStorage()
-    filename = fs.save(name, inp)
-    uploaded_file_url = fs.url(filename)
-    th.state = 'active'
-
-    try:
-        
         row_count = sum(1 for i in csv.reader(open(uploaded_file_url))) 
         row_count = int(row_count/100)
         if row_count <= 0:
             row_count = 1   
         reader = csv.DictReader(open(uploaded_file_url))
         counter = 0
-        for row in reader:
-            counter = counter + 1
-            th.progress = str(counter//row_count)
-            data_list = re.split(':', row['Datasource Description'])
 
-            if not classification.objects.filter(
-            schema__exact=row['Schema'], 
-            table_name__exact=row['Table Name'], 
-            column_name__exact=row['Column Name'], 
-            datasource_description=str.strip(data_list[3])):    
-                data = {}
-                data['classification_name'] = row['Classification Name']
-                data['schema'] = row['Schema']
-                data['table_name'] =  row['Table Name']
-                data['column_name'] = row['Column Name']
-                data['category'] = row['Category']
-                data['datasource_description'] = data_list[3]
-                data['created_by'] = user
-                data['state'] = 'Active'
-                try:
+        if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
+            for row in reader:
+                counter = counter + 1
+                th.progress = str(counter//row_count)
+                data_list = re.split(':', row['Datasource Description'])
+                if not classification.objects.filter(
+                schema__exact=row['Schema'], 
+                table_name__exact=row['Table Name'], 
+                column_name__exact=row['Column Name'], 
+                datasource_description__exact=str.strip(data_list[3])):    
+                    data = {}
+                    data['classification_name'] = row['Classification Name']
+                    data['schema'] = row['Schema']
+                    data['table_name'] =  row['Table Name']
+                    data['column_name'] = row['Column Name']
+                    data['category'] = row['Category']
+                    data['datasource_description'] = data_list[3]
+                    data['created_by'] = user
+                    data['state'] = 'Active'
                     form = ClassificationForm(data)
                     if form.is_valid():
                         tmp = form.save()
-                        log = classification_logs(classy_id = tmp.id, action_flag=2, n_classification=row['Classification Name'], o_classification=row['Classification Name'], user_id = user, state='Active', approved_by='N/a')
-                        log.save()
+                        log_data = {}
+                        log_data['classy'] = tmp.id
+                        log_data['action_flag'] = 2
+                        log_data['n_classification'] = row['Classification Name']
+                        log_data['o_classification'] = row['Classification Name']
+                        log_data['user_id'] = user
+                        log_data['state'] = 'Active'
+                        log_data['approved_by'] = 'N/a'
+                        log_form = classificationLogForm(log_data)
+                        if log_form.is_valid():
+                            log_form.save()
+                        else:
+                            print('log form error')
                         if row['Classification Name'] != 'Unclassified':
-                            e = classification_exception(classy=tmp)
-                            e.save()
+                            exc_data = {}
+                            exc_data['classy'] = tmp.id
+                            exc_form = classificationExceptionForm(exc_data)
+                            if exc_form.is_valid():
+                                exc_form.save() 
+                            else:
+                                print('exception form error')
                     else:
-                        print(form.errors)
-                except Exception as e:
-                    print(e)
-        
-        #f.close()
-        fs.delete(filename)
-        threads.remove(th)
-        lock.release()
+                        print('Invalid value in form')
+        else:
+            #This is not a guardium report
+            pass
     except Exception as e:
-        threads.remove(th)
-        lock.release()
-        print(e)
-
+        print(e)        
+    fs.delete(filename)
+    threads.remove(th)
+    lock.release()
 

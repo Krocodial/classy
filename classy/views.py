@@ -3,6 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
@@ -16,9 +17,9 @@ from django import forms
 
 import threading, time, csv, pytz, json, random
 
-from .forms import *
-from .models import *
-from .scripts import *
+from classy.models import *
+from classy.forms import *
+from classy.scripts import calculate_count, create_thread
 
 options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
 threads = []
@@ -115,13 +116,10 @@ def review(request):
                             log.save()
                             item.save()
                         else:
-                            print('unexpected value')
-
-
+                            pass
+                            #print('unexpected value')
                         tup.delete()
-
                     group_info.delete()
-
                 else:
                     group_set.delete()
                     group_info.delete()
@@ -129,7 +127,6 @@ def review(request):
                 response = {'status': 1, 'message': 'ok'}
                 return HttpResponse(json.dumps(response), content_type='application/json')
             except Exception as e:
-                print(e)
                 pass
     queryset = classification_review.objects.all();
     groups = classification_review_groups.objects.all();
@@ -429,7 +426,6 @@ def search(request):
                 page = 1
             paginator = Paginator(queryset, size)
             query = paginator.get_page(page)
-                        
             prev = False
             nex = False
             first = False
@@ -470,8 +466,6 @@ def search(request):
                     recent[tup.id] = True
                 else:
                     recent[tup.id] = False
-            
-
             context = {
                 'num': num,
                 'form': form,
@@ -492,7 +486,7 @@ def search(request):
                 'first': first,
                 'last': last,
                 'recent': recent
-        }
+            }
             return render(request, 'classy/data_tables.html', context)
         else:
             form = advancedSearch()
@@ -707,8 +701,8 @@ def home(request):
     }
     return render(request, 'classy/home.html', context);
 
-#@csrf_exempt
 def uploader(request):
+    spaces = re.compile(' ')
     if not request.user.is_staff:
         return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
@@ -721,10 +715,16 @@ def uploader(request):
         if form.is_valid():
             f = form.cleaned_data['file']
             if f.name.endswith('.csv'):
+                inp = request.FILES['file']
+                name = spaces.sub('_', inp.name)
+                fs = FileSystemStorage()
+                filename = fs.save(name, inp)
+                
                 th = thread(f.name, timezone.now(), 'pending', request.user.username)
                 threads.append(th)
-                t = threading.Thread(target=create_thread, args=(request, lock, th, threads, request.user.username))
+                t = threading.Thread(target=create_thread, args=(fs, filename, request, lock, th, threads, request.user.username))
                 th.startdate = timezone.now()
+                #django.db.connections.close_all()
                 t.start()
                 context = {
                     'status': '200',
@@ -749,7 +749,7 @@ def uploader(request):
                 'threads': threads,
                 'num': num
             }
-            return render(request, 'classy/jobs.html', context, status=422)
+            return render(request, 'classy/jobs.html', context, status=423)
     
     form = UploadFileForm()
     context = {'threads': threads, 'form': form, 'num': num}

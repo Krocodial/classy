@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)
 
 DEBUG = True
 BYPASS_AUTH = True
-USE_MYSQL_DB = False
+USE_MYSQL_DB = True 
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
@@ -46,12 +46,14 @@ CSRF_COOKIE_HTTPONLY = True
 
 INSTALLED_APPS = [
     'classy.apps.ClassyConfig',
+    #'background_task',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'classy',
 ]
 
 MIDDLEWARE = [
@@ -101,10 +103,14 @@ if USE_MYSQL_DB:
 else:
 	DATABASES = { 
 		'default': {
-			'ENGINE': 'django.db.backends.sqlite3', 
-			'NAME': 'mydatabase',
+			'ENGINE': 'django.db.backends.sqlite3',
+		    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),	
+		    'OPTIONS': {
+                'timeout': 20,
+            }	 
 		}
 	}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -144,7 +150,6 @@ USE_TZ = True
 
 STATIC_URL = '/int/dsc/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-
 MEDIA_URL = '/tmp/'#os.path.join(BASE_DIR, 'classy/tmp/'
 FILE_UPLOAD_PERMISSIONS = 0o600
 
