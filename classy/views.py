@@ -701,7 +701,6 @@ def home(request):
     }
     return render(request, 'classy/home.html', context);
 
-#@csrf_exempt
 def uploader(request):
     spaces = re.compile(' ')
     if not request.user.is_staff:
