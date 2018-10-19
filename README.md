@@ -24,7 +24,7 @@ $ sudo apt-get install python3
 $ sudo apt-get install mysqlclient    
 ```    
   
-#Installing  
+# Initial Setup
   
 Clone github repo  
 ```sh  
@@ -67,9 +67,9 @@ $ python manage.py runserver <host>:<port>
 
 Congratz! You now have a running metadata classification repo  
 
-## Deployment  
+# Deployment  
   
-Once the steps in installation are complete follow this section to find out how to serve classy using a webserver.    
+Once the steps in 'Initial Setup' are complete follow this section to find out how to serve classy using a webserver.    
   
 Using apt or another package manager   
 ```sh  
@@ -95,9 +95,8 @@ Authorization is a customization of Django's provided authorization functionalit
 
 Policies for use will be provided by the FLNR security team.  
 
-## Files in this repository
-Note: This is just a directory tree.  
-```sh
+## Files in this repository  
+```sh  
 classy/
 ├── classy
 │   ├── admin.py
