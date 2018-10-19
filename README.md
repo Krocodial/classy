@@ -12,30 +12,30 @@ Initially built for MySQL, currently being ported to PostgreSQL
 ## Getting Started  
 These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
   
-# Prerequisites  
-Install system dependencies  
-'''sh  
+## Prerequisites  
+Install system dependencies    
+```sh  
 $ sudo apt-get install python3  
 //If you are using a MySQL DB install a connector  
 $ sudo apt-get install mysqlclient    
-'''  
+```    
   
 #Installing  
   
 Clone github repo  
-'''
+```sh  
 $ git clone https://github.com/Krocodial/classy.git <project directory>  
-'''
-
+```   
+  
 Navigate to repo  
-'''  
+```sh  
 $ cd <project directory>  
-'''
-
+```  
+  
 Edit the configuration file  
-'''
+```sh  
 $ vi dsc/settings.py  
-'''
+```  
 Change USE_MYSQL_DB to 'True' if you are using a MYSQL DB, set it to 'False' if you want to use a SQLite DB.   
   
 If you change it to 'True' you will need to load the database credentials into the environment variables. The python dot-env library is currently used to load the credentials into memory from a hidden file in the project directory.  
@@ -48,18 +48,18 @@ Set BYPASS_AUTH to True
 Set Debug to False unless you wish to expose debug information  
   
 Run setup script  
-'''
+```sh  
 $ chmod +x setup.sh    
 $ ./setup.sh  
-'''
+```  
 
 This will create a virtual environment, install all python dependencies inside of it, then run the included tests with a coverage report.  
   
 Finally run the development server  
-'''
+```sh  
 $ source envs/bin/activate  
 $ python manage.py runserver <host>:<port>  
-'''
+```  
 
 Congratz! You now have a running metadata classification repo  
 
