@@ -2,20 +2,69 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 
-# DSC (Data Security Classification)
-An easy to use GUI that allows users to view/edit/create centralized classified data
+# Classy 
+A metadata classification repository for tracking and auditing purposes  
 
 ## Technology Stack Used
 Python 3 (Django)  
-Full support for most DBs, this was built for MySQL so PostgreSQL will work flawlessly as well  
+Initially built for MySQL, currently being ported to PostgreSQL  
 
-## Third-Party Products/Libraries used and the the License they are covered by
-mysqlclient  
-Django
-python-dotenv
+## Getting Started  
+These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
+  
+# Prerequisites  
+Install system dependencies  
+'''sh  
+$ sudo apt-get install python3  
+//If you are using a MySQL DB install a connector  
+$ sudo apt-get install mysqlclient    
+'''  
+  
+#Installing  
+  
+Clone github repo  
+'''
+$ git clone https://github.com/Krocodial/classy.git <project directory>  
+'''
+
+Navigate to repo  
+'''  
+$ cd <project directory>  
+'''
+
+Edit the configuration file  
+'''
+$ vi dsc/settings.py  
+'''
+Change USE_MYSQL_DB to 'True' if you are using a MYSQL DB, set it to 'False' if you want to use a SQLite DB.   
+  
+If you change it to 'True' you will need to load the database credentials into the environment variables. The python dot-env library is currently used to load the credentials into memory from a hidden file in the project directory.  
+  
+Make sure the variables with the corresponding names in the configuration file are base64 encoded and placed within the '.env' file in the project directory, these will then be auto-loaded by the app on startup.  
+  
+WARNING: ensure this file is excluded from version control and limit the permissions so that only the owner of the file may read it. Failure to do so may result in a compromised DB.  
+  
+Set BYPASS_AUTH to True  
+Set Debug to False unless you wish to expose debug information  
+  
+Run setup script  
+'''
+$ chmod +x setup.sh    
+$ ./setup.sh  
+'''
+
+This will create a virtual environment, install all python dependencies inside of it, then run the included tests with a coverage report.  
+  
+Finally run the development server  
+'''
+$ source envs/bin/activate  
+$ python manage.py runserver <host>:<port>  
+'''
+
+Congratz! You now have a running metadata classification repo  
 
 ## Project Status
-Stable  
+Release 1.0  
 
 ## Deployment (Local Development)
 
