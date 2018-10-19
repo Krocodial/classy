@@ -5,6 +5,10 @@
 # Classy 
 A metadata classification repository for tracking and auditing purposes  
 
+## Status
+  
+Release 1.0.0  
+  
 ## Technology Stack Used
 Python 3 (Django)  
 Initially built for MySQL, currently being ported to PostgreSQL  
@@ -63,37 +67,26 @@ $ python manage.py runserver <host>:<port>
 
 Congratz! You now have a running metadata classification repo  
 
-## Project Status
-Release 1.0  
-
-## Deployment (Local Development)
-
-An example of this process on Ubuntu is included in bash script 'install.sh'  
+## Deployment  
   
-Using apt or another package manager install  
-*libmysqlclient-dev  
-*python3-venv  
-*python3-pip  
-*apache2  
-*apache2-dev  
-*libapache2-mod-wsgi-py3  
+Once the steps in installation are complete follow this section to find out how to serve classy using a webserver.    
   
-* Create a virtual environment, 'python -m venv envs'.  
-   
-* Activate this virtual environment 'source /envs/bin/activate'.  
+Using apt or another package manager   
+```sh  
+$ sudo apt-get install libmysqlclient-dev python3 python3-venv python3-pip apache2 apache2-dev libapache-mod-wsgi-py3  
+```
   
-* Install local dependencies. 'pip install -r requirements.txt'.  
+Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. An example apache virtualhost configuration file in included in tests/config_example  
   
-* Create environment variables with corresponding variable names in '.envs' in the project directory. These include your database credentials, secret, and host IP.  
+Modify the dsc/settings.py file. An example file, as well as comments describing the different options available in the settings file is included in the tests/settings_example file  
   
-* Customize the dsc/settings.py file. This includes changing the database connections, and ensuring that debug mode is turned off. If in-doubt follow the instructions included in this file.  
-  
-* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
  
 ## Running Tests
   
-Tests are built using Django's testing libraries. Navigate to the project directory and run the tests via 'python manage.py test' once in the virtual environment. If the application is not setup correctly this will now work. The tests are included in the project directory, with the prefix 'test'.  
- 
+Tests are built using Django's testing libraries. Once in the virtual environment (source envs/bin/activate), navigate to the project directory and run the tests via 'python manage.py test'. If the application is not setup correctly this will not work.   
+  
+Note: The tests will automatically run if the 'setup.sh' script is run. Thus they are included only for development purposes to make sure you do not mess anything up.     
+  
 
 ## Security  
 Authentication can be handled by SiteMinder or alternatively Django's built-in authentication by changing the BYPASS_AUTH variable in the settings file.  
@@ -104,37 +97,45 @@ Policies for use will be provided by the FLNR security team.
 
 ## Files in this repository
 Note: This is just a directory tree.  
-```
-classy/	
-├── classy			-The app itself, model definitions, views, templates, scripts, etc.
-│   ├── migrations		-Here are the migrations for our DB
-│   │   └── __pycache__
-│   ├── __pycache__
+```sh
+classy/
+├── classy
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── migrations
+│   │   ├── 0001_initial.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── scripts.py
 │   ├── static
+│   │   ├── admin
 │   │   └── classy
-│   └── templates
-│       └── classy
-├── dsc				-Configuration information
-│   └── __pycache__
-├── envs			-Contains our virtual environment, as well as the admin pages
-│   ├── bin
-│   │   └── __pycache__
-│   ├── include
-│   ├── lib
-│   │   └── python3.5
-│   ├── lib64 -> lib
-│   └── share
-│       └── python-wheels
-└── static			-Static files for our webserver
-    ├── admin
-    │   ├── css
-    │   ├── fonts
-    │   ├── img
-    │   └── js
-    └── classy
-        ├── css
-        ├── images
-        └── js
+│   ├── templates
+│   │   ├── admin
+│   │   └── classy
+│   ├── templatetags
+│   │   └── classy_extras.py
+│   ├── urls.py
+│   └── views.py
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── dsc
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── LICENSE
+├── manage.py
+├── README.md
+├── requirements.txt
+├── setup.sh
+└── tests
+    ├── __init__.py
+    ├── test_func.py
+    ├── test_model.py
+    ├── test.sh
+    └── test_view.py
+
 ```
 
 ## Getting Help or Reporting an Issue
@@ -150,7 +151,7 @@ By participating in this project you agree to abide by its terms.
 
 ## License
 
-    Copyright 2016 Province of British Columbia
+    Copyright 2018 Province of British Columbia
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
