@@ -29,7 +29,8 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)
 
 DEBUG = True
 BYPASS_AUTH = True
-USE_MYSQL_DB = True 
+USE_MYSQL_DB = True
+PRES = True
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
 
@@ -46,14 +47,12 @@ CSRF_COOKIE_HTTPONLY = True
 
 INSTALLED_APPS = [
     'classy.apps.ClassyConfig',
-    #'background_task',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'classy',
 ]
 
 MIDDLEWARE = [
@@ -106,8 +105,8 @@ else:
 			'ENGINE': 'django.db.backends.sqlite3',
 		    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),	
 		    'OPTIONS': {
-                'timeout': 20,
-            }	 
+                'timeout': 30,
+            },
 		}
 	}
 
@@ -156,4 +155,5 @@ FILE_UPLOAD_PERMISSIONS = 0o600
 MEDIA_ROOT = os.path.join(BASE_DIR, '/tmp/')
 FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, '/tmp/')
 
-
+#custom variables
+#print('haha')

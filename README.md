@@ -59,6 +59,20 @@ $ ./setup.sh
 
 This will create a virtual environment, install all python dependencies inside of it, then run the included tests with a coverage report.  
   
+  
+To provide file handling functionality, as well as other long-running process' django-background tasks is used. Tasks will be created and registered for the user automatically. However, to actually run these tasks a simple cron job must be setup.  
+  
+Using Crontab -e the following is all you need to do:  
+```  
+*/1 * * * * /usr/bin/flock -n /tmp/QRH7mA40aRL2NVyVUbcH.lockfile ~/crontab/file_handler.sh  
+*/1 * * * * /usr/bin/flock -n /tmp/uj5l6n7iAGtM8gx9fNuo.lockfile ~/crontab/count_handler.sh  
+```  
+  
+Flock will need to be installed to allow the creation and management of locks, preventing process bombs.  
+  
+Change the path at the end of each to correspond to the project directory, and modify the scripts accordingly. All they do is navigate to the project directory, activate the virtual env, and run the command 'python manage.py process_tasks --queue <queue>'  
+    
+
 Finally run the development server  
 ```sh  
 $ source envs/bin/activate  

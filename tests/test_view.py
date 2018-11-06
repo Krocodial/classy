@@ -58,7 +58,7 @@ class unAuthTests(TestCase):
         response = c.get(reverse('classy:data'))
         self.assertEqual(response.status_code, 200)
         response = c.get(reverse('classy:data') + '/1')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         response = c.get(reverse('classy:uploader'))
         self.assertEqual(response.status_code, 302)
         response = c.get(reverse('classy:search'))

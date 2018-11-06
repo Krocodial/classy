@@ -8,8 +8,8 @@ from classy.models import *
 from classy.forms import *
 
 
-choices = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
-states = ['Active', 'Inactive', 'Pending']
+choices = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
+states = ['A', 'I', 'P']
 
 
 class existanceTests(TestCase):
@@ -19,13 +19,13 @@ class existanceTests(TestCase):
         user.save()
 
         self.data = {
-            'datasource_description': 'testo',
+            'datasource': 'testo',
             'schema': 'testo',
-            'table_name': 'testo',
-            'column_name': 'testo',
-            'created_by': 'test',
-            'state': 'Active',
-            'classification_name': 'public'
+            'table': 'testo',
+            'column': 'testo',
+            'creator': user.id,
+            'state': 'A',
+            'classification_name': 'PU'
         }        
 
     def test_invalid_classifications(self):
@@ -46,7 +46,7 @@ class existanceTests(TestCase):
             form = ClassificationForm(data)
             self.assertEqual(form.is_valid(), True)
             tmp = form.save()
-            new = classification.objects.get(classification_name=val,column_name='testo')
+            new = classification.objects.get(classification_name=val,column='testo')
             self.assertEqual(tmp.pk, new.pk)
 
     def test_invalid_states(self):
@@ -61,7 +61,7 @@ class existanceTests(TestCase):
 
     def test_valid_states(self):
         data = self.data
-        data['classification_name'] = 'PUBLIC'
+        data['classification_name'] = 'PU'
         for val in states:
             data['state'] = val
             form = ClassificationForm(data)
@@ -79,12 +79,15 @@ class existanceTests(TestCase):
 
 class creationTests(TestCase):
     def setUp(self):
-        data = {'classification_name': 'PUBLIC', 'schema': 'testo', 'table_name': 'testo', 'column_name': 'testo', 'datasource_description': 'testo', 'created_by': 'admin', 'state': 'Active'}
+        self.user = User.objects.create(username='basic', is_staff=False)
+        self.user.set_password('password')
+        self.user.save()
+        data = {'classification_name': 'PU', 'schema': 'testo', 'table': 'testo', 'column': 'testo', 'datasource': 'testo', 'creator': self.user.id, 'state': 'A'}
         form = ClassificationForm(data)
         tmp = form.save()
         self.classy = tmp.pk#classification.objects.get(pk=tmp.pk)
     
-        data = {'user': 'admin'}
+        data = {'user': self.user.id}
         form = classificationReviewGroupForm(data)
         tmp = form.save()
         self.group = tmp.pk
@@ -93,7 +96,7 @@ class creationTests(TestCase):
 
 
     def test_classification_count(self):
-        data = {'classification_name': 'PUBLIC', 'count': 99, 'date': datetime.datetime.now()}
+        data = {'classification_name': 'PU', 'count': 99, 'date': datetime.datetime.now().date()}
         form = classificationCountForm(data)
         tmp = form.save()
         new = classification_count.objects.get(pk=tmp.pk)
@@ -107,21 +110,21 @@ class creationTests(TestCase):
         self.assertIsNotNone(new)
 
     def test_classification_log(self):
-        data = {'classy': self.classy, 'action_flag': 2, 'n_classification': 'PUBLIC', 'o_classification': 'CONFIDENTIAL', 'user_id': 'admin', 'state': 'Active', 'approved_by': 'admin'}
+        data = {'classy': self.classy, 'flag': 2, 'new_classification': 'PU', 'old_classification': 'CO', 'user': self.user.id, 'state': 'A', 'approver': self.user.id}
         form = classificationLogForm(data)
         tmp = form.save()
         new = classification_logs.objects.get(pk=tmp.pk)
         self.assertIsNotNone(new)
 
     def test_classification_review(self):
-        data = {'classy': self.classy, 'group': self.group, 'classification_name': 'PUBLIC', 'schema': 'testo', 'table_name': 'testo', 'column_name': 'testo', 'datasource_description': 'testo', 'action_flag': 0, 'o_classification': 'PUBLIC'}
+        data = {'classy': self.classy, 'group': self.group, 'classification_name': 'PU', 'state': 'A'}
         form = classificationReviewForm(data)
         tmp = form.save()
         new = classification_review.objects.get(pk=tmp.pk)
         self.assertIsNotNone(new)
 
     def test_deletion_protection(self):
-        data = {'classy': self.classy, 'action_flag': 2, 'n_classification': 'PUBLIC', 'o_classification': 'CONFIDENTIAL', 'user_id': 'admin', 'state': 'Active', 'approved_by': 'admin'}
+        data = {'classy': self.classy, 'flag': 2, 'new_classification': 'PU', 'old_classification': 'CO', 'user': self.user.id, 'state': 'A', 'approver': self.user.id}
         form = classificationLogForm(data)
         tmp = form.save()
     

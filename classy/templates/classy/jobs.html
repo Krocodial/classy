@@ -46,20 +46,20 @@
 <thead style="color:#fff;" class="thead-inverse">
 	<tr>
 		<th class="th-cus">Current jobs</th>
-		<th class="th-cus">Status</th>
+		<th class="th-cus">Priority</th>
 		<th class="th-cus">Uploaded</th>
-		<th class="th-cus">Time in Queue (H/M/S)</th>
+		<th class="th-cus">Progress</th>
 		<th class="th-cus">User</th>
 	</tr>
 </thead>
 <tbody>
-	{% for thread in threads %}
+	{% for tsk in tsks %}
 	<tr>
-		<td>{{thread.name}}</td>
-		<td>{{thread.state}} {{thread.progress}}%</td>
-		<td>{{thread.startdate}}</td>
-		<td>{{thread.uptime}}</td>
-		<td>{{thread.user}}</td>
+		<td>{{tsk.name}}</td>
+		<td>{{tsk.priority}}</td>
+		<td>{{tsk.run_at}}</td>
+		<td>{{tsk.progress}}/1</td>
+		<td>{{tsk.user}}</td>
 	</tr>
 	{% endfor %}
 </tbody>

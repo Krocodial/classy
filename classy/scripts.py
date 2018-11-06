@@ -1,93 +1,159 @@
-import csv, re
+from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
+from django.conf import settings
 
-from classy.models import * 
+from classy.models import *
 from classy.forms import *
 
-options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
+import csv, re, hashlib, os, threading, time
 
+options = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
+#options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
 
-def calculate_count(logs, counts):  
-    today = timezone.now().date()
-    for classi, value in counts.items():
-        new = classification_count(classification_name=classi, count=value, date=today)
-        new.save()
-    for i in range(1, 60):
-        d = today - timezone.timedelta(days=i)
-        dLogs = logs.filter(action_time__date=d)#action_time__gte=e, action_time__lte=s)
-        dLogs.order_by('-action_time')
-        for log in dLogs:
-            if log.o_classification not in options:
-                log.delete()
-                continue        
-            #If created
-            if log.action_flag == 2:
-                counts[log.o_classification] = counts[log.o_classification] - 1
-            #Modify
-            elif log.action_flag == 1:
-                counts[log.o_classification] = counts[log.o_classification] + 1
-                if log.n_classification != 'N/a':           
-                    counts[log.n_classification] = counts[log.n_classification] -1
-            #If deleted
-            elif log.action_flag == 0:
-                counts[log.o_classification] = counts[log.o_classification] + 1
-            else:
+translate = {'CONFIDENTIAL': 'CO', 'PUBLIC': 'PU', 'Unclassified': 'UN', 'PROTECTED A': 'PA', 'PROTECTED B': 'PB', 'PROTECTED C': 'PC'}
+
+#Called once at web server initialization to check current counts for graphing purposes.
+#@background(schedule=60, queue='calculate_count')
+def calculate_count(): 
+    info = {}
+    error = ''
+    try: 
+        counts = {}
+        for op in options:
+            count = classification.objects.filter(classification_name=op).count()
+            counts[op] = count
+
+        d = timezone.now().date()
+        for classi, count in counts.items():
+            try:
+                cobj = classification_count.objects.get(date=d, classification_name=classi)
+                cobj.count = count
+                cobj.save()
+            except classification_count.DoesNotExist:
+                new = classification_count(classification_name=classi, count=count, date=d)
+                new.save()
+            except classification_count.MultipleObjectsReturned:
                 pass
-        #print(counts)
-        for classi, value in counts.items():
-            new = classification_count(classification_name=classi, count=value, date=d-timezone.timedelta(days=1))
-            new.save()
+
+        for i in range(60):
+            d = timezone.now().date() - timezone.timedelta(days=i)
+            logs = classification_logs.objects.filter(
+                            time__startswith=d)
+            for log in logs:
+                if log.flag == 2:
+                   counts[log.old_classification] = counts[log.old_classification] - 1 
+                elif log.flag == 1:
+                    counts[log.old_classification] = counts[log.old_classification] + 1
+                    counts[log.new_classification] = counts[log.new_classification] - 1
+                elif log.flag == 0:
+                    counts[log.old_classification] = counts[log.old_classification] + 1
+            d = timezone.now().date() - timezone.timedelta(days=i+1)
+            for classi, count in counts.items():
+                try:  
+                    cobj = classification_count.objects.get(date=d, classification_name=classi)
+                except classification_count.DoesNotExist:
+                    new = classification_count(classification_name=classi, count=count, date=d)
+                    new.save()
+                except classification_count.MultipleObjectsReturned:
+                    pass
+    except Exception as e:
+        error = e
+
+    try:
+        tmp = task.objects.get(queue='counter')
+        run_at = tmp.run_at
+        priority = tmp.priority
+    except:
+        run_at = timezone.now()
+        priority = 0
+    try:
+        tmp = completed_task.objects.get(queue='counter')
+        tmp.error = error
+        tmp.run_at = run_at
+        tmp.priority = priority
+        tmp.save()
+    except:
+        info = {}
+        info['name'] = 'counter'
+        info['queue'] = 'counter'
+        info['user'] = 1
+        info['progress'] = 1
+        info['error'] = error
+        info['run_at'] = run_at
+        info['priority'] = priority
+        form = completed_taskForm(info)
+        if form.is_valid():
+            form.save()
 
 
-#File for generic scripts
-def create_thread(fs, filename, request, lock, th, threads, user):
-    lock.acquire() 
+def calc_scheduler(cthread):
+    while True:
+        try:
+            tmp = task.objects.get(queue='counter')
+            tmp.save()
+            calculate_count()
+        except task.DoesNotExist: 
+            info = {}
+            info['name'] = 'counter'
+            info['queue'] = 'counter'
+            info['user'] = 1
+            info['priority'] = 0
+            info['progress'] = 0
+            form = taskForm(info)
+            if form.is_valid():
+                form.save()
+            calculate_count()
+        except task.MultipleObjectsReturned:
+            tmp = task.objects.filter(queue='counter')
+            tmp.delete()
+        time.sleep(60)
 
+#Called by 'uploader' in views to handle a file once uploaded.
+#@background(schedule=10, queue='uploads')
+def process_file(tsk):
+    cinfo = {}
+    filename = tsk.name
+    user = tsk.user.id
+    fs = FileSystemStorage()
     try: 
         uploaded_file_url = fs.url(filename)
-        th.state = 'active'
-
-        row_count = sum(1 for i in csv.reader(open(uploaded_file_url))) 
-        row_count = int(row_count/100)
-        if row_count <= 0:
-            row_count = 1   
         reader = csv.DictReader(open(uploaded_file_url))
-        counter = 0
 
         if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
             for row in reader:
-                counter = counter + 1
-                th.progress = str(counter//row_count)
                 data_list = re.split(':', row['Datasource Description'])
-                if not classification.objects.filter(
-                schema__exact=row['Schema'], 
-                table_name__exact=row['Table Name'], 
-                column_name__exact=row['Column Name'], 
-                datasource_description__exact=str.strip(data_list[3])):    
+                database = data_list[3].strip()
+                if classification.objects.filter(
+                    datasource__exact=database,
+                    schema__exact=row['Schema'],
+                    table__exact=row['Table Name'],
+                    column__exact=row['Column Name']).count() < 1:
+                    
                     data = {}
-                    data['classification_name'] = row['Classification Name']
+                    data['classification_name'] = translate[row['Classification Name']]
+                    data['datasource'] = database
                     data['schema'] = row['Schema']
-                    data['table_name'] =  row['Table Name']
-                    data['column_name'] = row['Column Name']
-                    data['category'] = row['Category']
-                    data['datasource_description'] = data_list[3]
-                    data['created_by'] = user
-                    data['state'] = 'Active'
+                    data['table'] =  row['Table Name']
+                    data['column'] = row['Column Name']
+                    data['creator'] = user
+                    data['state'] = 'A'
                     form = ClassificationForm(data)
                     if form.is_valid():
                         tmp = form.save()
                         log_data = {}
                         log_data['classy'] = tmp.id
-                        log_data['action_flag'] = 2
-                        log_data['n_classification'] = row['Classification Name']
-                        log_data['o_classification'] = row['Classification Name']
-                        log_data['user_id'] = user
-                        log_data['state'] = 'Active'
-                        log_data['approved_by'] = 'N/a'
+                        log_data['flag'] = 2
+                        log_data['new_classification'] = translate[row['Classification Name']]
+                        log_data['old_classification'] = translate[row['Classification Name']]
+                        log_data['user'] = user
+                        log_data['state'] = 'A'
+                        log_data['approver'] = user
                         log_form = classificationLogForm(log_data)
                         if log_form.is_valid():
                             log_form.save()
                         else:
-                            print('log form error')
+                            #invalid log form values
+                            pass
                         if row['Classification Name'] != 'Unclassified':
                             exc_data = {}
                             exc_data['classy'] = tmp.id
@@ -95,15 +161,40 @@ def create_thread(fs, filename, request, lock, th, threads, user):
                             if exc_form.is_valid():
                                 exc_form.save() 
                             else:
-                                print('exception form error')
+                                #Exception form error
+                                pass
                     else:
-                        print('Invalid value in form')
+                        #Invalid value in form
+                        pass
         else:
             #This is not a guardium report
             pass
-    except Exception as e:
-        print(e)        
+                
+    except Exception as e: 
+        #Some error called e
+        cinfo['error'] = e
     fs.delete(filename)
-    threads.remove(th)
-    lock.release()
+    cinfo['name'] = tsk.name
+    cinfo['verbose_name'] = tsk.verbose_name
+    cinfo['priority'] = tsk.priority
+    cinfo['run_at'] = tsk.run_at
+    cinfo['queue'] = tsk.queue
+    #cinfo['error'] = error
+    cinfo['user'] = user
+    form = completed_taskForm(cinfo)
+    if form.is_valid():
+        form.save()
 
+def upload(uthread):
+    t = task.objects.filter(queue='uploads').count()
+    while(t != 0):
+        task_queue = task.objects.filter(queue='uploads').order_by('-priority', 'run_at')
+        tsk = task_queue[0]
+        uthread.name = tsk.name
+        process_file(tsk)
+        tsk.delete()
+        t = task.objects.filter(queue='uploads').count()
+    uthread.name = ''
+    uthread.running=False
+    return
+        

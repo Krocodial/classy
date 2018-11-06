@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Review</title>
-
+{% load classy_extras %}
 {% load static %}
 <link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
 <link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
@@ -59,7 +59,7 @@
 	
 	<!--<div class="card-block" id="heading{{forloop.counter}}">-->
 	<div class="col"><h5>User: <small class="text-muted"> {{group.user}}</small></h5></div>
-	<div class="col"><h5>Time: <small class="text-muted"> {{group.timestamp}}</small></h5></div>
+	<div class="col"><h5>Time: <small class="text-muted"> {{group.time}}</small></h5></div>
 	<div class="col"><button class="btn btn-primary" style="width: 250px; background-color: #417690;" data-toggle="collapse" data-target=".hidden{{forloop.counter}}" class="accordion-toggle">View Modifications</button>	
 	</div><!--</div>-->
 	</div>
@@ -73,8 +73,8 @@
 		<th>Schema</th>
 		<th>Table</th>
 		<th>Column</th>
-		<th>Old Class.</th>
-		<th>New Class.</th>
+		<th>Current Class</th>
+		<th>New Class</th>
 		<th>Action</th>
 		<th></th>
 	</tr>
@@ -82,14 +82,14 @@
 	<tbody>
 	{% for tuple in queryset %}
 	{% if tuple.group == group %}
-	<tr class={% if tuple.action_flag == 0 %}'delete'{% else %}'modify'{% endif %}>
-		<td>{{tuple.datasource_description}}</td>
-		<td>{{tuple.schema}}</td>
-		<td>{{tuple.table_name}}</td>
-		<td>{{tuple.column_name}}</td>
-		<td>{{tuple.o_classification}}</td>
-		<td>{{tuple.classification_name}}</td>
-		{% if tuple.action_flag == 0 %}
+	<tr class={% if tuple.flag == 0 %}'delete'{% else %}'modify'{% endif %}>
+		<td>{{tuple.classy.datasource}}</td>
+		<td>{{tuple.classy.schema}}</td>
+		<td>{{tuple.classy.table}}</td>
+		<td>{{tuple.classy.column}}</td>
+		<td>{{translate|get_item:tuple.classy.classification_name}}</td>
+		<td>{{translate|get_item:tuple.classification_name}}</td>
+		{% if tuple.status == 'I' %}
 		<td>DELETE</td>
 		{% else %}
 		<td>MODIFY</td>

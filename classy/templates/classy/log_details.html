@@ -3,7 +3,7 @@
 <title>History</title>
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-
+{% load classy_extras %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
 <link rel="stylesheet" href="{% static 'classy/css/bstyle.css' %}"/>
@@ -27,20 +27,51 @@
 
 
 
-<div class="col-sm-4">
-<p><strong>ID:</strong> {{obj.id}}</p>
-<p><strong>Status:</strong> {{obj.state}}</p>
-<p><strong>Category:</strong> {{obj.category}}</p>
-<p><strong>Classification:</strong> {{obj.classification_name}}</p>
-<p><strong>Datasource:</strong> {{obj.datasource_description}}</p>
-<p><strong>Schema:</strong> {{obj.schema}}</p>
-<p><strong>Table:</strong> {{obj.table_name}}</p>
-<p><strong>Column:</strong> {{obj.column_name}}</p>
-<br/>
-<p><strong>Creation Date:</strong> {{obj.creation_date}}</p>
-<p><strong>Created By:</strong> {{obj.created_by}}</p>
-
+<div class="col-sm-3">
+<table class="table">
+<thead>
+	<tr>
+		<th>Category</th>
+		<th>Value</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td><strong>ID</strong></td>
+		<td>{{obj.id}}</p>
+	</tr>
+        <tr>
+                <td><strong>State</strong></td>
+                <td>{{obj.state}}</td>
+        </tr>
+	<tr>
+		<td><strong>Datasource</strong></td>
+		<td>{{obj.datasource}}</td>
+	</tr>
+        <tr>
+                <td><strong>Schema</strong></td>
+                <td>{{obj.schema}}</td>
+        </tr>
+        <tr>
+                <td><strong>Table</strong></td>
+                <td>{{obj.table}}</td>
+        </tr>
+        <tr>
+                <td><strong>Column</strong></td>
+                <td>{{obj.column}}</td>
+        </tr>
+        <tr>
+                <td><strong>Created</strong></td>
+                <td>{{obj.created}}</td>
+        </tr>
+        <tr>
+                <td><strong>Creator</strong></td>
+                <td>{{obj.creator}}</td>
+        </tr>
+</tbody>
+</table>
 </div>
+<div class="col-sm-1"></div>
 <div class="col-sm-8">
 <table class="table">
 <thead>
@@ -57,19 +88,19 @@
 <tbody>
 	{% for item in result %}
 		<tr>
-			<td>{{item.action_time}}</td>
-			{% if item.action_flag == 1 %}
+			<td>{{item.time}}</td>
+			{% if item.flag == 1 %}
 				<td>MODIFY</td>
-			{% elif item.action_flag == 0 %}
+			{% elif item.flag == 0 %}
 				<td>DELETE</td>
-			{% elif item.action_flag == 2 %}
+			{% elif item.flag == 2 %}
 				<td>CREATE</td>
 			{% endif %}
-			<td>{{item.user_id}}</td>
-			<td>{{item.approved_by}}</td>
-			<td>{{item.o_classification}}</td>
-			<td>{{item.n_classification}}</td>
-			<td>{{item.state}}</td>
+			<td>{{item.user}}</td>
+			<td>{{item.approver}}</td>
+			<td>{{translate|get_item:item.old_classification}}</td>
+			<td>{{translate|get_item:item.new_classification}}</td>
+			<td>{{state_translate|get_item:item.state}}</td>
 		</tr>
 	{% endfor %}
 </tbody>

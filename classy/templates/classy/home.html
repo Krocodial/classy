@@ -34,7 +34,7 @@
 <div class="container">
 
 <div class="row">
-<div class="col-sm-7">
+<div class="col-sm-6">
   <h2 class="mt-4">About this application</h2>
   <p>The Data Security Classification repository, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
 the purpose of keeping an inventory of the data that is managed, and where that data is stored. This tool will allow users to view high level information about 
@@ -47,7 +47,7 @@ the purpose of keeping an inventory of the data that is managed, and where that 
     <a class="btn btn-primary btn-lg" href="#">Call to Action &raquo;</a>
   </p>-->
 </div>
-<div class="col-sm-5">
+<div class="col-sm-6">
 	<canvas id="pieChart"></canvas>
 </div>
 </div>
@@ -124,64 +124,41 @@ var config = {
 			pointBorderColor: '#fff',
 			pointHoverBorderColor: '#94778B',
                         data: 
-				{{unc}}/*
-                                {% for val in unc %}
-                                {{val.count}},
-                                {% endfor %}*/
+				{{unc}}
                         ,
                         fill: 'origin',
+                        }, {
+		       	label: 'Public',
+                        backgroundColor: 'rgb(124,229,119, 0.3)',
+                        borderColor: '#7CE577',
+                        pointBackgroundColor: '#7CE577',
+                        pointBorderColor: '#fff',
+                        pointHoverBorderColor: '#7CE577',
+                        data: {{pub}},
+                        fill: '-1',
                         }, {
                         label: 'Confidential',
                         backgroundColor: 'rgb(160,204,218, 0.3)',
                         borderColor: '#A0CCDA',
-                        data: {{conf}}/*[
-                                {% for val in conf %}
-                                {{val.count}},
-                                {% endfor %}
-                        ]*/,
-                        fill: '-1',
-                        }, {
-                        label: 'Public',
-                        backgroundColor: 'rgb(124,229,119, 0.3)',
-                        borderColor: '#7CE577',
-			pointBackgroundColor: '#7CE577',
-			pointBorderColor: '#fff',
-			pointHoverBorderColor: '#7CE577',
-                        data: {{pub}}/*[
-                                {% for val in pub %}
-                                {{val.count}},
-                                {% endfor %}
-                        ]*/,
+                        data: {{conf}},
                         fill: '-1',
                         }, {
                         label: 'Protected A',
                         backgroundColor: 'rgb(233,206,44, 0.3)',
                         borderColor: '#E9CE2C',
-                        data: {{prota}}/*[
-                                {% for val in prota %}
-                                {{val.count}},
-                                {% endfor %}
-                        ]*/,
+                        data: {{prota}},
                         fill: '-1',
                         }, {
                         label: 'Protected B',
                         backgroundColor: 'rgb(222,84,30, 0.3)',
                         borderColor: '#DE541E',
-                        data: {{protb}}/*[
-                                {% for val in protb %}
-                                {{val.count}},
-                                {% endfor %}
-                        ]*/,
+                        data: {{protb}},
                         fill: '-1',
                         }, {
                         label: 'Protected C',
 			 backgroundColor: 'rgb(191,33,30, 0.3)',
                         borderColor: '#BF211E',
-                        data: {{protc}}/*[
-                                {% for val in protc %}
-                                {{val.count}},
-                                {% endfor %}
-                        ]*/,
+                        data: {{protc}},
                         fill: '-1',
                         }]
                 },
@@ -192,7 +169,8 @@ var config = {
                                 display: true,
                                 position: 'right',
                         },
-                        responsive: false,
+                        responsive: true,
+			onResize: lineResizing,
                         title: {
                                 display: true,
 				text: 'Activity over last 2 months',
@@ -233,9 +211,9 @@ piedata = {
         data: {{data_cons}},
 
         backgroundColor: [
-                '#A0CCDA',
+		'#94778B',
                 '#7CE577',
-                '#94778B',
+		'#A0CCDA',
                 '#E9CE2C',
                 '#DE541E',
                 '#BF211E'
@@ -250,14 +228,16 @@ piedata = {
 pieoptions = {
         legend: {
                 display: true,
-                position: 'right',
+                position: 'left',
         },
 	title: {
 		display: true,
 		position: 'top',
 		text: 'Breakdown of classifications',
 		fontSize: '13'
-	}
+	},
+	responsive: true,
+	onResize: afterResizing,
 };
 
 
@@ -273,8 +253,23 @@ window.onload = function() {
 	});
 
 };
+function lineResizing(chart, size){
+	if(size.width <=1000) {
+		chart.options.legend.display=false;
+	} else {
+		chart.options.legend.display=true;
+	}
+	chart.update()
+};
 
-
+function afterResizing(chart, size){
+	if(size.width <=450) {
+		chart.options.legend.display=false;
+	} else {
+		chart.options.legend.display=true;
+	}
+	chart.update()
+};
 </script>
 </body>
 </html>

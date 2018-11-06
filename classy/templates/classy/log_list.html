@@ -3,6 +3,7 @@
 <head>
 
 <title>Logs</title>
+{% load classy_extras %}
 {% include 'classy/base_links.html' %}
 
 {% load static %}
@@ -51,19 +52,19 @@
 	<tr>
 		
 		<td>{{tuple.classy_id}}</td>
-		<td>{{tuple.action_time}}</td>
-		{% if tuple.action_flag == 0 %}
+		<td>{{tuple.time}}</td>
+		{% if tuple.flag == 0 %}
 		<td>DELETE</td>
-		{% elif tuple.action_flag == 1 %}
+		{% elif tuple.flag == 1 %}
 		<td>MODIFY</td>
-		{% elif tuple.action_flag == 2 %}
+		{% elif tuple.flag == 2 %}
 		<td>CREATE</td>
 		{% endif %}
-		<td>{{tuple.o_classification}}</td>
-		<td>{{tuple.n_classification}}</td>
-		<td>{{tuple.user_id}}</td>
-		<td>{{tuple.approved_by}}</td>
-		<td>{{tuple.state}}</td>
+		<td>{{translate|get_item:tuple.old_classification}}</td>
+		<td>{{translate|get_item:tuple.new_classification}}</td>
+		<td>{{tuple.user}}</td>
+		<td>{{tuple.approver}}</td>
+		<td>{{state_translate|get_item:tuple.state}}</td>
 	</tr>
 	{% endfor %}
 </tbody>
