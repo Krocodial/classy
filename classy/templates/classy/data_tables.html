@@ -7,6 +7,7 @@
 
 {% load static %}
 <link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
 </head>
 <body id="bootstrapoverride">
 
@@ -18,17 +19,17 @@
 <div class="col-sm-10">
 {% if result == 'success' %}
 <div class="alert alert-success alert-dismissable fade show" role="alert">
-	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		<span aria-hidden="true">&times;</span>
-	</button>
-	<strong>Success! </strong> Changes submitted for review.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <strong>Success! </strong> Changes submitted for review.
 </div>
 {% elif result == 'failure' %}
 <div class="alert alert-failure alert-dismissable fade show" role="alert">
-	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		<span aria-hidden="true">&times;</span>
-	</button>
-	<strong>Oops! </strong> Please try again.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <strong>Oops! </strong> Please try again.
 </div>
 {% endif %}
 </div>
@@ -36,7 +37,7 @@
 </div>
 </div>
 
-<form class="form-group" action="search">
+<form class="form-group" action="search" id="searchi">
 
 <div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -84,34 +85,34 @@
 
 <div class="container-fluid">
 <div class="row">
-        <div class="col-sm-2">
-	<br/><br/>
-	<div class="input-group">
-	<label for="id_size">Results per page: &nbsp</label>
-	
-	{{form.size}}
-	</div>
+        <div class="col-sm-1">
+    <br/><br/>
+    <div class="input-group">
+    <label for="id_size">Results per page: &nbsp</label>
+    
+    {{form.size}}
+    </div>
         </div>
         <div class="col-sm-8">
-	<div class="input-group">	
-	{{form.query}}
-	<span class="input-group-btn">
-		<button type="submit" class="btn btn-primary" type="button">Search</button>
-	</span>
-	</div>
-	
-	<small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
-	<div class="input-group">
-		<input type="hidden" value="{{size}}"></input>
-	</div>
-	<nav class="nav justify-content-center">
-		<a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
-	</nav>	
-	</form>
-	</div>
-        <div class="col">
+    <div class="input-group">   
+    {{form.query}}
+    <span class="input-group-btn">
+        <button type="submit" class="btn btn-primary" type="button">Search</button>
+    </span>
+    </div>
+    
+    <small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
+    <div class="input-group">
+        <input type="hidden" value="{{size}}"></input>
+    </div>
+    <nav class="nav justify-content-center">
+        <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
+    </nav>  
+    </form>
+    </div>
+        <div class="col-sm-1">
 	{% if queryset %}
-	<form action="download" method="post">
+    <form action="download" method="post">
 {% csrf_token %}
 <input type="hidden" name="schema" value='{{sch}}'>
 <input type="hidden" name='query' value='{{query}}'>
@@ -129,48 +130,65 @@
 {% endif %}
 
 </div>
+<div class="col-sm-2">
+{% if queryset %}
+<canvas id="pieChart"></canvas>
+<form action="search" method="get" id='pieChartForm'>
+<input type="hidden" name='data_source' value='{{ds}}'>
+<input type="hidden" name='schema' value='{{sch}}'>
+<input type="hidden" name='table' value='{{tab}}'>
+<input type='hidden' name='column' value='{{col}}'>
+<input type='hidden' name='query' value='{{query}}'>
+<input type='hidden' name='size' value='{{size}}'>
+{% for st in stati %}
+<input type='hidden' name='stati' value='{{st}}'>
+{% endfor %}
+<input type='hidden' name='classi' value=''  id='pieChartClassi'>
+</form>
+{% endif %}
+</div>
 </div>
 </div>
 
 <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
-	<div class="modal-content">
-		<div class="modal-header">
-			<h5 class="modal-title" id="modalBo">Confirm changes</h5>
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-			</button>
-		</div>
-		<div class="modal-body">
-		<h6 class="text-center">Pending modifications</h6>
-		<table class="table table-sm table-hover" id="modTable">
-		<thead class="thead thead-sm thead-inverse">
-			<tr>
-				<th class="th-cus">ID</th>
-				<th class="th-cus">New Classification</th>
-				<th class="actions th-cus">Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-		</table><br/>
-		<h6 class="text-center">Pending deletions</h6>
-		<table class="table table-sm table-hover" id="delTable">
-		<thead class="thead thead-inverse">
-			<tr>
-				<th class="th-cus">ID</th>
-				<th class="actions th-cus">Actions</th>
-			</tr>	
-		</thead>
-		<tbody>
-		</tbody>
-		</table>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalBo">Confirm changes</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+        <h6 class="text-center">Pending modifications</h6>
+        <table class="table table-sm table-hover" id="modTable">
+        <thead class="thead thead-sm thead-inverse">
+            <tr>
+                <th class="th-cus">ID</th>
+                <th class="th-cus">New Classification</th>
+                <th class="actions th-cus">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        </table><br/>
+        <h6 class="text-center">Pending deletions</h6>
+        <table class="table table-sm table-hover" id="delTable">
+        <thead class="thead thead-inverse">
+            <tr>
+                <th class="th-cus">ID</th>
+                <th class="actions th-cus">Actions</th>
+            </tr>   
+        </thead>
+        <tbody>
+        </tbody>
+        </table>
 
-		</div>
-		<div class="modal-footer">
-		<button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
-		</div>
-	</div>
+        </div>
+        <div class="modal-footer">
+        <button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
+        </div>
+    </div>
 </div>
 </div>
 
@@ -178,18 +196,18 @@
 <div class="modal-dialog modal-dialog-centered" role="document">
 <div class="modal-content">
 <div class="modal-header">
-	<h5 class="modal-title" id="batchH">Change Classification</h5>
-	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	<span aria-hidden="true">&times;</span>
-	</button>
+    <h5 class="modal-title" id="batchH">Change Classification</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 <div class="modal-body">
 <label for="newC"><strong>Classification</strong></label>
 <select class="form-control form-control-sm" id="newC">
-		 <option selected>Please select a new classification...</option>
-		 {% for op in options %}
-		 <option value="{{forloop.counter}}">{{op}}</option>
-		 {% endfor %}
+         <option selected>Please select a new classification...</option>
+         {% for op in ex_options %}
+         <option value="{{forloop.counter}}">{{op}}</option>
+         {% endfor %}
 </select>
 </div>
 <div class="modal-footer">
@@ -202,69 +220,73 @@
 
 <table class="table table-sm data">
 <thead class="thead-inverse">
-	<tr>
-		<th></th>
-		<th class='th-cus'>Datasource</th>
-		<th class='th-cus'>Schema</th>
-		<th class='th-cus'>Table</th>
-		<th class='th-cus'>Column</th>
-	</tr>
+    <tr>
+        <th></th>
+        <th class='th-cus'>Datasource</th>
+        <th class='th-cus'>Schema</th>
+        <th class='th-cus'>Table</th>
+        <th class='th-cus'>Column</th>
+        <th class='th-cus'>Classification</th>
+    </tr>
 </thead>
 
 <tbody id="contentArea">
-	{% for tuple in queryset %}
-	<tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
-		<td>
-			<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
-				class="accordion-toggle">
-			<button data-toggle="button" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align">
-			<img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></use>
-			</button>	
-			</div>
-		</td>
-		<td>{{tuple.datasource_description}}</td>
-		<td>{{tuple.schema}}</td>
-		<td>{{tuple.table_name}}</td>
-		<td>{{tuple.column_name}}</td>
-	</tr>
-	<tr class="hiddenRows{{forloop.counter}}">
-		<td colspan="5">
-			<div class="collapse row{{forloop.counter}} accordion-body">
-			<div class="row">
-			<div class="col-sm-1"></div>
-			<div class="col-sm-2">
-				<p><strong>Created by: </strong> {{tuple.created_by}}</p>
-			</div>
-			<div class="col-sm-2">
-			<a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
-			</div>
-			<div class="col-sm-3">
-			<form class="form-inline">
-			<label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
-			<select class="form-control form-control-sm cla"
-				id="{{forloop.counter}}">
-				<option selected>{{tuple.classification_name}}</option>
-				{% for op in options %}
-				<option value="{{forloop.counter}}">{{op}}</option>
-				{% endfor %}
-			</select>
-			</form>
+    {% for tuple in queryset %}
+    <tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
+        <td>
+            <!--<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
+                class="accordion-toggle">-->
+            <button data-toggle="collapse" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align" data-target=".row{{forloop.counter}}" class="accordion-toggle">
+            <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></img>
+            </button>   
+            <!--</div>-->
+        </td>
+        <td>{{tuple.datasource}}</td>
+        <td>{{tuple.schema}}</td>
+        <td>{{tuple.table}}</td>
+        <td>{{tuple.column}}</td>
+        <td>{{translate|get_item:tuple.classification_name}}
+    </tr>
+    <tr class="hiddenRows{{forloop.counter}}">
+        <td colspan="6">
+            <div class="collapse row{{forloop.counter}} accordion-body">
+            <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-2">
+                <p><strong>Created by: </strong> {{tuple.creator}}</p>
+            </div>
+            <div class="col-sm-2">
+            <a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
+            </div>
+            <div class="col-sm-3">
+            <form class="form-inline">
+            <label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
+            <select class="form-control form-control-sm cla"
+                id="{{forloop.counter}}">
+                <option selected>
+                    {{ translate|get_item:tuple.classification_name }}
+<!--{{tuple.classification_name}}-->    </option>
+                {% for op in ex_options %}
+                <option value="{{forloop.counter}}">{{op}}</option>
+                {% endfor %}
+            </select>
+            </form>
             </div>
             <div class="col-sm-1">
             {% if recent|get_item:tuple.id %} NEW {%endif%}
-			</div>
-			<div class="col-sm-2">
-				<button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
-				
-			<input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
-			value="{{tuple.id}}"/>
-			</div>
-			<div class="col-sm-1"></div>
-			</div>
-			</div>
-		</td>
-	</tr>
-	{% endfor %}
+            </div>
+            <div class="col-sm-2">
+                <button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
+                
+            <input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
+            value="{{tuple.id}}"/>
+            </div>
+            <div class="col-sm-1"></div>
+            </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
 </tbody>
 
 </table>
@@ -311,33 +333,90 @@
 
 <script>
 
+options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
+
 $body = $('body');
 $(document).on({
-	ajaxStart: function() { $body.addClass('loading'); },
-	ajaxStop: function() { $body.removeClass('loading'); }
+    ajaxStart: function() { $body.addClass('loading'); },
+    ajaxStop: function() { $body.removeClass('loading'); }
 });
 
 $(document).on('click', '#finSubby', function() {
-	$body.addClass('loading');
-	//alert(JSON.stringify(toDel));
-	$.ajax({
-		type: "POST",
-		url: 'modi',
-		traditional: true,
-		data: {'toDel': JSON.stringify(toDel), 'toMod': JSON.stringify(toMod), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+    $body.addClass('loading');
+    //alert(JSON.stringify(toDel));
+    $.ajax({
+        type: "POST",
+        url: 'modi',
+        traditional: true,
+        data: {'toDel': JSON.stringify(toDel), 'toMod': JSON.stringify(toMod), 'csrfmiddlewaretoken': '{{ csrf_token }}'},
 
-	success: function(data){
-		if(data.status == 1) {
-		$('#succ').submit();
-	} else {
-		$('#fai').submit();
-		//window.location('url')
-	}
+    success: function(data){
+        if(data.status == 1) {
+        $('#succ').submit();
+    } else {
+        $('#fai').submit();
+        //window.location('url')
+    }
 
-	}
+    }
 });
 });
+{% if pie_information %}
 
+piedata = {
+	datasets: [{
+		data:{{pie_information}},
+		backgroundColor: [
+		'#94778B',
+                '#7CE577',
+                '#A0CCDA',
+                '#E9CE2C',
+                '#DE541E',
+                '#BF211E'
+		]
+	}],
+	labels: {{label_cons}}
+};
+pieoptions = {
+	onClick: graphClickEvent,
+
+	legend: {
+		display: false,
+		position: 'bottom',
+	},
+	title: {
+		display: false,
+		position: 'top',
+		text: 'Classification Sizes',
+		fontSize: '11'
+	}
+};
+
+untranslate = {{untranslate}}
+
+var pie = document.getElementById('pieChart').getContext('2d');
+
+window.onload = function() {
+	var myDonut = new Chart(pie, {
+		type: 'doughnut',
+		data: piedata,
+		options: pieoptions
+	});
+};
+
+function graphClickEvent(event, array) {
+	if(array[0]){
+		//console.log($('#pieChartClassi').val());
+		$("#pieChartClassi").val(untranslate[options[array[0]._index]]);
+		//console.log($('#pieChartClassi').val());	
+		$("#pieChartForm").submit();			
+	};
+};
+//document.getElementById('id_classi').value = options[array[0]._index];
+		//$('#searchi').submit();
+		//console.log(options[array[0]._index]);
+
+{% endif %}
 
 </script>
 </body>

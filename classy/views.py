@@ -19,13 +19,32 @@ import threading, time, csv, pytz, json, random
 
 from classy.models import *
 from classy.forms import *
-from classy.scripts import calculate_count, create_thread
+from classy.scripts import calc_scheduler, upload
 
-options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
+uthread = thread(False)
+if not uthread.running:
+    t = threading.Thread(target=upload, args=(uthread,), daemon=True)
+    uthread.running = True
+    t.start()
+
+cthread = thread(False)
+if not cthread.running:
+    t = threading.Thread(target=calc_scheduler, args=(cthread,), daemon=True)
+    cthread.running=True
+    t.start()
+
+#To translate classifications between the templates and the DB. (For database size optimization)
+ex_options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
+options = ['UN', 'PU', 'CO', 'PA', 'PB', 'PC']
+translate = {'UN': 'UNCLASSIFIED', 'CO': 'CONFIDENTIAL', 'PU': 'PUBLIC', 'PA': 'PROTECTED A', 'PB': 'PROTECTED B', 'PC': 'PROTECTED C'}
+untranslate = {'UNCLASSIFIED': 'UN', 'CONFIDENTIAL': 'CO', 'PUBLIC': 'PU', 'PROTECTED A': 'PA', 'PROTECTED B': 'PB', 'PROTECTED C': 'PC'}
+state_translate = {'A': 'Active', 'P': 'Pending', 'I': 'Inactive'}
+
 threads = []
 lock = threading.Lock()
 sizes = [10, 25, 50, 100]
 
+#Accessed from the home.html page
 def tutorial(request):
     if not request.user.is_authenticated:
         return redirect('classy:index')
@@ -34,6 +53,7 @@ def tutorial(request):
     if request.user.is_authenticated:
         return render(request, 'classy/base_tutorial.html')
 
+#Download search results from the search function
 def download(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')
@@ -43,12 +63,12 @@ def download(request):
     if form.is_valid():
         if(form.cleaned_data['query'] != ''):
             value = form.cleaned_data['query']
-            cols = classification.objects.filter(column_name__icontains=value);
-            tabs = classification.objects.filter(table_name__icontains=value);
+            cols = classification.objects.filter(column__icontains=value);
+            tabs = classification.objects.filter(table__icontains=value);
             schemas = classification.objects.filter(schema__icontains=value);
-            data = classification.objects.filter(datasource_description__icontains=value);
+            data = classification.objects.filter(datasource__icontains=value);
             queryset = cols | tabs | schemas | data
-            queryset = queryset.exclude(state__exact='Inactive')
+            queryset = queryset.exclude(state__exact='I')
         else:
             ds = form.cleaned_data['data_source']
             sch = form.cleaned_data['schema']
@@ -57,25 +77,26 @@ def download(request):
             classi = form.cleaned_data['classi']
             stati = form.cleaned_data['stati']
             if len(stati) == 0:
-                stati = ['Active', 'Pending']
+                stati = ['A', 'P']
             if len(classi) == 0:
                 classi = options
-            sql = classification.objects.filter(column_name__icontains=co, table_name__icontains=tab, schema__icontains=sch, datasource_description__icontains=ds, classification_name__in=classi, state__in=stati);
+            sql = classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification_name__in=classi, state__in=stati);
             queryset = sql
-        queryset = queryset.order_by('datasource_description', 'schema', 'table_name')
+        queryset = queryset.order_by('datasource', 'schema', 'table')
     
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['classification', 'schema', 'table', 'column', 'category', 'datasource', 'creation date', 'created by', 'state'])
+        writer.writerow(['classification', 'datasource', 'schema', 'table', 'column', 'created', 'creator', 'state', 'masking instructions'])
         
         for tuple in queryset:
-            writer.writerow([tuple.classification_name, tuple.schema, tuple.table_name, tuple.column_name, tuple.category, tuple.datasource_description, tuple.creation_date, tuple.created_by, tuple.state])
+            writer.writerow([translate[tuple.classification_name], tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator, state_translate[tuple.state], tuple.masking])
         return response
 
     return redirect('classy:index')
 
+#Allow staff to review basic user changes, and accept/reject them
 def review(request):
     if not request.user.is_staff:
             return redirect('classy:index')
@@ -94,27 +115,40 @@ def review(request):
                     den = json.loads(request.POST['denied'])
                     for tup in group_set:
                         if str(tup.classy.id) in den:
-                            pass
+                            continue
+                        
+                        log = {}
+                        item = classification.objects.get(id=tup.classy.id)
+                        log['classy'] = item.pk
+                        log['flag'] = tup.flag
+                        log['old_classification'] = tup.classy.classification_name
+                        log['user'] = user.pk
+                        log['approver'] = request.user.pk
+                    
                         #modify
-                        elif tup.action_flag == 1:
-                            if tup.classification_name in options:
-
-                                item = classification.objects.get(id=tup.classy.id)
-                                log = classification_logs(classy = item, action_flag = 1, n_classification = tup.classification_name, o_classification=tup.o_classification, user_id = user, approved_by = request.user.username, state='Active')
+                        if tup.flag == 1:
+                            log['new_classification'] = tup.classification_name
+                            log['state'] = 'A'
+                            form = classificationLogForm(log)
+                            if form.is_valid():
                                 item.classification_name = tup.classification_name
-                                item.o_classification = tup.o_classification
-                                item.state = 'Active'
-
-                                log.save()
+                                item.state='A'
                                 item.save()
-                        #delete
-                        elif tup.action_flag == 0:
-                            item = classification.objects.get(id=tup.classy.id)
-                            log = classification_logs(classy = item, action_flag = 0, n_classification = 'N/a', o_classification = tup.o_classification, user_id = user, approved_by = request.user.username, state='Inactive')
-                            item.state = 'Inactive'
+                                form.save()
+                            else:
+                                print(form.errors)
 
-                            log.save()
-                            item.save()
+                        #delete
+                        elif tup.flag == 0:
+                            log['new_classification'] = tup.classification_name
+                            log['state'] = 'I'
+                            form = classificationLogForm(log)
+                            if form.is_valid():
+                                item.state = 'I'
+                                item.save()
+                                form.save()
+                            else:
+                                print(form.errors)
                         else:
                             pass
                             #print('unexpected value')
@@ -127,14 +161,16 @@ def review(request):
                 response = {'status': 1, 'message': 'ok'}
                 return HttpResponse(json.dumps(response), content_type='application/json')
             except Exception as e:
+                print(e)
                 pass
-    queryset = classification_review.objects.all();
-    groups = classification_review_groups.objects.all();
-    queryset = queryset.order_by('group', 'datasource_description', 'schema', 'table_name', 'column_name')
+    queryset = classification_review.objects.all()
+    groups = classification_review_groups.objects.all()
+    #queryset = queryset.order_by('group', 'datasource', 'schema', 'table', 'column')
     
-    context = {'queryset': queryset, 'groups': groups, 'message': message, 'num': num}
+    context = {'queryset': queryset, 'groups': groups, 'message': message, 'num': num, 'translate': translate}
     return render(request, 'classy/review.html', context)
 
+#Allows us to see what has been pre-classified before upload into this tool, for verification purposes
 def exceptions(request):
     if not request.user.is_staff:
         return redirect('classy:index')        
@@ -145,9 +181,10 @@ def exceptions(request):
         value = form.cleaned_data['query']
 
         clas = classification_exception.objects.filter(classy__classification_name__icontains=value)
+        ds = classification_exception.objects.filter(classy__datasource__icontains=value)
         sch = classification_exception.objects.filter(classy__schema__icontains=value)
-        tab = classification_exception.objects.filter(classy__table_name__icontains=value)
-        col = classification_exception.objects.filter(classy__column_name__icontains=value)
+        tab = classification_exception.objects.filter(classy__table__icontains=value)
+        col = classification_exception.objects.filter(classy__column__icontains=value)
 
 
         if value.isdigit():
@@ -155,13 +192,13 @@ def exceptions(request):
         else:
             clas_id = clas
 
-        queryset = clas | sch | tab | col | clas_id
+        queryset = clas | sch | tab | col | clas_id | ds
 
         page = 1
         if 'page' in request.GET:
             page = request.GET.get('page')
-        queryset = queryset.order_by('-classy__creation_date')
-        paginator = Paginator(queryset, 100)
+        queryset = queryset.order_by('-classy__created')
+        paginator = Paginator(queryset, 50)
         query = paginator.get_page(page)
         form = basic_search()
     
@@ -201,10 +238,12 @@ def exceptions(request):
             'next': nex,
             'pags': pags,
             'first': first,
-            'last': last    
+            'last': last,    
+            'translate': translate,
     }
         return render(request, 'classy/exceptions.html', context)
 
+#Master log page, searchable
 def log_list(request):
         if not request.user.is_staff:
             return redirect('classy:index')
@@ -214,11 +253,13 @@ def log_list(request):
 
         if form.is_valid():
             value = form.cleaned_data['query']
-            nclas = classification_logs.objects.filter(n_classification__icontains=value)
-            oclas = classification_logs.objects.filter(o_classification__icontains=value)
-            flag = classification_logs.objects.filter(action_flag__icontains=value)
-            use = classification_logs.objects.filter(user_id__icontains=value)
-            appro = classification_logs.objects.filter(approved_by__icontains=value)
+
+
+            nclas = classification_logs.objects.filter(new_classification__icontains=value)
+            oclas = classification_logs.objects.filter(old_classification__icontains=value)
+            flag = classification_logs.objects.filter(flag__icontains=value)
+            use = classification_logs.objects.filter(user__username__icontains=value)
+            appro = classification_logs.objects.filter(approver__username__icontains=value)
             if value.isdigit():
                 clas = classification_logs.objects.filter(classy_id=int(value)) 
             else:
@@ -229,9 +270,9 @@ def log_list(request):
             if 'page' in request.GET:
                 page = request.GET.get('page')
             
-            queryset = queryset.order_by('-action_time')
+            queryset = queryset.order_by('-time')
 
-            paginator = Paginator(queryset, 100)
+            paginator = Paginator(queryset, 50)
             query = paginator.get_page(page)
 
             form = basic_search()
@@ -277,27 +318,33 @@ def log_list(request):
                     'next': nex,
                     'pags': pags,
                     'first': first,
-                    'last': last
+                    'last': last,
+                    'translate': translate,
+                    'state_translate': state_translate,
             }
             return render(request, 'classy/log_list.html', context)
 
+#Shows all information known about a classification object. History, variables, associated users, masking instructions.
 def log_detail(request, classy_id):
-    if not request.user.is_authenticated:
+    if not request.user.is_staff:
             return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
     try:
         obj = classification.objects.get(id=classy_id)
         tup = classification_logs.objects.filter(classy_id__exact=classy_id)
-        tup = tup.order_by('-action_time')
+        tup = tup.order_by('-time')
         context = {
             'result': tup,
             'obj': obj,
-            'num': num
+            'num': num,
+            'translate': translate,
+            'state_translate': state_translate,
         }
     except classification.DoesNotExist:
         context = {}
     return render(request, 'classy/log_details.html', context)
 
+#The search page POSTs to here, this will auto-change values for staff, and create a review group for basic users.
 def modi(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')
@@ -314,76 +361,84 @@ def modi(request):
             toDelRed = []
 
         if not request.user.is_staff:
-            new_group = classification_review_groups(user=request.user.username)
+            new_group = classification_review_groups(user=request.user)
             new_group.save()
 
         for i in toModRed:
             if 'id' not in i:
                 continue
+            try: 
+                tup = classification.objects.get(id=int(i["id"]))
+            except Exception as e:
+                continue
+            if tup.state == 'P':
+                continue
+            
+            info = {}
 
-            tup = classification.objects.get(id=i["id"])
+            info['classy'] = tup.pk
+            info['flag'] = 1
+
             if request.user.is_staff:
-                sql = classification_logs(
-                    classy = tup,
-                    action_flag=1,
-                    n_classification=i["classy"],
-                    o_classification=tup.classification_name,
-                    user_id = request.user.username,
-                    state='Active',
-                    approved_by='N/a')
+                info['state'] = 'A'
+                info['new_classification'] = untranslate[i['classy']]
+                info['old_classification'] = tup.classification_name
+                info['user'] = request.user.pk
+                info['approver'] = request.user.pk
 
-                sql.save()
-                tup.classification_name = i["classy"]
-                tup.save()
+                form = classificationLogForm(info)
+                tup.classification_name = untranslate[i["classy"]]
+            
             else:
-                sql = classification_review(classy=tup,
-                    group=new_group,
-                    classification_name=i["classy"],
-                    schema=tup.schema,
-                    table_name=tup.table_name,
-                    column_name=tup.column_name,
-                    datasource_description=tup.datasource_description,
-                    action_flag=1,
-                    o_classification=tup.classification_name)
+                info['group'] = new_group.pk
+                info['classification_name'] = untranslate[i['classy']]
+                
+                form = classificationReviewForm(info)
+                tup.state = 'P'
 
-                sql.save()
-                tup.state = 'Pending'
+            if form.is_valid():
                 tup.save()
-
+                form.save()
+            else:
+                print(form.errors)
         for i in toDelRed:
-            tup = classification.objects.get(id=i)
-            if request.user.is_staff:
-                sql = classification_logs(
-                    classy = tup,
-                    action_flag=0,
-                    user_id = request.user.username,
-                    state='Inactive',
-                    approved_by='N/a')
+            try:
+                tup = classification.objects.get(id=int(i))
+                print(tup)
+                print(tup.state)
+                if tup.state == 'P':
+                    print('pending')
+                    continue
+                info  = {}
+                info['classy'] = tup.pk
+                info['flag'] = 0
 
-                sql.save()
-                tup.state = 'Inactive'
-                tup.save()
+                if request.user.is_staff:
+                    info['state'] = 'I'
+                    info['user'] = request.user.pk
+                    info['approver'] = request.user.pk
+                    form = classificationLogForm(info)
+                    tup.state = 'I'
 
-            else:
-                sql = classification_review(
-                    classy = tup,
-                    group=new_group,
-                    schema=tup.schema,
-                    table_name=tup.table_name,
-                    column_name=tup.column_name,
-                    datasource_description=tup.datasource_description,
-                    action_flag=0,
-                    o_classification=tup.classification_name)
+                else:
+                    info['group'] = new_group.pk
+                    info['classification_name'] = tup.classification_name
+                    form = classificationReviewForm(info)
+                    tup.state = 'P'
 
-                sql.save()
-                tup.state = 'Pending'
-                tup.save()
-
+                if form.is_valid():
+                    tup.save()
+                    form.save()
+                else:
+                    print(form.errors)
+            except Exception as e:
+                print(e)
         response = {'status': 1, 'message': 'ok'}
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         return redirect('classy:data')
 
+#Once a user makes a search in the data tab this handles that request
 def search(request):
     if not request.user.is_authenticated:
         return redirect('classy:index')
@@ -394,29 +449,39 @@ def search(request):
         if form.is_valid():
             value=ds=sch=tab=co=''
             classi=stati=[]
-            if(form.cleaned_data['query'] != ''):
-                value = form.cleaned_data['query']
-                cols = classification.objects.filter(column_name__icontains=value);
-                tabs = classification.objects.filter(table_name__icontains=value);
-                schemas = classification.objects.filter(schema__icontains=value);
-                data = classification.objects.filter(datasource_description__icontains=value);
-                queryset = cols | tabs | schemas | data
-                queryset = queryset.exclude(state__exact='Inactive')
-            else:
-                ds = form.cleaned_data['data_source']
-                sch = form.cleaned_data['schema']
-                tab = form.cleaned_data['table']
-                co = form.cleaned_data['column']
-                classi = form.cleaned_data['classi']
-                stati = form.cleaned_data['stati']
-                if len(stati) == 0:
-                    stati = ['Active', 'Pending']
-                if len(classi) == 0:
-                    classi = options
-                
-                sql = classification.objects.filter(column_name__icontains=co, table_name__icontains=tab, schema__icontains=sch, datasource_description__icontains=ds, classification_name__in=classi, state__in=stati);
-                queryset = sql
-            queryset = queryset.order_by('datasource_description', 'schema', 'table_name')
+
+            value = form.cleaned_data['query']
+            cols = classification.objects.filter(column__icontains=value);
+            tabs = classification.objects.filter(table__icontains=value);
+            schemas = classification.objects.filter(schema__icontains=value);
+            data = classification.objects.filter(datasource__icontains=value);
+            queryset = cols | tabs | schemas | data
+ 
+            ds = form.cleaned_data['data_source']
+            sch = form.cleaned_data['schema']
+            tab = form.cleaned_data['table']
+            co = form.cleaned_data['column']
+            classi = form.cleaned_data['classi']
+            stati = form.cleaned_data['stati']
+            if len(stati) == 0:
+                stati = ['A', 'P']
+            if len(classi) == 0:
+                classi = options                
+
+            queryset2 = classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification_name__in=classi, state__in=stati)
+
+            queryset = queryset & queryset2
+
+            mapping = {}
+            pie_information = []
+            for op in options:
+                tmp = queryset.filter(classification_name=op).count()
+                pie_information.append(tmp)
+                mapping[op] = tmp
+
+            label_cons = ex_options
+ 
+            queryset = queryset.order_by('datasource', 'schema', 'table', 'column')
             size = 10
             if 'size' in request.GET:
                 size = request.GET['size']
@@ -462,10 +527,8 @@ def search(request):
         
             recent = {}
             for tup in query:
-                if tup.creation_date - datetime.timedelta(days=14):
+                if tup.created - datetime.timedelta(days=14):
                     recent[tup.id] = True
-                else:
-                    recent[tup.id] = False
             context = {
                 'num': num,
                 'form': form,
@@ -485,10 +548,16 @@ def search(request):
                 'pags': pags,
                 'first': first,
                 'last': last,
-                'recent': recent
+                'recent': recent,
+                'translate': translate,
+                'untranslate': mark_safe(untranslate),
+                'ex_options': ex_options,
+                'label_cons': mark_safe(label_cons),
+                'pie_information': pie_information,
             }
             return render(request, 'classy/data_tables.html', context)
         else:
+            print(form.errors)
             form = advancedSearch()
             context = {
                 'num': num,
@@ -500,7 +569,7 @@ def search(request):
 
 
     
-
+#A work in progress. Node tree displaying all of the information in the DB, drill-down is enabled. 
 def test(request):
 
     if request.method == 'POST':
@@ -511,11 +580,11 @@ def test(request):
         elif len(arr) == 2:
             schema = arr[0]
             ds = arr[1]
-            tables = classification.objects.filter(datasource_description=ds, schema=schema).values('table_name').distinct()
+            tables = classification.objects.filter(datasource=ds, schema=schema).values('table').distinct()
             nodes = []
             links = []
             for each in tables:
-                table = each['table_name']
+                table = each['table']
                 name = table + '/' + schema + '/' + ds
                 nodes.append({'id': name, 'group': 1})
                 links.append({'source': name, 'target': schema + '/' + ds, 'value': random.randint(1, 5)}) 
@@ -526,11 +595,11 @@ def test(request):
             table = arr[0]
             schema = arr[1]
             ds = arr[2]
-            columns = classification.objects.filter(datasource_description=ds, schema=schema, table_name=table).values('column_name').distinct()
+            columns = classification.objects.filter(datasource=ds, schema=schema, table=table).values('column').distinct()
             nodes = []
             links = []
             for each in columns:
-                name = each['column_name'] + '/' + table + '/' + schema + '/' + ds
+                name = each['column'] + '/' + table + '/' + schema + '/' + ds
                 hlvl = table + '/' + schema + '/' + ds
                 nodes.append({'id': name, 'group': 1})
                 links.append({'source': name, 'target': hlvl, 'value': 0})
@@ -543,35 +612,35 @@ def test(request):
             schema = arr[2]
             ds = arr[3]
 
-            tup = classification.objects.get(datasource_description=ds, schema=schema, table_name=table, column_name=column)
+            tup = classification.objects.get(datasource=ds, schema=schema, table=table, column=column)
             response = {'status': 2, 'message': 'ok', 'url': reverse('classy:data') + '/' + str(tup.id)}            
             return HttpResponse(json.dumps(response), content_type='application/json')
-    sources = classification.objects.values('datasource_description').distinct()
-    schemas = classification.objects.values('datasource_description', 'schema').distinct()
-    tables = classification.objects.values('schema', 'table_name', 'datasource_description').distinct()
+    sources = classification.objects.values('datasource').distinct()
+    schemas = classification.objects.values('datasource', 'schema').distinct()
+    tables = classification.objects.values('schema', 'table', 'datasource').distinct()
     trans = {}
     group = 0
     for each in sources:
-        trans[each['datasource_description']] = group
+        trans[each['datasource']] = group
         group = group + 1
 
 
     nodes = []
     links = [] 
     for each in sources:
-        ds = each['datasource_description']
+        ds = each['datasource']
         nodes.append({'id': ds, 'group': trans[ds]})
     for each in schemas:
-        nodes.append({'id': each['schema'] + '/' + each['datasource_description'], 'group': trans[each['datasource_description']]})
+        nodes.append({'id': each['schema'] + '/' + each['datasource'], 'group': trans[each['datasource']]})
 
     for each in schemas:
-        links.append({'source': each['schema'] + '/' + each['datasource_description'], 'target': each['datasource_description'], 'value': random.randint(1, 10)})
+        links.append({'source': each['schema'] + '/' + each['datasource'], 'target': each['datasource'], 'value': random.randint(1, 10)})
 
     context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
     return render(request, 'classy/test.html', context)
 
 
-
+#Main page, can authenticate users with siteminder or the default django authentication method. To alternate change the variable BYPASS_AUTH in settings.py
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
@@ -631,7 +700,10 @@ def index(request):
     context = {'form': form}
     return render(request, 'classy/index.html', context)
 
+#Home page once logged in. Pulls from classification_counts to show statistics
 def home(request):
+
+
     if not request.user.is_authenticated:
             return redirect('classy:index')
     data_cons = []
@@ -643,73 +715,66 @@ def home(request):
         mapping[op] = tmp
     num = classification_review_groups.objects.all().count()
 
-    label_cons = options    
-    
-    d = timezone.now().date() - timezone.timedelta(days=60)
-    
-    linee = classification_count.objects.filter(date__gte=d, classification_name__exact='Unclassified')
-
-    if linee.count() < 60:
-        vals = calculate_count(classification_logs.objects.filter(action_time__date__gte=d), mapping)
-        vals = classification_count.objects.filter(date__gte=d)
-    else:
-        vals = linee
-
-
+    label_cons = ex_options
     dates = []
-    dat = vals.order_by('date')
-    for tuple in dat:
-        if str(tuple.date) not in dates:
-            dates.append(str(tuple.date))
-
-    #print(dates)
-    assoc = {}
+    keys = {}
     
-    unclassified = []
-    public = []
-    confidential = []
-    protected_a = []
-    protected_b = []
-    protected_c = []
 
-    mul = 15
-    for i in range(0, 60):
-        unclassified.append(random.randrange(i*mul, i*mul+1000))
-        public.append(random.randrange(i*mul, i*mul+1000))
-        confidential.append(random.randrange(i*mul, i*mul+1000))
-        protected_a.append(random.randrange(i*mul, i*mul+1000))
-        protected_b.append(random.randrange(i*mul, i*mul+1000))
-        protected_c.append(random.randrange(i*mul, i*mul+1000))
-    #for i in dates:
-    #   days.append(i)
-    #for date in dates:
-    #   print(date)
-        #days.append(date.day)
+    if settings.PRES:
+        mul = 20 
+        for op in options:
+            keys[op] = []
+        for i in range(60):
+            t = 59-i
+            d = timezone.now().date() - timezone.timedelta(days=t)
+            dates.append(str(d))
+            for clas, arr in keys.items():
+                arr.append(random.randrange(i*mul, i*mul+1000)) 
+ 
+    else:
+        for op in options:
+            keys[op] = []
+
+        for i in range(60):
+            t = 59 - i
+            d = timezone.now().date() - timezone.timedelta(days=t)
+            dates.append(str(d))
+            for clas, arr in keys.items():
+                #print(clas, d)
+                try:
+                    tmp = classification_count.objects.get(date=d, classification_name=clas)
+                    arr.append(tmp.count)
+                except classification_count.DoesNotExist:
+                    #print('dne')
+                    pass
+                except classification_count.MultipleObjectsReturned:
+                    #print('too many')
+                    pass
 
     context = {
         #'queryset': queryset,
         'data_cons': data_cons,
         'label_cons': mark_safe(label_cons),
+        'untranslate': mark_safe(untranslate),
         'num': num,
         'dates': dates,
-        'unc': unclassified,
-        'pub': public,
-        'conf': confidential,
-        'prota': protected_a,
-        'protb': protected_b,
-        'protc': protected_c
+        'unc': keys['UN'],
+        'pub': keys['PU'],
+        'conf': keys['CO'],
+        'prota': keys['PA'],
+        'protb': keys['PB'],
+        'protc': keys['PC']
     }
     return render(request, 'classy/home.html', context);
 
+#Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A cron job pings the Task queue and takes care of the rest.
 def uploader(request):
     spaces = re.compile(' ')
     if not request.user.is_staff:
         return redirect('classy:index')
-    num = classification_review_groups.objects.all().count()
-    for th in threads:
-        th.uptime = str(timezone.now() - th.start)
-        th.uptime = th.uptime[:7]
 
+
+    num = classification_review_groups.objects.all().count()
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -719,17 +784,26 @@ def uploader(request):
                 name = spaces.sub('_', inp.name)
                 fs = FileSystemStorage()
                 filename = fs.save(name, inp)
+                                
+                finfo = {}
+                finfo['name'] = filename
+                finfo['priority'] = 0
+                finfo['queue'] = 'uploads'
+                finfo['user'] = request.user.pk
+                finfo['progress'] = 0
                 
-                th = thread(f.name, timezone.now(), 'pending', request.user.username)
-                threads.append(th)
-                t = threading.Thread(target=create_thread, args=(fs, filename, request, lock, th, threads, request.user.username))
-                th.startdate = timezone.now()
-                #django.db.connections.close_all()
-                t.start()
+                form = taskForm(finfo)
+                if form.is_valid():
+                    form.save()
+               
+                if not uthread.running:
+                    t = threading.Thread(target=upload, args=(uthread,))
+                    uthread.running = True
+                    t.start()                 
+
                 context = {
                     'status': '200',
                     'form': UploadFileForm(),
-                    'threads': threads,
                     'num': num
                 }
                 return render(request, 'classy/jobs.html', context)
@@ -740,21 +814,21 @@ def uploader(request):
                     'form': form,
                     'message': message,
                     'num': num,
-                    'threads': threads
                 }
                 return render(request, 'classy/jobs.html', context, status=422)
         else:
             context = {
                 'form': UploadFileForm(),
-                'threads': threads,
                 'num': num
             }
             return render(request, 'classy/jobs.html', context, status=423)
     
     form = UploadFileForm()
-    context = {'threads': threads, 'form': form, 'num': num}
+    tsks = task.objects.filter(queue='uploads')
+    context = {'tsks': tsks, 'form': form, 'num': num}
     return render(request, 'classy/jobs.html', context)
 
+#Initial page for data (could replace?)
 def data(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')
@@ -777,6 +851,7 @@ def data(request):
         }
     return render(request, 'classy/data_tables.html', context)
 
+#Basic logout(useless if siteminder is in use)
 def user_logout(request):
     logout(request)
     return redirect('classy:index')

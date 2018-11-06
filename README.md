@@ -2,49 +2,105 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 
-# DSC (Data Security Classification)
-An easy to use GUI that allows users to view/edit/create centralized classified data
+# Classy 
+A metadata classification repository for tracking and auditing purposes  
 
+## Status
+  
+Release 1.0.0  
+  
 ## Technology Stack Used
 Python 3 (Django)  
-Full support for most DBs, this was built for MySQL so PostgreSQL will work flawlessly as well  
+Initially built for MySQL, currently being ported to PostgreSQL  
 
-## Third-Party Products/Libraries used and the the License they are covered by
-mysqlclient  
-Django
-python-dotenv
+## Getting Started  
+These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
+  
+## Prerequisites  
+Install system dependencies    
+```sh  
+$ sudo apt-get install python3  
+//If you are using a MySQL DB install a connector  
+$ sudo apt-get install mysqlclient    
+```    
+  
+# Initial Setup
+  
+Clone github repo  
+```sh  
+$ git clone https://github.com/Krocodial/classy.git <project directory>  
+```   
+  
+Navigate to repo  
+```sh  
+$ cd <project directory>  
+```  
+  
+Edit the configuration file  
+```sh  
+$ vi dsc/settings.py  
+```  
+Change USE_MYSQL_DB to 'True' if you are using a MYSQL DB, set it to 'False' if you want to use a SQLite DB.   
+  
+If you change it to 'True' you will need to load the database credentials into the environment variables. The python dot-env library is currently used to load the credentials into memory from a hidden file in the project directory.  
+  
+Make sure the variables with the corresponding names in the configuration file are base64 encoded and placed within the '.env' file in the project directory, these will then be auto-loaded by the app on startup.  
+  
+WARNING: ensure this file is excluded from version control and limit the permissions so that only the owner of the file may read it. Failure to do so may result in a compromised DB.  
+  
+Set BYPASS_AUTH to True  
+Set Debug to False unless you wish to expose debug information  
+  
+Run setup script  
+```sh  
+$ chmod +x setup.sh    
+$ ./setup.sh  
+```  
 
-## Project Status
-Stable  
+This will create a virtual environment, install all python dependencies inside of it, then run the included tests with a coverage report.  
+  
+  
+To provide file handling functionality, as well as other long-running process' django-background tasks is used. Tasks will be created and registered for the user automatically. However, to actually run these tasks a simple cron job must be setup.  
+  
+Using Crontab -e the following is all you need to do:  
+```  
+*/1 * * * * /usr/bin/flock -n /tmp/QRH7mA40aRL2NVyVUbcH.lockfile ~/crontab/file_handler.sh  
+*/1 * * * * /usr/bin/flock -n /tmp/uj5l6n7iAGtM8gx9fNuo.lockfile ~/crontab/count_handler.sh  
+```  
+  
+Flock will need to be installed to allow the creation and management of locks, preventing process bombs.  
+  
+Change the path at the end of each to correspond to the project directory, and modify the scripts accordingly. All they do is navigate to the project directory, activate the virtual env, and run the command 'python manage.py process_tasks --queue <queue>'  
+    
 
-## Deployment (Local Development)
+Finally run the development server  
+```sh  
+$ source envs/bin/activate  
+$ python manage.py runserver <host>:<port>  
+```  
 
-An example of this process on Ubuntu is included in bash script 'install.sh'  
+Congratz! You now have a running metadata classification repo  
+
+# Deployment  
   
-Using apt or another package manager install  
-*libmysqlclient-dev  
-*python3-venv  
-*python3-pip  
-*apache2  
-*apache2-dev  
-*libapache2-mod-wsgi-py3  
+Once the steps in 'Initial Setup' are complete follow this section to find out how to serve classy using a webserver.    
   
-* Create a virtual environment, 'python -m venv envs'.  
-   
-* Activate this virtual environment 'source /envs/bin/activate'.  
+Using apt or another package manager   
+```sh  
+$ sudo apt-get install libmysqlclient-dev python3 python3-venv python3-pip apache2 apache2-dev libapache-mod-wsgi-py3  
+```
   
-* Install local dependencies. 'pip install -r requirements.txt'.  
+Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. An example apache virtualhost configuration file in included in tests/config_example  
   
-* Create environment variables with corresponding variable names in '.envs' in the project directory. These include your database credentials, secret, and host IP.  
+Modify the dsc/settings.py file. An example file, as well as comments describing the different options available in the settings file is included in the tests/settings_example file  
   
-* Customize the dsc/settings.py file. This includes changing the database connections, and ensuring that debug mode is turned off. If in-doubt follow the instructions included in this file.  
-  
-* Create a configuration based on the projects location for apache2, eg in /etc/apache2/sites-available. See the Django docs about deploying, they are very detailed.  
  
 ## Running Tests
   
-Tests are built using Django's testing libraries. Navigate to the project directory and run the tests via 'python manage.py test' once in the virtual environment. If the application is not setup correctly this will now work. The tests are included in the project directory, with the prefix 'test'.  
- 
+Tests are built using Django's testing libraries. Once in the virtual environment (source envs/bin/activate), navigate to the project directory and run the tests via 'python manage.py test'. If the application is not setup correctly this will not work.   
+  
+Note: The tests will automatically run if the 'setup.sh' script is run. Thus they are included only for development purposes to make sure you do not mess anything up.     
+  
 
 ## Security  
 Authentication can be handled by SiteMinder or alternatively Django's built-in authentication by changing the BYPASS_AUTH variable in the settings file.  
@@ -53,39 +109,46 @@ Authorization is a customization of Django's provided authorization functionalit
 
 Policies for use will be provided by the FLNR security team.  
 
-## Files in this repository
-Note: This is just a directory tree.  
-```
-classy/	
-├── classy			-The app itself, model definitions, views, templates, scripts, etc.
-│   ├── migrations		-Here are the migrations for our DB
-│   │   └── __pycache__
-│   ├── __pycache__
+## Files in this repository  
+```sh  
+classy/
+├── classy
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── migrations
+│   │   ├── 0001_initial.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── scripts.py
 │   ├── static
+│   │   ├── admin
 │   │   └── classy
-│   └── templates
-│       └── classy
-├── dsc				-Configuration information
-│   └── __pycache__
-├── envs			-Contains our virtual environment, as well as the admin pages
-│   ├── bin
-│   │   └── __pycache__
-│   ├── include
-│   ├── lib
-│   │   └── python3.5
-│   ├── lib64 -> lib
-│   └── share
-│       └── python-wheels
-└── static			-Static files for our webserver
-    ├── admin
-    │   ├── css
-    │   ├── fonts
-    │   ├── img
-    │   └── js
-    └── classy
-        ├── css
-        ├── images
-        └── js
+│   ├── templates
+│   │   ├── admin
+│   │   └── classy
+│   ├── templatetags
+│   │   └── classy_extras.py
+│   ├── urls.py
+│   └── views.py
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── dsc
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── LICENSE
+├── manage.py
+├── README.md
+├── requirements.txt
+├── setup.sh
+└── tests
+    ├── __init__.py
+    ├── test_func.py
+    ├── test_model.py
+    ├── test.sh
+    └── test_view.py
+
 ```
 
 ## Getting Help or Reporting an Issue
@@ -101,7 +164,7 @@ By participating in this project you agree to abide by its terms.
 
 ## License
 
-    Copyright 2016 Province of British Columbia
+    Copyright 2018 Province of British Columbia
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
