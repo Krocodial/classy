@@ -16,7 +16,7 @@ import base64
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(BASE_DIR, '.envs'))
+#load_dotenv(os.path.join(BASE_DIR, '.envs'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'r8k5=$j33t0n-f-97o2v&=4a06a*a+fx1n)
 
 DEBUG = True
 BYPASS_AUTH = True
-USE_MYSQL_DB = True
+#USE_MYSQL_DB = False
 PRES = True
 
 ALLOWED_HOSTS = ['*']#os.getenv('DJANGO_HOST_IP')]
@@ -65,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'dsc.urls'
+ROOT_URLCONF = 'conf.urls'
 
 TEMPLATES = [
     {
@@ -83,11 +83,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'dsc.wsgi.application'
+WSGI_APPLICATION = 'conf.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+from . import database
+'''
 if USE_MYSQL_DB:
 	DATABASES = {
 	    'default': {
@@ -109,7 +111,7 @@ else:
             },
 		}
 	}
-
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -147,8 +149,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/int/dsc/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/tmp/'#os.path.join(BASE_DIR, 'classy/tmp/'
 FILE_UPLOAD_PERMISSIONS = 0o600
 
