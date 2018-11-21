@@ -1,15 +1,10 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-<meta http-equiv="X-UA-Compatible" content="IE-edge" />
-
-<title>Data</title>
-{%include 'classy/base_links.html'%}
 {% load static %}
-
+{% include 'classy/head.html' %}
+<title>Data</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-<link rel="stylesheet" href="{% static 'classy/css/home.css' %}">
+<!--
+<link rel="stylesheet" href="{% static 'classy/css/home.css' %}"/>
+-->
 </head>
 <body id="bootstrapoverride">
 
@@ -20,35 +15,33 @@
 <header class="business-header">
 <div class="container">
 <div class="row">
-  <div class="col-lg-12">
+  <div class="col-12">
     <h2 class="display-4 text-center mt-4">Welcome {{user.last_name}}</h2>
-	<!--<canvas id="lineChart"></canvas>-->		
+    <!--<canvas id="lineChart"></canvas>-->     
   </div>
 </div>
 </div>
 </header>
-
-<canvas id="lineChart" width="1280" height="280"></canvas>
-
+<canvas id="lineChart"></canvas>
 <!-- Page Content -->
-<div class="container">
 
+<div class="container">
 <div class="row">
-<div class="col-sm-6">
+<div class="col-lg-6">
   <h2 class="mt-4">About this application</h2>
   <p>The Data Security Classification repository, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
 the purpose of keeping an inventory of the data that is managed, and where that data is stored. This tool will allow users to view high level information about 
   tables, modify table classifications, upload new information, and flag deprecated data</p>
 
   <p>This tool is managed by the FLNR security team, with custom access granted to business areas based on privilege. All changes will be reviewed and approved before 
-	they reflect in the main dataset. If you need access to a larger dataset due to business changes, please send a request to 
+    they reflect in the main dataset. If you need access to a larger dataset due to business changes, please send a request to 
  the FLNR security team.
-	<!--<p>
+    <!--<p>
     <a class="btn btn-primary btn-lg" href="#">Call to Action &raquo;</a>
   </p>-->
 </div>
-<div class="col-sm-6">
-	<canvas id="pieChart"></canvas>
+<div class="col-lg-6">
+    <canvas id="pieChart"></canvas>
 </div>
 </div>
 <!-- /.row -->
@@ -120,15 +113,15 @@ var config = {
                         label: 'Unclassified',
                         backgroundColor: 'rgb(148,119,139, 0.3)',
                         borderColor: '#94778B',
-			pointBackgroundColor: '#94778B',
-			pointBorderColor: '#fff',
-			pointHoverBorderColor: '#94778B',
+            pointBackgroundColor: '#94778B',
+            pointBorderColor: '#fff',
+            pointHoverBorderColor: '#94778B',
                         data: 
-				{{unc}}
+                {{unc}}
                         ,
                         fill: 'origin',
                         }, {
-		       	label: 'Public',
+                label: 'Public',
                         backgroundColor: 'rgb(124,229,119, 0.3)',
                         borderColor: '#7CE577',
                         pointBackgroundColor: '#7CE577',
@@ -156,7 +149,7 @@ var config = {
                         fill: '-1',
                         }, {
                         label: 'Protected C',
-			 backgroundColor: 'rgb(191,33,30, 0.3)',
+             backgroundColor: 'rgb(191,33,30, 0.3)',
                         borderColor: '#BF211E',
                         data: {{protc}},
                         fill: '-1',
@@ -170,12 +163,14 @@ var config = {
                                 position: 'right',
                         },
                         responsive: true,
-			onResize: lineResizing,
+            maintainAspectRatio: true,
+            aspectRatio: '5',
+            onResize: lineResizing,
                         title: {
                                 display: true,
-				text: 'Activity over last 2 months',
-				position: 'top',
-				fontSize: '13'
+                text: 'Activity over last 2 months',
+                position: 'top',
+                fontSize: '13'
                         },
                         tooltips: {
                                 mode: 'index',
@@ -211,9 +206,9 @@ piedata = {
         data: {{data_cons}},
 
         backgroundColor: [
-		'#94778B',
+        '#94778B',
                 '#7CE577',
-		'#A0CCDA',
+        '#A0CCDA',
                 '#E9CE2C',
                 '#DE541E',
                 '#BF211E'
@@ -230,14 +225,14 @@ pieoptions = {
                 display: true,
                 position: 'left',
         },
-	title: {
-		display: true,
-		position: 'top',
-		text: 'Breakdown of classifications',
-		fontSize: '13'
-	},
-	responsive: true,
-	onResize: afterResizing,
+    title: {
+        display: true,
+        position: 'top',
+        text: 'Breakdown of classifications',
+        fontSize: '13'
+    },
+    //responsive: true,
+    onResize: afterResizing,
 };
 
 
@@ -245,30 +240,31 @@ var pie = document.getElementById('pieChart').getContext('2d');
 var line = document.getElementById('lineChart').getContext('2d');
 
 window.onload = function() {
-	window.myLine = new Chart(line, config);
-	var myDoughnutChart = new Chart(pie, {
-	    type: 'doughnut',
-	    data: piedata,
-	    options: pieoptions
-	});
+    window.myLine = new Chart(line, config);
+    var myDoughnutChart = new Chart(pie, {
+        type: 'doughnut',
+        data: piedata,
+        options: pieoptions
+    });
 
 };
 function lineResizing(chart, size){
-	if(size.width <=1000) {
-		chart.options.legend.display=false;
-	} else {
-		chart.options.legend.display=true;
-	}
-	chart.update()
+    if(size.width <=1000) {
+        $("#lineChart").hide();
+    } else {
+        $("#lineChart").show();
+        //chart.options.legend.display=true;
+    }
+    chart.update()
 };
 
 function afterResizing(chart, size){
-	if(size.width <=450) {
-		chart.options.legend.display=false;
-	} else {
-		chart.options.legend.display=true;
-	}
-	chart.update()
+    if(size.width <=530) {
+        chart.options.legend.display=false;
+    } else {
+        chart.options.legend.display=true;
+    }
+    chart.update()
 };
 </script>
 </body>

@@ -2,7 +2,6 @@
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 
 <title>{% block title %}{% endblock %}</title>
 <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
@@ -15,18 +14,10 @@
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}" />{% endif %}
 {% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
-
-{% load static %}
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
 </head>
 {% load i18n %}
 
-<body id='bootstrapoverride' class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}">
 
 <!-- Container -->

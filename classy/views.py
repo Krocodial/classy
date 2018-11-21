@@ -21,17 +21,18 @@ from classy.models import *
 from classy.forms import *
 from classy.scripts import calc_scheduler, upload
 
-uthread = thread(False)
-if not uthread.running:
-    t = threading.Thread(target=upload, args=(uthread,), daemon=True)
-    uthread.running = True
-    t.start()
+if settings.CONCURRENCY:
+    uthread = thread(False)
+    if not uthread.running:
+        t = threading.Thread(target=upload, args=(uthread,), daemon=True)
+        uthread.running = True
+        t.start()
 
-cthread = thread(False)
-if not cthread.running:
-    t = threading.Thread(target=calc_scheduler, args=(cthread,), daemon=True)
-    cthread.running=True
-    t.start()
+    cthread = thread(False)
+    if not cthread.running:
+        t = threading.Thread(target=calc_scheduler, args=(cthread,), daemon=True)
+        cthread.running=True
+        t.start()
 
 #To translate classifications between the templates and the DB. (For database size optimization)
 ex_options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
@@ -106,66 +107,54 @@ def review(request):
         if 'response' in request.POST:
             message = request.POST['response']
         else:
-            try:
-                groupi = json.loads(request.POST['group'])
-                group_info = classification_review_groups.objects.get(id=groupi)
-                user = group_info.user
-                group_set = classification_review.objects.filter(group__exact=groupi)
-                if 'denied' in request.POST:
-                    den = json.loads(request.POST['denied'])
-                    for tup in group_set:
-                        if str(tup.classy.id) in den:
-                            continue
-                        
-                        log = {}
-                        item = classification.objects.get(id=tup.classy.id)
-                        log['classy'] = item.pk
-                        log['flag'] = tup.flag
-                        log['old_classification'] = tup.classy.classification_name
-                        log['user'] = user.pk
-                        log['approver'] = request.user.pk
+            groupi = json.loads(request.POST['group'])
+            group_info = classification_review_groups.objects.get(id=groupi)
+            user = group_info.user
+            group_set = classification_review.objects.filter(group__exact=groupi)
+            if 'denied' in request.POST:
+                den = json.loads(request.POST['denied'])
+                for tup in group_set:
+                    if str(tup.classy.id) in den:
+                        continue
                     
-                        #modify
-                        if tup.flag == 1:
-                            log['new_classification'] = tup.classification_name
-                            log['state'] = 'A'
-                            form = classificationLogForm(log)
-                            if form.is_valid():
-                                item.classification_name = tup.classification_name
-                                item.state='A'
-                                item.save()
-                                form.save()
-                            else:
-                                print(form.errors)
+                    log = {}
+                    item = classification.objects.get(id=tup.classy.id)
+                    log['classy'] = item.pk
+                    log['flag'] = tup.flag
+                    log['old_classification'] = tup.classy.classification_name
+                    log['user'] = user.pk
+                    log['approver'] = request.user.pk
+                
+                    #modify
+                    if tup.flag == 1:
+                        log['new_classification'] = tup.classification_name
+                        log['state'] = 'A'
+                        form = classificationLogForm(log)
+                    if form.is_valid():
+                        item.classification_name = tup.classification_name
+                        item.state='A'
+                        item.save()
+                        form.save()
 
-                        #delete
-                        elif tup.flag == 0:
-                            log['new_classification'] = tup.classification_name
-                            log['state'] = 'I'
-                            form = classificationLogForm(log)
-                            if form.is_valid():
-                                item.state = 'I'
-                                item.save()
-                                form.save()
-                            else:
-                                print(form.errors)
-                        else:
-                            pass
-                            #print('unexpected value')
-                        tup.delete()
-                    group_info.delete()
-                else:
-                    group_set.delete()
-                    group_info.delete()
+                    #delete
+                    elif tup.flag == 0:
+                        log['new_classification'] = tup.classification_name
+                        log['state'] = 'I'
+                        form = classificationLogForm(log)
+                    if form.is_valid():
+                        item.state = 'I'
+                        item.save()
+                        form.save()
+                    tup.delete()
+                group_info.delete()
+            else:
+                group_set.delete()
+                group_info.delete()
 
-                response = {'status': 1, 'message': 'ok'}
-                return HttpResponse(json.dumps(response), content_type='application/json')
-            except Exception as e:
-                print(e)
-                pass
+        response = {'status': 1, 'message': 'ok'}
+        return HttpResponse(json.dumps(response), content_type='application/json')
     queryset = classification_review.objects.all()
     groups = classification_review_groups.objects.all()
-    #queryset = queryset.order_by('group', 'datasource', 'schema', 'table', 'column')
     
     context = {'queryset': queryset, 'groups': groups, 'message': message, 'num': num, 'translate': translate}
     return render(request, 'classy/review.html', context)
@@ -399,40 +388,33 @@ def modi(request):
             if form.is_valid():
                 tup.save()
                 form.save()
-            else:
-                print(form.errors)
         for i in toDelRed:
             try:
                 tup = classification.objects.get(id=int(i))
-                print(tup)
-                print(tup.state)
-                if tup.state == 'P':
-                    print('pending')
-                    continue
-                info  = {}
-                info['classy'] = tup.pk
-                info['flag'] = 0
-
-                if request.user.is_staff:
-                    info['state'] = 'I'
-                    info['user'] = request.user.pk
-                    info['approver'] = request.user.pk
-                    form = classificationLogForm(info)
-                    tup.state = 'I'
-
-                else:
-                    info['group'] = new_group.pk
-                    info['classification_name'] = tup.classification_name
-                    form = classificationReviewForm(info)
-                    tup.state = 'P'
-
-                if form.is_valid():
-                    tup.save()
-                    form.save()
-                else:
-                    print(form.errors)
             except Exception as e:
-                print(e)
+                continue
+            if tup.state == 'P':
+                continue
+            info  = {}
+            info['classy'] = tup.pk
+            info['flag'] = 0
+
+            if request.user.is_staff:
+                info['state'] = 'I'
+                info['user'] = request.user.pk
+                info['approver'] = request.user.pk
+                form = classificationLogForm(info)
+                tup.state = 'I'
+
+            else:
+                info['group'] = new_group.pk
+                info['classification_name'] = tup.classification_name
+                form = classificationReviewForm(info)
+                tup.state = 'P'
+
+            if form.is_valid():
+                tup.save()
+                form.save()
         response = {'status': 1, 'message': 'ok'}
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
@@ -856,4 +838,5 @@ def user_logout(request):
     logout(request)
     return redirect('classy:index')
 
-
+def health(request):
+    return HttpResponse(200)

@@ -117,9 +117,12 @@ class creationTests(TestCase):
         self.assertIsNotNone(new)
 
     def test_classification_review(self):
-        data = {'classy': self.classy, 'group': self.group, 'classification_name': 'PU', 'state': 'A'}
+        data = {'classy': self.classy, 'group': self.group, 'classification_name': 'PU', 'flag': 1}
         form = classificationReviewForm(data)
-        tmp = form.save()
+        if form.is_valid():
+            tmp = form.save()
+        else:
+            print(form.errors)
         new = classification_review.objects.get(pk=tmp.pk)
         self.assertIsNotNone(new)
 

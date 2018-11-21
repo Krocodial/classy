@@ -1,1 +1,9 @@
 {% extends "admin/base.html" %}
+{% load static %}
+{% block extrastyle %}<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+{% endblock %}

@@ -1,19 +1,38 @@
 <!--This is a test -->
 
-<nav class="navbar navbar-expand navbar-toggleable-sm navbar-light bg-faded"> 
+<nav class="navbar navbar-expand-lg navbar-light bg-faded"> 
 
 	<a class="navbar-brand" href="{% url 'classy:home' %}">DSC</a>
-	<div class="navbar-nav">
-		<a class="nav-item nav-link" href="{% url 'classy:data' %}">Data</a>
-		{% if request.user.is_staff %}
-		<a class="nav-item nav-link" href="{% url 'classy:review' %}">Review{% if num != 0 %} <span class="badge badge-info">{{num}}</span>{% endif %}</a>
-		<a class="nav-item nav-link" href="{% url 'classy:uploader' %}">Upload</a>
-		<a class="nav-item nav-link" href="{% url 'classy:exceptions' %}">Exceptions</a>
-		<a class="nav-item nav-link" href="{% url 'classy:log_list' %}">Logs</a>
-		<a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
-		{% endif %}
-		<a class="nav-item nav-link" href="{% url 'classy:user_logout' %}">Logout</a>
-	</div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+				<a class="nav-item nav-link" href="{% url 'classy:data' %}">Data</a>
+			</li>
+            {% if request.user.is_staff %}
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'classy:review' %}">Review{% if num != 0 %} <span class="badge badge-info">{{num}}</span>{% endif %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'classy:uploader' %}">Upload</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'classy:exceptions' %}">Exceptions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'classy:log_list' %}">Logs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'classy:user_logout' %}">Logout</a>
+            </li>
+        </ul>
+    </div>
 </nav>
 
 

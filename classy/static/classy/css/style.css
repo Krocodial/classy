@@ -43,8 +43,7 @@ body.loading #wheel {
 }
 
 .business-header{
-  height: 40vh !important;
-  min-height: 300px;
+  height: 30vh !important;
   background: url('../images/mountains.jpg') center center no-repeat scroll;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -54,14 +53,8 @@ body.loading #wheel {
 }
 
 canvas {
-	/*max-height: 400px !important;
+	max-height: 400px !important;
 	height: 30vh;
-	min-height: 300px;
-	-webkit-background-size: cover;
-  	-moz-background-size: cover;
-  	background-size: cover;
-  	-o-background-size: cover;
-	*/
 }
 
 #bootstrapoverride {
@@ -103,10 +96,8 @@ canvas {
 }
 
 .icon {
-/*
 	margin-left: 2px;
 	margin-right: 2px;
-*/
 }
 
 .modify {
