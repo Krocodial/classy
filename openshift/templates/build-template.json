@@ -8,8 +8,8 @@
       "description": "A metadata classification repository",
       "tags": "quickstart,python,django,postgresql,nginx",
       "iconClass": "icon-python",
-      "openshift.io/long-description": "This template defines resources needed to develop a Django based application, including a build configuration, application deployment configuration, and database deployment configuration.",
-      "openshift.io/provider-display-name": "Red Hat, Inc.",
+      "openshift.io/long-description": "Configuration for Classy, a metadata classification repository spearheaded by the NRM's Information Security team",
+      "openshift.io/provider-display-name": "BCGOV",
       "openshift.io/documentation-url": "https://github.com/Krocodial/openTest",
       "openshift.io/support-url": "https://access.redhat.com",
       "template.openshift.io/bindable": "false"
@@ -20,11 +20,12 @@
       "app": "classy"
   },
   "objects": [
-    {
+	{
+	
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}"
+        "name": "${APPLICATION_NAME}"
       },
       "stringData" : {
         "database-user" : "${DATABASE_USER}",
@@ -46,193 +47,190 @@
       }
     },
     {
-    "kind": "DeploymentConfig",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "sonarqube",
-        "generation": 1,
-        "creationTimestamp": null,
-        "labels": {
+		"kind": "DeploymentConfig",
+		"apiVersion": "v1",
+		"metadata": {
+			"name": "sonarqube",
+			"generation": 1,
+			"creationTimestamp": null,
+			"labels": {
             "app": "sonarqube"
-        }
-    },
-    "spec": {
-        "strategy": {
-            "type": "Rolling",
-            "rollingParams": {
-                "updatePeriodSeconds": 1,
-                "intervalSeconds": 1,
-                "timeoutSeconds": 600,
-                "maxUnavailable": "25%",
-                "maxSurge": "25%"
-            },
-            "resources": {},
-            "activeDeadlineSeconds": 21600
-        },
-        "triggers": [
-            {
-                "type": "ConfigChange"
-            },
-            {
-                "type": "ImageChange",
-                "imageChangeParams": {
-                    "automatic": true,
-                    "containerNames": [
-                        "sonarqube"
-                    ],
-                    "from": {
-                        "kind": "ImageStreamTag",
-                        "namespace": "openshift",
-                        "name": "sonarqube:6.0"
-                    }
-                }
-            }
-        ],
-        "replicas": 1,
-        "test": false,
-        "selector": {
-            "app": "sonarqube",
-            "deploymentconfig": "sonarqube"
-        },
-        "template": {
-            "metadata": {
-                "creationTimestamp": null,
-                "labels": {
-                    "app": "sonarqube",
-                    "deploymentconfig": "sonarqube"
-                },
-                "annotations": {
-                    "openshift.io/container.sonarqube.image.entrypoint": "[\"./bin/run.sh\"]"
-                }
-            },
-            "spec": {
-                "volumes": [
-                    {
-                        "name": "sonarqube-extensions",
-                        "persistentVolumeClaim": {
-                            "claimName": "sonarqube-data"
-                        }
-                    }
-                ],
-                "containers": [
-                    {
-                        "name": "sonarqube",
-                        "image": "openshiftdemos/sonarqube@sha256:90bc4c270d3a9f9923ef0b38f7904cfb9c00e4307d4d853e9341a334e8f29cf0",
-                        "ports": [
-                            {
-                                "containerPort": 9000,
-                                "protocol": "TCP"
-                            }
-                        ],
-                        "env": [
-                            {
-                                "name": "SONARQUBE_JDBC_USERNAME",
-                                "valueFrom": {
-                                      "secretKeyRef" : {
-                                        "name" : "sonarqube-secrets",
-                                        "key" : "database-user"
-                                    }
-                                }
-                            },
-                            {
-                                "name": "SONARQUBE_JDBC_URL",
-                                "value": "jdbc:postgresql://${DATABASE_SERVICE_NAME}/sonarqube"
-                            },
-                            {
-                                "name": "SONARQUBE_JDBC_PASSWORD",
-                                "valueFrom": {
-                                      "secretKeyRef" : {
-                                        "name" : "sonarqube-secrets",
-                                        "key" : "database-password"
-                                    }
-                                }
-                            },
-                            {
-                                "name": "SONARQUBE_ADMINPW",
-                                "valueFrom": {
-                                      "secretKeyRef" : {
-                                        "name" : "sonarqube-secrets",
-                                        "key" : "sonar-admin-password"
-                                    }
-                                }    
-                            }
-                        ],
-                        "resources": {
-                            "limits": {
-                                "cpu": "1",
-                                "memory": "4Gi"
-                            }
-                        },
-                        "volumeMounts": [
-                            {
-                                "name": "sonarqube-extensions",
-                                "mountPath": "/opt/sonarqube/extensions"
-                            }
-                        ],
-                        "readinessProbe": {
-                            "httpGet": {
-                                "path": "/",
-                                "port": 9000,
-                                "scheme": "HTTP"
-                            },
-                            "timeoutSeconds": 1,
-                            "periodSeconds": 10,
-                            "successThreshold": 1,
-                            "failureThreshold": 3
-                        },
-                        "terminationMessagePath": "/dev/termination-log",
-                        "imagePullPolicy": "IfNotPresent"
-                    }
-                ],
-                "restartPolicy": "Always",
-                "terminationGracePeriodSeconds": 30,
-                "dnsPolicy": "ClusterFirst",
-                "securityContext": {}
-            }
-        }
-    },
-    "status": {
-        "latestVersion": 0,
-        "observedGeneration": 0,
-        "replicas": 0,
-        "updatedReplicas": 0,
-        "availableReplicas": 0,
-        "unavailableReplicas": 0
-    }
+			}
+		},
+		"spec": {
+			"strategy": {
+				"type": "Rolling",
+				"rollingParams": {
+					"updatePeriodSeconds": 1,
+					"intervalSeconds": 1,
+					"timeoutSeconds": 600,
+					"maxUnavailable": "25%",
+					"maxSurge": "25%"
+				},
+				"resources": {},
+				"activeDeadlineSeconds": 21600
+			},
+			"triggers": [
+				{
+					"type": "ConfigChange"
+				},
+				{
+					"type": "ImageChange",
+					"imageChangeParams": {
+						"automatic": true,
+						"containerNames": [
+							"sonarqube"
+						],
+						"from": {
+							"kind": "ImageStreamTag",
+							"namespace": "openshift",
+							"name": "sonarqube:6.0"
+						}
+					}
+				}
+			],
+			"replicas": 1,
+			"test": false,
+			"selector": {
+				"app": "sonarqube",
+				"deploymentconfig": "sonarqube"
+			},
+			"template": {
+				"metadata": {
+					"creationTimestamp": null,
+					"labels": {
+						"app": "sonarqube",
+						"deploymentconfig": "sonarqube"
+					},
+					"annotations": {
+						"openshift.io/container.sonarqube.image.entrypoint": "[\"./bin/run.sh\"]"
+					}
+				},
+				"spec": {
+					"volumes": [
+						{
+							"name": "sonarqube-extensions",
+							"persistentVolumeClaim": {
+								"claimName": "sonarqube-data"
+							}
+						}
+					],
+					"containers": [
+						{
+							"name": "sonarqube",
+							"image": "openshiftdemos/sonarqube@sha256:90bc4c270d3a9f9923ef0b38f7904cfb9c00e4307d4d853e9341a334e8f29cf0",
+							"ports": [
+								{
+									"containerPort": 9000,
+									"protocol": "TCP"
+								}
+							],
+							"env": [
+								{
+									"name": "SONARQUBE_JDBC_USERNAME",
+									"valueFrom": {
+										  "secretKeyRef" : {
+											"name" : "sonarqube-secrets",
+											"key" : "database-user"
+										}
+									}
+								},
+								{
+									"name": "SONARQUBE_JDBC_URL",
+									"value": "jdbc:postgresql://${DATABASE_SERVICE_NAME}/sonarqube"
+								},
+								{
+									"name": "SONARQUBE_JDBC_PASSWORD",
+									"valueFrom": {
+										  "secretKeyRef" : {
+											"name" : "sonarqube-secrets",
+											"key" : "database-password"
+										}
+									}
+								},
+								{
+									"name": "SONARQUBE_ADMINPW",
+									"valueFrom": {
+										  "secretKeyRef" : {
+											"name" : "sonarqube-secrets",
+											"key" : "sonar-admin-password"
+										}
+									}    
+								}
+							],
+							"resources": {
+								"limits": {
+									"cpu": "1",
+									"memory": "4Gi"
+								}
+							},
+							"volumeMounts": [
+								{
+									"name": "sonarqube-extensions",
+									"mountPath": "/opt/sonarqube/extensions"
+								}
+							],
+							"readinessProbe": {
+								"httpGet": {
+									"path": "/",
+									"port": 9000,
+									"scheme": "HTTP"
+								},
+								"timeoutSeconds": 1,
+								"periodSeconds": 10,
+								"successThreshold": 1,
+								"failureThreshold": 3
+							},
+							"terminationMessagePath": "/dev/termination-log",
+							"imagePullPolicy": "IfNotPresent"
+						}
+					],
+					"restartPolicy": "Always",
+					"terminationGracePeriodSeconds": 30,
+					"dnsPolicy": "ClusterFirst",
+					"securityContext": {}
+				}
+			}
+		},
+		"status": {
+			"latestVersion": 0,
+			"observedGeneration": 0,
+			"replicas": 0,
+			"updatedReplicas": 0,
+			"availableReplicas": 0,
+			"unavailableReplicas": 0
+		}
     },
     {
-    "kind": "Service",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "sonarqube",
-        "creationTimestamp": null,
-        "labels": {
-            "app": "sonarqube"
-        }
+		"kind": "Service",
+		"apiVersion": "v1",
+		"metadata": {
+			"name": "sonarqube",
+			"creationTimestamp": null,
+			"labels": {
+				"app": "sonarqube"
+			}
+		},
+		"spec": {
+			"ports": [
+				{
+					"name": "9000-tcp",
+					"protocol": "TCP",
+					"port": 9000,
+					"targetPort": 9000
+				}
+			],
+			"selector": {
+				"app": "sonarqube",
+				"deploymentconfig": "sonarqube"
+			},
+			"type": "ClusterIP",
+			"sessionAffinity": "None"
+		},
+		"status": {
+			"loadBalancer": {}
+		}
     },
-    "spec": {
-        "ports": [
-            {
-                "name": "9000-tcp",
-                "protocol": "TCP",
-                "port": 9000,
-                "targetPort": 9000
-            }
-        ],
-        "selector": {
-            "app": "sonarqube",
-            "deploymentconfig": "sonarqube"
-        },
-        "type": "ClusterIP",
-        "sessionAffinity": "None"
-    },
-    "status": {
-        "loadBalancer": {}
-    }
-    },
-
-
-
     {
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
@@ -442,152 +440,455 @@
         },      
         "status": {}
         }
+    },      
+    {
+    "kind": "BuildConfig",
+		"apiVersion": "v1",
+		"metadata": {
+			"name": "${APPLICATION_NAME}-pipeline",
+			"creationTimestamp": null,
+			"labels": {
+				"app": "${APPLICATION_NAME}-pipeline",
+				"name": "${APPLICATION_NAME}-pipeline",
+				"template": "${APPLICATION_NAME}-pipeline"
+			}
+		},
+		"spec": {        
+			"runPolicy": "Parallel",
+			"source": {
+				"type": "Git",
+				"git": {
+					"uri": "${SOURCE_REPOSITORY_URL}",
+					"ref": "master"
+				}
+			},
+			"strategy": {
+				"type": "JenkinsPipeline",
+				"jenkinsPipelineStrategy": {
+					"jenkinsfilePath": "pdf.Jenkinsfile"
+				}
+			},
+			"output": {},
+			"resources": {},
+			"postCommit": {},
+			"nodeSelector": null
+		},
+		"status": {
+			"lastVersion": 0
+		}
+    },
+	
+	
+	
+	
+	
+	{
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Exposes and load balances the application pods",
+          "service.alpha.openshift.io/dependencies": "[{\"name\": \"${CLASSY_DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "web",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "name": "${NAME}"
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}"
+      },
+      "spec": {
+        "host": "${APPLICATION_DOMAIN}",
+        "to": {
+          "kind": "Service",
+          "name": "${NAME}"
+        }
+      }
     },
     {
       "kind": "ImageStream",
       "apiVersion": "v1",
-      "metadata":
-      {
+      "metadata": {
         "name": "${NAME}",
-        "generation": 1,
-        "creationTimestamp": null
-      },
-      "spec":
-      {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
-      },
-      "status": {}
+        "annotations": {
+          "description": "Keeps track of changes in the application image"
+        }
+      }
     },
-
     {
       "kind": "BuildConfig",
       "apiVersion": "v1",
-      "metadata":
-      {
-        "name": "${BACKEND_NAME}",
-        "creationTimestamp": null,
-        "labels":
-        {
-          "app": "${BACKEND_NAME}"
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Defines how to build the application",
+          "template.alpha.openshift.io/wait-for-ready": "true"
         }
       },
-      "spec":
-      {
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${SOURCE_REPOSITORY_URL}",
+            "ref": "${SOURCE_REPOSITORY_REF}"
+          },
+          "contextDir": "${CONTEXT_DIR}"
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "namespace": "${NAMESPACE}",
+              "name": "python:${PYTHON_VERSION}"
+            },
+            "env": [
+              {
+                  "name": "PIP_INDEX_URL",
+                  "value": "${PIP_INDEX_URL}"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${NAME}:latest"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "GitHub",
+            "github": {
+              "secret": "${GITHUB_WEBHOOK_SECRET}"
+            }
+          }
+        ],
+        "postCommit": {
+           "script": "./manage.py test"
+        }
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Defines how to deploy the application server",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Rolling"
+        },
         "triggers": [
           {
             "type": "ImageChange",
-            "imageChange": {}
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "classy"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${NAME}:latest"
+              }
+            }
           },
           {
             "type": "ConfigChange"
           }
         ],
-        "runPolicy": "Serial",
-        "source":
-        {
-          "type": "Git",
-          "git":
-          {
-            "uri": "${SOURCE_REPOSITORY_URL}",
-            "ref": "${GIT_REFERENCE}"
+        "replicas": 2,
+        "selector": {
+          "name": "${NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${NAME}",
+            "labels": {
+              "name": "${NAME}"
+            }
           },
-          "contextDir": ""
-        },
-        "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "namespace": "${BUILD_PROJECT}",
-                            "name": "python:3.5"
-                        },
-                        "env": [
-                            {
-                                "name": "PIP_INDEX_URL",
-                                "value": "${PIP_INDEX_URL}"
-                            }
-                        ],
-                        "incremental": false
-                    }
+          "spec": {
+            "containers": [
+              {
+                "name": "classy",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 3,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080
+                  }
                 },
-        "output":
-        {
-          "to":
-          {
-            "kind": "ImageStreamTag",
-            "namespace": "${BUILD_PROJECT}",
-            "name": "${BACKEND_NAME}:${DEPLOYMENT_TYPE}"
+                "livenessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 30,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080
+                  }
+                },
+                "env": [
+                  {
+                    "name": "DATABASE_SERVICE_NAME",
+                    "value": "${CLASSY_DATABASE_SERVICE_NAME}"
+                  },
+                  {
+                    "name": "DATABASE_ENGINE",
+                    "value": "${DATABASE_ENGINE}"
+                  },
+                  {
+                    "name": "DATABASE_NAME",
+                    "value": "${DATABASE_NAME}"
+                  },
+                  {
+                    "name": "DATABASE_USER",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${NAME}",
+                        "key" : "database-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "DATABASE_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${NAME}",
+                        "key" : "database-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "APP_CONFIG",
+                    "value": "${APP_CONFIG}"
+                  },
+                  {
+                    "name": "DJANGO_SECRET_KEY",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${NAME}",
+                        "key" : "django-secret-key"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "${MEMORY_LIMIT}"
+                  }
+                }
+              }
+            ]
           }
-        },
-        "resources": {},
-        "postCommit": {},
-        "nodeSelector": null
-      },
-      "status":
-      {
-        "lastVersion": 0
-      }
-    },      
-    {
-    "kind": "BuildConfig",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "${APPLICATION_NAME}-pipeline",
-        "creationTimestamp": null,
-        "labels": {
-            "app": "${APPLICATION_NAME}-pipeline",
-            "name": "${APPLICATION_NAME}-pipeline",
-            "template": "${APPLICATION_NAME}-pipeline"
         }
+      }
     },
-    "spec": {        
-        "runPolicy": "Parallel",
-        "source": {
-            "type": "Git",
-            "git": {
-                "uri": "${SOURCE_REPOSITORY_URL}",
-                "ref": "master"
-            }
-        },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${CLASSY_DATABASE_SERVICE_NAME}"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "${VOLUME_CAPACITY}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${CLASSY_DATABASE_SERVICE_NAME}",
+        "annotations": {
+          "description": "Exposes the database server"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "postgresql",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "name": "${CLASSY_DATABASE_SERVICE_NAME}"
+        }
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${CLASSY_DATABASE_SERVICE_NAME}",
+        "annotations": {
+          "description": "Defines how to deploy the database",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+        }
+      },
+      "spec": {
         "strategy": {
-            "type": "JenkinsPipeline",
-            "jenkinsPipelineStrategy": {
-                "jenkinsfilePath": "pdf.Jenkinsfile"
-            }
+          "type": "Recreate"
         },
-        "output": {},
-        "resources": {},
-        "postCommit": {},
-        "nodeSelector": null
-    },
-    "status": {
-        "lastVersion": 0
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "postgresql"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "namespace": "${NAMESPACE}",
+                "name": "postgresql:${POSTGRESQL_VERSION}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "replicas": 1,
+        "selector": {
+          "name": "${CLASSY_DATABASE_SERVICE_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${CLASSY_DATABASE_SERVICE_NAME}",
+            "labels": {
+              "name": "${CLASSY_DATABASE_SERVICE_NAME}"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "${CLASSY_DATABASE_SERVICE_NAME}-data",
+                "persistentVolumeClaim": {
+                  "claimName": "${CLASSY_DATABASE_SERVICE_NAME}"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "postgresql",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "POSTGRESQL_USER",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${NAME}",
+                        "key" : "database-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${NAME}",
+                        "key" : "database-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_DATABASE",
+                    "value": "${DATABASE_NAME}"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "${CLASSY_DATABASE_SERVICE_NAME}-data",
+                    "mountPath": "/var/lib/pgsql/data"
+                  }
+                ],
+                "readinessProbe": {
+                  "timeoutSeconds": 1,
+                  "initialDelaySeconds": 5,
+                  "exec": {
+                    "command": [ "/usr/libexec/check-container" ]
+                  }
+                },
+                "livenessProbe": {
+                  "timeoutSeconds": 10,
+                  "initialDelaySeconds": 120,
+                  "exec": {
+                    "command": [ "/usr/libexec/check-container", "--live" ]
+                  }
+                },
+                "resources": {
+                  "limits": {
+                    "memory": "${MEMORY_POSTGRESQL_LIMIT}"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     }
-    }    
+	
+	
+	
+    
   ],
   "parameters": [
-    {
-      "name": "NAME",
-      "displayName": "Name",
-      "description": "The name assigned to all of the frontend objects defined in this template.",
-      "required": true,
-      "value": "classy"
+	{
+	  "name": "NAME",
+	  "displayName": "name of app",
+	  "value": "classy",
+	  "required": true
+	},
+	{
+	  "name": "NAMESPACE",
+	  "displayName": "namespace of app",
+	  "value": "openshift",
+	  "required": true
     },
-    {
-      "name": "NAMESPACE",
-      "displayName": "Namespace",
-      "required": true,
-      "description": "The OpenShift Namespace where the ImageStream resides.",
-      "value": "openshift"
-    },
-    {
+	{
       "name": "PYTHON_VERSION",
       "displayName": "Version of Python Image",
       "description": "Version of Python image to be used (3.6 or latest).",
@@ -623,13 +924,6 @@
       "required": true
     },
     {
-      "name": "SOURCE_REPOSITORY_URL",
-      "displayName": "Git Repository URL",
-      "required": true,
-      "description": "The URL of the repository with your application source code.",
-      "value": "https://github.com/Krocodial/openTest.git"
-    },
-    {
       "name": "SOURCE_REPOSITORY_REF",
       "displayName": "Git Reference",
       "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
@@ -653,7 +947,7 @@
       "from": "[a-zA-Z0-9]{40}"
     },
     {
-      "name": "DATABASE_SERVICE_NAME",
+      "name": "CLASSY_DATABASE_SERVICE_NAME",
       "displayName": "Database Service Name",
       "required": true,
       "value": "postgresql"
@@ -706,14 +1000,14 @@
       "displayName": "Application Name",
       "description": "The name given to the application",
       "required": true,
-      "value": "dsc"
+      "value": "classy"
     },
     {
       "name": "BUILD_PROJECT",
       "displayName": "Build Project",
       "description": "The openshift project where builds and target images are stored.",
       "required": true,
-      "value": "dsc-classy-tools"
+      "value": "classy-dev"
     },    
     {
       "name": "BACKEND_NAME",
@@ -726,7 +1020,7 @@
       "name": "RPROXY_NAME",
       "displayName": "Reverse Proxy Name (SiteMinder)",
       "description": "The name assigned to the objects used as a SiteMinder entry point (or Reverse Proxy).  Typcially this is an NGINX instance.",
-      "required": true,
+      "required": false,
       "value": ""
     },
     {
@@ -741,7 +1035,7 @@
       "displayName": "Source Repository",
       "description": "The source repository to use for the builds.",
       "required": true,
-      "value": ""
+      "value": "https://github.com/Krocodial/classy.git"
     },  
     {
       "name": "GIT_REFERENCE",
