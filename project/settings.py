@@ -32,13 +32,14 @@ DEBUG = True
 BYPASS_AUTH = True
 PRES = True
 ALLOWED_HOSTS = ['*']
+AUTH_USER_MODEL = 'classy.User'
 
 # Application definition
 
 INSTALLED_APPS = [
-    'classy.apps.ClassyConfig',
     'django.contrib.admin',
     'django.contrib.auth',
+    'classy.apps.ClassyConfig',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',

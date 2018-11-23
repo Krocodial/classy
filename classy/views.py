@@ -20,6 +20,7 @@ import threading, time, csv, pytz, json, random
 from classy.models import *
 from classy.forms import *
 from classy.scripts import calc_scheduler, upload
+from .helper import query_constructor
 
 if settings.CONCURRENCY:
     uthread = thread(False)
@@ -44,6 +45,7 @@ state_translate = {'A': 'Active', 'P': 'Pending', 'I': 'Inactive'}
 threads = []
 lock = threading.Lock()
 sizes = [10, 25, 50, 100]
+
 
 #Accessed from the home.html page
 def tutorial(request):
@@ -696,7 +698,7 @@ def home(request):
         data_cons.append(tmp)
         mapping[op] = tmp
     num = classification_review_groups.objects.all().count()
-
+    
     label_cons = ex_options
     dates = []
     keys = {}
@@ -732,6 +734,7 @@ def home(request):
                 except classification_count.MultipleObjectsReturned:
                     #print('too many')
                     pass
+
 
     context = {
         #'queryset': queryset,
