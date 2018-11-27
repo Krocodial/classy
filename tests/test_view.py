@@ -1,8 +1,10 @@
 from django.test import TestCase, Client
 from django.test.utils import setup_test_environment
 from django.urls import reverse
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 from classy.forms import loginform
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class unAuthTests(TestCase):

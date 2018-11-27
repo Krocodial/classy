@@ -39,11 +39,11 @@ AUTH_USER_MODEL = 'classy.User'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'classy.apps.ClassyConfig',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'classy.apps.ClassyConfig',
     'debug_toolbar',
 ]
 

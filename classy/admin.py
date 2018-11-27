@@ -1,11 +1,16 @@
 from django.contrib import admin
 #from classy.models import task, completed_task, Permission, Group, User
+from django.contrib.admin.utils import unquote
+from django.utils.html import escape
+from django.contrib.admin.options import IS_POPUP_VAR
+from django.template.response import TemplateResponse
 from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib.auth.forms import ( AdminPasswordChangeForm, UserChangeForm, UserCreationForm,)
 from django.views.decorators.debug import sensitive_post_parameters
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.urls import path, reverse
+from django.db import router, transaction
 from django.contrib.auth.models import Permission
 admin.site.register(Permission)
 from classy.models import task, completed_task, User, data_authorization, dataset_authorization
@@ -18,8 +23,9 @@ class UserAdmin(admin.ModelAdmin):
         ('Basic Information', {
             'fields': ('username', 'password')}),
         (_('Personal Info'), {'fields': ('first_name', 'last_name', 'email')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 
-                                'permissions', 'groups')}),
+	(_('Classification Permissions'), {'fields': ('data_authorizations', 'dataset_authorizations')}),
+        (_('General Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 
+                                 'groups')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
@@ -29,7 +35,9 @@ class UserAdmin(admin.ModelAdmin):
             'fields': ('username', 'password1', 'password2'),
         }),
     )
-
+	
+    add_form_template = 'admin/auth/user/add_form.html'
+    change_user_password_template = None
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
@@ -37,7 +45,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('username',)
-    filter_horizontal = ('groups', 'user_permissions',)
+    filter_horizontal = ('groups', 'data_authorizations', 'dataset_authorizations',)
 
     def get_fieldsets(self, request, obj=None):
         if not obj:
@@ -133,7 +141,6 @@ class UserAdmin(admin.ModelAdmin):
                 )
         else:
             form = self.change_password_form(user)
-
         fieldsets = [(None, {'fields': list(form.base_fields)})]
         adminForm = admin.helpers.AdminForm(form, fieldsets, {})
 
@@ -181,22 +188,26 @@ class UserAdmin(admin.ModelAdmin):
             request.POST['_continue'] = 1
         return super().response_add(request, obj, post_url_continue)
 
- 
+
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == 'authorizations':
             qs = kwargs.get('queryset', db_field.remote_field.model.objects)
             kwargs['queryset'] = qs.select_related()
         return super().formfield_for_manytomany(db_field, request=request, **kwargs)
 
+
+
+
 class dataAdmin(admin.ModelAdmin):
     list_display = ('name', 'datasource', 'schema', 'table', 'column')
-    list_filter = ('datasource', 'schema', 'table', 'column')
+    list_filter = ('datasource', 'schema', 'table')
     
 
     
 class datasetAdmin(admin.ModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
+    filter_horizontal = ('data_authorizations',)
 
 
 class taskAdmin(admin.ModelAdmin):

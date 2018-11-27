@@ -20,5 +20,6 @@ urlpatterns = [
     path('download', views.download, name='download'),
     path('tutorial', views.tutorial, name='tutorial'),
     path('health', views.health, name='health'),
+    path('gov_temp', views.gov_temp, name='gov_temp'),
 ]
 

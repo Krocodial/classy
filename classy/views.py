@@ -17,9 +17,9 @@ from django import forms
 
 import threading, time, csv, pytz, json, random
 
-from classy.models import *
-from classy.forms import *
-from classy.scripts import calc_scheduler, upload
+from .models import *
+from .forms import *
+from .scripts import calc_scheduler, upload
 from .helper import query_constructor
 
 if settings.CONCURRENCY:
@@ -85,6 +85,8 @@ def download(request):
                 classi = options
             sql = classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification_name__in=classi, state__in=stati);
             queryset = sql
+
+        queryset = query_constructor(queryset, request.user)
         queryset = queryset.order_by('datasource', 'schema', 'table')
     
         response = HttpResponse(content_type='text/csv')
@@ -455,7 +457,8 @@ def search(request):
             queryset2 = classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification_name__in=classi, state__in=stati)
 
             queryset = queryset & queryset2
-
+            queryset = query_constructor(queryset, request.user)
+           
             mapping = {}
             pie_information = []
             for op in options:
@@ -552,6 +555,8 @@ def search(request):
     return redirect('classy:index')
 
 
+def gov_temp(request):
+    return render(request, 'classy/gov_temp.html')
     
 #A work in progress. Node tree displaying all of the information in the DB, drill-down is enabled. 
 def test(request):
@@ -698,6 +703,8 @@ def home(request):
         data_cons.append(tmp)
         mapping[op] = tmp
     num = classification_review_groups.objects.all().count()
+
+    query_constructor(classification.objects.all(), request.user)
     
     label_cons = ex_options
     dates = []
@@ -780,11 +787,13 @@ def uploader(request):
                 form = taskForm(finfo)
                 if form.is_valid():
                     form.save()
-               
-                if not uthread.running:
-                    t = threading.Thread(target=upload, args=(uthread,))
-                    uthread.running = True
-                    t.start()                 
+                if not settings.CONCURRENCY:
+                    upload(thread(False))
+                else:
+                    if not uthread.running:
+                        t = threading.Thread(target=upload, args=(uthread,))
+                        uthread.running = True
+                        t.start()                 
 
                 context = {
                     'status': '200',
