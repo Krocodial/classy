@@ -38,8 +38,14 @@
                         <ul class="nav navbar-nav">
                             <li><a href="{% url 'classy:home' %}">Homepage</a></li>
                             <li><a href="{% url 'classy:data' %}">Data</a></li>
-                            <li><a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a></li>
-                            <li><a href="#">Navigation Link 4</a></li>
+                            {% if request.user.is_staff %}
+                                <li><a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a></li>
+                                <li><a href="{% url 'classy:uploader' %}">Upload</a></li>
+                                <li><a href="{% url 'classy:exceptions' %}">Exceptions</a></li>
+                                <li><a href="{% url 'classy:log_list' %}">Logs</a></li>
+                                <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'classy:user_logout' %}">Logout</a></li>
                         </ul>
                     </div>
                     <!-- /COLLAPSING NAVBAR -->
@@ -50,12 +56,14 @@
                     <div class="container">
                         <a href="{% url 'classy:home' %}">Homepage</a>
                         <a href="{% url 'classy:data' %}">Data</a>
-                        <a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a>
-                        <a href="{% url 'classy:uploader' %}">Upload</a>
-			<a href="{% url 'admin:index' %}">Admin</a>
-			<a href="{% url 'classy:user_logout' %}">Logout</a>
-
-
+                        {% if request.user.is_staff %}
+                            <a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a>
+                            <a href="{% url 'classy:uploader' %}">Upload</a>
+                            <a href="{% url 'classy:exceptions' %}">Exceptions</a>
+                            <a href="{% url 'classy:log_list' %}">Logs</a>
+                            <a href="{% url 'admin:index' %}">Admin</a>
+                        {% endif %}
+                        <a href="{% url 'classy:user_logout' %}">Logout</a>
                     </div>
                 </div>
             </div>

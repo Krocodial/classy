@@ -222,9 +222,15 @@ window.onload = function() {
         data: piedata,
         options: pieoptions
     });
+    var size = {width: window.myLine.width};
+    lineResizing(window.myLine, size);
+    var size = {width: myDoughnutChart.width};
+    afterResizing(myDoughnutChart, size);
 
 };
 function lineResizing(chart, size){
+    console.log(chart, size);
+    console.log(size.width);
     if(size.width <=1000) {
         $("#lineChart").hide();
     } else {

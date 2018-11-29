@@ -31,59 +31,76 @@
             </div>
             <div class="col"></div>
         </div>
-
-        <form class="form-group" action="search" id="searchi">
-            <div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalLab">Advanced Search</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="data_source">Datasource</label>
-                                {{form.data_source}}
+        <div class="row">
+            <form class="form-group" action="search" id="searchi">
+                <div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLab">Advanced Search</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <div class="form-group">
-                                <label for="schema">Schema</label>
-                                {{form.schema}}
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="data_source">Datasource</label>
+                                    {{form.data_source}}
+                                </div>
+                                <div class="form-group">
+                                    <label for="schema">Schema</label>
+                                    {{form.schema}}
+                                </div>
+                                <div class="form-group">
+                                    <label for="table">Table</label>
+                                    {{form.table}}
+                                </div>
+                                <div class="form-group">
+                                    <label for="column">Column</label>
+                                    {{form.column}}
+                                </div>
+                                <div class="form-group">
+                                    <label class="mr-sm-2" for "customSel">Classification</label>
+                                    {{form.classi}}
+                                </div>
+                                <div class="form-group">
+                                    <label class="mr-sm-2">State</label>
+                                    {{form.stati}}
+                                </div>
+                                <input type='hidden' name='size' value='{{size}}'>
                             </div>
-                            <div class="form-group">
-                                <label for="table">Table</label>
-                                {{form.table}}
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Search</button>
                             </div>
-                            <div class="form-group">
-                                <label for="column">Column</label>
-                                {{form.column}}
-                            </div>
-                            <div class="form-group">
-                                <label class="mr-sm-2" for "customSel">Classification</label>
-                                {{form.classi}}
-                            </div>
-                            <div class="form-group">
-                                <label class="mr-sm-2">State</label>
-                                {{form.stati}}
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Search</button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
-            <div class="row">
-                <div class="col-sm-1">
-                    <br/><br/>
+            <!--<div class="row" style="position: relative;">-->
+            <div class="col-sm-1">
+                <br/><br/>
+                <form class="form-group" action="search" id="searchi">
                     <div class="input-group">
                         <label for="id_size">Results per page: &nbsp</label>
                         {{form.size}}
+                        <input type="hidden" name='query' value='{{query}}'>
+                        <input type="hidden" name='data_source' value='{{ds}}'>
+                        <input type="hidden" name="schema" value='{{sch}}'>
+                        <input type="hidden" name='table' value='{{tab}}'>
+                        <input type="hidden" name='column' value='{{col}}'>
+                        {% for i in classi %}
+                            <input type="hidden" name='classi' value='{{i}}'>
+                        {% endfor %}
+                        {% for st in stati %}
+                            <input type="hidden" name='stati' value='{{st}}'>
+                        {% endfor %}
                     </div>
-                </div>
-                <div class="col-sm-8">
+                </form>
+            </div>
+            <div class="col-sm-9">
+                <div class="row">
+                <form class="form-group" action="search" id="searchi">
                     <div class="input-group">   
                         {{form.query}}
                         <span class="input-group-btn">
@@ -97,15 +114,17 @@
                     <nav class="nav justify-content-center">
                         <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
                     </nav> 
-                </div>
-    </form>
-                <div class="col-sm-1">
-	                {% if queryset %}
-                    <form action="download" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="schema" value='{{sch}}'>
+                </form>
+                </div><div class="row">
+                <div class="col-sm-10"></div>
+                <div class="col-sm-2">
+                {% if queryset %}
+                <form class="form-group" action="download" method="post">
+                    {% csrf_token %}
+                    <div class="input-group">
                         <input type="hidden" name='query' value='{{query}}'>
                         <input type="hidden" name='data_source' value='{{ds}}'>
+                        <input type="hidden" name="schema" value='{{sch}}'>
                         <input type="hidden" name='table' value='{{tab}}'>
                         <input type="hidden" name='column' value='{{col}}'>
                         {% for i in classi %}
@@ -114,172 +133,193 @@
                         {% for st in stati %}
                             <input type="hidden" name='stati' value='{{st}}'>
                         {% endfor %}
-                        <button type="submit" class="btn btn-info btn-sm float-right" style="position: absolute; bottom: 0;">Export results</button>
+                        <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
+                    </div>
+                </form>
+                {% endif %}
+                </div>
+                </div>
+            </div>
+            <!--<div class="col-sm-1" style="bottom: 0;">
+                {% if queryset %}
+                <form class="form-group" action="download" method="post">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="hidden" name='query' value='{{query}}'>
+                        <input type="hidden" name='data_source' value='{{ds}}'>
+                        <input type="hidden" name="schema" value='{{sch}}'>
+                        <input type="hidden" name='table' value='{{tab}}'>
+                        <input type="hidden" name='column' value='{{col}}'>
+                        {% for i in classi %}
+                            <input type="hidden" name='classi' value='{{i}}'>
+                        {% endfor %}
+                        {% for st in stati %}
+                            <input type="hidden" name='stati' value='{{st}}'>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>-->
+            <div class="col-sm-2">
+                {% if queryset %}
+                    <canvas id="pieChart"></canvas>
+                    <form action="search" method="get" id='pieChartForm'>
+                        <input type='hidden' name='query' value='{{query}}'>
+                        <input type="hidden" name='data_source' value='{{ds}}'>
+                        <input type="hidden" name='schema' value='{{sch}}'>
+                        <input type="hidden" name='table' value='{{tab}}'>
+                        <input type='hidden' name='column' value='{{col}}'>
+                        <input type='hidden' name='size' value='{{size}}'>
+                        {% for st in stati %}
+                            <input type='hidden' name='stati' value='{{st}}'>
+                        {% endfor %}
+                        <input type='hidden' name='classi' value=''  id='pieChartClassi'>
                     </form>
-                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="row"> 
+            <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalBo">Confirm changes</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h6 class="text-center">Pending modifications</h6>
+                            <table class="table table-sm table-hover" id="modTable">
+                                <thead class="thead thead-sm thead-inverse">
+                                    <tr>
+                                        <th class="th-cus">ID</th>
+                                        <th class="th-cus">New Classification</th>
+                                        <th class="actions th-cus">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <br/>
+                            <h6 class="text-center">Pending deletions</h6>
+                            <table class="table table-sm table-hover" id="delTable">
+                                <thead class="thead thead-inverse">
+                                    <tr>
+                                        <th class="th-cus">ID</th>
+                                        <th class="actions th-cus">Actions</th>
+                                    </tr>   
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-2">
-                    {% if queryset %}
-                        <canvas id="pieChart"></canvas>
-                        <form action="search" method="get" id='pieChartForm'>
-                            <input type="hidden" name='data_source' value='{{ds}}'>
-                            <input type="hidden" name='schema' value='{{sch}}'>
-                            <input type="hidden" name='table' value='{{tab}}'>
-                            <input type='hidden' name='column' value='{{col}}'>
-                            <input type='hidden' name='query' value='{{query}}'>
-                            <input type='hidden' name='size' value='{{size}}'>
-                            {% for st in stati %}
-                                <input type='hidden' name='stati' value='{{st}}'>
-                            {% endfor %}
-                            <input type='hidden' name='classi' value=''  id='pieChartClassi'>
-                        </form>
-                    {% endif %}
+            </div>
+
+            <div class="modal fade" id="batchModal" tabindex="-1" role="dialog" aria-labelledby="batchH" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="batchH">Change Classification</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <label for="newC"><strong>Classification</strong></label>
+                            <select class="form-control form-control-sm" id="newC">
+                                 <option selected>Please select a new classification...</option>
+                                 {% for op in ex_options %}
+                                    <option value="{{forloop.counter}}">{{op}}</option>
+                                 {% endfor %}
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
+                            <button type="submit" id="changeC" class="btn btn-success" data-dismiss="modal">Change</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        
-
-<div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="modalBo">Confirm changes</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
         </div>
-        <div class="modal-body">
-        <h6 class="text-center">Pending modifications</h6>
-        <table class="table table-sm table-hover" id="modTable">
-        <thead class="thead thead-sm thead-inverse">
-            <tr>
-                <th class="th-cus">ID</th>
-                <th class="th-cus">New Classification</th>
-                <th class="actions th-cus">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        </table><br/>
-        <h6 class="text-center">Pending deletions</h6>
-        <table class="table table-sm table-hover" id="delTable">
-        <thead class="thead thead-inverse">
-            <tr>
-                <th class="th-cus">ID</th>
-                <th class="actions th-cus">Actions</th>
-            </tr>   
-        </thead>
-        <tbody>
-        </tbody>
-        </table>
-
+        <div class="row">
+        <div class="col-lg-12">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover data">
+                <thead class="">
+                    <tr>
+                        <th></th>
+                        <th class='th-cus'>Datasource</th>
+                        <th class='th-cus'>Schema</th>
+                        <th class='th-cus'>Table</th>
+                        <th class='th-cus'>Column</th>
+                        <th class='th-cus'>Classification</th>
+                    </tr>
+                </thead>
+                <tbody id="contentArea">
+                    {% for tuple in queryset %}
+                        <tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
+                            <td>
+                                <button data-toggle="collapse" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align" data-target=".row{{forloop.counter}}" class="accordion-toggle">
+                                <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></img>
+                                </button>   
+                            </td>
+                            <td>{{tuple.datasource}}</td>
+                            <td>{{tuple.schema}}</td>
+                            <td>{{tuple.table}}</td>
+                            <td>{{tuple.column}}</td>
+                            <td>{{translate|get_item:tuple.classification_name}}
+                        </tr>
+                        <tr class="hiddenRows{{forloop.counter}}">
+                            <td colspan="6">
+                                <div class="collapse row{{forloop.counter}} accordion-body">
+                                    <div class="row">
+                                    <div class="col-sm-1"></div>
+                                        <div class="col-sm-2">
+                                        <p><strong>Created by: </strong> {{tuple.creator}}</p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                    <a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
+                                    </div>
+                                    <div class="col-sm-3">
+                                    <form class="form-inline">
+                                    <label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
+                                    <select class="form-control form-control-sm cla"
+                                        id="{{forloop.counter}}">
+                                        <option selected>
+                                            {{ translate|get_item:tuple.classification_name }}
+                        <!--{{tuple.classification_name}}-->    </option>
+                                        {% for op in ex_options %}
+                                        <option value="{{forloop.counter}}">{{op}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    </form>
+                                    </div>
+                                    <div class="col-sm-1">
+                                    {% if recent|get_item:tuple.id %} NEW {%endif%}
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
+                                        
+                                    <input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
+                                    value="{{tuple.id}}"/>
+                                    </div>
+                                    <div class="col-sm-1"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <div class="modal-footer">
-        <button type="submit" id="finSubby" class="btn btn-success">Confirm</button>
         </div>
-    </div>
-</div>
-</div>
-
-<div class="modal fade" id="batchModal" tabindex="-1" role="dialog" aria-labelledby="batchH" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-<div class="modal-content">
-<div class="modal-header">
-    <h5 class="modal-title" id="batchH">Change Classification</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-<div class="modal-body">
-<label for="newC"><strong>Classification</strong></label>
-<select class="form-control form-control-sm" id="newC">
-         <option selected>Please select a new classification...</option>
-         {% for op in ex_options %}
-         <option value="{{forloop.counter}}">{{op}}</option>
-         {% endfor %}
-</select>
-</div>
-<div class="modal-footer">
-<p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
-<button type="submit" id="changeC" class="btn btn-success" data-dismiss="modal">Change</button>
-</div>
-</div>
-</div>
-</div>
-
-<table class="table table-sm data">
-<thead class="thead-inverse">
-    <tr>
-        <th></th>
-        <th class='th-cus'>Datasource</th>
-        <th class='th-cus'>Schema</th>
-        <th class='th-cus'>Table</th>
-        <th class='th-cus'>Column</th>
-        <th class='th-cus'>Classification</th>
-    </tr>
-</thead>
-
-<tbody id="contentArea">
-    {% for tuple in queryset %}
-    <tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
-        <td>
-            <!--<div data-toggle="collapse" data-target=".row{{ forloop.counter }}"
-                class="accordion-toggle">-->
-            <button data-toggle="collapse" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align" data-target=".row{{forloop.counter}}" class="accordion-toggle">
-            <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></img>
-            </button>   
-            <!--</div>-->
-        </td>
-        <td>{{tuple.datasource}}</td>
-        <td>{{tuple.schema}}</td>
-        <td>{{tuple.table}}</td>
-        <td>{{tuple.column}}</td>
-        <td>{{translate|get_item:tuple.classification_name}}
-    </tr>
-    <tr class="hiddenRows{{forloop.counter}}">
-        <td colspan="6">
-            <div class="collapse row{{forloop.counter}} accordion-body">
-            <div class="row">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-2">
-                <p><strong>Created by: </strong> {{tuple.creator}}</p>
-            </div>
-            <div class="col-sm-2">
-            <a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
-            </div>
-            <div class="col-sm-3">
-            <form class="form-inline">
-            <label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
-            <select class="form-control form-control-sm cla"
-                id="{{forloop.counter}}">
-                <option selected>
-                    {{ translate|get_item:tuple.classification_name }}
-<!--{{tuple.classification_name}}-->    </option>
-                {% for op in ex_options %}
-                <option value="{{forloop.counter}}">{{op}}</option>
-                {% endfor %}
-            </select>
-            </form>
-            </div>
-            <div class="col-sm-1">
-            {% if recent|get_item:tuple.id %} NEW {%endif%}
-            </div>
-            <div class="col-sm-2">
-                <button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
-                
-            <input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
-            value="{{tuple.id}}"/>
-            </div>
-            <div class="col-sm-1"></div>
-            </div>
-            </div>
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
-
-</table>
-
-
+        </div>
 
 
 {% if queryset %}
@@ -374,7 +414,8 @@ pieoptions = {
 		position: 'top',
 		text: 'Classification Sizes',
 		fontSize: '11'
-	}
+	},
+    onResize: afterResizing,
 };
 
 untranslate = {{untranslate}}
@@ -387,6 +428,9 @@ window.onload = function() {
 		data: piedata,
 		options: pieoptions
 	});
+    console.log(myDonut);
+    var size = {width: myDonut.width, height: myDonut.height};
+    afterResizing(myDonut, size);
 };
 
 function graphClickEvent(event, array) {
@@ -400,6 +444,15 @@ function graphClickEvent(event, array) {
 //document.getElementById('id_classi').value = options[array[0]._index];
 		//$('#searchi').submit();
 		//console.log(options[array[0]._index]);
+
+function afterResizing(chart, size) {
+    if(size.width <= 200 | size.height > 150) {
+        $("#pieChart").hide();
+    } else {
+        $("#pieChart").show();
+    }
+    chart.update();
+};
 
 {% endif %}
 
