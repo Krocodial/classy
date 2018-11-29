@@ -715,8 +715,8 @@ def home(request):
         mul = 20 
         for op in options:
             keys[op] = []
-        for i in range(60):
-            t = 59-i
+        for i in range(45):
+            t = 44 - i
             d = timezone.now().date() - timezone.timedelta(days=t)
             dates.append(str(d))
             for clas, arr in keys.items():
@@ -726,8 +726,8 @@ def home(request):
         for op in options:
             keys[op] = []
 
-        for i in range(60):
-            t = 59 - i
+        for i in range(45):
+            t = 44 - i
             d = timezone.now().date() - timezone.timedelta(days=t)
             dates.append(str(d))
             for clas, arr in keys.items():

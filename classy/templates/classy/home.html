@@ -2,109 +2,85 @@
 {% include 'classy/head.html' %}
 <title>Data</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
-<!--
-<link rel="stylesheet" href="{% static 'classy/css/home.css' %}"/>
--->
 </head>
-<body id="bootstrapoverride">
+<body>
 
 {% include 'classy/navbar.html' %}
 
+    <div id="topicTemplate" class="template container gov-container">
+        <!-- Header with Background Image -->
+        <div class="row">
+            <header class="">
+                <div class="">
+                    <h2 class="display-4 text-center mt-4">Welcome {{user.username}}</h2>
+                    <img class="col-xs-12" src="http://placehold.it/2500x500">
+                </div>
+            </header>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+        <!-- Page Content -->
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="mt-4">About this application</h2>
+                <p>The Data Security Classification repository, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
+    the purpose of keeping an inventory of the data that is managed, and where that data is stored. This tool will allow users to view high level information about 
+      tables, modify table classifications, upload new information, and flag deprecated data</p>
 
-<!-- Header with Background Image -->
-<header class="business-header">
-<div class="container">
-<div class="row">
-  <div class="col-12">
-    <h2 class="display-4 text-center mt-4">Welcome {{user.last_name}}</h2>
-    <!--<canvas id="lineChart"></canvas>-->     
-  </div>
-</div>
-</div>
-</header>
-<canvas id="lineChart"></canvas>
-<!-- Page Content -->
+                <p>This tool is managed by the FLNR security team, with custom access granted to business areas based on privilege. All changes will be reviewed and approved before 
+        they reflect in the main dataset. If you need access to a larger dataset due to business changes, please send a request to 
+     the FLNR security team.
+            </div>
+            <div class="col-lg-6">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 my-4" style="padding-top:25px; ">
+                <div class="panel">
+                    <img class="panel-header img-thumbnail img-responsive center-block" src="https://www.nps.gov/whsa/learn/nature/images/mountain_pepperweed.JPG" alt="">
+                    <div class="panel-body">
+                        <h4 class="card-title">Getting Started</h4>
+                        <p class="card-text">Lost and not sure where to start? This page will give you a quick overview of DSC's main functionality.</p>
+                    </div>
+                    <div class="panel-footer">
+                        <a href="tutorial" target="_blank" class="btn btn-info">Tutorial</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 my-4" style="padding-top:25px;">
+                <div class="panel">
+                    <img class="panel-header img-thumbnail img-responsive center-block" src="https://www.nps.gov/whsa/learn/nature/images/cottonwood.JPG" alt="">
+                    <div class="panel-body">
+                        <h4 class="card-title">Classification information</h4>
+                        <p class="card-text">Confused as to what the different classifications mean? Take a look at our Classification guide for examples, and in-depth descriptions.</p>
+                    </div>
+                    <div class="panel-footer">
+                        <a href="" class="btn btn-info">Classifications</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 my-4" style="padding-top:25px;">
+                <div class="panel">
+                    <img class="panel-header img-thumbnail img-responsive center-block" src="https://www.nps.gov/seki/learn/nature/images/Sheep-WF-small.jpg" alt="">
+                    <div class="panel-body">
+                        <h4 class="card-title">Issues</h4>
+                        <p class="card-text">Found an issue in this application? Please take the time to send me a message using the link below.</p>
+                    </div>
+                    <div class="panel-footer">
+                        <a href="https://github.com/Krocodial/DSC/issues" target="_blank" class="btn btn-info">Bugtracker</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- /.row -->
 
-<div class="container">
-<div class="row">
-<div class="col-lg-6">
-  <h2 class="mt-4">About this application</h2>
-  <p>The Data Security Classification repository, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
-the purpose of keeping an inventory of the data that is managed, and where that data is stored. This tool will allow users to view high level information about 
-  tables, modify table classifications, upload new information, and flag deprecated data</p>
-
-  <p>This tool is managed by the FLNR security team, with custom access granted to business areas based on privilege. All changes will be reviewed and approved before 
-    they reflect in the main dataset. If you need access to a larger dataset due to business changes, please send a request to 
- the FLNR security team.
-    <!--<p>
-    <a class="btn btn-primary btn-lg" href="#">Call to Action &raquo;</a>
-  </p>-->
-</div>
-<div class="col-lg-6">
-    <canvas id="pieChart"></canvas>
-</div>
-</div>
-<!-- /.row -->
-
-<div class="row">
-<div class="col-sm-4 my-4">
-  <div class="card">
-    <img class="card-img-top" src="https://www.nps.gov/whsa/learn/nature/images/mountain_pepperweed.JPG" alt="">
-    <div class="card-body">
-      <h4 class="card-title">Getting Started</h4>
-      <p class="card-text">Lost and not sure where to start? This page will give you a quick overview of DSC's main functionality.</p>
     </div>
-    <div class="card-footer">
-      <a href="tutorial" target="_blank" class="btn btn-info">Tutorial</a>
-    </div>
-  </div>
-</div>
-<div class="col-sm-4 my-4">
-  <div class="card">
-    <img class="card-img-top" src="https://www.nps.gov/whsa/learn/nature/images/cottonwood.JPG" alt="">
-    <div class="card-body">
-      <h4 class="card-title">Classification information</h4>
-      <p class="card-text">Confused as to what the different classifications mean? Take a look at our Classification guide for examples, and in-depth descriptions.</p>
-    </div>
-    <div class="card-footer">
-      <a href="" class="btn btn-info">Classifications</a>
-    </div>
-  </div>
-</div>
-<div class="col-sm-4 my-4">
-  <div class="card">
-    <img class="card-img-top" src="https://www.nps.gov/seki/learn/nature/images/Sheep-WF-small.jpg" alt="">
-    <div class="card-body">
-      <h4 class="card-title">Issues</h4>
-      <p class="card-text">Found an issue in this application? Please take the time to send me a message using the link below.</p>
-    </div>
-    <div class="card-footer">
-      <a href="https://github.com/Krocodial/DSC/issues" target="_blank" class="btn btn-info">Bugtracker</a>
-    </div>
-  </div>
-</div>
-
-</div>
-<!-- /.row -->
-
-</div>
-<!-- /.container -->
-
-<!-- Footer -->
-<footer class="py-5 bg-dark">
-<div class="container">
-<p class="m-0 text-center text-white">Copyright &copy; BC gov 2018</p>
-</div>
-<!-- /.container -->
-</footer>
-
-
-
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+{% include 'classy/tail.html' %}
 <script>
-
 var config = {
         type: 'line',
         data: {
@@ -160,7 +136,7 @@ var config = {
                         },
                         legend: {
                                 display: true,
-                                position: 'right',
+                                position: 'bottom',
                         },
                         responsive: true,
             maintainAspectRatio: true,
@@ -182,7 +158,7 @@ var config = {
                         },
                         scales: {
                                 xAxes: [{
-                                        display: true,
+                                        display: false,
                                         scaleLabel: {
                                                 display: true,
                                                 labelString: 'Date'

@@ -1,13 +1,7 @@
-<!doctype html>
-<html>
-<head>
-
+{% load static %}
+{% include 'classy/head.html' %}
 <title>Logs</title>
 {% load classy_extras %}
-{% include 'classy/base_links.html' %}
-
-{% load static %}
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
 </head>
 
 <body id="bootstrapoverride">
@@ -70,6 +64,6 @@
 </tbody>
 </table>
 
-{%include 'classy/basic_pagi.html'%}
+{% include 'classy/basic_pagi.html'%}
 </body>
 </html>

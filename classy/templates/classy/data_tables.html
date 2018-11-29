@@ -1,154 +1,142 @@
-<!doctype html>
-<html>
-<head>
-<title>Data</title>
-{% load classy_extras %}
-{% include 'classy/base_links.html' %}
-
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+{% include 'classy/head.html' %}
+<title>Data</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+{% load classy_extras %}
+
 </head>
-<body id="bootstrapoverride">
+<body>
 
-{% include 'classy/navbar.html' %}
-<br/>
-<div class="container-fluid">
-<div class="row">
-<div class="col"></div>
-<div class="col-sm-10">
-{% if result == 'success' %}
-<div class="alert alert-success alert-dismissable fade show" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <strong>Success! </strong> Changes submitted for review.
-</div>
-{% elif result == 'failure' %}
-<div class="alert alert-failure alert-dismissable fade show" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <strong>Oops! </strong> Please try again.
-</div>
-{% endif %}
-</div>
-<div class="col"></div>
-</div>
-</div>
-
-<form class="form-group" action="search" id="searchi">
-
-<div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-                <div class="modal-header">
-                        <h5 class="modal-title" id="modalLab">Advanced Search</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+    {% include 'classy/navbar.html' %}
+    <br/>
+    <div id="topicTemplate" class="template container-fluid gov-container">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-sm-10">
+                {% if result == 'success' %}
+                    <div class="alert alert-success alert-dismissable fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
-                </div>
-<!--                    <form action="search" method="GET">-->
-                <div class="modal-body">
-                <div class="form-group">
-                        <label for="data_source">Datasource</label>
-                        {{form.data_source}}
-                </div>
-                <div class="form-group">
-                        <label for="schema">Schema</label>
-                        {{form.schema}}
-                </div>
-                <div class="form-group">
-                        <label for="table">Table</label>
-                        {{form.table}}
-                </div>
-                <div class="form-group">
-                        <label for="column">Column</label>
-                        {{form.column}}
-                </div>
-                <div class="form-group">
-                        <label class="mr-sm-2" for "customSel">Classification</label>
-                        {{form.classi}}
-                </div>
-                <div class="form-group">
-                        <label class="mr-sm-2">State</label>
-                        {{form.stati}}
-                </div>
-                </div>
-                <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Search</button>
-                </div>
-<!--                    </form>-->
+                        <strong>Success! </strong> Changes submitted for review.
+                    </div>
+                {% elif result == 'failure' %}
+                    <div class="alert alert-failure alert-dismissable fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>Oops! </strong> Please try again.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col"></div>
         </div>
-</div>
-</div>
 
-<div class="container-fluid">
-<div class="row">
-        <div class="col-sm-1">
-    <br/><br/>
-    <div class="input-group">
-    <label for="id_size">Results per page: &nbsp</label>
-    
-    {{form.size}}
-    </div>
-        </div>
-        <div class="col-sm-8">
-    <div class="input-group">   
-    {{form.query}}
-    <span class="input-group-btn">
-        <button type="submit" class="btn btn-primary" type="button">Search</button>
-    </span>
-    </div>
-    
-    <small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
-    <div class="input-group">
-        <input type="hidden" value="{{size}}"></input>
-    </div>
-    <nav class="nav justify-content-center">
-        <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
-    </nav>  
+        <form class="form-group" action="search" id="searchi">
+            <div class="modal fade" id="adModal" tabindex="-1" role="dialog" aria-labelledby="modalLab" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalLab">Advanced Search</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="data_source">Datasource</label>
+                                {{form.data_source}}
+                            </div>
+                            <div class="form-group">
+                                <label for="schema">Schema</label>
+                                {{form.schema}}
+                            </div>
+                            <div class="form-group">
+                                <label for="table">Table</label>
+                                {{form.table}}
+                            </div>
+                            <div class="form-group">
+                                <label for="column">Column</label>
+                                {{form.column}}
+                            </div>
+                            <div class="form-group">
+                                <label class="mr-sm-2" for "customSel">Classification</label>
+                                {{form.classi}}
+                            </div>
+                            <div class="form-group">
+                                <label class="mr-sm-2">State</label>
+                                {{form.stati}}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-1">
+                    <br/><br/>
+                    <div class="input-group">
+                        <label for="id_size">Results per page: &nbsp</label>
+                        {{form.size}}
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="input-group">   
+                        {{form.query}}
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary" type="button">Search</button>
+                        </span>
+                    </div> 
+                    <small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
+                    <div class="input-group">
+                        <input type="hidden" value="{{size}}"></input>
+                    </div>
+                    <nav class="nav justify-content-center">
+                        <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
+                    </nav> 
+                </div>
     </form>
-    </div>
-        <div class="col-sm-1">
-	{% if queryset %}
-    <form action="download" method="post">
-{% csrf_token %}
-<input type="hidden" name="schema" value='{{sch}}'>
-<input type="hidden" name='query' value='{{query}}'>
-<input type="hidden" name='data_source' value='{{ds}}'>
-<input type="hidden" name='table' value='{{tab}}'>
-<input type="hidden" name='column' value='{{col}}'>
-{% for i in classi %}
-<input type="hidden" name='classi' value='{{i}}'>
-{% endfor %}
-{% for st in stati %}
-<input type="hidden" name='stati' value='{{st}}'>
-{% endfor %}
-<button type="submit" class="btn btn-info btn-sm float-right" style="position: absolute; bottom: 0;">Export results</button>
-</form>
-{% endif %}
-
-</div>
-<div class="col-sm-2">
-{% if queryset %}
-<canvas id="pieChart"></canvas>
-<form action="search" method="get" id='pieChartForm'>
-<input type="hidden" name='data_source' value='{{ds}}'>
-<input type="hidden" name='schema' value='{{sch}}'>
-<input type="hidden" name='table' value='{{tab}}'>
-<input type='hidden' name='column' value='{{col}}'>
-<input type='hidden' name='query' value='{{query}}'>
-<input type='hidden' name='size' value='{{size}}'>
-{% for st in stati %}
-<input type='hidden' name='stati' value='{{st}}'>
-{% endfor %}
-<input type='hidden' name='classi' value=''  id='pieChartClassi'>
-</form>
-{% endif %}
-</div>
-</div>
-</div>
+                <div class="col-sm-1">
+	                {% if queryset %}
+                    <form action="download" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="schema" value='{{sch}}'>
+                        <input type="hidden" name='query' value='{{query}}'>
+                        <input type="hidden" name='data_source' value='{{ds}}'>
+                        <input type="hidden" name='table' value='{{tab}}'>
+                        <input type="hidden" name='column' value='{{col}}'>
+                        {% for i in classi %}
+                            <input type="hidden" name='classi' value='{{i}}'>
+                        {% endfor %}
+                        {% for st in stati %}
+                            <input type="hidden" name='stati' value='{{st}}'>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-info btn-sm float-right" style="position: absolute; bottom: 0;">Export results</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    {% if queryset %}
+                        <canvas id="pieChart"></canvas>
+                        <form action="search" method="get" id='pieChartForm'>
+                            <input type="hidden" name='data_source' value='{{ds}}'>
+                            <input type="hidden" name='schema' value='{{sch}}'>
+                            <input type="hidden" name='table' value='{{tab}}'>
+                            <input type='hidden' name='column' value='{{col}}'>
+                            <input type='hidden' name='query' value='{{query}}'>
+                            <input type='hidden' name='size' value='{{size}}'>
+                            {% for st in stati %}
+                                <input type='hidden' name='stati' value='{{st}}'>
+                            {% endfor %}
+                            <input type='hidden' name='classi' value=''  id='pieChartClassi'>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        
 
 <div class="modal fade" id="confModal" tabindex="-1" role="dialog" aria-labelledby="modalBo" aria-hidden="true">
 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -325,11 +313,8 @@
 <div class="modal" id="wheel"></div>
 
 <br/><br/>
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-
-<script src="{% static 'classy/js/custom.js' %}"></script>
+</div>
+{% include 'classy/tail.html' %}
 
 <script>
 

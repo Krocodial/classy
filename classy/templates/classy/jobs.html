@@ -1,77 +1,63 @@
-<!doctype html>
-<html>
-<head>
-
-<title>Uploads</title>
-
-{% include 'classy/base_links.html' %}
-
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
+{% include 'classy/head.html' %}
+<title>Uploads</title>
 </head>
-<body id='bootstrapoverride'>
-{% include 'classy/navbar.html' %}
-
-{% if message %}
-	<p class="text-center"><strong>{{message}}</strong><p>
-{% endif %}
-
-<div class="container">
-<div class="row">
-<div class="col">
-</div>
-<div class="col">
-	<br/>
-	<h5 class="text-center">Upload a .CSV file</h5>
-        <form action="uploader" method="POST" id="uploadform" enctype='multipart/form-data' class="form">
-		<br/>
-		{% csrf_token %}
-                <div class="form-group">
-			{{form.file}}
-                   <!--     <input type="file" class="form-control-file form-control-sm" name="Myfile" id="fileupload">
-                --></div>
-
-                        <!--<input type='file' name='Myfile'/>-->
-                <button type="submit" class="btn-success form-control form-control-sm">Upload</button>
-        </form>
-</div>
-<div class="col">
-</div>
-</div>
-</div>
-<br/>
-<br/>
-<table class="table table-sm">
-<thead style="color:#fff;" class="thead-inverse">
-	<tr>
-		<th class="th-cus">Current jobs</th>
-		<th class="th-cus">Priority</th>
-		<th class="th-cus">Uploaded</th>
-		<th class="th-cus">Progress</th>
-		<th class="th-cus">User</th>
-	</tr>
-</thead>
-<tbody>
-	{% for tsk in tsks %}
-	<tr>
-		<td>{{tsk.name}}</td>
-		<td>{{tsk.priority}}</td>
-		<td>{{tsk.run_at}}</td>
-		<td>{{tsk.progress}}/1</td>
-		<td>{{tsk.user}}</td>
-	</tr>
-	{% endfor %}
-</tbody>
-</table>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<!--
-<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
--->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-
-<script type="text/javascript" src="{% static 'classy/js/bootstrap-uploadprogress.js' %}"></script>
+<body>
+    {% include 'classy/navbar.html' %}
+    <div id="topicTemplate" class="template container gov-container">
+        {% if message %}
+            <p class="text-center"><strong>{{message}}</strong><p>
+        {% endif %}
+        <div class="row">
+            <div class="col-sm-4">
+                <br/>
+                <h5 class="text-center">Upload a .CSV file</h5>
+                <form action="uploader" method="POST" id="uploadform" enctype='multipart/form-data' class="form">
+                    <br/>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{form.file}}
+                    </div>
+                    <button type="submit" class="btn-success form-control form-control-sm">Upload</button>
+                </form>
+            </div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+                <h5 class="text-center">Guardium Report Queue</h5>
+            </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead style="" class="">
+                            <tr>
+                                <th class="th-cus">Current jobs</th>
+                                <th class="th-cus">Priority</th>
+                                <th class="th-cus">Uploaded</th>
+                                <th class="th-cus">Progress</th>
+                                <th class="th-cus">User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tsk in tsks %}
+                            <tr>
+                                <td>{{tsk.name}}</td>
+                                <td>{{tsk.priority}}</td>
+                                <td>{{tsk.run_at}}</td>
+                                <td>{{tsk.progress}}/1</td>
+                                <td>{{tsk.user}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'classy/tail.html' %}
 <script>$('#uploadform').uploadprogress({redirect_url: 'uploader'});</script>
 </body>
 </html>
