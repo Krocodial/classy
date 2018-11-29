@@ -446,7 +446,7 @@ def search(request):
             ds = form.cleaned_data['data_source']
             sch = form.cleaned_data['schema']
             tab = form.cleaned_data['table']
-            co = form.cleaned_data['column']
+            col = form.cleaned_data['column']
             classi = form.cleaned_data['classi']
             stati = form.cleaned_data['stati']
             if len(stati) == 0:
@@ -454,7 +454,7 @@ def search(request):
             if len(classi) == 0:
                 classi = options                
 
-            queryset2 = classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification_name__in=classi, state__in=stati)
+            queryset2 = classification.objects.filter(column__icontains=col, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification_name__in=classi, state__in=stati)
 
             queryset = queryset & queryset2
             queryset = query_constructor(queryset, request.user)
@@ -525,7 +525,7 @@ def search(request):
                 'ds': ds,
                 'sch': sch,
                 'tab': tab,
-                'co': co,
+                'col': col,
                 'classi': classi,
                 'stati': stati,
                 'size': size,
