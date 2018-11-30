@@ -1,8 +1,13 @@
 {% extends "admin/base.html" %}
-{% block extrastyle%}
 {% load static %}
+
+{% block head %}
     {% include 'classy/head.html' %}
+{% endblock%}
+
+{% block extrastyle%}
     <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_base.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_form.css' %}" />
 {% endblock %}
 
 {% block title %}
