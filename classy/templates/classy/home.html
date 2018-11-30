@@ -1,6 +1,6 @@
 {% load static %}
 {% include 'classy/head.html' %}
-<title>Data</title>
+<title>Homepage - Classy</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
 </head>
 <body>
@@ -87,18 +87,18 @@ var config = {
                 labels: {{dates|safe}},
                 datasets: [{
                         label: 'Unclassified',
-                        backgroundColor: 'rgb(148,119,139, 0.3)',
+                        backgroundColor: '#bca9b6',
                         borderColor: '#94778B',
-            pointBackgroundColor: '#94778B',
-            pointBorderColor: '#fff',
-            pointHoverBorderColor: '#94778B',
+                        pointBackgroundColor: '#94778B',
+                        pointBorderColor: '#fff',
+                        pointHoverBorderColor: '#94778B',
                         data: 
                 {{unc}}
                         ,
                         fill: 'origin',
                         }, {
-                label: 'Public',
-                        backgroundColor: 'rgb(124,229,119, 0.3)',
+                        label: 'Public',
+                        backgroundColor: '#adefa9',
                         borderColor: '#7CE577',
                         pointBackgroundColor: '#7CE577',
                         pointBorderColor: '#fff',
@@ -107,25 +107,25 @@ var config = {
                         fill: '-1',
                         }, {
                         label: 'Confidential',
-                        backgroundColor: 'rgb(160,204,218, 0.3)',
+                        backgroundColor: '#c8e2ea',
                         borderColor: '#A0CCDA',
                         data: {{conf}},
                         fill: '-1',
                         }, {
                         label: 'Protected A',
-                        backgroundColor: 'rgb(233,206,44, 0.3)',
+                        backgroundColor: '#f5e9a3',
                         borderColor: '#E9CE2C',
                         data: {{prota}},
                         fill: '-1',
                         }, {
                         label: 'Protected B',
-                        backgroundColor: 'rgb(222,84,30, 0.3)',
+                        backgroundColor: '#f3bba5',
                         borderColor: '#DE541E',
                         data: {{protb}},
                         fill: '-1',
                         }, {
                         label: 'Protected C',
-             backgroundColor: 'rgb(191,33,30, 0.3)',
+                        backgroundColor: '#f1a8a7',
                         borderColor: '#BF211E',
                         data: {{protc}},
                         fill: '-1',

@@ -19,23 +19,26 @@
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}">
 
+    {% include 'classy/navbar.html' %}
+
 <!-- Container -->
-<div id="container">
-
-    {% if not is_popup %}
-    <!-- Header -->
-
-	{% include 'classy/navbar.html' %}
-
-    <!-- END Header -->
-    {% block breadcrumbs %}
-    <div class="breadcrumbs">
-    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-    {% if title %} &rsaquo; {{ title }}{% endif %}
+<div id="topicTemplate" class="template container-fluid gov-container">
+    <div class="row">
+        <div class="col-lg-12">
+            {% if not is_popup %}
+                <!-- Header -->
+                <!-- END Header -->
+                {% block breadcrumbs %}
+                <div class="breadcrumbs">
+                    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+                    {% if title %} &rsaquo; {{ title }}{% endif %}
+                </div>
+                {% endblock %}
+            {% endif %}
+        </div>
     </div>
-    {% endblock %}
-    {% endif %}
-
+    <div class="row ignore-gov-css">
+        <div class="col-lg-12">
     {% block messages %}
         {% if messages %}
         <ul class="messagelist">{% for message in messages %}
@@ -43,22 +46,27 @@
         {% endfor %}</ul>
         {% endif %}
     {% endblock messages %}
+        </div>
+    </div>
 
     <!-- Content -->
-    <div id="content" class="{% block coltype %}colM{% endblock %}">
-        {% block pretitle %}{% endblock %}
-        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
-        {% block content %}
-        {% block object-tools %}{% endblock %}
-        {{ content }}
-        {% endblock %}
-        {% block sidebar %}{% endblock %}
-        <br class="clear" />
+    <div class="row ignore-gov-css">
+        <div class="col-lg-12">
+            <div id="content" class="{% block coltype %}colM{% endblock %}">
+                {% block pretitle %}{% endblock %}
+                {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+                {% block content %}
+                {% block object-tools %}{% endblock %}
+                {{ content }}
+                {% endblock %}
+                {% block sidebar %}{% endblock %}
+                <br class="clear" />
+            </div>
+        </div>
     </div>
     <!-- END Content -->
-
-    {% block footer %}<div id="footer"></div>{% endblock %}
 </div>
+    {% block footer %}<div id="footer"></div>{% endblock %}
 <!-- END Container -->
 
 </body>
