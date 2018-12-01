@@ -1,5 +1,9 @@
 {% load static %}
 
+.custom-colour>.close {
+    color: #fff;
+}
+
 #wheel {
     display:    none;
     position:   fixed;
@@ -57,7 +61,7 @@ body.loading #wheel {
 	max-height: 30vh;
 }
 
-.selected {
+#data-table .selected {
 	background-color: #ffecb3;
 }
 

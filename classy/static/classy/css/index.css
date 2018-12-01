@@ -1,6 +1,6 @@
 .login-form {
 	max-width: 400px;
-	margin: 100px auto;
+	margin: 75px auto;
 
 }
 
@@ -14,6 +14,10 @@
 	padding: 20px 20px;
 }
 
+.custom-colour {
+    color:#f5dd5d;
+    font-size: 22px;
+}
 
 .text-faint {
 	color:#F1F1F2;
