@@ -150,12 +150,11 @@ def review(request):
                         item.state = 'I'
                         item.save()
                         form.save()
-                    #tup.delete()
-                #group_info.delete()
+                    tup.delete()
+                group_info.delete()
             else:
-                pass
-                #group_set.delete()
-                #group_info.delete()
+                group_set.delete()
+                group_info.delete()
             response = {"status": 1, "message": "ok"}
             return JsonResponse(response)
         #return HttpResponse(json.dumps(reponse), content_type='application/json')
