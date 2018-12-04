@@ -42,7 +42,9 @@
                                 <li><a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a></li>
                                 <li><a href="{% url 'classy:uploader' %}">Upload</a></li>
                                 <li><a href="{% url 'classy:exceptions' %}">Exceptions</a></li>
-                                <li><a href="{% url 'classy:log_list' %}">Logs</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'classy:log_list' %}">Logs</a></li>
+                            {% if request.user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
                             <li><a href="{% url 'classy:user_logout' %}">Logout</a></li>
@@ -60,7 +62,9 @@
                             <a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a>
                             <a href="{% url 'classy:uploader' %}">Upload</a>
                             <a href="{% url 'classy:exceptions' %}">Exceptions</a>
-                            <a href="{% url 'classy:log_list' %}">Logs</a>
+                        {% endif %}
+                        <a href="{% url 'classy:log_list' %}">Logs</a>
+                        {% if request.user.is_staff %}
                             <a href="{% url 'admin:index' %}">Admin</a>
                         {% endif %}
                         <a href="{% url 'classy:user_logout' %}">Logout</a>

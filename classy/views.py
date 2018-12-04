@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
 from django import forms
+from django.http import JsonResponse
 
 import threading, time, csv, pytz, json, random
 
@@ -149,14 +150,15 @@ def review(request):
                         item.state = 'I'
                         item.save()
                         form.save()
-                    tup.delete()
-                group_info.delete()
+                    #tup.delete()
+                #group_info.delete()
             else:
-                group_set.delete()
-                group_info.delete()
-
-        response = {'status': 1, 'message': 'ok'}
-        return HttpResponse(json.dumps(response), content_type='application/json')
+                pass
+                #group_set.delete()
+                #group_info.delete()
+            response = {"status": 1, "message": "ok"}
+            return JsonResponse(response)
+        #return HttpResponse(json.dumps(reponse), content_type='application/json')
     queryset = classification_review.objects.all()
     groups = classification_review_groups.objects.all()
     
@@ -238,8 +240,8 @@ def exceptions(request):
 
 #Master log page, searchable
 def log_list(request):
-        if not request.user.is_staff:
-            return redirect('classy:index')
+        #if not request.user.is_staff:
+        #    return redirect('classy:index')
         form = basic_search(request.GET)
 
         num = classification_review_groups.objects.all().count()
@@ -258,7 +260,15 @@ def log_list(request):
             else:
                 clas = nclas
 
+            permitted = query_constructor(classification.objects.all(), request.user)
+
+            permitted = permitted.values_list('pk', flat=True)
+
             queryset = nclas | oclas | flag | use | appro | clas
+
+            queryset = queryset.filter(classy__in=permitted)
+
+
             page = 1
             if 'page' in request.GET:
                 page = request.GET.get('page')
@@ -319,12 +329,17 @@ def log_list(request):
 
 #Shows all information known about a classification object. History, variables, associated users, masking instructions.
 def log_detail(request, classy_id):
-    if not request.user.is_staff:
-            return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
     try:
-        obj = classification.objects.get(id=classy_id)
-        tup = classification_logs.objects.filter(classy_id__exact=classy_id)
+        fil = classification.objects.filter(id=classy_id)
+        queryset = query_constructor(fil, request.user)
+
+        if queryset.count() == 1:
+            obj = classification.objects.get(id=classy_id)
+            tup = classification_logs.objects.filter(classy_id__exact=classy_id)
+        else:
+            return redirect('classy:index')        
+    
         tup = tup.order_by('-time')
         context = {
             'result': tup,

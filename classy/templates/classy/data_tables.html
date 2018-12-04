@@ -12,25 +12,28 @@
     {% include 'classy/navbar.html' %}
     <div id="topicTemplate" class="template container-fluid gov-container">
         <div class="row">
-            <div class="col"></div>
-            <div class="col-sm-10">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
                 {% if result == 'success' %}
-                    <div class="alert alert-success alert-dismissable fade show" role="alert">
+                    <div class="alert gov-alert-success alert-dismissible" role="alert" aria-live="assertive">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>Success! </strong> Changes submitted for review.
+                        <h3><strong><i class="fa fa-check-circle"></i> Success!</strong> Changes submitted for review.</strong></h3>
+                        {% if not request.user.is_staff %}
+                        <p>Changes will show once approved by an administrator</p>
+                        {% endif %}
                     </div>
                 {% elif result == 'failure' %}
-                    <div class="alert alert-failure alert-dismissable fade show" role="alert">
+                    <div class="alert gov-alert-failure alert-dismissable" role="alert" aria-live="assertive">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>Oops! </strong> Please try again.
+                        <h3><strong><i class="fa fa-times-circle"></i> Oops! </strong> Please try again.</h3>
                     </div>
                 {% endif %}
             </div>
-            <div class="col"></div>
+            <div class="col-sm-2"></div>
         </div>
         <div class="row">
             <form class="form-group" action="search" id="searchi">
