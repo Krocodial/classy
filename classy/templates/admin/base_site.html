@@ -1,12 +1,19 @@
 {% extends "admin/base.html" %}
+{% load static %}
+
+{% block head %}
+    {% include 'classy/head.html' %}
+{% endblock%}
+
 {% block extrastyle%}
-{% load static from static %}
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
-
-<link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_base.css' %}" />
-<link rel="stylesheet" href="{% static 'classy/css/classy_base.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_base.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_form.css' %}" />
 {% endblock %}
+
+{% block title %}
+Admin - Classy
+{% endblock %}
+
+{% block footer %}
+    {% include 'classy/tail.html' %}
+{% endblock%}

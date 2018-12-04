@@ -1,75 +1,70 @@
-<!doctype html>
-<html>
-<head>
-
-<title>Logs</title>
-{% load classy_extras %}
-{% include 'classy/base_links.html' %}
-
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
+{% include 'classy/head.html' %}
+<title>Logs - Classy</title>
+{% load classy_extras %}
 </head>
 
 <body id="bootstrapoverride">
-{% include 'classy/navbar.html' %}
-
-<div class="container-fluid">
-<br/>
-<div class="row">
-	<div class="col">
-		{% include 'classy/basic_pagi.html' %}
-	</div>
-	<div class="col">
-		<form class="form-group" action="log_list">
-			<div class="input-group">
-				{{form.query}}
-				<span class="input-group-btn">
-				<button type="submit" class="btn btn-primary btn-small" type="button">Search</button>
-				</span>
-			</div>
-		</form>
-	</div>
-	<div class="col"></div>
-</div>
-</div>
-
-<table class="table table-sm">
-<thead style="color:#fff;" class="thead-inverse">
-	<tr>
-		
-		<th class="th-cus">ID</th>
-		<th class="th-cus">Action Time</th>
-		<th class="th-cus">Action Flag</th>
-		<th class="th-cus">Old Clas.</th>
-		<th class="th-cus">New Clas.</th>
-		<th class="th-cus">User</th>
-		<th class="th-cus">Approver</th>
-		<th class="th-cus">State</th>
-	</tr>
-</thead>
-<tbody>
-	{% for tuple in queryset %}
-	<tr>
-		
-		<td>{{tuple.classy_id}}</td>
-		<td>{{tuple.time}}</td>
-		{% if tuple.flag == 0 %}
-		<td>DELETE</td>
-		{% elif tuple.flag == 1 %}
-		<td>MODIFY</td>
-		{% elif tuple.flag == 2 %}
-		<td>CREATE</td>
-		{% endif %}
-		<td>{{translate|get_item:tuple.old_classification}}</td>
-		<td>{{translate|get_item:tuple.new_classification}}</td>
-		<td>{{tuple.user}}</td>
-		<td>{{tuple.approver}}</td>
-		<td>{{state_translate|get_item:tuple.state}}</td>
-	</tr>
-	{% endfor %}
-</tbody>
-</table>
-
-{%include 'classy/basic_pagi.html'%}
+    {% include 'classy/navbar.html' %}
+    <div id="topicTemplate" class="template container-fluid gov-container">
+        <div class="row">
+            <div class="col-lg-2">
+                {% include 'classy/basic_pagi.html' %}
+            </div>
+            <div class="col-lg-8">
+                <form class="form-group" action="log_list">
+                    <div class="input-group">
+                        {{form.query}}
+                        <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary btn-small" type="button">Search</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-2"></div>
+        </div>
+        <div class="row">
+        <div class="col-lg-12">
+        <table class="table table-sm">
+        <thead style="color:#fff;" class="thead-inverse">
+            <tr>
+                
+                <th class="th-cus">ID</th>
+                <th class="th-cus">Action Time</th>
+                <th class="th-cus">Action Flag</th>
+                <th class="th-cus">Old Clas.</th>
+                <th class="th-cus">New Clas.</th>
+                <th class="th-cus">User</th>
+                <th class="th-cus">Approver</th>
+                <th class="th-cus">State</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tuple in queryset %}
+            <tr>
+                
+                <td>{{tuple.classy_id}}</td>
+                <td>{{tuple.time}}</td>
+                {% if tuple.flag == 0 %}
+                <td>DELETE</td>
+                {% elif tuple.flag == 1 %}
+                <td>MODIFY</td>
+                {% elif tuple.flag == 2 %}
+                <td>CREATE</td>
+                {% endif %}
+                <td>{{translate|get_item:tuple.old_classification}}</td>
+                <td>{{translate|get_item:tuple.new_classification}}</td>
+                <td>{{tuple.user}}</td>
+                <td>{{tuple.approver}}</td>
+                <td>{{state_translate|get_item:tuple.state}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+        {% include 'classy/basic_pagi.html'%}
+    </div>
+    </div>
+    </div>
+{% include 'classy/tail.html' %}
 </body>
 </html>

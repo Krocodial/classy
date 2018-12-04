@@ -1,67 +1,62 @@
-<!doctype html>
-<html>
-<head>
-<title>Exceptions</title>
-{% load classy_extras %}
-{%include 'classy/base_links.html'%}
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-
+{% include 'classy/head.html' %}
+<title>Exceptions - Classy</title>
+{% load classy_extras %}
 </head>
-
 <body id="bootstrapoverride">
-{% include 'classy/navbar.html' %}
+    {% include 'classy/navbar.html' %}
 
-<div class='container-fluid'>
-<br/>
-<div class="row">
-	<div class='col'>
-		{% include 'classy/basic_pagi.html' %}
-	</div>
-	<div class='col'>
-		<form class='form-group' action='exceptions'>
-			<div class='input-group'>
-				{{form.query}}
-				<span class='input-group-btn'>
-					<button type='submit' class='btn btn-primary btn-small' type='button'>Search</button>
-				</span>
-			</div>
-		</form>
-	</div>
-	<div class='col'></div>
-</div>
-</div>
-
-<table class="table table-sm">
-<thead style="color:#fff;" class="thead-inverse">
-	<tr>
-		<th class="th-cus">ID</th>
-		<th class="th-cus">Creation Date</th>
-		<th class="th-cus">Datasource</th>
-		<th class="th-cus">Schema</th>
-		<th class="th-cus">Table</th>
-		<th class="th-cus">Column</th>
-		<th class="th-cus">Classification</th>
-		<th class="th-cus">User</th>
-	</tr>
-</thead>
-<tbody>
-	{% for tuple in queryset %}
-	<tr>
-		<td>{{tuple.classy.id}}</td>
-		<td>{{tuple.classy.created}}</td>
-		<td>{{tuple.classy.datasource}}</td>
-		<td>{{tuple.classy.schema}}</td>
-		<td>{{tuple.classy.table}}</td>
-		<td>{{tuple.classy.column}}</td>
-		<td>{{translate|get_item:tuple.classy.classification_name}}</td>
-		<td>{{tuple.classy.creator}}</td>
-	</tr>
-	{% endfor %}
-</tbody>
-</table>
-
-{% include 'classy/basic_pagi.html' %}
-
+    <div id="topicTemplate" class='template container-fluid gov-container'>
+    <div class="row">
+        <div class='col-lg-2'>
+            {% include 'classy/basic_pagi.html' %}
+        </div>
+        <div class='col-lg-8'>
+            <form class='form-group' action='exceptions'>
+                <div class='input-group'>
+                    {{form.query}}
+                    <span class='input-group-btn'>
+                        <button type='submit' class='btn btn-primary btn-small' type='button'>Search</button>
+                    </span>
+                </div>
+                <small id="descrip" class="form-text text-muted">Search for pre-classified data by Datasource, Schema, Table, or Column</small>
+            </form>
+        </div>
+        <div class='col-lg-2'></div>
+    </div>
+    <div class="row">
+    <table class="table table-sm">
+    <thead style="color:#fff;" class="thead-inverse">
+        <tr>
+            <th class="th-cus">ID</th>
+            <th class="th-cus">Creation Date</th>
+            <th class="th-cus">Datasource</th>
+            <th class="th-cus">Schema</th>
+            <th class="th-cus">Table</th>
+            <th class="th-cus">Column</th>
+            <th class="th-cus">Classification</th>
+            <th class="th-cus">User</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tuple in queryset %}
+        <tr>
+            <td>{{tuple.classy.id}}</td>
+            <td>{{tuple.classy.created}}</td>
+            <td>{{tuple.classy.datasource}}</td>
+            <td>{{tuple.classy.schema}}</td>
+            <td>{{tuple.classy.table}}</td>
+            <td>{{tuple.classy.column}}</td>
+            <td>{{translate|get_item:tuple.classy.classification_name}}</td>
+            <td>{{tuple.classy.creator}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    
+    {% include 'classy/basic_pagi.html' %}
+    </div>
+    </div>
+    {% include 'classy/tail.html' %}
 </body>
 </html>

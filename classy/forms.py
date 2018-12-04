@@ -48,7 +48,7 @@ class advancedSearch(forms.Form):
         (50, '50'),
         (100, '100'),
     )
-    size = forms.ChoiceField(required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm'}))
+    size = forms.ChoiceField(required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm', 'onchange': 'this.form.submit();'}))
 
 
 class loginform(forms.Form):

@@ -91,7 +91,7 @@ canvas {
 	background-color: #e6ffff;
 }
 
-.selected {
+#data-table>.selected>tr {
 	background-color: #ffecb3;
 }
 

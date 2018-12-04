@@ -6,5 +6,4 @@
 *bak*
 mydatabase
 *.cpython-36.pyc
-static/
 db.sqlite*

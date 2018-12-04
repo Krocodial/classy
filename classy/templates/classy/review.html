@@ -1,130 +1,134 @@
-{% load classy_extras %}
 {% load static %}
 {% include 'classy/head.html' %}
-<title>Review</title>
+<title>Review - Classy</title>
+<link rel="stylesheet" href="{% static 'classy/css/index.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+{% load classy_extras %}
+
 </head>
 <body>
-
-{% include 'classy/navbar.html' %}
-<br/>
-<h5 class="text-center">Review user changes</h5>
-<br/>
-{% if message %}
-<div class="container-fluid">
-<div class="row">
-<div class="col"></div>
-<div class="col-sm-10">
-{% if message == 'success' %}
-<div class="alert alert-success alert-dismissable fade show" role="alert" id="suc">
-	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		<span aria-hidden="true">&times;</span>
-	</button>
-	<strong>Success! </strong> Data successfully changed.
-</div>
-{% elif message == 'failure' %}
-<div class="alert alert-failure alert-dismissable fade show" role="alert" id="suc">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-        </button>
-        <strong>Oops!  </strong> Looks like something went wrong.
-</div>
-{% endif %}
-</div>
-<div class="col"></div>
-</div>
-</div>
-{% endif %}
-{% if num == 0 %}
-<p class="text-center">No pending user changes</p>
-{% endif %}
-<hr/>
-<div id="accordion">
-<!--<div class="card">-->
-<!--<ul class="list-group list-group-flush">-->
-<div class="container-fluid">
-{% for group in groups %}
-	<div class="row">
-<!--	<li class="list-group-item" id="{{group.id}}">-->
-	
-	<!--<div class="card-block" id="heading{{forloop.counter}}">-->
-	<div class="col"><h5>User: <small class="text-muted"> {{group.user}}</small></h5></div>
-	<div class="col"><h5>Time: <small class="text-muted"> {{group.time}}</small></h5></div>
-	<div class="col"><button class="btn btn-primary" style="width: 250px; background-color: #417690;" data-toggle="collapse" data-target=".hidden{{forloop.counter}}" class="accordion-toggle">View Modifications</button>	
-	</div><!--</div>-->
-	</div>
-	<div class="collapse accordion-body hidden{{forloop.counter}}" id="hidden{{forloop.counter}}">
-	<div class="row">
-	<div class="col">
-	<table class="table table-sm">
-	<thead>
-	<tr>
-		<th>Datasource</th>
-		<th>Schema</th>
-		<th>Table</th>
-		<th>Column</th>
-		<th>Current Class</th>
-		<th>New Class</th>
-		<th>Action</th>
-		<th></th>
-	</tr>
-	</thead>
-	<tbody>
-	{% for tuple in queryset %}
-	{% if tuple.group == group %}
-	<tr class={% if tuple.flag == 0 %}'delete'{% else %}'modify'{% endif %}>
-		<td>{{tuple.classy.datasource}}</td>
-		<td>{{tuple.classy.schema}}</td>
-		<td>{{tuple.classy.table}}</td>
-		<td>{{tuple.classy.column}}</td>
-		<td>{{translate|get_item:tuple.classy.classification_name}}</td>
-		<td>{{translate|get_item:tuple.classification_name}}</td>
-		{% if tuple.status == 'I' %}
-		<td>DELETE</td>
-		{% else %}
-		<td>MODIFY</td>
-		{% endif %}
-		<td><button data-toggle="button" class="btn-sm btn btn-secondary remo" id="{{ tuple.classy.id }}"><img src="{% static 'classy/open-iconic/x.svg' %}" class="iconBan" id="{{tuple.classy.id}}"></img></button></td>
-		
-	</tr>		
-	{% endif %}
-	{% endfor %}
-	</tbody>
-	</table>
-	</div>
-	</div>
-	<div class="row">
-		<div class="col">
-		<button class="btn btn-success subby" id={{group.id}} type="submit">Finalize changes</button>
-		</div>
-		<div class="col">
-		<button class="btn btn-danger deny" id={{group.id}} type="submit">Reject changes</button>
-		</div>
-	</div>
-	</div>
-	<br/>
-{% endfor %}
-</div>
-</div>
-
-<form action="review" method="post" id="succ">
-{% csrf_token %}
-<input type="hidden" name="response" value="success">
-</form>
-
-<form action="review" method="post" id="fail">
-{% csrf_token %}
-<input type="hidden" name="response" value="failure">
-</form>
-
-<div class="modal" id="wheel"></div>
-
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    {% include 'classy/navbar.html' %}
+    <div id="topicTemplate" class="template container gov-container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="text-center">Review user changes</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-8">
+                {% if message == 'success' %}
+                    <div class="alert gov-alert-success alert-dismissable" role="alert" id="suc" aria-live="assertive">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h3><strong><i class="fa fa-check-circle"></i> Success!</strong> Data successfully changed.</h3>
+                    </div>
+                {% elif message == 'failure' %}
+                    <div class="alert gov-alert-failure alert-dismissable" role="alert" id="suc">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h3><strong><i class="fa fa-times-circle"></i> Oops!  </strong> Looks like something went wrong.</h3>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="accordion">
+                {% for group in groups %}
+                    <div class="row">
+                        <div class="col-sm-4"><h4>User: <small class="text-muted"> {{group.user}}</small></h4></div>
+                        <div class="col-sm-4"><h4>Time: <small class="text-muted"> {{group.time}}</small></h4></div>
+                        <div class="col-sm-4"><button class="btn btn-primary" style="width: 250px; background-color: #417690;" data-toggle="collapse" data-target=".hidden{{forloop.counter}}" class="accordion-toggle">View Modifications</button>	
+                        </div>
+                    </div>
+                    <div class="collapse accordion-body hidden{{forloop.counter}}" id="hidden{{forloop.counter}}">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Datasource</th>
+                                            <th>Schema</th>
+                                            <th>Table</th>
+                                            <th>Column</th>
+                                            <th>Current Class</th>
+                                            <th>New Class</th>
+                                            <th>Action</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for tuple in queryset %}
+                                        {% if tuple.group == group %}
+                                            <tr class={% if tuple.flag == 0 %}'delete'{% else %}'modify'{% endif %}>
+                                                <td>{{tuple.classy.datasource}}</td>
+                                                <td>{{tuple.classy.schema}}</td>
+                                                <td>{{tuple.classy.table}}</td>
+                                                <td>{{tuple.classy.column}}</td>
+                                                <td>{{translate|get_item:tuple.classy.classification_name}}</td>
+                                                <td>{{translate|get_item:tuple.classification_name}}</td>
+                                                {% if tuple.status == 'I' %}
+                                                <td>DELETE</td>
+                                                {% else %}
+                                                <td>MODIFY</td>
+                                                {% endif %}
+                                                <td><button data-toggle="button" class="btn-sm btn btn-secondary remo" id="{{ tuple.classy.id }}"><img src="{% static 'classy/open-iconic/x.svg' %}" class="iconBan" id="{{tuple.classy.id}}"></img></button></td>
+                                            </tr>		
+                                        {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <button class="btn btn-success subby" id={{group.id}} type="submit">Finalize changes</button>
+                            </div>
+                            <div class="col-lg-6">
+                                <button class="btn btn-danger deny" id={{group.id}} type="submit">Reject changes</button>
+                            </div>
+                        </div>
+                    </div>
+        {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                {% if num == 0 %}
+                    <p class="text-center">No pending user changes</p>
+                {% endif %}          
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <form action="review" method="post" id="succ">
+                    {% csrf_token %}
+                    <input type="hidden" name="response" value="success">
+                </form>
+                <form action="review" method="post" id="fail">
+                    {% csrf_token %}
+                    <input type="hidden" name="response" value="failure">
+                </form>
+                <div class="modal" id="wheel"></div>
+            </div>
+        </div>
+    </div>
+{% include 'classy/tail.html' %}
 
 <script>
+$body = $('body');
+$(document).on({
+    ajaxStart: function() { $body.addClass('loading'); },
+    ajaxStop: function() { $body.removeClass('loading'); }
+});
 
 denied = [];
+
 
 $(document).on('click', '.remo', function() {
         var row = $(this).closest('tr');
@@ -132,23 +136,23 @@ $(document).on('click', '.remo', function() {
         row.remove();
 });
 
-$body = $('body');
 
 $(document).on('click', '.subby', function() {
         $body.addClass('loading');
 
         var tmp = event.target.id;
         $.ajax({
-                type: 'POST',
-                url: 'review',
+                type: "POST",
+                url: "review",
                 traditional: true,
                 data: {'denied': JSON.stringify(denied), 'csrfmiddlewaretoken': '{{csrf_token}}', 'group': event.target.id},
                 success: function(data){
                         if(data.status == 1) {
-                                $('#succ').submit();
+                                $("#succ").submit();
                         } else {
                                 $('#fail').submit();
                         }
+                        
                 }
         });
 
@@ -173,10 +177,6 @@ $(document).on('click', '.deny', function() {
         });
 });
 
-
 </script>
-
-
-
 </body>
 </html>

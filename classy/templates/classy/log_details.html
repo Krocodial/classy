@@ -1,29 +1,20 @@
-<html>
-<head>
-<title>History</title>
-
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-{% load classy_extras %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'classy/css/style.css' %}"/>
-<link rel="shortcut icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-<link rel="icon" href="{% static 'classy/images/watching.jpg' %}" type="image/x-icon">
-
 {% include 'classy/head.html' %}
-
+<title>History - Classy</title>
+{% load classy_extras %}
 </head>
 <body id="bootstrapoverride">
 
 {% include 'classy/navbar.html' %}
-<br/>
-<h5 class="text-center">Detailed view</h5>
 
-<br/>
-
-<div class="container-fluid">
-<div class="row">
+    <div id="topicTemplate" class="template container-fluid gov-container">
+    <div class="row">
+        <div class="col-lg-12">
+        <h3 class=""><strong>Detailed view</strong></h3>
+        </div>
+    </div>
 {% if obj %}
-
+<div class="row">
 
 
 <div class="col-sm-3">
@@ -112,5 +103,7 @@
 {% endif %}
 </div>
 </div>
+</div>
+{% include 'classy/tail.html' %}
 </body>
 </html>

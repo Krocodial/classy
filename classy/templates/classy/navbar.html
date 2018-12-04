@@ -1,38 +1,79 @@
-<!--This is a test -->
+{% load static %}
+    <div id="header" role="banner">
+        <div id="header-main" class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div id="header-main-row" class="row">
+                    <!-- GOV TITLE -->
+                    <div class="col-sm-3 col-md-2 col-lg-2 header-main-left">
+                        <div id="logo">
+                            <a href="http://gov.bc.ca"><img src="{% static 'classy/images/gov3_bc_logo.png' %}" alt="Province of British Columbia" title="Province of British Columbia logo" /></a>
+                        </div>
+                        <div id="access">
+                            <ul>
+                                <li aria-label="Keyboard Tab Skip">
+                                    <a accesskey="0" href="#main-content-anchor" aria-label="Skip to main content">Skip to main content</a>
+                                </li>
+                                <li aria-label="Keyboard Tab Skip">
+                                    <a accesskey="0" href="#navigation-anchor" aria-label="Skip to navigation" aria-label="Skip to navigation">Skip to navigation</a>
+                                </li>
+                                <li aria-label="Keyboard Tab Skip">
+                                    <a accesskey="0" href="http://gov.bc.ca/webaccessibility/" aria-label="Accessibility Statement">Accessibility Statement</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <button type="button" class="navbar-toggle gov-button-custom collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-label="Burger Navigation">
+                            <img src="{% static 'classy/images/menu-open-mobile.png' %}" />
+                        </button>
+                    </div>
+                    <div class="col-sm-8 col-md-8 col-lg-6 hidden-xs">
+                        <div class="bcgov-title">
+                            <h1>Classy, <small>the metadata classification repository</small></h1>
+                        </div>
+                    </div>
+                    <!-- /GOV & ENV TITLE -->
 
-<nav class="navbar navbar-expand-lg navbar-light bg-faded"> 
-
-	<a class="navbar-brand" href="{% url 'classy:home' %}">DSC</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-	<div class="collapse navbar-collapse" id="navbarSupportedContent">
-		<ul class="navbar-nav mr-auto">
-			<li class="nav-item">
-				<a class="nav-item nav-link" href="{% url 'classy:data' %}">Data</a>
-			</li>
-            {% if request.user.is_staff %}
-            <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'classy:review' %}">Review{% if num != 0 %} <span class="badge badge-info">{{num}}</span>{% endif %}</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'classy:uploader' %}">Upload</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'classy:exceptions' %}">Exceptions</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'classy:log_list' %}">Logs</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'classy:user_logout' %}">Logout</a>
-            </li>
-        </ul>
+                    <!-- COLLAPSING NAVBAR -->
+                    <div id="navbar" class="collapse navbar-collapse" role="navigation">
+<a id="navigation-anchor"></a>
+                        <ul class="nav navbar-nav">
+                            <li><a href="{% url 'classy:home' %}">Homepage</a></li>
+                            <li><a href="{% url 'classy:data' %}">Data</a></li>
+                            {% if request.user.is_staff %}
+                                <li><a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a></li>
+                                <li><a href="{% url 'classy:uploader' %}">Upload</a></li>
+                                <li><a href="{% url 'classy:exceptions' %}">Exceptions</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'classy:log_list' %}">Logs</a></li>
+                            {% if request.user.is_staff %}
+                                <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'classy:user_logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    <!-- /COLLAPSING NAVBAR -->
+                </div>
+            </div>
+            <div class="navigationRibbon">
+                <div class="level2Navigation">
+                    <div class="container">
+                        <a href="{% url 'classy:home' %}">Homepage</a>
+                        <a href="{% url 'classy:data' %}">Data</a>
+                        {% if request.user.is_staff %}
+                            <a href="{% url 'classy:review' %}">Review{% if num != 0 %}<span class="badge badge-info">{{num}}</span>{% endif %}</a>
+                            <a href="{% url 'classy:uploader' %}">Upload</a>
+                            <a href="{% url 'classy:exceptions' %}">Exceptions</a>
+                        {% endif %}
+                        <a href="{% url 'classy:log_list' %}">Logs</a>
+                        {% if request.user.is_staff %}
+                            <a href="{% url 'admin:index' %}">Admin</a>
+                        {% endif %}
+                        <a href="{% url 'classy:user_logout' %}">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</nav>
+
+
 
 
