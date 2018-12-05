@@ -1,16 +1,5 @@
 node {
-
-    stage('build') {
-        echo "Building..."
-        openshiftBuild bldCfg: 'classy', showBuildLogs: 'true'
-        openshiftTag destStream: 'classy', verbose: 'true', destTag: '$BUILD_ID', srcStream: 'classy', srcTag: 'latest'
-    }
-    
-    stage('deploy-dev') {
-        echo "Deploying to dev..."
-        openshiftTag destStream: 'classy', verbose: 'true', destTag: 'dev', srcStream: 'classy', srcTag: 'latest'
-    }
-    
+	
     stage('checkout for static code analysis') {
         echo "checking out source"
         echo "Build: ${BUILD_ID}"
@@ -41,4 +30,6 @@ node {
         }
     }
 
+	
+    
 }
