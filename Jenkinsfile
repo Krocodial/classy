@@ -30,11 +30,7 @@ node {
         }
     }
 	
-	stage('validation') {
-        dir('navunit') {
-            sh './gradlew --debug --stacktrace phantomJsTest'
-        }
-    }
+
 
 	
     
