@@ -24,7 +24,7 @@ node {
 
         dir('sonar-runner') {
             sh returnStdout: true, 
-			script: "./bin/sonar-scanner   -Dsonar.projectKey=classy -Dsonar.sources=. \
+			script: "bin/sonar-scanner   -Dsonar.projectKey=classy -Dsonar.sources=. \
 				-Dsonar.host.url=https://sonarqube-l9fjgg-tools.pathfinder.gov.bc.ca \
 				-Dsonar.login=b9d3a63268e3e729686f1afc9ff8bdb30e8be941"
         }
