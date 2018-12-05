@@ -7,13 +7,13 @@ def SONAR_ROUTE_NAME = 'sonarqube'
 
 // The namespace in which the SonarQube route resides.  Used to dynamically get the URL for SonarQube.
 // Leave blank if the pipeline is running in same namespace as the route.
-def SONAR_ROUTE_NAMESPACE = 'devex-von-tools'
+def SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 
 // The name of your SonarQube project
-def SONAR_PROJECT_NAME = 'BC Registries Agent'
+def SONAR_PROJECT_NAME = 'Classy'
 
 // The project key of your SonarQube project
-def SONAR_PROJECT_KEY = 'BCRegistriesAgent'
+def SONAR_PROJECT_KEY = 'classy'
 
 // The base directory of your project.
 // This is relative to the location of the `sonar-runner` directory within your project.
