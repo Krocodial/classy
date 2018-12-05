@@ -22,7 +22,7 @@ def SONAR_PROJECT_BASE_DIR = '../'
 
 // The source code directory you want to scan.
 // This is relative to the project base directory.
-def SONAR_SOURCES = './'
+def SONAR_SOURCES = 'classy/'
 // ================================================================================================
 
 // Gets the URL associated to a named route.
@@ -111,7 +111,8 @@ podTemplate(
         // ======================================================================================================
         sh (
           returnStdout: true,
-          script: "./gradlew sonarqube --stacktrace --info \
+          script: "chmod +x gradlew &&
+			./gradlew sonarqube --stacktrace --info \
             -Dsonar.verbose=true \
             -Dsonar.host.url=${SONARQUBE_URL} \
             -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
