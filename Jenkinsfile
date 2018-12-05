@@ -25,7 +25,7 @@ node {
 
 		
         sh returnStdout: true, 
-		script: "chmod +x bin/sonar-scanner && ./bin/sonar-scanner   -Dsonar.projectKey=classy -Dsonar.sources=. \
+		script: "chmod +x sonar-runner/bin/sonar-scanner && ./sonar-runner/bin/sonar-scanner -Dsonar.projectKey=classy -Dsonar.sources=. \
 			-Dsonar.host.url=${SONAR_HOST} \
 			-Dsonar.login=${SONAR_LOGIN}"
         
