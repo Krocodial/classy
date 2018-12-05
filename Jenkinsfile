@@ -7,6 +7,9 @@ node {
     }
 
     stage('code quality check') {
+		
+	
+	
         SONARQUBE_PWD = sh (
             script: 'oc env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_ADMINPW/{print $2}\'',
             returnStdout: true
@@ -20,7 +23,10 @@ node {
         echo "SONARQUBE_URL: ${SONARQUBE_URL}"
 
         dir('sonar-runner') {
-            sh returnStdout: true, script: "chmod +x gradlew && ./gradlew sonarqube -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.verbose=true --stacktrace --info  -Dsonar.sources=.."
+            sh returnStdout: true, 
+			script: "./bin/sonar-scanner   -Dsonar.projectKey=classy -Dsonar.sources=. \
+				-Dsonar.host.url=https://sonarqube-l9fjgg-tools.pathfinder.gov.bc.ca \
+				-Dsonar.login=b9d3a63268e3e729686f1afc9ff8bdb30e8be941"
         }
     }
 	
