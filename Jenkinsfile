@@ -7,8 +7,6 @@ node {
     }
 
     stage('code quality check') {
-		
-	
 	
         SONAR_LOGIN = sh (
             script: 'oc env dc/sonarqube --list | awk  -F  "=" \'/SONAR_LOGIN/{print $2}\'',
@@ -30,9 +28,5 @@ node {
 			-Dsonar.login=${SONAR_LOGIN}"
         
     }
-	
 
-
-	
-    
 }
