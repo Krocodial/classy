@@ -106,7 +106,5 @@ node {
         
     }
 
-	stage('build') {
-		echo
 	
 }
