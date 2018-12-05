@@ -111,7 +111,7 @@ podTemplate(
         // ======================================================================================================
         sh (
           returnStdout: true,
-          script: "chmod +x gradlew &&
+          script: "chmod +x gradlew && \
 			./gradlew sonarqube --stacktrace --info \
             -Dsonar.verbose=true \
             -Dsonar.host.url=${SONARQUBE_URL} \
