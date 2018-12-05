@@ -1,4 +1,5 @@
 node {
+
 	
     stage('checkout for static code analysis') {
         echo "checking out source"
