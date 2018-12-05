@@ -10,7 +10,7 @@ def SONAR_ROUTE_NAME = 'sonarqube'
 def SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 
 // The name of your SonarQube project
-def SONAR_PROJECT_NAME = 'Classy'
+def SONAR_PROJECT_NAME = 'Data Security Classification Repository'
 
 // The project key of your SonarQube project
 def SONAR_PROJECT_KEY = 'classy'
