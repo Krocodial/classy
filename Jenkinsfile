@@ -109,6 +109,11 @@ podTemplate(
         // For more information on available properties visit:
         // - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
         // ======================================================================================================
+		sh (
+		  returnStdout: true,
+		  script: "chmod +x gradlew"
+		)
+		
         sh (
           returnStdout: true,
           script: "./gradlew sonarqube --stacktrace --info \
