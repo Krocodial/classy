@@ -20,11 +20,6 @@ def SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 // The project key of your SonarQube project
 def SONAR_PROJECT_KEY = 'TheOrgBook-Zap'
 
-// The base directory of your project.
-// This is relative to the location of the `sonar-runner` directory within your project.
-// More accurately this is relative to the Gradle build script(s) that manage the SonarQube Scanning
-def SONAR_PROJECT_BASE_DIR = '../'
-
 // The source code directory you want to scan.
 // This is relative to the project base directory.
 def SONAR_SOURCES = './zap/wrk'
