@@ -141,7 +141,11 @@ podTemplate(
         // ======================================================================================================
         sh (
           returnStdout: true,
-          script: "chmod +x sonar-runner/gradlew && ./sonar-runner/gradlew -Dsonar.projectKey=classy -Dsonar.sources=. \
+          script: "chmod +x sonar-runner/gradlew && \
+			./sonar-runner/gradlew sonarqube \
+			--stacktrace --info \
+			-Dsonar.projectKey=classy \
+			-Dsonar.sources=. \
 			-Dsonar.host.url=${SONAR_HOST} \
 			-Dsonar.login=${SONAR_LOGIN}"
         )
