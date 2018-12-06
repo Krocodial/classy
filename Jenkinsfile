@@ -132,7 +132,6 @@ podTemplate(
       //
       // An example can be found here:
       // - https://github.com/BCDevOps/sonarqube
-      dir('sonar-runner') {
         // ======================================================================================================
         // Set your SonarQube scanner properties at this level, not at the Gradle Build level.
         // The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
@@ -146,7 +145,7 @@ podTemplate(
 			-Dsonar.host.url=${SONAR_HOST} \
 			-Dsonar.login=${SONAR_LOGIN}"
         )
-      }
+      
     }
   }
 }
