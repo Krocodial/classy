@@ -78,27 +78,8 @@ String getSonarQubePwd() {
   return sonarQubePwd
 }
 
-// The jenkins-python3nodejs template has been purpose built for supporting SonarQube scanning.
-podTemplate(
-  label: 'jenkins-python3nodejs',
-  name: 'jenkins-python3nodejs',
-  serviceAccount: 'jenkins',
-  cloud: 'openshift',
-  containers: [
-    containerTemplate(
-      name: 'jnlp',
-      image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
-      resourceRequestCpu: '1000m',
-      resourceLimitCpu: '2000m',
-      resourceRequestMemory: '2Gi',
-      resourceLimitMemory: '4Gi',
-      workingDir: '/tmp',
-      command: '',
-      args: '${computer.jnlpmac} ${computer.name}'
-    )
-  ]
-){
-  node('jenkins-python3nodejs') {
+{
+  node {
 
     stage('Checkout Source') {
       echo "Checking out source code ..."
