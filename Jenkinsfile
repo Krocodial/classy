@@ -108,6 +108,19 @@ podTemplate(
     stage('SonarQube Analysis') {
       echo "Performing static SonarQube code analysis ..."
 
+	          SONAR_LOGIN = sh (
+            script: 'oc env dc/sonarqube --list | awk  -F  "=" \'/SONAR_LOGIN/{print $2}\'',
+            returnStdout: true
+        ).trim()
+        echo "SONAR_LOGIN: ${SONAR_LOGIN}"
+
+		
+        SONAR_HOST = sh (
+            script: 'oc env dc/sonarqube --list | awk  -F  "=" \'/SONAR_HOST/{print $2}\'',
+            returnStdout: true
+        ).trim()
+        echo "SONAR_HOST: ${SONAR_HOST}"
+	  
       SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
       SONARQUBE_PWD = getSonarQubePwd().trim()
       echo "URL: ${SONARQUBE_URL}"
