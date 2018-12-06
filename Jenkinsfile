@@ -78,7 +78,7 @@ String getSonarQubePwd() {
   return sonarQubePwd
 }
 
-{
+
   node {
 
     stage('Checkout Source') {
@@ -142,7 +142,7 @@ String getSonarQubePwd() {
       
     }
   }
-}
+
 
 
 /*node {
