@@ -111,7 +111,7 @@ pipeline {
 				// ======================================================================================================
 				TESTO = sh (
 				  returnStdout: true,
-				  script: "ls && pwd"
+				  script: "ls"
 				).trim()
 				
 				echo "${TESTO}"
