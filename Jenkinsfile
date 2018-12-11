@@ -51,11 +51,14 @@ pipeline {
   agent any
   stages {
     stage('Checkout Source') {
+	  steps {
       echo "Checking out source code ..."
       checkout scm
+	  }
     }
 
     stage('SonarQube Analysis') {
+	  steps {
       echo "Performing static SonarQube code analysis ..."
 
       SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
@@ -92,6 +95,7 @@ pipeline {
             -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
             -Dsonar.sources=${SONAR_SOURCES}"
         )
+		}
       }
     }
   }

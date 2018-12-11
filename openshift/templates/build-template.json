@@ -465,7 +465,7 @@
 			"strategy": {
 				"type": "JenkinsPipeline",
 				"jenkinsPipelineStrategy": {
-					"jenkinsfilePath": "pdf.Jenkinsfile"
+					"jenkinsfilePath": "Jenkinsfile"
 				}
 			},
 			"output": {},
