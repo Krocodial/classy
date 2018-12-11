@@ -101,7 +101,7 @@ pipeline {
 			  echo "URL: ${SONARQUBE_URL}"
 			  //echo "PWD: ${SONARQUBE_PWD}"
 
-			  dir('sonar-runner') {
+			  //dir('sonar-runner') {
 				// ======================================================================================================
 				// Set your SonarQube scanner properties at this level, not at the Gradle Build level.
 				// The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
@@ -131,7 +131,7 @@ pipeline {
 					-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
 					-Dsonar.sources=${SONAR_SOURCES}"
 				)
-				}
+				//}
 			}
 		  }
 		}
