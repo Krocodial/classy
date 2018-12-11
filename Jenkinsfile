@@ -57,7 +57,7 @@ pipeline {
 	SONAR_SOURCES = './'
   
 	SONARQUBE_URL = sh (
-		script: "oc get routes sonarqube -o wide --no-headers | awk '/sonarqube/ {print "https://"$2}'",
+		script: "oc get routes sonarqube -o wide --no-headers | awk \'/sonarqube/ {print \"https://\"\$2}\'",
 		returnStdout: true
 		)
 	
