@@ -56,8 +56,12 @@ pipeline {
 	SONAR_PROJECT_BASE_DIR = '../'
 	SONAR_SOURCES = './'
   
-	SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
-    SONARQUBE_PWD = getSonarQubePwd().trim()
+	SONARQUBE_URL = sh (
+		script: 'oc get routes sonarqube -o wide --no-headers | awk '/sonarqube/ {print "https://"$2}'
+		)
+	
+	getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
+    //SONARQUBE_PWD = getSonarQubePwd().trim()
   
   }
   agent any
@@ -74,7 +78,7 @@ pipeline {
       echo "Performing static SonarQube code analysis ..."
 
       echo "URL: ${SONARQUBE_URL}"
-      echo "PWD: ${SONARQUBE_PWD}"
+      //echo "PWD: ${SONARQUBE_PWD}"
 
       dir('sonar-runner') {
         // ======================================================================================================
