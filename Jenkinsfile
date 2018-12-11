@@ -48,6 +48,18 @@ def SONAR_SOURCES = './'
 
 // The jenkins-python3nodejs template has been purpose built for supporting SonarQube scanning.
 pipeline {
+  environment {
+	SONAR_ROUTE_NAME = 'sonarqube'
+	SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
+	SONAR_PROJECT_NAME = 'Data Security classification Repository'
+	SONAR_PROJECT_KEY = 'classy'
+	SONAR_PROJECT_BASE_DIR = '../'
+	SONAR_SOURCES = './'
+  
+	SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
+    SONARQUBE_PWD = getSonarQubePwd().trim()
+  
+  }
   agent any
   stages {
     stage('Checkout Source') {
@@ -61,17 +73,9 @@ pipeline {
 	  steps {
       echo "Performing static SonarQube code analysis ..."
 
-      SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
-      SONARQUBE_PWD = getSonarQubePwd().trim()
       echo "URL: ${SONARQUBE_URL}"
       echo "PWD: ${SONARQUBE_PWD}"
 
-      // The `sonar-runner` MUST exist in your project and contain a Gradle environment consisting of:
-      // - Gradle wrapper script(s)
-      // - A simple `build.gradle` file that includes the SonarQube plug-in.
-      //
-      // An example can be found here:
-      // - https://github.com/BCDevOps/sonarqube
       dir('sonar-runner') {
         // ======================================================================================================
         // Set your SonarQube scanner properties at this level, not at the Gradle Build level.
