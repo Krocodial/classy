@@ -61,7 +61,6 @@ pipeline {
 		returnStdout: true
 		)
 	
-	getUrlForRoute(SONAR_ROUTE_NAME, SONAR_ROUTE_NAMESPACE).trim()
     //SONARQUBE_PWD = getSonarQubePwd().trim()
   
   }
