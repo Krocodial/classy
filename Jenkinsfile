@@ -104,7 +104,7 @@ pipeline {
 					echo "Performing static SonarQube code analysis ..."
 
 					echo "URL: ${SONARQUBE_URL}"
-					echo "PWD: ${SONARQUBE_ADMINPWD}"
+					echo "PWD: ${SONARQUBE_ADMINPW}"
 
 					dir('sonar-runner') {
 						// ======================================================================================================
