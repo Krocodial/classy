@@ -124,11 +124,11 @@ pipeline {
 						  returnStdout: true,
 						  script: "./gradlew sonarqube --stacktrace --info \
 							-Dsonar.verbose=true \
-							-Dsonar.host.url=${SONARQUBE_URL} \
 							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
 							-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
 							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
-							-Dsonar.sources=${SONAR_SOURCES}"
+							-Dsonar.sources=${SONAR_SOURCES} \
+							-Dsonar.host.url=${SONARQUBE_URL}"
 						)
 					}//sonar-runner end
 				  }//stage end
