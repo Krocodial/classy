@@ -97,14 +97,14 @@ pipeline {
 		  ){
 		    node('jenkins-python3nodejs') {
 			      stage('Checkout Source') {
-					  echo "Checking out source code ..."
-					  checkout scm
+					echo "Checking out source code ..."
+					checkout scm
 				  }
 				  stage('SonarQube Analysis') {
 					echo "Performing static SonarQube code analysis ..."
 
 					echo "URL: ${SONARQUBE_URL}"
-					//echo "PWD: ${SONARQUBE_PWD}"
+					echo "PWD: ${SONARQUBE_ADMINPWD}"
 
 					dir('sonar-runner') {
 						// ======================================================================================================
@@ -114,12 +114,6 @@ pipeline {
 						// For more information on available properties visit:
 						// - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
 						// ======================================================================================================
-						TESTO = sh (
-						  returnStdout: true,
-						  script: "ls"
-						).trim()
-						
-						echo "${TESTO}"
 						
 						sh (
 						  returnStdout: true,
