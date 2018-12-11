@@ -111,6 +111,11 @@ pipeline {
 				// ======================================================================================================
 				sh (
 				  returnStdout: true,
+				  script: "ls && pwd"
+				)
+				
+				sh (
+				  returnStdout: true,
 				  script: "chmod +x gradlew"
 				)
 				
