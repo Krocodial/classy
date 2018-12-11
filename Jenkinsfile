@@ -68,14 +68,7 @@ pipeline {
   stages {
     stage('Checkout Source') {
 	  steps {
-      echo "Checking out source code ..."
-      checkout scm
-	  }
-    }
-
-    stage('SonarQube Analysis') {
-	  steps {
-	    script {
+        script {
 		  podTemplate(
 			label: 'jenkins-python3nodejs',
 			  name: 'jenkins-python3nodejs',
@@ -96,11 +89,8 @@ pipeline {
 			  ]
 		  ){
 		    node('jenkins-python3nodejs') {
-			      stage('Checkout Source') {
-					echo "Checking out source code ..."
+
 					checkout scm
-				  }
-				  stage('SonarQube Analysis') {
 					echo "Performing static SonarQube code analysis ..."
 
 					echo "URL: ${SONARQUBE_URL}"
@@ -131,7 +121,7 @@ pipeline {
 							-Dsonar.host.url=${SONARQUBE_URL}"
 						)
 					}//sonar-runner end
-				  }//stage end
+
 			}//node end
 		  }//podTemplate end
 		}//script end
