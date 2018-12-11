@@ -61,7 +61,7 @@ pipeline {
 		returnStdout: true
 		)
 	
-    //SONARQUBE_PWD = getSonarQubePwd().trim()
+    SONARQUBE_PWD = getSonarQubePwd().trim()
   
   }
   agent any
@@ -104,7 +104,7 @@ pipeline {
 					echo "Performing static SonarQube code analysis ..."
 
 					echo "URL: ${SONARQUBE_URL}"
-					echo "PWD: ${SONARQUBE_ADMINPW}"
+					echo "PWD: ${SONARQUBE_PWD}"
 
 					dir('sonar-runner') {
 						// ======================================================================================================
