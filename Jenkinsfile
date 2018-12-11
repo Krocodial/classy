@@ -109,10 +109,12 @@ pipeline {
 				// For more information on available properties visit:
 				// - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
 				// ======================================================================================================
-				sh (
+				TESTO = sh (
 				  returnStdout: true,
 				  script: "ls && pwd"
-				)
+				).trim()
+				
+				echo "${TESTO}"
 				
 				sh (
 				  returnStdout: true,
