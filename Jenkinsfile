@@ -75,36 +75,60 @@ pipeline {
 
     stage('SonarQube Analysis') {
 	  steps {
-      echo "Performing static SonarQube code analysis ..."
+	    script {
+		  podTemplate(
+			label: 'jenkins-python3nodejs',
+			  name: 'jenkins-python3nodejs',
+			  serviceAccount: 'jenkins',
+			  cloud: 'openshift',
+			  containers: [
+				containerTemplate(
+				  name: 'jnlp',
+				  image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
+				  resourceRequestCpu: '1000m',
+				  resourceLimitCpu: '2000m',
+				  resourceRequestMemory: '2Gi',
+				  resourceLimitMemory: '4Gi',
+				  workingDir: '/tmp',
+				  command: '',
+				  args: '${computer.jnlpmac} ${computer.name}'
+				)
+			  ]
+		  ){
+		    node('jenkins-python3nodejs') {
+			  echo "Performing static SonarQube code analysis ..."
 
-      echo "URL: ${SONARQUBE_URL}"
-      //echo "PWD: ${SONARQUBE_PWD}"
+			  echo "URL: ${SONARQUBE_URL}"
+			  //echo "PWD: ${SONARQUBE_PWD}"
 
-      dir('sonar-runner') {
-        // ======================================================================================================
-        // Set your SonarQube scanner properties at this level, not at the Gradle Build level.
-        // The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
-        //
-        // For more information on available properties visit:
-        // - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
-        // ======================================================================================================
-		sh (
-		  returnStdout: true,
-		  script: "chmod +x gradlew"
-		)
-		
-        sh (
-          returnStdout: true,
-          script: "./gradlew sonarqube --stacktrace --info \
-            -Dsonar.verbose=true \
-            -Dsonar.host.url=${SONARQUBE_URL} \
-            -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-            -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
-            -Dsonar.sources=${SONAR_SOURCES}"
-        )
+			  dir('sonar-runner') {
+				// ======================================================================================================
+				// Set your SonarQube scanner properties at this level, not at the Gradle Build level.
+				// The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
+				//
+				// For more information on available properties visit:
+				// - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
+				// ======================================================================================================
+				sh (
+				  returnStdout: true,
+				  script: "chmod +x gradlew"
+				)
+				
+				sh (
+				  returnStdout: true,
+				  script: "./gradlew sonarqube --stacktrace --info \
+					-Dsonar.verbose=true \
+					-Dsonar.host.url=${SONARQUBE_URL} \
+					-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
+					-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+					-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
+					-Dsonar.sources=${SONAR_SOURCES}"
+				)
+				}
+			}
+		  }
 		}
-      }
-    }
+	  }
+	}
   }
 }
