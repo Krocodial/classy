@@ -141,11 +141,16 @@ pipeline {
 			script {
 				echo "Cancelling prev builds"
 				timeout(10) {
-					abortAllPreviousBuildInProgress(currentBuild)
+					openshift.process("cancel-build",
+						"*"
+					)
 				}
 				echo "previous builds cancelled"
 				
 				
+					
+					
+					
 					echo "processing build templates"
 					def dbtemplate = openshift.process("-f", 
 						"openshift/postgresql.bc.json",
