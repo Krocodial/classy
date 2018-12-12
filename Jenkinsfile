@@ -15,6 +15,8 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
+def templateName = 'classy-bc'
+
 pipeline {
   environment {
   
@@ -60,7 +62,21 @@ pipeline {
 				}
 			}
 		}
-	}
+	}// end of stage
+	stage('cleanup') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject() {
+						openshift.selector('all', [ template : templateName ]).delete()
+						if (openshift.selector('secrets', templateName).exists()) {
+							openshift.selector('secrets', templateName).delete()
+						}
+					}
+				}
+			}
+		}
+	}// end of stage
   }//end of stages
 }//pipeline end
 
