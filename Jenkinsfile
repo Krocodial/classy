@@ -65,35 +65,7 @@ pipeline {
 	
 	
 	
-	/*stage('Prepare Templates') {
-		steps {
-			script {
-				echo "Cancelling prev builds"
-				timeout(10) {
-					openshift.process("cancel-build",
-						"*"
-					)
-				}
-				echo "previous builds cancelled"
-	
-				/*echo "processing build templates"
-				def dbtemplate = openshift.process("-f", 
-					"openshift/postgresql.bc.json",
-					"ENV_NAME=${DEV_SUFFIX}"
-				)*/
-					
-				def buildtemplate = openshift.process("-f",
-					"openshift/backend.bc.json",
-					"ENV_NAME=${DEV_SUFFIX}",
-					"NAME_SUFFIX=-${DEV_SUFFIX}-${PR_NUM}",
-					"APP_IMAGE_TAG=${PR_NUM}",
-					"SOURCE_REPOSITORY_URL=${REPOSITORY}",
-					"SOURCE_REPOSITORY_REF=openshift"
-				)
-	
-		}//script end
-	  }//steps end
-	}//stage end*/
+
   }//end of stages
 }//pipeline end
 
@@ -147,3 +119,34 @@ pipeline {
 					}//sonar-runner end
 			}//node end
 		  }//podTemplate end*/
+		  
+		  
+		  	/*stage('Prepare Templates') {
+		steps {
+			script {
+				echo "Cancelling prev builds"
+				timeout(10) {
+					openshift.process("cancel-build",
+						"*"
+					)
+				}
+				echo "previous builds cancelled"
+	
+				/*echo "processing build templates"
+				def dbtemplate = openshift.process("-f", 
+					"openshift/postgresql.bc.json",
+					"ENV_NAME=${DEV_SUFFIX}"
+				)*/
+					
+				def buildtemplate = openshift.process("-f",
+					"openshift/backend.bc.json",
+					"ENV_NAME=${DEV_SUFFIX}",
+					"NAME_SUFFIX=-${DEV_SUFFIX}-${PR_NUM}",
+					"APP_IMAGE_TAG=${PR_NUM}",
+					"SOURCE_REPOSITORY_URL=${REPOSITORY}",
+					"SOURCE_REPOSITORY_REF=openshift"
+				)
+	
+		}//script end
+	  }//steps end
+	}stage end*/
