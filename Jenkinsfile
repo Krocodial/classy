@@ -46,8 +46,26 @@ pipeline {
   
   }
   agent any
+  options {
+	timeout(time: 20, unit: 'MINUTES')
+  }
   stages {
-	stage('Prepare Templates') {
+    stage('preamble') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject() {
+						echo "Using project: ${openshift.project()}"
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	/*stage('Prepare Templates') {
 		steps {
 			script {
 				echo "Cancelling prev builds"
@@ -75,7 +93,7 @@ pipeline {
 	
 		}//script end
 	  }//steps end
-	}//stage end
+	}//stage end*/
   }//end of stages
 }//pipeline end
 
