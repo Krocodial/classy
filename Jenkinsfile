@@ -1,4 +1,97 @@
 
+#!groovy
+
+import groovy.json.JsonOutput
+import bcgov.GitHubHelper
+
+
+// Notify stage status and pass to Jenkins-GitHub library
+void notifyStageStatus (String name, String status) {
+    GitHubHelper.createCommitStatus(
+        this,
+        GitHubHelper.getPullRequestLastCommitId(this),
+        status,
+        "${env.BUILD_URL}",
+        "Stage '${name}'",
+        "Stage: ${name}"
+    )
+}
+
+
+// Create deployment status and pass to Jenkins-GitHub library
+void createDeploymentStatus (String suffix, String status, String targetURL) {
+    def ghDeploymentId = new GitHubHelper().createDeployment(
+        this,
+        "pull/${env.CHANGE_ID}/head",
+        [
+            'environment':"${suffix}",
+            'task':"deploy:pull:${env.CHANGE_ID}"
+        ]
+    )
+
+    new GitHubHelper().createDeploymentStatus(
+        this,
+        ghDeploymentId,
+        "${status}",
+        ['targetUrl':"${targetURL}"]
+    )
+
+    if ('SUCCESS'.equalsIgnoreCase("${status}")) {
+        echo "${suffix} deployment successful!"
+    } else if ('PENDING'.equalsIgnoreCase("${status}")){
+        echo "${suffix} deployment pending."
+    }
+}
+
+
+// Print stack trace of error
+@NonCPS
+private static String stackTraceAsString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw));
+    return sw.toString()
+}
+
+
+// OpenShift wrapper
+def _openshift(String name, String project, Closure body) {
+    script {
+        openshift.withCluster() {
+            openshift.withProject(project) {
+                echo "Running Stage '${name}'"
+                waitUntil {
+                    notifyStageStatus(name, 'PENDING')
+                    boolean isDone=false
+                    try{
+                        body()
+                        isDone=true
+                        notifyStageStatus(name, 'SUCCESS')
+                        echo "Completed Stage '${name}'"
+                    }catch (error){
+                        notifyStageStatus(name, 'FAILURE')
+                        echo "${stackTraceAsString(error)}"
+                        def inputAction = input(
+                            message: "This step (${name}) has failed. See related messages.",
+                            ok: 'Confirm',
+                            parameters: [
+                                choice(
+                                    name: 'action',
+                                    choices: 'Re-run\nIgnore',
+                                    description: 'What would you like to do?'
+                                )
+                            ]
+                        )
+                        if ('Ignore'.equalsIgnoreCase(inputAction)){
+                            isDone=true
+                        }
+                    }
+                    return isDone
+                }
+            }
+        }
+    }
+}
+
 @NonCPS
 String getUrlForRoute(String routeName, String projectNameSpace = '') {
 
@@ -15,20 +108,19 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
-@NonCPS
-String getSonarQubePwd() {
-
-  sonarQubePwd = sh (
-    script: 'oc env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_ADMINPW/{print $2}\'',
-    returnStdout: true
-  ).trim()
-
-  return sonarQubePwd
-}
-
-// The jenkins-python3nodejs template has been purpose built for supporting SonarQube scanning.
 pipeline {
   environment {
+  
+	APP_NAME = 'classy'
+	REPOSITORY = 'https://github.com/Krocodial/classy.git'
+	
+	TOOLS_PROJECT = 'l9fjgg-tools'
+	
+	DEV_PROJECT = 'l9fjgg-dev'
+	DEV_SUFFIX = 'dev'
+	DEV_HOST = 'classy-dev.pathfinder.gov.bc.ca'
+  
+  
 	SONAR_ROUTE_NAME = 'sonarqube'
 	SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 	SONAR_PROJECT_NAME = 'Data Security classification Repository'
@@ -41,12 +133,42 @@ pipeline {
 		returnStdout: true
 		)
 	
-    SONARQUBE_PWD = getSonarQubePwd().trim()
+	PR_NUM = "${env.JOB_BASE_NAME}".toLowerCase()
+  
+	
   
   }
   agent any
   stages {
-    stage('SonarQube analysis') {
+	stage('Prepare Templates') {
+		steps {
+			script {
+				echo "Cancelling prev builds"
+				timeout(10) {
+					abortAllPreviousBuildInProgress(currentBuild)
+				}
+				echo "previous builds cancelled"
+				
+				_openshift(env.STAGE_NAME, TOOLS_PROJECT){
+					echo "processing build templates"
+					def dbtemplate = openshift.process("-f", 
+						"openshift/postgresql.bc.json",
+						"ENV_NAME=${DEV_SUFFIX}"
+					)
+					
+					def buildtemplate = openshift.process("-f",
+						"openshift/backend.bc.json",
+						"ENV_NAME=${DEV_SUFFIX}",
+						"NAME_SUFFIX=-${DEV_SUFFIX}-${PR_NUM}",
+						"APP_IMAGE_TAG=${PR_NUM}",
+						"SOURCE_REPOSITORY_URL=${REPOSITORY}",
+						"SOURCE_REPOSITORY_REF=openshift"
+					)
+					
+					
+  
+  
+    /*stage('SonarQube analysis') {
 	  steps {
         script {
 		  podTemplate(
@@ -94,9 +216,8 @@ pipeline {
 							-Dsonar.host.url=${SONARQUBE_URL}"
 						)
 					}//sonar-runner end
-
 			}//node end
-		  }//podTemplate end
+		  }//podTemplate end*/
 		}//script end
 	  }//steps end
 	}//stage end
