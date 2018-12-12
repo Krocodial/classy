@@ -1,93 +1,4 @@
 
-/*
-// Notify stage status and pass to Jenkins-GitHub library
-void notifyStageStatus (String name, String status) {
-    GitHubHelper.createCommitStatus(
-        this,
-        GitHubHelper.getPullRequestLastCommitId(this),
-        status,
-        "${env.BUILD_URL}",
-        "Stage '${name}'",
-        "Stage: ${name}"
-    )
-}
-
-
-// Create deployment status and pass to Jenkins-GitHub library
-void createDeploymentStatus (String suffix, String status, String targetURL) {
-    def ghDeploymentId = new GitHubHelper().createDeployment(
-        this,
-        "pull/${env.CHANGE_ID}/head",
-        [
-            'environment':"${suffix}",
-            'task':"deploy:pull:${env.CHANGE_ID}"
-        ]
-    )
-
-    new GitHubHelper().createDeploymentStatus(
-        this,
-        ghDeploymentId,
-        "${status}",
-        ['targetUrl':"${targetURL}"]
-    )
-
-    if ('SUCCESS'.equalsIgnoreCase("${status}")) {
-        echo "${suffix} deployment successful!"
-    } else if ('PENDING'.equalsIgnoreCase("${status}")){
-        echo "${suffix} deployment pending."
-    }
-}
-
-
-// Print stack trace of error
-@NonCPS
-private static String stackTraceAsString(Throwable t) {
-    StringWriter sw = new StringWriter();
-    t.printStackTrace(new PrintWriter(sw));
-    return sw.toString()
-}
-
-
-// OpenShift wrapper
-def _openshift(String name, String project, Closure body) {
-    script {
-        openshift.withCluster() {
-            openshift.withProject(project) {
-                echo "Running Stage '${name}'"
-                waitUntil {
-                    notifyStageStatus(name, 'PENDING')
-                    boolean isDone=false
-                    try{
-                        body()
-                        isDone=true
-                        notifyStageStatus(name, 'SUCCESS')
-                        echo "Completed Stage '${name}'"
-                    }catch (error){
-                        notifyStageStatus(name, 'FAILURE')
-                        echo "${stackTraceAsString(error)}"
-                        def inputAction = input(
-                            message: "This step (${name}) has failed. See related messages.",
-                            ok: 'Confirm',
-                            parameters: [
-                                choice(
-                                    name: 'action',
-                                    choices: 'Re-run\nIgnore',
-                                    description: 'What would you like to do?'
-                                )
-                            ]
-                        )
-                        if ('Ignore'.equalsIgnoreCase(inputAction)){
-                            isDone=true
-                        }
-                    }
-                    return isDone
-                }
-            }
-        }
-    }
-}
-*/
-
 @NonCPS
 String getUrlForRoute(String routeName, String projectNameSpace = '') {
 
@@ -146,30 +57,22 @@ pipeline {
 					)
 				}
 				echo "previous builds cancelled"
-				
-				
+	
+				/*echo "processing build templates"
+				def dbtemplate = openshift.process("-f", 
+					"openshift/postgresql.bc.json",
+					"ENV_NAME=${DEV_SUFFIX}"
+				)*/
 					
-					
-					
-					echo "processing build templates"
-					def dbtemplate = openshift.process("-f", 
-						"openshift/postgresql.bc.json",
-						"ENV_NAME=${DEV_SUFFIX}"
-					)
-					
-					def buildtemplate = openshift.process("-f",
-						"openshift/backend.bc.json",
-						"ENV_NAME=${DEV_SUFFIX}",
-						"NAME_SUFFIX=-${DEV_SUFFIX}-${PR_NUM}",
-						"APP_IMAGE_TAG=${PR_NUM}",
-						"SOURCE_REPOSITORY_URL=${REPOSITORY}",
-						"SOURCE_REPOSITORY_REF=openshift"
-					)
-					
-					
-  
-  
-    
+				def buildtemplate = openshift.process("-f",
+					"openshift/backend.bc.json",
+					"ENV_NAME=${DEV_SUFFIX}",
+					"NAME_SUFFIX=-${DEV_SUFFIX}-${PR_NUM}",
+					"APP_IMAGE_TAG=${PR_NUM}",
+					"SOURCE_REPOSITORY_URL=${REPOSITORY}",
+					"SOURCE_REPOSITORY_REF=openshift"
+				)
+	
 		}//script end
 	  }//steps end
 	}//stage end
