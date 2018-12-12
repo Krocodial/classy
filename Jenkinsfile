@@ -1,10 +1,5 @@
 
-#!groovy
-
-import groovy.json.JsonOutput
-import bcgov.GitHubHelper
-
-
+/*
 // Notify stage status and pass to Jenkins-GitHub library
 void notifyStageStatus (String name, String status) {
     GitHubHelper.createCommitStatus(
@@ -91,6 +86,7 @@ def _openshift(String name, String project, Closure body) {
         }
     }
 }
+*/
 
 @NonCPS
 String getUrlForRoute(String routeName, String projectNameSpace = '') {
@@ -149,7 +145,7 @@ pipeline {
 				}
 				echo "previous builds cancelled"
 				
-				_openshift(env.STAGE_NAME, TOOLS_PROJECT){
+				
 					echo "processing build templates"
 					def dbtemplate = openshift.process("-f", 
 						"openshift/postgresql.bc.json",
@@ -168,7 +164,14 @@ pipeline {
 					
   
   
-    /*stage('SonarQube analysis') {
+    
+		}//script end
+	  }//steps end
+	}//stage end
+  }//end of stages
+}//pipeline end
+
+/*stage('SonarQube analysis') {
 	  steps {
         script {
 		  podTemplate(
@@ -218,8 +221,3 @@ pipeline {
 					}//sonar-runner end
 			}//node end
 		  }//podTemplate end*/
-		}//script end
-	  }//steps end
-	}//stage end
-  }//end of stages
-}//pipeline end
