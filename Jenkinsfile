@@ -78,7 +78,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('create') {
+	/*stage('create') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -89,6 +89,7 @@ pipeline {
 			}
 		}
 	}// end of stage
+	*/
 	stage('build') {
 		steps {
 			script {

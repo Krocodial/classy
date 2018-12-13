@@ -5,46 +5,45 @@
     "name": "classy-bc"
   },
     "parameters": [
-	{
-      "name": "APP_NAME",
-      "required": true
-    },
-	{
-	  "name": "NAME_SUFFIX",
-	  "required": true
-	},
-	{
-	  "name": "ENV_NAME",
-	  "required": true
-	},
-	{
-	  "name": "APP_IMAGE_TAG",
-	  "required": true
-	},
-    {
-      "name": "SOURCE_REPOSITORY_URL",
-      "required": true
-    },	
-    {
-      "name": "SOURCE_REPOSITORY_REF",
-      "required": true
-    },
-	{
-      "name": "PYTHON_VERSION",
-      "displayName": "Version of Python Image",
-      "description": "Version of Python image to be used (3.6 or latest).",
-      "value": "3.5",
-      "required": true
-    },
-	{
-      "name": "PIP_INDEX_URL",
-      "displayName": "Custom PyPi Index URL",
-      "description": "The custom PyPi index URL",
-      "value": ""
-    }
-  ]
-  
-  
+		{
+		  "name": "APP_NAME",
+		  "required": true,
+		  "value": "classy"
+		},
+		{
+		  "name": "NAME_SUFFIX",
+		  "required": true
+		},
+		{
+		  "name": "ENV_NAME",
+		  "required": true
+		},
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true
+		},
+		{
+		  "name": "PYTHON_VERSION",
+		  "displayName": "Version of Python Image",
+		  "description": "Version of Python image to be used (3.6 or latest).",
+		  "value": "3.5",
+		  "required": true
+		},
+		{
+		  "name": "PIP_INDEX_URL",
+		  "displayName": "Custom PyPi Index URL",
+		  "description": "The custom PyPi index URL",
+		  "value": ""
+		}
+	],
   "objects": [
 	{
       "kind": "ImageStream",
