@@ -67,10 +67,26 @@ pipeline {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject() {
+					openshift.withProject(DEV_PROJECT) {
 						openshift.selector('all', [ template : templateName ]).delete()
 						if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
+						}
+					}
+				}
+			}
+		}
+	}// end of stage
+	stage('build') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject(DEV_PROJECT) {
+						def builds = openshift.selector('bc', templateName).related('builds')
+						timeout(5) {
+							builds.untilEach(1) {
+								return (it.object().status.phase == "Complete")
+							}
 						}
 					}
 				}
