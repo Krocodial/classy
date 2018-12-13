@@ -28,7 +28,8 @@
 		},	
 		{
 		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true
+		  "required": true,
+		  "value": "openshift"
 		},
 		{
 		  "name": "PYTHON_VERSION",
