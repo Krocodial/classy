@@ -137,7 +137,6 @@
            "script": "./manage.py check"
         }
       }
-    },
-  ],
-
+    }
+  ]
 }

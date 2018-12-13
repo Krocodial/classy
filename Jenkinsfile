@@ -78,7 +78,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('create') {
+	/*stage('create') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -89,12 +89,16 @@ pipeline {
 			}
 		}
 	}// end of stage
+	*/
 	stage('build') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						def builds = openshift.selector('bc', templateName).related('builds')
+						def nb = openshift.newBuild("templatepath", 
+							"--APP_NAME=classy", "--NAME_SUFFIX=DEV", "--ENV_NAME=DEV", "--APP_IMAGE_TAG=", "--SOURCE REPOSITORY_URL=https", "--SOURCE_REPOSITORY_REF=openshift")
+						def builds = nb.narrow('bc').related('builds')
+						//openshift.selector('bc', templateName).related('builds')
 						timeout(5) {
 							builds.untilEach(1) {
 								return (it.object().status.phase == "Complete")
