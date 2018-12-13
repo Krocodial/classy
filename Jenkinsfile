@@ -96,8 +96,13 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						def nb = openshift.newBuild("templatepath", 
-							"--APP_NAME=classy", "--NAME_SUFFIX=DEV", "--ENV_NAME=DEV", "--APP_IMAGE_TAG=", "--SOURCE REPOSITORY_URL=https", "--SOURCE_REPOSITORY_REF=openshift")
+							"--APP_NAME=classy", 
+							"--NAME_SUFFIX=dev", 
+							"--ENV_NAME=dev", 
+							"--APP_IMAGE_TAG=latest", 
+							"--SOURCE REPOSITORY_URL=https://github.com/Krocodial/classy.git", "--SOURCE_REPOSITORY_REF=openshift")
 						def builds = nb.narrow('bc').related('builds')
+						echo builds
 						//openshift.selector('bc', templateName).related('builds')
 						timeout(5) {
 							builds.untilEach(1) {
