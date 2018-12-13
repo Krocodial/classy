@@ -63,11 +63,11 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('cleanup') {
+	stage('cleanup') {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject(DEV_PROJECT) {
+					openshift.withProject() {
 						openshift.selector('all', [ template : templateName ]).delete()
 						if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
@@ -76,7 +76,7 @@ pipeline {
 				}
 			}
 		}
-	} end of stage*/
+	} end of stage
 	stage('build') {
 		steps {
 			script {
