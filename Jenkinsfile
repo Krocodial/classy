@@ -15,6 +15,7 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
+def templatePath = 'openshift/templates/classy-bc.json'
 def templateName = 'classy-bc'
 
 pipeline {
@@ -67,7 +68,7 @@ pipeline {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject() {
+					openshift.withProject(DEV_PROJECT) {
 						openshift.selector('all', [ template : templateName ]).delete()
 						if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
@@ -76,12 +77,23 @@ pipeline {
 				}
 			}
 		}
-	} end of stage
+	}// end of stage
+	stage('create') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject(DEV_PROJECT) {
+						openshift.newApp(templatePath)
+					}
+				}
+			}
+		}
+	}// end of stage
 	stage('build') {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject() {
+					openshift.withProject(DEV_PROJECT) {
 						def builds = openshift.selector('bc', templateName).related('builds')
 						timeout(5) {
 							builds.untilEach(1) {
