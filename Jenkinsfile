@@ -83,13 +83,15 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						openshift.process(readFile(file:'openshift/templates/classy-bc.json'),
+						backend = openshift.process(
+							readFile(file:'openshift/templates/classy-bc.json'),
 							"-p", 
 							"APP_NAME=classy", 
 							"NAME_SUFFIX=dev", 
 							"ENV_NAME=dev", 
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
+						openshift.create(backend)
 						//openshift.newApp(templatePath)
 					}
 				}
