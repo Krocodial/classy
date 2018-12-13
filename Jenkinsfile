@@ -100,7 +100,7 @@ pipeline {
 							"--NAME_SUFFIX=dev", 
 							"--ENV_NAME=dev", 
 							"--APP_IMAGE_TAG=latest", 
-							"--SOURCE REPOSITORY_URL=https://github.com/Krocodial/classy.git", "--SOURCE_REPOSITORY_REF=openshift")
+							"--SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "--SOURCE_REPOSITORY_REF=openshift")
 						def builds = nb.narrow('bc').related('builds')
 						echo builds
 						//openshift.selector('bc', templateName).related('builds')
