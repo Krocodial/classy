@@ -79,24 +79,11 @@ pipeline {
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
 						openshift.delete(backend)*/
 					
-						openshift.selector('all', [ template : templateName ]).delete()
+						openshift.selector('all', [ template : templateName ]).describe()
 						if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
 						}
 						
-						backend = openshift.process(
-							readFile(file:'openshift/templates/classy-bc.json'),
-							"-p", 
-							"APP_NAME=classy", 
-							"NAME_SUFFIX=dev", 
-							"ENV_NAME=dev", 
-							"APP_IMAGE_TAG=latest", 
-							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
-						for ( o in backend ) {
-							if ( o.exists() ) {
-								openshift.delete(o)
-							}
-						}
 						
 					}
 				}
@@ -118,7 +105,8 @@ pipeline {
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
 						for ( o in backend ) {
-							openshift.create(o)
+							echo "${o}"
+							//openshift.create(o)
 						}
 						//openshift.create(backend)
 						//echo "The template instantiated: ${models.names()}"
