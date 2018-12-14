@@ -107,6 +107,8 @@ pipeline {
 						def tmp = openshift.selector("pvc", databaseBcTag)
 						if (tmp.exists()){
 							echo "${tmp}.describe()"
+						} else {
+							echo "nope"
 						}
 						//tmp = openshift.selector("pv", databaseBcTag)
 						//if (tmp.exists()){
