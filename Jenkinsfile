@@ -99,7 +99,7 @@ pipeline {
 							openshift.create(o)
 						}*/
 						openshift.create(backend)
-						echo "The template instantiated: ${models.names()}"
+						echo "The template instantiated: ${backend.names()}"
 					}
 				}
 			}
