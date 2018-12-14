@@ -50,7 +50,7 @@ pipeline {
 		returnStdout: true
 		)
 	
-	PR_NUM = "${CHANGE_ID}"
+	PR_NUM = "${BUILD_NUMBER}"
 	
   
 	
