@@ -81,6 +81,9 @@ pipeline {
 					
 						def tmp = openshift.selector('all', [ template : templateName ]).describe()
 						echo "${tmp}"
+						tmp = openshift.selector('bc', templateName).describe()
+						echo "${tmp}"
+						
 						if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
 						}
