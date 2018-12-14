@@ -90,7 +90,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('Building') {
+	stage('building in dev') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -128,30 +128,42 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('build') {
+	stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						def nb = openshift.newBuild("templatepath", 
-							"--APP_NAME=classy", 
-							"--NAME_SUFFIX=dev", 
-							"--ENV_NAME=dev", 
-							"--APP_IMAGE_TAG=latest", 
-							"--SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "--SOURCE_REPOSITORY_REF=openshift")
-						def builds = nb.narrow('bc').related('builds')
-						//openshift.selector('bc', templateName).related('builds')
-						timeout(5) {
-							builds.untilEach(1) {
-								return (it.object().status.phase == "Complete")
-							}
+						backend = openshift.process(
+							readFile(file:"${backendDC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							
+						database = openshift.process(
+							readFile(file:"${databaseDC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							
+						for ( o in database ) {
+							echo "Creating: ${o.metadata.name}-${o.kind}"
+							openshift.create(o)
+						}
+						for ( o in backend ) {
+							echo "Creating: ${o.metadata.name}-${o.kind}"
+							openshift.create(o)
 						}
 					}
 				}
 			}
 		}
 	}// end of stage
-	*/
   }//end of stages
 }//pipeline end
 

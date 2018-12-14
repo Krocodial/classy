@@ -119,7 +119,7 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}"
+        "name": "${APP_NAME}-${NAME_SUFFIX}"
       },
       "spec": {
         "host": "",
@@ -133,7 +133,7 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}",
+        "name": "${APP_NAME}-${NAME_SUFFIX}",
         "annotations": {
           "description": "Defines how to deploy the application server",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -149,7 +149,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "${APP_NAME}"
+                "${APP_NAME}-${NAME_SUFFIX}"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -163,11 +163,11 @@
         ],
         "replicas": 2,
         "selector": {
-          "name": "${APP_NAME}"
+          "name": "${APP_NAME}-${NAME_SUFFIX}"
         },
         "template": {
           "metadata": {
-            "name": "${APP_NAME}",
+            "name": "${APP_NAME}-${NAME_SUFFIX}",
             "labels": {
               "name": "${APP_NAME}"
             }
@@ -175,7 +175,7 @@
           "spec": {
             "containers": [
               {
-                "name": "${APP_NAME}",
+                "name": "${APP_NAME}-${NAME_SUFFIX}",
                 "image": " ",
                 "ports": [
                   {
