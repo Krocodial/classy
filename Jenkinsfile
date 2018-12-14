@@ -24,6 +24,7 @@ def databaseDC = 'openshift/templates/postgres-dc.json'
 def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
 def databaseDcTag = 'postgres-dc'
+def databaseBcTag = 'postgres-bc'
 
 pipeline {
   environment {
