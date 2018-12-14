@@ -105,7 +105,7 @@ pipeline {
 							
 						if(!openshift.selector("pvc", databaseBcTag).exists()){
 							database = openshift.process(
-								readFile(file:"${databaseBC}",
+								readFile(file:"${databaseBC}"),
 								"-p", 
 								"APP_NAME=${APP_NAME}", 
 								"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
