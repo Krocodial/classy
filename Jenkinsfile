@@ -104,7 +104,7 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
-						def tmp = openshift.selector("pvc", databaseBcTag)
+						def tmp = openshift.selector("pvc", "postgres-bc")
 						if (tmp.exists()){
 							echo "${tmp}.describe()"
 						} else {
