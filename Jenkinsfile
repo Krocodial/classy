@@ -108,10 +108,10 @@ pipeline {
 						if (tmp.exists()){
 							echo "${tmp}.describe()"
 						}
-						tmp = openshift.selector("pv", databaseBcTag)
-						if (tmp.exists()){
-							echo "${tmp}.describe()"
-						}
+						//tmp = openshift.selector("pv", databaseBcTag)
+						//if (tmp.exists()){
+						//	echo "${tmp}.describe()"
+						//}
 							
 						/*if(!openshift.selector("pvc", databaseBcTag).exists()){
 						
