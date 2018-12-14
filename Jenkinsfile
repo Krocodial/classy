@@ -69,6 +69,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
+						echo "Destroying backend objects..."
 						openshift.selector("all", [ template : templateName ]).delete()
 						/*if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
@@ -93,14 +94,12 @@ pipeline {
 							"ENV_NAME=dev", 
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
-						backend.create()
 						/*for ( o in backend ) {
-							//echo "${o}"
+							echo "Creating: ${o}"
 							openshift.create(o)
 						}*/
-						//openshift.create(backend)
-						//echo "The template instantiated: ${models.names()}"
-						//openshift.newApp(templatePath)
+						openshift.create(backend)
+						echo "The template instantiated: ${models.names()}"
 					}
 				}
 			}
