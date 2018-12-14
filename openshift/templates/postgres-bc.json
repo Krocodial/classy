@@ -10,7 +10,6 @@
   },
     "parameters": [
 		{
-		{
 		  "name": "APP_NAME",
 		  "required": true,
 		  "value": "classy"

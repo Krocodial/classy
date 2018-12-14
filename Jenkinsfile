@@ -90,7 +90,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('Build configurations') {
+	stage('Building') {
 		steps {
 			script {
 				openshift.withCluster() {
