@@ -79,8 +79,9 @@ pipeline {
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
 						openshift.delete(backend)*/
 					
-						def tmp = openshift.selector('all', [ template : templateName ]).delete()
+						def tmp = openshift.selector('all', [ template : templateName ])
 						echo tmp.describe()
+						tmp.delete()
 						if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
 						}
