@@ -4,6 +4,10 @@
   "metadata": {
     "name": "classy-bc"
   },
+  "labels": {
+	"template": "classy-bc",
+	"app": "classy"
+  },
     "parameters": [
 		{
 		  "name": "APP_NAME",
