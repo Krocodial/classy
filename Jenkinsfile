@@ -79,7 +79,6 @@ pipeline {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
 						openshift.selector("all", [ template : templateName ]).delete()
-						echo "${PR_NUM}"
 					}
 				}
 			}
@@ -94,9 +93,9 @@ pipeline {
 							readFile(file:"${backendBC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=dev", 
-							"ENV_NAME=dev", 
-							"APP_IMAGE_TAG=latest", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
 						/*database = openshift.process(
