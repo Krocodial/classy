@@ -106,7 +106,7 @@ pipeline {
 							
 						def tmp = openshift.selector("pvc", databaseBcTag).describe()
 						echo "${tmp}"
-						tmp = openshift.selector("pv", databaseBcTag).describe()
+						tmp = openshift.selector("pv", databaseBcTag)
 						echo "${tmp}"
 							
 						/*if(!openshift.selector("pvc", databaseBcTag).exists()){
