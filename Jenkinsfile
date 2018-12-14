@@ -92,7 +92,7 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						backend = openshift.process(
-							readFile(file:'${backendBC}'),
+							readFile(file:${backendBC}),
 							"-p", 
 							"APP_NAME=classy", 
 							"NAME_SUFFIX=dev", 
