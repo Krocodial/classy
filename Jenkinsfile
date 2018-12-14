@@ -93,7 +93,7 @@ pipeline {
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
 						for ( o in backend ) {
-							if o.exists() {
+							if ( o.exists() ) {
 								openshift.delete(o)
 							}
 						}
