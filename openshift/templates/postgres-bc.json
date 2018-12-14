@@ -37,6 +37,9 @@
 		{
 		  "name": "DATABASE_SERVICE_NAME",
 		  "required": true,
+		  
+		  
+		  
 		  "value": "postgresql"
 		},
 		  "name": "VOLUME_CAPACITY",
