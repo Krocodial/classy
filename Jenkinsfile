@@ -51,7 +51,7 @@ pipeline {
 		)
 	
 	PR_NUM = "${env.JOB_BASE_NAME}".toLowerCase()
-	echo "${PR_NUM}"
+	
   
 	
   
@@ -79,6 +79,7 @@ pipeline {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
 						openshift.selector("all", [ template : templateName ]).delete()
+						echo "${PR_NUM}"
 					}
 				}
 			}
