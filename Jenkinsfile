@@ -104,7 +104,12 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
-						if(!openshift.selector("pvc", databaseBcTag).exists()){
+						def tmp = openshift.selector("pvc", databaseBcTag).describe()
+						echo "${tmp}"
+						tmp = openshift.selector("pv", databaseBcTag).describe()
+						echo "${tmp}"
+							
+						/*if(!openshift.selector("pvc", databaseBcTag).exists()){
 							database = openshift.process(
 								readFile(file:"${databaseBC}"),
 								"-p", 
@@ -117,7 +122,7 @@ pipeline {
 								echo "Creating: ${o.metadata.name}-${o.kind}"
 								openshift.create(o)
 							}
-						}
+						}*/
 						
 						for ( o in backend ) {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
