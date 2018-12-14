@@ -95,7 +95,7 @@ pipeline {
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
 						for ( o in backend ) {
-							echo "Creating: ${o}"
+							echo "Creating: ${o.name}-${o.kind}"
 							openshift.create(o)
 						}
 					}
