@@ -94,12 +94,10 @@ pipeline {
 							"ENV_NAME=dev", 
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
-						/*for ( o in backend ) {
+						for ( o in backend ) {
 							echo "Creating: ${o}"
 							openshift.create(o)
-						}*/
-						openshift.create(backend)
-						echo "The template instantiated: ${backend.names()}"
+						}
 					}
 				}
 			}
