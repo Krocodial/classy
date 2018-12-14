@@ -50,7 +50,7 @@ pipeline {
 		returnStdout: true
 		)
 	
-	PR_NUM = "${env.JOB_BASE_NAME}".toLowerCase()
+	PR_NUM = "${CHANGE_ID}"
 	
   
 	
