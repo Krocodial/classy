@@ -101,8 +101,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						openshift.newApp(templatePath)
-						/*backend = openshift.process(
+						backend = openshift.process(
 							readFile(file:'openshift/templates/classy-bc.json'),
 							"-p", 
 							"APP_NAME=classy", 
@@ -111,9 +110,9 @@ pipeline {
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
 						for ( o in backend ) {
-							echo "${o}"
-							//openshift.create(o)
-						}*/
+							//echo "${o}"
+							openshift.create(o)
+						}
 						//openshift.create(backend)
 						//echo "The template instantiated: ${models.names()}"
 						//openshift.newApp(templatePath)
