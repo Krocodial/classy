@@ -75,9 +75,9 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						openshift.selector("all", [ template : backendBC ]).delete()
-						/*if (openshift.selector('secrets', backendBC).exists()) {
-							openshift.selector('secrets', backendBC).delete()
+						openshift.selector("all", [ template : templateName ]).delete()
+						/*if (openshift.selector('secrets', templateName).exists()) {
+							openshift.selector('secrets', templateName).delete()
 						}*/
 						
 						
