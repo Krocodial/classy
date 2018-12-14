@@ -104,13 +104,7 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
-						//def tmp = openshift.selector("all", databaseBcTag).describe()
-						//echo "${tmp}"
-						
-						def tmp = openshift.selector("pvc").describe()
-						echo "${tmp}"
-							
-						if(!openshift.selector("all", databaseBcTag).exists()){
+						if(!openshift.selector("pvc", [ template : databaseBcTag]).exists()){
 							database = openshift.process(
 								readFile(file:"${databaseBC}"),
 								"-p", 
