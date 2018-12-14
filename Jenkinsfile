@@ -69,26 +69,10 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						/*backend = openshift.process(
-							readFile(file:'openshift/templates/classy-bc.json'),
-							"-p", 
-							"APP_NAME=classy", 
-							"NAME_SUFFIX=dev", 
-							"ENV_NAME=dev", 
-							"APP_IMAGE_TAG=latest", 
-							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
-						openshift.delete(backend)*/
-					
 						openshift.selector("all", [ template : templateName ]).delete()
-						/*
-						def tmp = openshift.selector('bc', templatePath).related('builds').describe()
-						echo "${tmp}"
-						tmp = openshift.selector('all').describe()
-						echo "${tmp}"
-						*/
-						if (openshift.selector('secrets', templateName).exists()) {
+						/*if (openshift.selector('secrets', templateName).exists()) {
 							openshift.selector('secrets', templateName).delete()
-						}
+						}*/
 						
 						
 					}
@@ -109,10 +93,11 @@ pipeline {
 							"ENV_NAME=dev", 
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
-						for ( o in backend ) {
+						backend.create()
+						/*for ( o in backend ) {
 							//echo "${o}"
 							openshift.create(o)
-						}
+						}*/
 						//openshift.create(backend)
 						//echo "The template instantiated: ${models.names()}"
 						//openshift.newApp(templatePath)
