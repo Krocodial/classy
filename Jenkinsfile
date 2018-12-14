@@ -85,6 +85,9 @@ pipeline {
 						openshift.selector("all", [ template : backendBcTag ]).delete()
 						openshift.selector("all", [ template : backendDcTag ]).delete()
 						openshift.selector("all", [ template : databaseDcTag ]).delete()
+						if (openshift.selector("secrets", databaseDcTag).exists()) {
+							openshift.selector("secrets", databaseBcTag).delete()
+						}
 					}
 				}
 			}
