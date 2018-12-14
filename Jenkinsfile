@@ -15,7 +15,12 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
-def templatePath = 'openshift/templates/classy-bc.json'
+def backendBC = 'openshift/templates/classy-bc.json'
+def databaseBC = 'openshift/templates/postgres-bc.json'
+
+def backendDC = 'openshift/templates/classy-dc.json'
+def databaseDC = 'openshift/templates/postgres-dc.json'
+
 def templateName = 'classy-bc'
 
 pipeline {
@@ -70,9 +75,9 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						openshift.selector("all", [ template : templateName ]).delete()
-						/*if (openshift.selector('secrets', templateName).exists()) {
-							openshift.selector('secrets', templateName).delete()
+						openshift.selector("all", [ template : backendBC ]).delete()
+						/*if (openshift.selector('secrets', backendBC).exists()) {
+							openshift.selector('secrets', backendBC).delete()
 						}*/
 						
 						
@@ -87,13 +92,17 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						backend = openshift.process(
-							readFile(file:'openshift/templates/classy-bc.json'),
+							readFile(file:'${backendBC}'),
 							"-p", 
 							"APP_NAME=classy", 
 							"NAME_SUFFIX=dev", 
 							"ENV_NAME=dev", 
 							"APP_IMAGE_TAG=latest", 
 							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
+							
+						/*database = openshift.process(
+							readFile(file:'$'*/
+							
 						for ( o in backend ) {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
 							openshift.create(o)
