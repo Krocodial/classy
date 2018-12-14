@@ -27,7 +27,9 @@ pipeline {
   environment {
   
 	APP_NAME = 'classy'
-	REPOSITORY = 'https://github.com/Krocodial/classy.git'
+	
+	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
+	GIT_REF = 'openshift'
 	
 	TOOLS_PROJECT = 'l9fjgg-tools'
 	
@@ -49,6 +51,7 @@ pipeline {
 		)
 	
 	PR_NUM = "${env.JOB_BASE_NAME}".toLowerCase()
+	echo "${PR_NUM}"
   
 	
   
@@ -76,11 +79,6 @@ pipeline {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
 						openshift.selector("all", [ template : templateName ]).delete()
-						/*if (openshift.selector('secrets', templateName).exists()) {
-							openshift.selector('secrets', templateName).delete()
-						}*/
-						
-						
 					}
 				}
 			}
@@ -94,11 +92,11 @@ pipeline {
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
-							"APP_NAME=classy", 
+							"APP_NAME=${APP_NAME}", 
 							"NAME_SUFFIX=dev", 
 							"ENV_NAME=dev", 
 							"APP_IMAGE_TAG=latest", 
-							"SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "SOURCE_REPOSITORY_REF=openshift")
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
 						/*database = openshift.process(
 							readFile(file:'$'*/
