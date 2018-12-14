@@ -88,11 +88,12 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('create') {
+	/*stage('create') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
+						
 						backend = openshift.process(
 							readFile(file:'openshift/templates/classy-bc.json'),
 							"-p", 
@@ -109,7 +110,8 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('build') {
+	*/
+	stage('build') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -121,7 +123,6 @@ pipeline {
 							"--APP_IMAGE_TAG=latest", 
 							"--SOURCE_REPOSITORY_URL=https://github.com/Krocodial/classy.git", "--SOURCE_REPOSITORY_REF=openshift")
 						def builds = nb.narrow('bc').related('builds')
-						echo builds
 						//openshift.selector('bc', templateName).related('builds')
 						timeout(5) {
 							builds.untilEach(1) {
@@ -133,7 +134,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	*/
+	
   }//end of stages
 }//pipeline end
 
