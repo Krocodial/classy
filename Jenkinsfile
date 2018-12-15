@@ -126,6 +126,14 @@ pipeline {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
 							openshift.create(o)
 						}
+						def builds = openshift.selector('bc', [template : backendBcTag])
+						selector.startbuild(builds)
+						openshift.selector('bc', [template : backendBcTag]).startbuild()
+						timeout(5) {
+							builds.untilEach(1) {
+								return (it.object().status.phase == "Complete")
+							}
+						}
 							
 					}
 				}
@@ -173,13 +181,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						def builds = openshift.selector('bc', [template : backendBcTag])
-						builds.startbuild()
-						timeout(5) {
-							builds.untilEach(1) {
-								return (it.object().status.phase == "Complete")
-							}
-						}	
+							
 					}
 				}
 			}
