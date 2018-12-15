@@ -173,7 +173,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						def builds = openshift.selector('bc', backendBcTag).related('builds')
+						def builds = openshift.selector('bc', [template : backendBcTag])
 						builds.startbuild()
 						timeout(5) {
 							builds.untilEach(1) {
