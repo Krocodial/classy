@@ -126,12 +126,7 @@ pipeline {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
 							openshift.create(o)
 						}
-						def builds = openshift.selector('bc', backendBcTag).related('builds')
-						timeout(10) {
-							builds.untilEach(1) {
-								return (it.object().status.phase == "Complete")
-							}
-						}	
+							
 					}
 				}
 			}
@@ -173,12 +168,12 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('build') {
+	stage('build') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						def builds = openshift.selector('bc', backendBcTag).related('builds')
+						def builds = openshift.selector('bc', [ template : backendBcTag])
 						timeout(5) {
 							builds.untilEach(1) {
 								return (it.object().status.phase == "Complete")
@@ -189,7 +184,7 @@ pipeline {
 			}
 		}
 	}//end of stage
-	*/
+	
   }//end of stages
 }//pipeline end
 
