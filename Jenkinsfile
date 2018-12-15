@@ -174,6 +174,7 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						def builds = openshift.selector('bc', [ template : backendBcTag])
+						echo "${builds}.describe()"
 						timeout(5) {
 							builds.untilEach(1) {
 								return (it.object().status.phase == "Complete")
