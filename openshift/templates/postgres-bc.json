@@ -10,58 +10,43 @@
   },
     "parameters": [
 		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
-		  "name": "NAME_SUFFIX",
-		  "required": true
-		},
-		{
 		  "name": "ENV_NAME",
 		  "required": true
-		},
-		{
-		  "name": "APP_IMAGE_TAG",
-		  "required": true
-		},
-		{
-		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true
-		},	
-		{
-		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true
-		},
-		{
-		  "name": "DATABASE_SERVICE_NAME",
-		  "required": true,
-		  "value": "postgresql"
-		},
-		{
-		  "name": "VOLUME_CAPACITY",
-		  "required": true,
-		  "value": "5Gi"
 		}
 	],
 	"objects": [
-        {
-		  "kind": "PersistentVolumeClaim",
-		  "apiVersion": "v1",
-		  "metadata": {
-			"name": "${DATABASE_SERVICE_NAME}"
-		  },
-		  "spec": {
-			"accessModes": [
-			  "ReadWriteOnce"
-			],
-			"resources": {
-			  "requests": {
-				"storage": "${VOLUME_CAPACITY}"
-			  }
-			}
-		  }
-		}	
+	    {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "classy-postgresql",
+                "creationTimestamp": null,
+                "labels": {
+                    "base-name": "classy-postgresql",
+                    "appver": "classy"
+                },
+                "annotations": {}
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": false
+                },
+                "tags":[
+                    {
+                        "annotations": null,
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "postgresql:9.5"
+                        },
+                        "importPolicy": {},
+                        "name": "${ENV_NAME}",
+                        "referencePolicy": {
+                            "type": "Source"
+                        }
+                    }
+                ]
+            }
+        }
+	
 	]
 }

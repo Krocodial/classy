@@ -93,11 +93,11 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('create') {
+	stage('Prepare build configs') {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject(DEV_PROJECT) {
+					openshift.withProject() {
 						
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
@@ -108,7 +108,15 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
-						if(!openshift.selector("pvc", [ template : databaseBcTag]).exists()){
+						database = openshift.process(
+							readFile(file:"${databaseBC}"),
+								"-p",
+								"ENV_NAME=${DEV_SUFFIX}")
+							
+						openshift.apply(backend)
+						openshift.apply(database)
+							
+						/*if(!openshift.selector("pvc", [ template : databaseBcTag]).exists()){
 							database = openshift.process(
 								readFile(file:"${databaseBC}"),
 								"-p", 
@@ -117,7 +125,7 @@ pipeline {
 								"ENV_NAME=${DEV_SUFFIX}", 
 								"APP_IMAGE_TAG=${PR_NUM}", 
 								"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-								
+						
 							for ( o in database ) {
 								echo "Creating: ${o.metadata.name}-${o.kind}"
 								openshift.create(o)
@@ -128,33 +136,8 @@ pipeline {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
 							openshift.create(o)
 						}
+						*/
 						
-						backend = openshift.process(
-							readFile(file:"${backendDC}"),
-							"-p", 
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${DEV_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-							
-						database = openshift.process(
-							readFile(file:"${databaseDC}"),
-							"-p", 
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${DEV_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-						
-						for ( o in database ) {
-							echo "Creating: ${o.metadata.name}-${o.kind}"
-							openshift.create(o)
-						}
-						for ( o in backend ) {
-							echo "Creating: ${o.metadata.name}-${o.kind}"
-							openshift.create(o)
-						}
 					}
 				}
 			}
@@ -164,7 +147,7 @@ pipeline {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject(DEV_PROJECT) {
+					openshift.withProject() {
 						/*
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
@@ -196,12 +179,17 @@ pipeline {
 						}
 						*/
 						def builds = openshift.selector("bc",
+							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
+						builds.startBuild("--wait").logs("f")
+						/*
+						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}").related('builds')
 						timeout(5) {
 							builds.untilEach(1) {
 								return (it.object().status.phase == "Complete")
 							}
 						}
+						*/
 							
 					}
 				}
@@ -221,7 +209,8 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-							
+						*/
+						
 						database = openshift.process(
 							readFile(file:"${databaseDC}"),
 							"-p", 
@@ -230,17 +219,10 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-						*/
+						
+						openshift.apply(database).label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 'app-name':"${APP_NAME}", 'env-name':"${DEV_SUFFIX}"], "--overwrite")
 							
-						def rm = openshift.selector("dc", "postgresql")
-						def test = rm.describe()
-						echo "${test}"
-						rm.rollout()
-						timeout(5) {
-							openshift.selector("dc", "postgresql").related("pods").untilEach(1) {
-								return (it.object().status.phase == "Running")
-							}
-						}
+
 							
 						//for ( o in database ) {
 						//	echo "Creating: ${o.metadata.name}-${o.kind}"
