@@ -136,6 +136,14 @@
 			"memory": "4Gi"
 		  }
 		},
+		"triggers": [
+		  {
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          }
+		],
         "postCommit": {
            "script": "./manage.py check"
         }

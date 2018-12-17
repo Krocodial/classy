@@ -55,6 +55,12 @@
 		  "from": "[\\w]{60}"
 		},
 		{
+		  "name": "DATABASE_NAME",
+		  "displayName": "Database Name",
+		  "required": true,
+		  "value": "default"
+		},
+		{
 		  "name": "DATABASE_SERVICE_NAME",
 		  "displayName": "Database Service Name",
 		  "required": true,
@@ -85,6 +91,13 @@
 		  "required": true,
 		  "description": "Maximum amount of memory the PostgreSQL container can use.",
 		  "value": "512Mi"
+		}
+		{
+		  "name": "POSTGRESQL_VERSION",
+		  "displayName": "Version of PostgreSQL Image",
+		  "description": "Version of PostgreSQL image to be used (10 or latest).",
+		  "value": "10",
+		  "required": true
 		}
   ],
   "objects": [
