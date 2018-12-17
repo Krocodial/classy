@@ -232,7 +232,9 @@ pipeline {
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 						*/
 							
-						def rm = openshift.selector("dc", "postgresql").rollout()
+						def rm = openshift.selector("dc", "postgresql")
+						echo "${rm}.describe()"
+						rm.rollout()
 						timeout(5) {
 							openshift.selector("dc", "postgresql").related("pods").untilEach(1) {
 								return (it.object().status.phase == "Running")

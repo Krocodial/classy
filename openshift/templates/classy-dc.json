@@ -144,19 +144,6 @@
           "type": "Rolling"
         },
         "triggers": [
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "${APP_NAME}"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "${APP_NAME}:${APP_IMAGE_TAG}"
-              }
-            }
-          }
         ],
         "replicas": 2,
         "selector": {
