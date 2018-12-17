@@ -96,7 +96,7 @@
 		  "name": "POSTGRESQL_VERSION",
 		  "displayName": "Version of PostgreSQL Image",
 		  "description": "Version of PostgreSQL image to be used (10 or latest).",
-		  "value": "10",
+		  "value": "9.5",
 		  "required": true
 		}
   ],
