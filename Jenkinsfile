@@ -93,11 +93,79 @@ pipeline {
 			}
 		}
 	}// end of stage
+	stage('create') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject(DEV_PROJECT) {
+						
+						backend = openshift.process(
+							readFile(file:"${backendBC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							
+						if(!openshift.selector("pvc", [ template : databaseBcTag]).exists()){
+							database = openshift.process(
+								readFile(file:"${databaseBC}"),
+								"-p", 
+								"APP_NAME=${APP_NAME}", 
+								"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+								"ENV_NAME=${DEV_SUFFIX}", 
+								"APP_IMAGE_TAG=${PR_NUM}", 
+								"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+								
+							for ( o in database ) {
+								echo "Creating: ${o.metadata.name}-${o.kind}"
+								openshift.create(o)
+							}
+						}
+						
+						for ( o in backend ) {
+							echo "Creating: ${o.metadata.name}-${o.kind}"
+							openshift.create(o)
+						}
+						
+						backend = openshift.process(
+							readFile(file:"${backendDC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							
+						database = openshift.process(
+							readFile(file:"${databaseDC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+						
+						for ( o in database ) {
+							echo "Creating: ${o.metadata.name}-${o.kind}"
+							openshift.create(o)
+						}
+						for ( o in backend ) {
+							echo "Creating: ${o.metadata.name}-${o.kind}"
+							openshift.create(o)
+						}
+					}
+				}
+			}
+		}
+	}
 	stage('building in dev') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
+						/*
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
@@ -126,6 +194,7 @@ pipeline {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
 							openshift.create(o)
 						}
+						*/
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}").related('builds')
 						timeout(5) {
@@ -144,7 +213,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						backend = openshift.process(
+						/*backend = openshift.process(
 							readFile(file:"${backendDC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
@@ -161,15 +230,23 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+						*/
 							
-						for ( o in database ) {
-							echo "Creating: ${o.metadata.name}-${o.kind}"
-							openshift.create(o)
+						def rm = openshift.selector("dc", "postgresql").rollout()
+						timeout(5) {
+							openshift.selector("dc", "postgresql").related("pods").untilEach(1) {
+								return (it.object().status.phase == "Running")
+							}
 						}
-						for ( o in backend ) {
-							echo "Creating: ${o.metadata.name}-${o.kind}"
-							openshift.create(o)
-						}
+							
+						//for ( o in database ) {
+						//	echo "Creating: ${o.metadata.name}-${o.kind}"
+						//	openshift.create(o)
+						//}
+						//for ( o in backend ) {
+						//	echo "Creating: ${o.metadata.name}-${o.kind}"
+						//	openshift.create(o)
+						//}
 					}
 				}
 			}
