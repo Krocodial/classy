@@ -127,7 +127,7 @@ pipeline {
 							openshift.create(o)
 						}
 						def builds = openshift.selector('bc', [template : backendBcTag])
-						openshift.selector('bc', [template : backendBcTag]).startbuild()
+						openshift.selector('bc', '${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}').startbuild()
 						timeout(5) {
 							builds.untilEach(1) {
 								return (it.object().status.phase == "Complete")
