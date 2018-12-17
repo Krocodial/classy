@@ -193,7 +193,7 @@ pipeline {
 						*/
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
-						builds.startBuild("--wait").logs("f")
+						builds.startBuild().logs("f")
 						/*
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}").related('builds')
