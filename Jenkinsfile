@@ -93,6 +93,19 @@ pipeline {
 			}
 		}
 	}// end of stage
+	stage('cleanup tools') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject() {
+						echo "Destroying backend objects..."
+						openshift.selector("all", [ template : backendBcTag ]).delete()
+						openshift.selector("all", [ template : databaseBcTag ]).delete()
+					}
+				}
+			}
+		}
+	}// end of stage
 	stage('Prepare build configs') {
 		steps {
 			script {
