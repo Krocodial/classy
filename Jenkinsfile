@@ -233,7 +233,8 @@ pipeline {
 						*/
 							
 						def rm = openshift.selector("dc", "postgresql")
-						echo "${rm}.describe()"
+						def test = rm.describe()
+						echo "${test}"
 						rm.rollout()
 						timeout(5) {
 							openshift.selector("dc", "postgresql").related("pods").untilEach(1) {
