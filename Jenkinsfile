@@ -126,12 +126,8 @@ pipeline {
 							echo "Creating: ${o.metadata.name}-${o.kind}"
 							openshift.create(o)
 						}
-						def builds = openshift.selector('bc', [template : backendBcTag])
-						//def test = openshift.selector("bc",
-						//	"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}").startbuild()
-						openshift.startBuild("--from-build=${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
-						//echo "${test}"
-						//.startbuild()
+						def builds = openshift.selector("bc",
+							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}").related('builds')
 						timeout(5) {
 							builds.untilEach(1) {
 								return (it.object().status.phase == "Complete")
