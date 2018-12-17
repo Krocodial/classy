@@ -252,7 +252,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('build') {
+	stage('tag') {
 		steps {
 			script {
 				openshift.withCluster() {

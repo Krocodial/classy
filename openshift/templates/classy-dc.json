@@ -156,9 +156,6 @@
                 "name": "${APP_NAME}:${APP_IMAGE_TAG}"
               }
             }
-          },
-          {
-            "type": "ConfigChange"
           }
         ],
         "replicas": 2,
