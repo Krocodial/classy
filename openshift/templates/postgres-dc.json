@@ -91,7 +91,7 @@
 		  "required": true,
 		  "description": "Maximum amount of memory the PostgreSQL container can use.",
 		  "value": "512Mi"
-		}
+		},
 		{
 		  "name": "POSTGRESQL_VERSION",
 		  "displayName": "Version of PostgreSQL Image",
