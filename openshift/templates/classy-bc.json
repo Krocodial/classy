@@ -137,9 +137,6 @@
 		  }
 		},
 		"triggers": [
-          {
-            "type": "ConfigChange"
-          }
 		],
         "postCommit": {
            "script": "./manage.py check"
