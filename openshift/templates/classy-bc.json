@@ -88,6 +88,7 @@
           "sourceStrategy": {
             "from": {
               "kind": "ImageStreamTag",
+			  "namespace": "openshift",
               "name": "python:${PYTHON_VERSION}"
             },
             "env": [

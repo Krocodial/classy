@@ -36,7 +36,6 @@
                         "annotations": null,
                         "from": {
                             "kind": "ImageStreamTag",
-							"namespace": "openshift",
                             "name": "postgresql:9.5"
                         },
                         "importPolicy": {},
