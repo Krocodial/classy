@@ -157,7 +157,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						/*backend = openshift.process(
+						backend = openshift.process(
 							readFile(file:"${backendDC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
@@ -165,7 +165,7 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-						*/
+						
 						
 						database = openshift.process(
 							readFile(file:"${databaseDC}"),
