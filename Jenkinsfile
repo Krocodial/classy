@@ -193,16 +193,8 @@ pipeline {
 						*/
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
-						builds.startBuild().logs("f")
-						/*
-						def builds = openshift.selector("bc",
-							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}").related('builds')
-						timeout(5) {
-							builds.untilEach(1) {
-								return (it.object().status.phase == "Complete")
-							}
-						}
-						*/
+						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True").logs("f")
+
 							
 					}
 				}

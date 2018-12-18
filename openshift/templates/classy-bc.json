@@ -61,17 +61,11 @@
       "spec":
       {
         "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "generation": null,
-            "importPolicy": {}
-          }
-
         ]
       },
       "status": {}
-    },   	
+    }, 
+  	
 	{
       "kind": "BuildConfig",
       "apiVersion": "v1",
@@ -136,8 +130,6 @@
 			"memory": "4Gi"
 		  }
 		},
-		"triggers": [
-		],
         "postCommit": {
            "script": "./manage.py check"
         }
