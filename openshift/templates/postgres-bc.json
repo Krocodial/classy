@@ -6,7 +6,7 @@
   },
   "labels": {
 	"template": "postgres-bc",
-	"app": "classy"
+	"app": "classy-postgresql"
   },
     "parameters": [
 		{
