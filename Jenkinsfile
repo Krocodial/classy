@@ -110,7 +110,7 @@ pipeline {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject() {
+					openshift.withProject(DEV_PROJECT) {
 						
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
@@ -160,7 +160,7 @@ pipeline {
 		steps {
 			script {
 				openshift.withCluster() {
-					openshift.withProject() {
+					openshift.withProject(DEV_PROJECT) {
 						/*
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
