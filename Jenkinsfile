@@ -121,13 +121,13 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 							
-						database = openshift.process(
-							readFile(file:"${databaseBC}"),
-								"-p",
-								"ENV_NAME=${DEV_SUFFIX}")
+						//database = openshift.process(
+						//	readFile(file:"${databaseBC}"),
+						//		"-p",
+						//		"ENV_NAME=${DEV_SUFFIX}")
 							
 						openshift.apply(backend)
-						openshift.apply(database)
+						//openshift.apply(database)
 							
 
 						
