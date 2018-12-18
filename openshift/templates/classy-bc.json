@@ -57,13 +57,7 @@
         "name": "${APP_NAME}",
         "generation": 1,
         "creationTimestamp": null
-      },
-      "spec":
-      {
-        "tags": [
-        ]
-      },
-      "status": {}
+      }
     }, 
   	
 	{
@@ -94,7 +88,6 @@
           "sourceStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-              "namespace": "openshift",
               "name": "python:${PYTHON_VERSION}"
             },
             "env": [
@@ -130,6 +123,11 @@
 			"memory": "4Gi"
 		  }
 		},
+		"triggers": [
+			{
+				"type": "ImageChange"
+			}
+		]
         "postCommit": {
            "script": "./manage.py check"
         }
