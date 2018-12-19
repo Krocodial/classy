@@ -141,7 +141,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						echo "select 'bc' in ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
+						echo "select 'bc' ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
 						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
@@ -157,16 +157,13 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						database = openshift.process(
-							readFile(file:"${databaseBC}"),
-							"-p")
-						if (!openshift.selector("pvc", ${databaseBC}).exists()) {
+
+						if (!openshift.selector("pvc", "postgresql").exists()) {
 							
 							echo "no db found"
 						
 							database = openshift.process(
-							readFile(file:"${databaseBC}"),
-							"-p")
+							readFile(file:"${databaseBC}"))
 							
 							openshift.apply(database)
 						}
