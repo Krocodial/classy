@@ -201,7 +201,7 @@ pipeline {
 							"--overwrite")
 
 						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
+							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:latest")
 
 						
 					}
