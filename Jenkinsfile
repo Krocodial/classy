@@ -29,7 +29,7 @@ def databaseBcTag = 'postgres-bc'
 pipeline {
   environment {
   
-	APP_NAME = 'c1assy'
+	APP_NAME = 'classy'
 	
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
 	GIT_REF = 'openshift'
@@ -136,15 +136,15 @@ pipeline {
 			}
 		}
 	}
-	stage('building in dev') {
+	stage('building classy image') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						
+						echo "select 'bc' in ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
-						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True").logs("f")
+						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 							
 					}
