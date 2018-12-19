@@ -75,24 +75,6 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('cleanup') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject(DEV_PROJECT) {
-						echo "Destroying backend objects..."
-						//openshift.selector("all", [ template : templateName ]).delete()
-						openshift.selector("all", [ template : backendBcTag ]).delete()
-						openshift.selector("all", [ template : backendDcTag ]).delete()
-						openshift.selector("all", [ template : databaseDcTag ]).delete()
-						//if (openshift.selector("secrets", "classy").exists()) {
-						//	openshift.selector("secrets", "classy").delete()
-						//}
-					}
-				}
-			}
-		}
-	}// end of stage
 	stage('cleanup tools') {
 		steps {
 			script {
@@ -100,7 +82,6 @@ pipeline {
 					openshift.withProject() {
 						echo "Destroying backend objects..."
 						openshift.selector("all", [ template : backendBcTag ]).delete()
-						//openshift.selector("all", [ template : databaseBcTag ]).delete()
 					}
 				}
 			}
@@ -111,7 +92,6 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
@@ -120,17 +100,8 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-							
-						//database = openshift.process(
-						//	readFile(file:"${databaseBC}"),
-						//		"-p",
-						//		"ENV_NAME=${DEV_SUFFIX}")
-							
-						openshift.apply(backend)
-						//openshift.apply(database)
-							
 
-						
+						openshift.apply(backend)
 					}
 				}
 			}
@@ -147,6 +118,24 @@ pipeline {
 						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 							
+					}
+				}
+			}
+		}
+	}// end of stage
+	stage('cleaning objects from dev') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject(DEV_PROJECT) {
+						echo "Destroying backend objects..."
+						//openshift.selector("all", [ template : templateName ]).delete()
+						openshift.selector("all", [ template : backendBcTag ]).delete()
+						openshift.selector("all", [ template : backendDcTag ]).delete()
+						openshift.selector("all", [ template : databaseDcTag ]).delete()
+						//if (openshift.selector("secrets", "classy").exists()) {
+						//	openshift.selector("secrets", "classy").delete()
+						//}
 					}
 				}
 			}
@@ -201,13 +190,13 @@ pipeline {
 							"--overwrite")
 
 						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:latest")
+							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
 
 						//docker.push("${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:latest")
 							
-						openshift._import("classy-${DEV_SUFFIX}-${PR_NUM}:latest",
-							" --confirm",
-							" --from=${TOOLS_PROJECT}/classy:${PR_NUM}")
+						//openshift._import("classy-${DEV_SUFFIX}-${PR_NUM}:latest",
+						//	" --confirm",
+						//	" --from=${TOOLS_PROJECT}/classy:${PR_NUM}")
 							
 						//docker.image("classy-${DEV_SUFFIX}-${PR_NUM}:latest").pull()
 					}
