@@ -160,14 +160,14 @@ pipeline {
 
 						if (!openshift.selector("pvc", "postgresql").exists()) {
 							
-							echo "no db found"
+							echo "no PVC found, creating..."
 						
 							databasePVC = openshift.process(
 							readFile(file:"${databaseBC}"))
 							
 							openshift.apply(databasePVC)
 						}
-						/*
+						
 						backend = openshift.process(
 							readFile(file:"${backendDC}"),
 							"-p", 
@@ -176,7 +176,7 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-						*/
+						
 						
 						database = openshift.process(
 							readFile(file:"${databaseDC}"),
@@ -187,22 +187,22 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 						
+
 						openshift.apply(database)
-					
+							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							'app-name':"${APP_NAME}", 
+							'env-name':"${DEV_SUFFIX}"], 
+							"--overwrite")
+						
+						openshift.apply(backend)
+							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							'app-name':"${APP_NAME}", 
+							'env-name':"${DEV_SUFFIX}"], 
+							"--overwrite")
 
-						/*
-						openshift.apply(database).label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 'app-name':"${APP_NAME}", 'env-name':"${DEV_SUFFIX}"], "--overwrite")
-						*/
+						openshift.tag("${TOOLS_PROJECT)/classy",
+							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
 
-							
-						//for ( o in database ) {
-						//	echo "Creating: ${o.metadata.name}-${o.kind}"
-						//	openshift.create(o)
-						//}
-						//for ( o in backend ) {
-						//	echo "Creating: ${o.metadata.name}-${o.kind}"
-						//	openshift.create(o)
-						//}
 						
 					}
 				}
