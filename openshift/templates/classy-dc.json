@@ -132,6 +132,22 @@
           "type": "Rolling"
         },
         "triggers": [
+            {
+                "type": "ImageChange",
+					"imageChangeParams": {
+                        "automatic": true,
+                        "containerNames": [
+                                "classy-${NAME_SUFFIX}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "classy-${NAME_SUFFIX}:${ENV_NAME}"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
         ],
         "replicas": 2,
         "selector": {
