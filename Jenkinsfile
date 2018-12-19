@@ -64,18 +64,7 @@ pipeline {
 	timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-    stage('preamble') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject() {
-						echo "Using project: ${openshift.project()}"
-					}
-				}
-			}
-		}
-	}// end of stage
-	stage('cleanup tools') {
+	stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -87,7 +76,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('Prepare build configs') {
+	stage('Preparing build configs') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -123,7 +112,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('cleaning objects from dev') {
+	stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -141,7 +130,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('deploy to dev') {
+	stage('deploying to dev') {
 		steps {
 			script {
 				openshift.withCluster() {

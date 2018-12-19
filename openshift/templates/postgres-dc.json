@@ -112,7 +112,7 @@
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}"
+        "name": "${APP_NAME}-${NAME_SUFFIX}"
       },
       "stringData" : {
         "database-user" : "${DATABASE_USER}",
@@ -206,7 +206,7 @@
                     "name": "POSTGRESQL_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}",
+                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
                         "key" : "database-user"
                       }
                     }
@@ -215,7 +215,7 @@
                     "name": "POSTGRESQL_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}",
+                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
                         "key" : "database-password"
                       }
                     }
