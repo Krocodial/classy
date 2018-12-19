@@ -115,7 +115,7 @@ pipeline {
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
-							"APP_NAME=${APP_NAME}", 
+							"APP_NAME=DSC",//${APP_NAME}", 
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
