@@ -71,6 +71,7 @@
 		},
 		"labels":
 		  {
+				"appver": "${APP_NAME}-${NAME_SUFFIX}",
 				"app": "${APP_NAME}-${NAME_SUFFIX}"
 		  }
       },
