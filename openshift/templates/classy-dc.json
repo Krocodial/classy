@@ -80,6 +80,26 @@
 		}
   ],
   "objects": [
+          {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "classy-${NAME_SUFFIX}",
+                "creationTimestamp": null,
+                "labels": {
+                    "base-name":"classy",
+                    "appver": "classy-${NAME_SUFFIX}"
+                },
+                "annotations": {
+                    "description": "Keeps track of changes in the application image"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": false
+                }
+            }
+    },
     {
       "kind": "Service",
       "apiVersion": "v1",
