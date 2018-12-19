@@ -29,7 +29,7 @@ def databaseBcTag = 'postgres-bc'
 pipeline {
   environment {
   
-	APP_NAME = 'classy'
+	APP_NAME = 'c1assy'
 	
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
 	GIT_REF = 'openshift'
@@ -115,7 +115,7 @@ pipeline {
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
-							"APP_NAME=dsc",//${APP_NAME}", 
+							"APP_NAME=${APP_NAME}", 
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
