@@ -146,7 +146,7 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${DATABASE_SERVICE_NAME}-dev",
+        "name": "${DATABASE_SERVICE_NAME}",
         "annotations": {
           "description": "Defines how to deploy the database",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -170,9 +170,6 @@
                 "name": "postgresql:${POSTGRESQL_VERSION}"
               }
             }
-          },
-          {
-            "type": "ConfigChange"
           }
         ],
         "replicas": 1,
