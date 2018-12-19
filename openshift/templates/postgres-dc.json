@@ -98,9 +98,28 @@
 		  "description": "Version of PostgreSQL image to be used (10 or latest).",
 		  "value": "latest",
 		  "required": true
+		},
+		{
+		  "name": "DJANGO_SECRET_KEY",
+		  "displayName": "Django Secret Key",
+		  "description": "Set this to a long random string.",
+		  "generate": "expression",
+		  "from": "[\\w]{60}"
 		}
   ],
   "objects": [
+    {
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}"
+      },
+      "stringData" : {
+        "database-user" : "${DATABASE_USER}",
+        "database-password" : "${DATABASE_PASSWORD}",
+        "django-secret-key" : "${DJANGO_SECRET_KEY}"
+      }
+    },
 	{
       "kind": "Service",
       "apiVersion": "v1",
