@@ -125,9 +125,7 @@
 		  }
 		},
 		"triggers": [
-			{
-				"type": "ImageChange"
-			}
+
 		],
         "postCommit": {
            "script": "./manage.py check"
