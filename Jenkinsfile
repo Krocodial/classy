@@ -203,7 +203,11 @@ pipeline {
 						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
 							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:latest")
 
-						docker.image("classy-${DEV_SUFFIX}-${PR_NUM}:latest").pull()
+						openshift._import("classy-${DEV_SUFFIX}-${PR_NUM}:latest", 
+							"--from=${TOOLS_PROJECT}/classy:${PR_NUM}",
+							"--confirm")
+							
+						//docker.image("classy-${DEV_SUFFIX}-${PR_NUM}:latest").pull()
 					}
 				}
 			}
