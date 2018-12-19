@@ -99,8 +99,8 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject() {
 						echo "Destroying backend objects..."
-						openshift.selector("all", [ template : backendBcTag ]).delete()
-						openshift.selector("all", [ template : databaseBcTag ]).delete()
+						//openshift.selector("all", [ template : backendBcTag ]).delete()
+						//openshift.selector("all", [ template : databaseBcTag ]).delete()
 					}
 				}
 			}
@@ -200,7 +200,7 @@ pipeline {
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
 
-						openshift.tag("${TOOLS_PROJECT)/classy",
+						openshift.tag("${TOOLS_PROJECT}/classy",
 							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
 
 						
