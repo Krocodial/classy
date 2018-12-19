@@ -80,18 +80,6 @@
 		}
   ],
   "objects": [
-  {
-      "kind": "Secret",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${APP_NAME}"
-      },
-      "stringData" : {
-        "database-user" : "${DATABASE_USER}",
-        "database-password" : "${DATABASE_PASSWORD}",
-        "django-secret-key" : "${DJANGO_SECRET_KEY}"
-      }
-    },
     {
       "kind": "Service",
       "apiVersion": "v1",
