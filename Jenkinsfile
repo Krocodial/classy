@@ -162,10 +162,10 @@ pipeline {
 							
 							echo "no db found"
 						
-							database = openshift.process(
+							databasePVC = openshift.process(
 							readFile(file:"${databaseBC}"))
 							
-							openshift.apply(database)
+							openshift.apply(databasePVC)
 						}
 						/*
 						backend = openshift.process(
@@ -176,7 +176,7 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
-						
+						*/
 						
 						database = openshift.process(
 							readFile(file:"${databaseDC}"),
@@ -187,8 +187,12 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 						
+						openshift.apply(database)
+					
+
+						/*
 						openshift.apply(database).label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 'app-name':"${APP_NAME}", 'env-name':"${DEV_SUFFIX}"], "--overwrite")
-							
+						*/
 
 							
 						//for ( o in database ) {
@@ -199,7 +203,7 @@ pipeline {
 						//	echo "Creating: ${o.metadata.name}-${o.kind}"
 						//	openshift.create(o)
 						//}
-						*/
+						
 					}
 				}
 			}
