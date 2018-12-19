@@ -38,13 +38,13 @@
 		  "name": "DATABASE_USER",
 		  "displayName": "Database Username",
 		  "required": true,
-		  "value": "django"
+		  "value": "krocodial"
 		},
 		{
 		  "name": "DATABASE_PASSWORD",
 		  "displayName": "Database User Password",
 		  "generate": "expression",
-		  "from": "[a-zA-Z0-9]{16}"
+		  "from": "[a-zA-Z0-9]{20}"
 		},
 		{
 		  "name": "DJANGO_SECRET_KEY",

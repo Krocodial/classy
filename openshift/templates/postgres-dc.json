@@ -102,23 +102,6 @@
   ],
   "objects": [
 	{
-		  "kind": "PersistentVolumeClaim",
-		  "apiVersion": "v1",
-		  "metadata": {
-			"name": "postgresql"
-		  },
-		  "spec": {
-			"accessModes": [
-			  "ReadWriteOnce"
-			],
-			"resources": {
-			  "requests": {
-				"storage": "5Gi"
-			  }
-			}
-		  }
-	},
-	{
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {

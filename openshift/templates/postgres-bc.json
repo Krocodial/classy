@@ -15,38 +15,22 @@
 		}
 	],
 	"objects": [
-	    {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "classy-postgresql",
-                "creationTimestamp": null,
-                "labels": {
-                    "base-name": "classy-postgresql",
-                    "appver": "classy"
-                },
-                "annotations": {}
-            },
-            "spec": {
-                "lookupPolicy": {
-                    "local": false
-                },
-                "tags":[
-                    {
-                        "annotations": null,
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "postgresql:9.5"
-                        },
-                        "importPolicy": {},
-                        "name": "${ENV_NAME}",
-                        "referencePolicy": {
-                            "type": "Source"
-                        }
-                    }
-                ]
-            }
-        }
-	
+		{
+		  "kind": "PersistentVolumeClaim",
+		  "apiVersion": "v1",
+		  "metadata": {
+			"name": "postgresql"
+		  },
+		  "spec": {
+			"accessModes": [
+			  "ReadWriteOnce"
+			],
+			"resources": {
+			  "requests": {
+				"storage": "5Gi"
+			  }
+			}
+		  }
+	}
 	]
 }

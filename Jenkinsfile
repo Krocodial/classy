@@ -152,11 +152,25 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('deploy to dev') {
+	stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
+						database = openshift.process(
+							readFile(file:"${databaseBC}"),
+							"-p")
+						if (!openshift.selector("pvc", ${databaseBC}).exists()) {
+							
+							echo "no db found"
+						
+							database = openshift.process(
+							readFile(file:"${databaseBC}"),
+							"-p")
+							
+							openshift.apply(database)
+						}
+						/*
 						backend = openshift.process(
 							readFile(file:"${backendDC}"),
 							"-p", 
@@ -188,12 +202,12 @@ pipeline {
 						//	echo "Creating: ${o.metadata.name}-${o.kind}"
 						//	openshift.create(o)
 						//}
+						*/
 					}
 				}
 			}
 		}
 	}// end of stage
-	*/
 	stage('tag') {
 		steps {
 			script {
