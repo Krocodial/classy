@@ -9,10 +9,7 @@
 	"app": "classy-postgresql"
   },
     "parameters": [
-		{
-		  "name": "ENV_NAME",
-		  "required": true
-		}
+
 	],
 	"objects": [
 		{
