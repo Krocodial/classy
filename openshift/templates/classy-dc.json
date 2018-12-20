@@ -174,7 +174,7 @@
         ],
 		"postCommit": {
 			"script": "./manage.py check && ./manage.py migrate"
-		}
+		},
         "replicas": 2,
         "selector": {
           "name": "${APP_NAME}-${NAME_SUFFIX}"
