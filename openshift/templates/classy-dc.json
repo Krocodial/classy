@@ -181,7 +181,7 @@
 		"postCommit": {
 			"script": "./manage.py check && ./manage.py migrate"
 		},
-        "replicas": 2,
+        "replicas": 1,
         "selector": {
           "name": "${APP_NAME}-${NAME_SUFFIX}"
         },
@@ -270,12 +270,12 @@
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "3",
-                    "memory": "12Gi"
+				    "cpu": "5",
+                    "memory": "20Gi"
                   },
 				  "requests": {
-					"cpu": "2",
-					"memory": "8Gi"
+					"cpu": "3",
+					"memory": "16Gi"
 				  }
                 }
               }
