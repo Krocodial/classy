@@ -60,6 +60,12 @@
 		  "value": "postgresql"
 		},
 		{
+		  "name": "DATABASE_NAME",
+		  "displayName": "Database Name",
+		  "required": true,
+		  "value": "default"
+		},
+		{
 		  "name": "DATABASE_ENGINE",
 		  "displayName": "Database Engine",
 		  "required": true,
