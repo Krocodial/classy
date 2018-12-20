@@ -219,6 +219,11 @@
                     "name": "DATABASE_NAME",
                     "value": "${DATABASE_NAME}"
                   },
+				  {
+				    "name": "POSTGRESQL_SERVICE_HOST",
+					"value": "postgresql"
+				  },
+				  
                   {
                     "name": "DATABASE_USER",
                     "valueFrom": {
