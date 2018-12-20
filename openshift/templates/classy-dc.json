@@ -270,7 +270,7 @@
                 ],
                 "resources": {
                   "limits": {
-                    "memory": "16Gi",
+                    "memory": "16Gi"
                   },
 				  "requests": {
 					"cpu": "2",
