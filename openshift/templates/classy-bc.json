@@ -1,0 +1,130 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "classy-bc"
+  },
+  "labels": {
+	"template": "classy-bc",
+	"app": "classy"
+  },
+    "parameters": [
+		{
+		  "name": "APP_NAME",
+		  "required": true,
+		  "value": "classy"
+		},
+		{
+		  "name": "NAME_SUFFIX",
+		  "required": true
+		},
+		{
+		  "name": "ENV_NAME",
+		  "required": true
+		},
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true
+		},
+		{
+		  "name": "PYTHON_VERSION",
+		  "displayName": "Version of Python Image",
+		  "description": "Version of Python image to be used (3.6 or latest).",
+		  "value": "3.5",
+		  "required": true
+		},
+		{
+		  "name": "PIP_INDEX_URL",
+		  "displayName": "Custom PyPi Index URL",
+		  "description": "The custom PyPi index URL",
+		  "value": ""
+		}
+	],
+  "objects": [
+	{
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata":
+      {
+        "name": "${APP_NAME}",
+        "generation": 1,
+        "creationTimestamp": null
+      }
+    }, 
+  	
+	{
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}-${NAME_SUFFIX}",
+        "annotations": {
+          "description": "Defines how to build the application",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+		},
+		"labels":
+		  {
+				"appver": "${APP_NAME}-${NAME_SUFFIX}",
+				"app": "${APP_NAME}-${NAME_SUFFIX}"
+		  }
+      },
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${SOURCE_REPOSITORY_URL}",
+            "ref": "${SOURCE_REPOSITORY_REF}"
+          },
+          "contextDir": ""
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+			  "namespace": "openshift",
+              "name": "python:${PYTHON_VERSION}"
+            },
+            "env": [
+              {
+                  "name": "PIP_INDEX_URL",
+                  "value": "${PIP_INDEX_URL}"
+              },
+			  {
+				  "name": "UPGRADE_PIP_TO_LATEST",
+				  "value": "true"
+			  },
+			  {
+				  "name": "BUILD_LOGLEVEL",
+				  "value": "5"
+			  }
+            ],
+			"incremental": false
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${APP_NAME}:${APP_IMAGE_TAG}"
+          }
+        },
+		"resources": {
+
+		},
+		"triggers": [
+
+		],
+        "postCommit": {
+           "script": "./manage.py check"
+        }
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ engines = {
 
 
 def config():
-    service_name = os.getenv('CLASSY_DATABASE_SERVICE_NAME', '').upper().replace('-', '_')
+    service_name = os.getenv('DATABASE_SERVICE_NAME', '').upper().replace('-', '_')
     if service_name:
         engine = engines.get(os.getenv('DATABASE_ENGINE'), engines['sqlite'])
     else:
@@ -25,7 +25,7 @@ def config():
         'USER': os.getenv('DATABASE_USER'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': os.getenv('{}_SERVICE_HOST'.format(service_name)),
-        'PORT': os.getenv('{}_SERVICE_PORT'.format(service_name)),
+        'PORT': 5432,#os.getenv('{}_SERVICE_PORT'.format(service_name)),
     }
 
 db_engine = os.getenv('DATABASE_ENGINE')

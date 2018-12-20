@@ -1,0 +1,33 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "postgres-bc"
+  },
+  "labels": {
+	"template": "postgres-bc",
+	"app": "classy"
+  },
+    "parameters": [
+
+	],
+	"objects": [
+		{
+		  "kind": "PersistentVolumeClaim",
+		  "apiVersion": "v1",
+		  "metadata": {
+			"name": "postgresql"
+		  },
+		  "spec": {
+			"accessModes": [
+			  "ReadWriteMany"
+			],
+			"resources": {
+			  "requests": {
+				"storage": "5Gi"
+			  }
+			}
+		  }
+	}
+	]
+}

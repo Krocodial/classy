@@ -1,0 +1,288 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "classy-dc"
+  },
+  "labels": {
+	"template": "classy-dc",
+	"app": "classy"
+  },
+  "parameters": [
+		{
+		  "name": "APP_NAME",
+		  "required": true,
+		  "value": "classy"
+		},
+		{
+		  "name": "NAME_SUFFIX",
+		  "required": true
+		},
+		{
+		  "name": "ENV_NAME",
+		  "required": true
+		},
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true
+		},
+		{
+		  "name": "DATABASE_USER",
+		  "displayName": "Database Username",
+		  "required": true,
+		  "value": "krocodial"
+		},
+		{
+		  "name": "DATABASE_PASSWORD",
+		  "displayName": "Database User Password",
+		  "generate": "expression",
+		  "from": "[a-zA-Z0-9]{20}"
+		},
+		{
+		  "name": "DJANGO_SECRET_KEY",
+		  "displayName": "Django Secret Key",
+		  "description": "Set this to a long random string.",
+		  "generate": "expression",
+		  "from": "[\\w]{60}"
+		},
+		{
+		  "name": "DATABASE_SERVICE_NAME",
+		  "displayName": "Database Service Name",
+		  "required": true,
+		  "value": "postgresql"
+		},
+		{
+		  "name": "DATABASE_NAME",
+		  "displayName": "Database Name",
+		  "required": true,
+		  "value": "default"
+		},
+		{
+		  "name": "DATABASE_ENGINE",
+		  "displayName": "Database Engine",
+		  "required": true,
+		  "description": "Database engine: postgresql, mysql or sqlite (default).",
+		  "value": "postgresql"
+		},
+		{
+		  "name": "APP_CONFIG",
+		  "displayName": "Application Configuration File Path",
+		  "description": "Relative path to Gunicorn configuration file (optional)."
+		},
+		{
+		  "name": "MEMORY_LIMIT",
+		  "displayName": "Memory Limit",
+		  "required": true,
+		  "description": "Maximum amount of memory the Django container can use.",
+		  "value": "8Gi"
+		}
+  ],
+  "objects": [
+          {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APP_NAME}-${NAME_SUFFIX}",
+                "creationTimestamp": null,
+                "labels": {
+                    "base-name":"classy",
+                    "appver": "${APP_NAME}-${NAME_SUFFIX}"
+                },
+                "annotations": {
+                    "description": "Keeps track of changes in the application image"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": false
+                }
+            }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}-${NAME_SUFFIX}",
+        "annotations": {
+          "description": "Exposes and load balances the application pods",
+          "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "web",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "name": "${APP_NAME}-${NAME_SUFFIX}"
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}"
+      },
+      "spec": {
+        "host": "",
+        "to": {
+          "kind": "Service",
+          "name": "${APP_NAME}-${NAME_SUFFIX}"
+        },
+		"tls": {
+			"termination": "edge"
+		}
+      }
+    },
+	{
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}-${NAME_SUFFIX}",
+        "annotations": {
+          "description": "Defines how to deploy the application server",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Rolling"
+        },
+        "triggers": [
+            {
+                "type": "ImageChange",
+					"imageChangeParams": {
+                        "automatic": true,
+                        "containerNames": [
+                                "classy-${NAME_SUFFIX}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "classy-${NAME_SUFFIX}:${ENV_NAME}"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+        ],
+		"postCommit": {
+			"script": "./manage.py check && ./manage.py migrate"
+		},
+        "replicas": 2,
+        "selector": {
+          "name": "${APP_NAME}-${NAME_SUFFIX}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${APP_NAME}-${NAME_SUFFIX}",
+            "labels": {
+              "name": "${APP_NAME}-${NAME_SUFFIX}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "${APP_NAME}-${NAME_SUFFIX}",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 20,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080
+                  }
+                },
+                "livenessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 40,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080
+                  }
+                },
+                "env": [
+                  {
+                    "name": "DATABASE_SERVICE_NAME",
+                    "value": "${DATABASE_SERVICE_NAME}"
+                  },
+                  {
+                    "name": "DATABASE_ENGINE",
+                    "value": "${DATABASE_ENGINE}"
+                  },
+                  {
+                    "name": "DATABASE_NAME",
+                    "value": "${DATABASE_NAME}"
+                  },
+				  {
+				    "name": "POSTGRESQL_SERVICE_HOST",
+					"value": "postgresql"
+				  },
+				  
+                  {
+                    "name": "DATABASE_USER",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "key" : "database-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "DATABASE_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "key" : "database-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "APP_CONFIG",
+                    "value": "${APP_CONFIG}"
+                  },
+                  {
+                    "name": "DJANGO_SECRET_KEY",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "key" : "django-secret-key"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "limits": {
+				    "cpu": "3",
+                    "memory": "12Gi"
+                  },
+				  "requests": {
+					"cpu": "2",
+					"memory": "8Gi"
+				  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+   ]
+}

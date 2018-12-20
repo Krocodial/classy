@@ -4,11 +4,141 @@
   "metadata": {
     "name": "classy"
   },
-  "message": "The following service(s) have been created in your project: ${NAME}, ${DATABASE_SERVICE_NAME}.\n\nFor more information about using this template, including OpenShift considerations, see https://github.com/Krocodial/openTest/master/README.md.",
-  "labels": {
-      "template": "classy",
-      "app": "classy"
-  },
+    "parameters": [
+	{
+      "name": "APPLICATION_NAME",
+      "displayName": "Application Name",
+      "description": "The name given to the application",
+      "required": true,
+      "value": "classy"
+    },
+    {
+      "name": "BUILD_PROJECT",
+      "displayName": "Build Project",
+      "description": "The openshift project where builds and target images are stored.",
+      "required": true,
+      "value": "l9fjgg-tools"
+    },    
+    {
+      "name": "BACKEND_NAME",
+      "displayName": "Backend Name",
+      "description": "The name assigned to all of the backend objects defined in this template.",
+      "required": true,
+      "value": "classy"
+    },
+    {
+      "name": "RPROXY_NAME",
+      "displayName": "Reverse Proxy Name (SiteMinder)",
+      "description": "The name assigned to the objects used as a SiteMinder entry point (or Reverse Proxy).  Typcially this is an NGINX instance.",
+      "required": true,
+      "value": "anakin"
+    },
+    {
+      "name": "DEPLOYMENT_TYPE",
+      "displayName": "Deployment Type",
+      "description": "The name assigned to the imagestreams defined in this template.",
+      "required": true,
+      "value": "latest"
+    },
+    {
+      "name": "SOURCE_REPOSITORY_URL",
+      "displayName": "Source Repository",
+      "description": "The source repository to use for the builds.",
+      "required": true,
+      "value": "https://github.com/Krocodial/classy.git"
+    },	
+    {
+      "name": "GIT_REFERENCE",
+      "displayName": "Git Reference",
+      "description": "Optional branch, tag, or commit.",
+      "required": true,
+      "value": "master"
+    },
+    {
+      "name": "EDITOR_NAME",
+      "displayName": "Swagger Editor Name",
+      "description": "The name assigned to all of the swagger editor objects defined in this template.",
+      "required": true,
+      "value": "editor"
+    },
+    {
+      "name": "MOCKSERVER_NAME",
+      "displayName": "Mock Server Name",
+      "description": "The name assigned to all of the mock server objects defined in this template.",
+      "required": true,
+      "value": "mock"
+    },
+    {
+      "name": "SCHEMASPY_NAME",
+      "displayName": "Schema Spy Name",
+      "description": "The name assigned to all of the schema spy objects defined in this template.",
+      "required": true,
+      "value": "schema-spy"
+    },
+	{
+      "name": "SONAR_DATABASE_USER",
+      "displayName": "DB Username",
+      "description": "Username for Sonar Database user that will be used for accessing the database.",
+      "generate": "expression",
+      "from": "user[A-Z0-9]{3}"
+    },
+    {
+      "name": "SONAR_DATABASE_PASSWORD",
+      "displayName": "Database Password",
+      "description": "Password for the Sonar Database user.",
+      "generate": "expression",
+      "from": "[a-zA-Z0-9]{16}"
+    },
+	{
+      "name": "SONAR_DATABASE_ADMIN_PASSWORD",
+      "displayName": "Database Admin Password",
+      "description": "Password for the Admin Database user.",
+      "generate": "expression",
+      "from": "[a-zA-Z0-9]{16}"
+    },
+	{
+      "name": "SONAR_ADMIN_PASSWORD",
+      "displayName": "Sonar admin password",
+      "description": "Password for the Sonar admin user.",
+      "generate": "expression",
+      "from": "[a-zA-Z0-9]{16}"
+    },
+	{
+      "name": "DATABASE_VOLUME_CAPACITY",
+      "displayName": "Database volume capacity",
+      "description": "Size of the database used for SonarQube",
+      "value": "5Gi"
+    },
+	{
+      "name": "DATABASE_SERVICE_NAME",
+      "displayName": "Database service name",
+      "description": "Name of the database service",
+      "value": "postgresql-sonarqube"
+    },
+	{
+      "name": "PYTHON_VERSION",
+      "displayName": "Version of Python Image",
+      "description": "Version of Python image to be used (3.6 or latest).",
+      "value": "3.5",
+      "required": true
+    },
+	{
+      "name": "PIP_INDEX_URL",
+      "displayName": "Custom PyPi Index URL",
+      "description": "The custom PyPi index URL",
+      "value": ""
+    },
+	{
+      "name": "GITHUB_WEBHOOK_SECRET",
+      "displayName": "GitHub Webhook Secret",
+      "description": "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted.",
+      "generate": "expression",
+      "from": "[a-zA-Z0-9]{40}"
+    }
+  ]
+  
+  
+
   "objects": [
 	{
       "kind": "ImageStream",
@@ -140,136 +270,5 @@
 }
     
   ],
-  "parameters": [
-		{
-      "name": "APPLICATION_NAME",
-      "displayName": "Application Name",
-      "description": "The name given to the application",
-      "required": true,
-      "value": "classy"
-    },
-    {
-      "name": "BUILD_PROJECT",
-      "displayName": "Build Project",
-      "description": "The openshift project where builds and target images are stored.",
-      "required": true,
-      "value": "l9fjgg-tools"
-    },    
-    {
-      "name": "BACKEND_NAME",
-      "displayName": "Backend Name",
-      "description": "The name assigned to all of the backend objects defined in this template.",
-      "required": true,
-      "value": "classy"
-    },
-    {
-      "name": "RPROXY_NAME",
-      "displayName": "Reverse Proxy Name (SiteMinder)",
-      "description": "The name assigned to the objects used as a SiteMinder entry point (or Reverse Proxy).  Typcially this is an NGINX instance.",
-      "required": true,
-      "value": "anakin"
-    },
-    {
-      "name": "DEPLOYMENT_TYPE",
-      "displayName": "Deployment Type",
-      "description": "The name assigned to the imagestreams defined in this template.",
-      "required": true,
-      "value": "latest"
-    },
-    {
-      "name": "SOURCE_REPOSITORY_URL",
-      "displayName": "Source Repository",
-      "description": "The source repository to use for the builds.",
-      "required": true,
-      "value": "https://github.com/Krocodial/classy.git"
-    },	
-    {
-      "name": "GIT_REFERENCE",
-      "displayName": "Git Reference",
-      "description": "Optional branch, tag, or commit.",
-      "required": true,
-      "value": "master"
-    },
-    {
-      "name": "EDITOR_NAME",
-      "displayName": "Swagger Editor Name",
-      "description": "The name assigned to all of the swagger editor objects defined in this template.",
-      "required": true,
-      "value": "editor"
-    },
-    {
-      "name": "MOCKSERVER_NAME",
-      "displayName": "Mock Server Name",
-      "description": "The name assigned to all of the mock server objects defined in this template.",
-      "required": true,
-      "value": "mock"
-    },
-    {
-      "name": "SCHEMASPY_NAME",
-      "displayName": "Schema Spy Name",
-      "description": "The name assigned to all of the schema spy objects defined in this template.",
-      "required": true,
-      "value": "schema-spy"
-    },
-	{
-      "name": "SONAR_DATABASE_USER",
-      "displayName": "DB Username",
-      "description": "Username for Sonar Database user that will be used for accessing the database.",
-      "generate": "expression",
-      "from": "user[A-Z0-9]{3}"
-    },
-    {
-      "name": "SONAR_DATABASE_PASSWORD",
-      "displayName": "Database Password",
-      "description": "Password for the Sonar Database user.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
-    },
-	{
-      "name": "SONAR_DATABASE_ADMIN_PASSWORD",
-      "displayName": "Database Admin Password",
-      "description": "Password for the Admin Database user.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
-    },
-	{
-      "name": "SONAR_ADMIN_PASSWORD",
-      "displayName": "Sonar admin password",
-      "description": "Password for the Sonar admin user.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
-    },
-	{
-      "name": "DATABASE_VOLUME_CAPACITY",
-      "displayName": "Database volume capacity",
-      "description": "Size of the database used for SonarQube",
-      "value": "5Gi"
-    },
-	{
-      "name": "DATABASE_SERVICE_NAME",
-      "displayName": "Database service name",
-      "description": "Name of the database service",
-      "value": "postgresql-sonarqube"
-    },
-	{
-      "name": "PYTHON_VERSION",
-      "displayName": "Version of Python Image",
-      "description": "Version of Python image to be used (3.6 or latest).",
-      "value": "3.5",
-      "required": true
-    },
-	{
-      "name": "PIP_INDEX_URL",
-      "displayName": "Custom PyPi Index URL",
-      "description": "The custom PyPi index URL",
-      "value": ""
-    },
-	{
-      "name": "GITHUB_WEBHOOK_SECRET",
-      "displayName": "GitHub Webhook Secret",
-      "description": "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{40}"
-    }
-  ]
+
 }
