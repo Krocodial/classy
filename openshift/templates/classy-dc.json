@@ -134,7 +134,10 @@
         "to": {
           "kind": "Service",
           "name": "${APP_NAME}-${NAME_SUFFIX}"
-        }
+        },
+		"tls": {
+			"termination": "edge"
+		}
       }
     },
 	{
@@ -170,8 +173,7 @@
                     }
         ],
 		"postCommit": {
-			"script": "./manage.py check && \
-						./manage.py migrate"
+			"script": "./manage.py check && ./manage.py migrate"
 		}
         "replicas": 2,
         "selector": {
