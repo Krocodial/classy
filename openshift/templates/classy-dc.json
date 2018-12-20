@@ -204,7 +204,7 @@
                 ],
                 "readinessProbe": {
                   "timeoutSeconds": 3,
-                  "initialDelaySeconds": 10,
+                  "initialDelaySeconds": 20,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
@@ -212,7 +212,7 @@
                 },
                 "livenessProbe": {
                   "timeoutSeconds": 3,
-                  "initialDelaySeconds": 30,
+                  "initialDelaySeconds": 40,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
@@ -270,8 +270,12 @@
                 ],
                 "resources": {
                   "limits": {
-                    "memory": "${MEMORY_LIMIT}"
-                  }
+                    "memory": "16Gi",
+                  },
+				  "requests": {
+					"cpu": "2",
+					"memory": "8Gi"
+				  }
                 }
               }
             ]
