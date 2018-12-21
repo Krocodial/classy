@@ -101,7 +101,7 @@ class completed_task(models.Model):
     queue = models.CharField(max_length=7, choices=queues)
     finished_at = models.DateTimeField(auto_now=True)
     error = models.TextField(blank=True, help_text='This will show why the task has failed')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         default_permissions = ()
@@ -137,15 +137,15 @@ class classification_logs(models.Model):
     flag = models.SmallIntegerField()
     new_classification = models.CharField(max_length=2, choices=classification_choices, blank=True)
     old_classification = models.CharField(max_length=2, choices=classification_choices, blank=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='Modifier')
-    approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='Approver')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Modifier')
+    approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Approver')
     state = models.CharField(max_length=1, choices=state_choices)
 
     class Meta:
         default_permissions = ()
 
 class classification_review_groups(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
 
     class Meta:

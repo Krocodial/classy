@@ -17,18 +17,21 @@ class postTests(TransactionTestCase):
         self.user = User.objects.create(username='basic', is_staff=False)
         self.user.set_password('password')
         self.user.save()
-        user = User.objects.create(username='staff', is_staff=True)
-        user.set_password('staff_password')
-        user.save()
+        
+        d1 = data_authorization.objects.create(
+            name="All",
+        )
+
+        self.d1 = d1
+
+        self.staff = User.objects.create(username='staff', is_staff=True)
+        self.staff.set_password('staff_password')
+        self.staff.save()
+
         user = User.objects.create_superuser('super', 'xx@xx.com', 'super_password')
         user.save()
 
-
-    def tearDown(self):
-           pass 
-
     def test_review_process(self):
-        
         data = {
             'datasource': 'testo',
             'schema': 'testo',
@@ -42,7 +45,9 @@ class postTests(TransactionTestCase):
         form = ClassificationForm(data)
         self.assertEqual(form.is_valid(), True)
         tmp = form.save()
-
+        
+        self.user.data_authorizations.add(self.d1)
+        
         c = Client()
         c.post(reverse('classy:index'), {'username': 'basic', 'password': 'password'})
         response = c.get(reverse('classy:search'), {'query': 'test'})
@@ -103,6 +108,11 @@ class postTests(TransactionTestCase):
         self.assertNotContains(response, '<td>testo</td>')
 
         response = c.get(reverse('classy:search'), {'query': 'test'})
+        self.assertNotContains(response, '<td>testo</td>')
+
+        self.user.data_authorizations.add(self.d1)
+
+        response = c.get(reverse('classy:search'), {'query': 'test'})
         self.assertContains(response, '<td>testo</td>')
 
         response = c.get(reverse('classy:search'), {'query': 'password'})
@@ -146,6 +156,11 @@ class postTests(TransactionTestCase):
         self.assertNotContains(response, '<td>testo</td>')
 
         response = c.get(reverse('classy:search'), {'query': 'test'})
+        self.assertNotContains(response, '<td>testo</td>')
+
+        self.staff.data_authorizations.add(self.d1)
+
+        response = c.get(reverse('classy:search'), {'query': 'test'})
         self.assertContains(response, '<td>testo</td>')
 
         response = c.get(reverse('classy:search'), {'query': 'password'})
@@ -162,10 +177,10 @@ class postTests(TransactionTestCase):
         response = c.post(reverse('classy:modi'), {'toMod': json.dumps(toMod)})
         self.assertEqual(response.status_code, 200)
 
-    '''
+    
     def test_uploader(self):
         c = Client()
-
+        self.staff.data_authorizations.add(self.d1)
         response = c.post(reverse('classy:index'), {'username': 'staff', 'password': 'staff_password'})
         self.assertEqual(response.status_code, 302)
 
@@ -206,26 +221,24 @@ class postTests(TransactionTestCase):
             fp.write('Unclassified,Sensitive,ACS,COI_IU_STATUS,BYTES,DB:DB:IP:DB_NAME::PORT\n')
             fp.write('PUBLIC,Sensitive,ACL,IO_SECRETS,GIT,DBQ:DBQ:IPADDR:DB_NAME::PORT\n')
             fp.seek(0)
-            db.connections.close_all()
+            #db.connections.close_all()
             response = c.post(reverse('classy:uploader'), {'file': fp})
             self.assertEqual(response.status_code, 200)
-            time.sleep(10)
             response = c.get(reverse('classy:search'), {'query': ''})
             self.assertContains(response, '<td>ACS</td>')
-    '''
+    
     def test_admin(self):
         c = Client()
         response = c.post(reverse('classy:index'), {'username': 'super', 'password': 'super_password'})
         self.assertEqual(response.status_code, 302)
-        response = c.get(reverse('admin:index') + 'auth/user/')
+        response = c.get(reverse('admin:index') + 'classy/user/')
         self.assertEqual(response.status_code, 200)
 
         creds = {'username': 'new_user', 'password1': 'password', 'password2': 'password', '_save': 'Save'}
-        response = c.post(reverse('admin:index') + 'auth/user/add/', data=creds)
+        response = c.post(reverse('admin:index') + 'classy/user/add/', data=creds)
         self.assertEqual(response.status_code, 200)
 
         c.get(reverse('classy:user_logout'))
         response = c.get(reverse('classy:home'))
         self.assertEqual(response.status_code, 302)
-        
 

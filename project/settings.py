@@ -28,23 +28,23 @@ SECRET_KEY = os.getenv(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG', False)
 BYPASS_AUTH = True
 PRES = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'classy.User'
 
 # Application definition
-
+# Since we customize the default user model via 'classy' the config must come after 
 INSTALLED_APPS = [
-    'classy.apps.ClassyConfig',
+    #'classy.apps.ClassyConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'classy.apps.ClassyConfig',
+    'classy.apps.ClassyConfig',
     #'debug_toolbar',
 ]
 

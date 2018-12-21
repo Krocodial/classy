@@ -239,8 +239,8 @@ def exceptions(request):
 
 #Master log page, searchable
 def log_list(request):
-        #if not request.user.is_staff:
-        #    return redirect('classy:index')
+        if not request.user.is_authenticated:
+            return redirect('classy:index')
         form = basic_search(request.GET)
 
         num = classification_review_groups.objects.all().count()
@@ -328,6 +328,8 @@ def log_list(request):
 
 #Shows all information known about a classification object. History, variables, associated users, masking instructions.
 def log_detail(request, classy_id):
+    if not request.user.is_authenticated:
+        return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
     try:
         fil = classification.objects.filter(id=classy_id)
