@@ -107,7 +107,7 @@ pipeline {
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
-							"SOURCE_REPOSITORY_REF=${GIT_REF}")
+							"SOURCE_REPOSITORY_REF=${GIT_REF}"
 							)
 							
 						openshift.apply(nginx)
