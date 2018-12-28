@@ -223,7 +223,7 @@
                     "name": "DATABASE_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "name" : "${APP_NAME}-${ENV_NAME}",
                         "key" : "database-user"
                       }
                     }
@@ -232,7 +232,7 @@
                     "name": "DATABASE_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "name" : "${APP_NAME}-${ENV_NAME}",
                         "key" : "database-password"
                       }
                     }
@@ -245,7 +245,7 @@
                     "name": "DJANGO_SECRET_KEY",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "name" : "${APP_NAME}-${ENV_NAME}",
                         "key" : "django-secret-key"
                       }
                     }
