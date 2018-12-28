@@ -129,23 +129,6 @@
         }
       }
     },
-    {
-      "kind": "Route",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${APP_NAME}"
-      },
-      "spec": {
-        "host": "",
-        "to": {
-          "kind": "Service",
-          "name": "${APP_NAME}-${NAME_SUFFIX}"
-        },
-		"tls": {
-			"termination": "edge"
-		}
-      }
-    },
 	{
       "kind": "DeploymentConfig",
       "apiVersion": "v1",

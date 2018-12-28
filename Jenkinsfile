@@ -23,12 +23,14 @@ def nginxBC = 'openshift/templates/nginx-bc.json'
 
 def backendDC = 'openshift/templates/classy-dc.json'
 def databaseDC = 'openshift/templates/postgres-dc.json'
+def nginxDC = 'openshift/templates/nginx-dc.json'
 
 def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
 def databaseDcTag = 'postgres-dc'
 def databaseBcTag = 'postgres-bc'
 def nginxBcTag = 'nginx-bc'
+def nginxDcTag = 'nginx-dc'
 
 pipeline {
   environment {
@@ -92,12 +94,21 @@ pipeline {
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
+							"SOURCE_REPOSITORY_REF=${GIT_REF}")
 
 						openshift.apply(backend)
 						
 						nginx = openshift.process(
-							readFile(file:"${nginxBC}"))
+							readFile(file:"${nginxBC}"),
+							"-p",
+							"APP_NAME=${APP_NAME}",
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}",
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
+							"SOURCE_REPOSITORY_REF=${GIT_REF}")
+							)
 							
 						openshift.apply(nginx)
 					}
@@ -105,7 +116,7 @@ pipeline {
 			}
 		}
 	}
-	stage('building classy image') {
+	stage('building classy images') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -130,11 +141,12 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						//openshift.selector("all", [ template : backendBcTag ]).delete()
-						//openshift.selector("all", [ template : backendDcTag ]).delete()
-						//openshift.selector("all", [ template : databaseDcTag ]).delete()
-						if (openshift.selector("secrets", "classy").exists()) {
-							openshift.selector("secrets", "classy").delete()
+						openshift.selector("all", [ template : backendBcTag ]).delete()
+						openshift.selector("all", [ template : backendDcTag ]).delete()
+						openshift.selector("all", [ template : databaseDcTag ]).delete()
+						openshift.selector("all", [ template : nginxDcTag ]).delete()
+						if (openshift.selector("secrets", [app-name : "classy", env-name: "dev"]).exists()) {
+							openshift.selector("secrets", [app-name : "classy", env-name: "dev"]).delete()
 						}
 					}
 				}
@@ -176,7 +188,15 @@ pipeline {
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 						
-
+						nginx = openshift.process(
+							readFile(file:"${nginxDC}"),
+							"-p",
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}")
+						
+						
 						openshift.apply(database)
 							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
 							'app-name':"${APP_NAME}", 
@@ -189,9 +209,12 @@ pipeline {
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
 
-						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
-
+						openshift.apply(nginx)
+							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							'app-name':"${APP_NAME}", 
+							'env-name':"${DEV_SUFFIX}"], 
+							"--overwrite")
+		
 
 					}
 				}
@@ -203,7 +226,12 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
+					
+						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
 							
+						openshift.tag(${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}-${PR_NUM}:dev")
 					}
 				}
 			}

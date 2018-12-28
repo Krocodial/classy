@@ -10,22 +10,34 @@
   },
     "parameters": [
 		{
+		  "name": "APP_NAME",
+		  "required": true
+		},
+		{
+		  "name": "NAME_SUFFIX",
+		  "required": true
+		},
+		{
+		  "name": "ENV_NAME",
+		  "required": true
+		},
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true
+		},
+		{
 		  "name": "NAME",
 		  "displayName": "Name",
 		  "required": true,
 		  "value": "proxy-nginx"
-		},
-		{
-		  "name": "GIT_REPO",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "https://github.com/Krocodial/classy.git"
-		},
-		{
-		  "name": "GIT_BRANCH",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "master"
 		},
 		{
 		  "name": "IMG_SRC",
@@ -39,10 +51,10 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${NAME}",
+                "name": "${NAME}-${APP_IMAGE_TAG}",
                 "creationTimestamp": null,
                 "labels": {
-                    "build": "${NAME}"
+                    "build": "${NAME}-${APP_IMAGE_TAG}"
                 }
             },
             "spec": {
@@ -58,10 +70,10 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${NAME}",
+                "name": "${NAME}-${APP_IMAGE_TAG}",
                 "creationTimestamp": null,
                 "labels": {
-                    "build": "${NAME}"
+                    "build": "${NAME}-${APP_IMAGE_TAG}"
                 }
             },
             "spec": {
@@ -77,8 +89,8 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "${GIT_REPO}",
-						"ref": "${GIT_BRANCH}"
+                        "uri": "${SOURCE_REPOSITORY_URL}",
+						"ref": "${SOURCE_REPOSITORY_REF}"
                     }
                 },
                 "strategy": {
@@ -89,12 +101,22 @@
                             "namespace": "openshift",
                             "name": "${IMG_SRC}:latest"
                         }
-                    }
+                    },
+					"env": {
+						{
+							"name" : "NGINX_CONF_DIR",
+							"value": "project/conf.d"
+						},
+						{
+							"name": "NGINX_PROXY_URL",
+							"value": "${APP_NAME}-${NAME_SUFFIX}:8080"
+						}
+					}
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${NAME}:latest"
+                        "name": "${NAME}:${APP_IMAGE_TAG}"
                     }
                 },
                 "resources": {},

@@ -1,0 +1,183 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx-dc"
+  },
+  "labels": {
+	"template": "nginx-dc",
+	"app": "classy"
+  },
+    "parameters": [
+	{
+	  "name": "APP_NAME",
+	  "required": true
+	},
+	{
+	  "name": "NAME_SUFFIX",
+	  "required": true
+	},
+	{
+	  "name": "ENV_NAME",
+	  "required": true
+	},
+	{
+	  "name": "APP_IMAGE_TAG",
+	  "required": true
+	},
+    {
+      "name": "NAME",
+      "displayName": "Name",
+      "description": "The name assigned to all of the frontend objects defined in this template.",
+      "required": true,
+      "value": "proxy-nginx"
+    },
+    {
+      "name": "APPLICATION_DOMAIN",
+      "displayName": "Application Hostname",
+      "description": "The exposed hostname that will route to the nginx service, if left blank a value will be defaulted.",
+      "value": ""
+    }
+  ],
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Exposes and load balances the application pods"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "web",
+            "port": 1337,
+            "targetPort": 1337
+          }
+        ],
+        "selector": {
+          "name": "${NAME}"
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "template.openshift.io/expose-uri": "http://{.spec.host}{.spec.path}"
+        }
+      },
+      "spec": {
+        "host": "${APPLICATION_DOMAIN}",
+        "to": {
+          "kind": "Service",
+          "name": "${NAME}"
+        },
+		"tls": {
+			"termination": "edge"
+		}
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}-${NAME_SUFFIX}",
+        "annotations": {
+          "description": "Keeps track of changes in the application image"
+        }
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Defines how to deploy the application server",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Rolling"
+        },
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "proxy-nginx"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${NAME}-${NAME_SUFFIX}:${ENV_NAME}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "replicas": 2,
+        "selector": {
+          "name": "${NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${NAME}",
+            "labels": {
+              "name": "${NAME}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "proxy-nginx",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 1337
+                  }
+                ],
+                "readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 3,
+                  "httpGet": {
+                    "path": "/",
+                    "port": 1337
+                  }
+                },
+                "livenessProbe": {
+                    "timeoutSeconds": 3,
+                    "initialDelaySeconds": 30,
+                    "httpGet": {
+                        "path": "/",
+                        "port": 1337
+                    }
+                },
+                "resources": {
+                    "limits": {
+                        "memory": "1Gi"
+                    }
+                },
+                "env": [
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "1Gi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
