@@ -1,0 +1,106 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+	  "name": "${APP_NAME}",
+	},
+	"labels": {
+		"template": "nginx-bc",
+		"app": "classy"
+	},
+	"parameters": [
+		{
+		  "name": "NAME",
+		  "displayName": "Name",
+		  "required": true,
+		  "value": "proxy-nginx"
+		},
+		{
+		  "name": "GIT_REPO",
+		  "displayName": "Name",
+		  "required": true,
+		  "value": "https://github.com/Krocodial/classy.git"
+		},
+		{
+		  "name": "GIT_BRANCH",
+		  "displayName": "Name",
+		  "required": true,
+		  "value": "master"
+		},
+		{
+		  "name": "IMG_SRC",
+		  "displayName": "Name",
+		  "required": true,
+		  "value": "bcgov-s2i-nginx"
+		}
+	],
+	"objects": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${NAME}",
+                "creationTimestamp": null,
+                "labels": {
+                    "build": "${NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": false
+                }
+            },
+            "status": {
+                "dockerImageRepository": ""
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${NAME}",
+                "creationTimestamp": null,
+                "labels": {
+                    "build": "${NAME}"
+                }
+            },
+            "spec": {
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                    }
+                ],
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "${GIT_REPO}",
+						"ref": "${GIT_BRANCH}"
+                    }
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "namespace": "openshift",
+                            "name": "${IMG_SRC}:latest"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${NAME}:latest"
+                    }
+                },
+                "resources": {},
+                "postCommit": {},
+                "nodeSelector": null
+            }
+        }
+    ]
+}

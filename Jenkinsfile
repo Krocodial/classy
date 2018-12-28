@@ -19,6 +19,7 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
 
 def backendBC = 'openshift/templates/classy-bc.json'
 def databaseBC = 'openshift/templates/postgres-bc.json'
+def nginxBC = 'openshift/templates/nginx-bc.json'
 
 def backendDC = 'openshift/templates/classy-dc.json'
 def databaseDC = 'openshift/templates/postgres-dc.json'
@@ -27,6 +28,7 @@ def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
 def databaseDcTag = 'postgres-dc'
 def databaseBcTag = 'postgres-bc'
+def nginxBcTag = 'nginx-bc'
 
 pipeline {
   environment {
@@ -93,6 +95,11 @@ pipeline {
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 
 						openshift.apply(backend)
+						
+						nginx = openshift.process(
+							readFile(file:"${nginxBC}"))
+							
+						openshift.apply(nginx)
 					}
 				}
 			}
@@ -108,6 +115,9 @@ pipeline {
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
 						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
+						echo "building nginx bc"
+						def nginx = openshift.selector("bc", "proxy-nginx")
+						nginx.startBuild("--wait")
 							
 					}
 				}
@@ -120,13 +130,12 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						//openshift.selector("all", [ template : templateName ]).delete()
-						openshift.selector("all", [ template : backendBcTag ]).delete()
-						openshift.selector("all", [ template : backendDcTag ]).delete()
-						openshift.selector("all", [ template : databaseDcTag ]).delete()
-						//if (openshift.selector("secrets", "classy").exists()) {
-						//	openshift.selector("secrets", "classy").delete()
-						//}
+						//openshift.selector("all", [ template : backendBcTag ]).delete()
+						//openshift.selector("all", [ template : backendDcTag ]).delete()
+						//openshift.selector("all", [ template : databaseDcTag ]).delete()
+						if (openshift.selector("secrets", "classy").exists()) {
+							openshift.selector("secrets", "classy").delete()
+						}
 					}
 				}
 			}
