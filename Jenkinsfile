@@ -145,9 +145,10 @@ pipeline {
 						openshift.selector("all", [ template : backendDcTag ]).delete()
 						openshift.selector("all", [ template : databaseDcTag ]).delete()
 						openshift.selector("all", [ template : nginxDcTag ]).delete()
-						if (openshift.selector("secrets", [app-name : "classy" ]).exists()) {
-							openshift.selector("secrets", [app-name : "classy" ]).delete()
-						}
+						openshift.selector("secrets", [ app-name : "classy" ]).delete()
+						//if (openshift.selector("secrets", [app-name : "classy" ]).exists()) {
+						//	openshift.selector("secrets", [app-name : "classy" ]).delete()
+						//}
 					}
 				}
 			}
