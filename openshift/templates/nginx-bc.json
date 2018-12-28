@@ -1,14 +1,14 @@
 {
-    "kind": "Template",
-    "apiVersion": "v1",
-    "metadata": {
-	  "name": "proxy-nginx",
-	},
-	"labels": {
-		"template": "nginx-bc",
-		"app": "classy"
-	},
-	"parameters": [
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx-bc"
+  },
+  "labels": {
+	"template": "nginx-bc",
+	"app": "classy"
+  },
+    "parameters": [
 		{
 		  "name": "NAME",
 		  "displayName": "Name",
