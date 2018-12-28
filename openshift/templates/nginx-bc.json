@@ -2,7 +2,7 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-	  "name": "${APP_NAME}",
+	  "name": "proxy-nginx",
 	},
 	"labels": {
 		"template": "nginx-bc",
