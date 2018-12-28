@@ -36,7 +36,7 @@ pipeline {
 	APP_NAME = 'classy'
 	
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
-	GIT_REF = 'master'
+	GIT_REF = 'nginx-openshift'
 	
 	TOOLS_PROJECT = 'l9fjgg-tools'
 	
