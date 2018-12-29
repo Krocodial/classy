@@ -37,11 +37,7 @@
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the nginx service, if left blank a value will be defaulted.",
       "value": ""
-    },
-	{
-	  "name": "NGINX_PROXY_HOST",
-	  "required": true
-	}
+    }
   ],
   "objects": [
     {
@@ -59,10 +55,10 @@
       "spec": {
         "ports": [
           {
-            "name": "80-tcp",
+            "name": "8080-tcp",
 			"protocol": "TCP",
-            "port": 80,
-            "targetPort": 80
+            "port": 8080,
+            "targetPort": 8080
           }
         ],
         "selector": {
@@ -156,7 +152,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 80,
+                    "containerPort": 8080,
 					"protocol": "TCP"
                   }
                 ],

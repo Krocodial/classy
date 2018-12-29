@@ -90,10 +90,9 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-						"ref": "${SOURCE_REPOSITORY_REF}"
-                    },
-					"contextDir": "${CONTEXT_DIR}"
+                        "uri": "https://github.com/Krocodial/s2i-nginx-example.git",
+						"ref": "master"
+                    }
                 },
                 "strategy": {
                     "type": "Source",
