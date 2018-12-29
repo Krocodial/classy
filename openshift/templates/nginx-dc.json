@@ -53,13 +53,14 @@
           "description": "Exposes and load balances the application pods"
         },
 		"labels": {
-			"app": "${APP_NAME}"
+			"app": "${NAME}"
 		}
       },
       "spec": {
         "ports": [
           {
-            "name": "web",
+            "name": "80-tcp",
+			"protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -73,7 +74,7 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}",
+        "name": "${NAME}",
         "annotations": {
           "template.openshift.io/expose-uri": "http://{.spec.host}{.spec.path}"
         }
@@ -84,6 +85,9 @@
           "kind": "Service",
           "name": "${NAME}"
         },
+		"port": {
+		  "targetPort": "80-tcp"
+		},
 		"tls": {
 			"termination": "edge",
 			"insecureEdgeTerminationPolicy": "Redirect"
@@ -134,13 +138,15 @@
         ],
         "replicas": 2,
         "selector": {
-          "name": "${NAME}"
+          "name": "${NAME}",
+		  "app": "${NAME}"
         },
         "template": {
           "metadata": {
             "name": "${NAME}",
             "labels": {
-              "name": "${NAME}"
+              "name": "${NAME}",
+			  "app": "${NAME}"
             }
           },
           "spec": {
@@ -150,7 +156,8 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 80
+                    "containerPort": 80,
+					"protocol": "TCP"
                   }
                 ],
                 "resources": {
@@ -159,14 +166,6 @@
                     }
                 },
                 "env": [
-					{
-						"name": "NGINX_PROXY_URL",
-						"value": "${APP_NAME}-${NAME_SUFFIX}:8080"
-					},
-					{
-						"name": "NGINX_PROXY_HOST",
-						"value": "${NGINX_PROXY_HOST}"
-					}
                 ],
                 "resources": {
                   "limits": {

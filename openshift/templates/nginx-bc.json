@@ -48,11 +48,11 @@
 		{
 		  "name": "NGINX_PROXY_URL",
 		  "required": true,
-		  "value": "${APP_NAME}-${NAME_SUFFIX}:8080"
+		  "value": "${APP_NAME}:8080"
 		},
 		{
 		  "name": "CONTEXT_DIR",
-		  "value": "project"
+		  "value": "project/"
 		}
 		
 	],
@@ -85,13 +85,6 @@
             },
             "spec": {
                 "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChange": {}
-                    }
                 ],
 				"runPolicy": "Serial",
                 "source": {
@@ -115,10 +108,6 @@
 						{
 							"name": "NGINX_PROXY_URL",
 							"value": "${NGINX_PROXY_URL}"
-						},
-						{
-							"name": "NGINX_CONF_DIR",
-							"value": "project/conf.d/"
 						}
 					]
                 },
