@@ -46,11 +46,6 @@
 		  "value": "bcgov-s2i-nginx"
 		},
 		{
-		  "name": "CONTEXT_DIR",
-		  "required": true,
-		  "value": "project/conf.d/"
-		},
-		{
 		  "name": "NGINX_PROXY_URL",
 		  "required": true,
 		  "value": "${APP_NAME}-${NAME_SUFFIX}:8080"
@@ -62,10 +57,10 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${NAME}-${APP_IMAGE_TAG}",
+                "name": "${NAME}",
                 "creationTimestamp": null,
                 "labels": {
-                    "build": "${NAME}-${APP_IMAGE_TAG}"
+                    "build": "${NAME}"
                 }
             },
             "spec": {
@@ -100,8 +95,7 @@
                     "git": {
                         "uri": "${SOURCE_REPOSITORY_URL}",
 						"ref": "${SOURCE_REPOSITORY_REF}"
-                    },
-					"contextDir": "${CONTEXT_DIR}"
+                    }
                 },
                 "strategy": {
                     "type": "Source",
@@ -116,6 +110,10 @@
 						{
 							"name": "NGINX_PROXY_URL",
 							"value": "${NGINX_PROXY_URL}"
+						},
+						{
+							"name": "NGINX_CONF_DIR",
+							"value": "project/conf.d/"
 						}
 					]
                 },

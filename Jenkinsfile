@@ -77,6 +77,7 @@ pipeline {
 					openshift.withProject() {
 						echo "Destroying backend objects..."
 						openshift.selector("all", [ template : backendBcTag ]).delete()
+						openshift.selector("all", [ template : nginxBcTag ]).delete()
 					}
 				}
 			}

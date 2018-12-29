@@ -176,10 +176,6 @@
                 },
                 "env": [
 					{
-						"name" : "NGINX_CONF_DIR",
-						"value": "project/conf.d"
-					},
-					{
 						"name": "NGINX_PROXY_URL",
 						"value": "${APP_NAME}-${NAME_SUFFIX}:8080"
 					},
