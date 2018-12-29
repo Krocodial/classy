@@ -162,6 +162,10 @@
                     }
                 },
                 "env": [
+					{
+						"name": "NGINX_PROXY_URL",
+						"value": "classy:8080"
+					}
                 ],
                 "resources": {
                   "limits": {
