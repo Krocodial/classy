@@ -128,7 +128,8 @@ pipeline {
 						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 						echo "building nginx bc"
-						def nginx = openshift.selector("bc", "proxy-nginx")
+						def nginx = openshift.selector("bc", 
+							"proxy-nginx-${PR_NUM}")
 						nginx.startBuild("--wait")
 							
 					}

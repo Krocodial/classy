@@ -49,6 +49,10 @@
 		  "name": "NGINX_PROXY_URL",
 		  "required": true,
 		  "value": "${APP_NAME}-${NAME_SUFFIX}:8080"
+		},
+		{
+		  "name": "CONTEXT_DIR",
+		  "value": "project"
 		}
 		
 	],
@@ -95,7 +99,8 @@
                     "git": {
                         "uri": "${SOURCE_REPOSITORY_URL}",
 						"ref": "${SOURCE_REPOSITORY_REF}"
-                    }
+                    },
+					"contextDir": "${CONTEXT_DIR}"
                 },
                 "strategy": {
                     "type": "Source",
