@@ -149,11 +149,11 @@
 					"imageChangeParams": {
                         "automatic": true,
                         "containerNames": [
-                                "classy"
+                                "${APP_NAME}-${NAME_SUFFIX}"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
-                                "name": "classy-${NAME_SUFFIX}:${ENV_NAME}"
+                                "name": "{APP_NAME}-${NAME_SUFFIX}:${ENV_NAME}"
                             }
                         }
                     },
