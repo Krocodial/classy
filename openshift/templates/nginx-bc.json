@@ -115,6 +115,10 @@
 						{
 							"name": "NGINX_PROXY_URL",
 							"value": "${NGINX_PROXY_URL}"
+						},
+						{
+							"name": "NGINX_CONF_DIR",
+							"value": "project/conf.d/"
 						}
 					]
                 },
