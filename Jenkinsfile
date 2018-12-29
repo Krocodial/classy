@@ -197,7 +197,7 @@ pipeline {
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}",
-							"APPLICATION_DOMAIN=${APP_NAME}-${DEV_SUFFIX}-pathfinder.gov.bc.ca")
+							"APPLICATION_DOMAIN=${APP_NAME}-${DEV_SUFFIX}.pathfinder.gov.bc.ca")
 						
 						
 						openshift.apply(database)
