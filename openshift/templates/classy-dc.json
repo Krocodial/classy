@@ -149,7 +149,7 @@
 					"imageChangeParams": {
                         "automatic": true,
                         "containerNames": [
-                                "classy-${NAME_SUFFIX}"
+                                "classy"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
