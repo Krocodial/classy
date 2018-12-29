@@ -48,7 +48,7 @@
 		{
 		  "name": "NGINX_PROXY_URL",
 		  "required": true,
-		  "value": "${APP_NAME}:8080"
+		  "value": "classy:8080"
 		},
 		{
 		  "name": "CONTEXT_DIR",
