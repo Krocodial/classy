@@ -73,7 +73,7 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${APP_NAME}",
         "annotations": {
           "template.openshift.io/expose-uri": "http://{.spec.host}{.spec.path}"
         }
@@ -120,7 +120,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "proxy-nginx"
+                "${NAME}"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -152,26 +152,10 @@
                   {
                     "containerPort": 1337
                   }
-                ],
-                "readinessProbe": {
-                  "timeoutSeconds": 3,
-                  "initialDelaySeconds": 3,
-                  "httpGet": {
-                    "path": "/",
-                    "port": 1337
-                  }
-                },
-                "livenessProbe": {
-                    "timeoutSeconds": 3,
-                    "initialDelaySeconds": 30,
-                    "httpGet": {
-                        "path": "/",
-                        "port": 1337
-                    }
-                },
+                ]
                 "resources": {
                     "limits": {
-                        "memory": "1Gi"
+                        "memory": "4Gi"
                     }
                 },
                 "env": [
@@ -186,7 +170,7 @@
                 ],
                 "resources": {
                   "limits": {
-                    "memory": "1Gi"
+                    "memory": "4Gi"
                   }
                 }
               }
