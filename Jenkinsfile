@@ -196,7 +196,8 @@ pipeline {
 							"APP_NAME=${APP_NAME}", 
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}")
+							"APP_IMAGE_TAG=${PR_NUM}",
+							"NGINX_PROXY_HOST=proxy-nginx-${DEV_SUFFIX}-pathfinder.gov.bc.ca")
 						
 						
 						openshift.apply(database)

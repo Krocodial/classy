@@ -40,7 +40,7 @@
     },
 	{
 	  "name": "NGINX_PROXY_HOST",
-	  "value": "${APP_NAME}-${ENV_NAME}-pathfinder.gov.bc.ca"
+	  "required": true
 	}
   ],
   "objects": [
