@@ -82,7 +82,7 @@
           "name": "${NAME}"
         },
 		"port": {
-		  "targetPort": "80-tcp"
+		  "targetPort": "8080-tcp"
 		},
 		"tls": {
 			"termination": "edge",
