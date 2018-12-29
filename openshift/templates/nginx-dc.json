@@ -37,7 +37,11 @@
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the nginx service, if left blank a value will be defaulted.",
       "value": ""
-    }
+    },
+	{
+	  "name": "NGINX_PROXY_HOST",
+	  "value": "${APP_NAME}-${ENV_NAME}-pathfinder.gov.bc.ca"
+	}
   ],
   "objects": [
     {
@@ -47,7 +51,10 @@
         "name": "${NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods"
-        }
+        },
+		"labels": {
+			"app": "${APP_NAME}"
+		}
       },
       "spec": {
         "ports": [
@@ -58,7 +65,7 @@
           }
         ],
         "selector": {
-          "name": "${NAME}"
+          "app": "${NAME}"
         }
       }
     },
@@ -78,7 +85,8 @@
           "name": "${NAME}"
         },
 		"tls": {
-			"termination": "edge"
+			"termination": "edge",
+			"insecureEdgeTerminationPolicy": "Redirect"
 		}
       }
     },
@@ -138,7 +146,7 @@
           "spec": {
             "containers": [
               {
-                "name": "proxy-nginx",
+                "name": "${NAME}",
                 "image": " ",
                 "ports": [
                   {
@@ -174,6 +182,10 @@
 					{
 						"name": "NGINX_PROXY_URL",
 						"value": "${APP_NAME}-${NAME_SUFFIX}:8080"
+					},
+					{
+						"name": "NGINX_PROXY_HOST",
+						"value": "${NGINX_PROXY_HOST}"
 					}
                 ],
                 "resources": {

@@ -44,7 +44,18 @@
 		  "displayName": "Name",
 		  "required": true,
 		  "value": "bcgov-s2i-nginx"
+		},
+		{
+		  "name": "CONTEXT_DIR",
+		  "required": true,
+		  "value": "project/conf.d/"
+		},
+		{
+		  "name": "NGINX_PROXY_URL",
+		  "required": true,
+		  "value": "${APP_NAME}-${NAME_SUFFIX}:8080"
 		}
+		
 	],
 	"objects": [
         {
@@ -61,9 +72,6 @@
                 "lookupPolicy": {
                     "local": false
                 }
-            },
-            "status": {
-                "dockerImageRepository": ""
             }
         },
         {
@@ -73,7 +81,7 @@
                 "name": "${NAME}-${APP_IMAGE_TAG}",
                 "creationTimestamp": null,
                 "labels": {
-                    "build": "${NAME}-${APP_IMAGE_TAG}"
+                    "app": "${NAME}-${APP_IMAGE_TAG}"
                 }
             },
             "spec": {
@@ -86,12 +94,14 @@
                         "imageChange": {}
                     }
                 ],
+				"runPolicy": "Serial",
                 "source": {
                     "type": "Git",
                     "git": {
                         "uri": "${SOURCE_REPOSITORY_URL}",
 						"ref": "${SOURCE_REPOSITORY_REF}"
-                    }
+                    },
+					"contextDir": "${CONTEXT_DIR}"
                 },
                 "strategy": {
                     "type": "Source",
@@ -104,12 +114,8 @@
                     },
 					"env": [
 						{
-							"name" : "NGINX_CONF_DIR",
-							"value": "project/conf.d"
-						},
-						{
 							"name": "NGINX_PROXY_URL",
-							"value": "${APP_NAME}-${NAME_SUFFIX}:8080"
+							"value": "${NGINX_PROXY_URL}"
 						}
 					]
                 },
