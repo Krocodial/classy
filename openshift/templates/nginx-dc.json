@@ -156,12 +156,32 @@
 					"protocol": "TCP"
                   }
                 ],
-
+				"readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 3,
+                  "httpGet": {
+                    "path": "/nginx_status/",
+                    "port": 1337
+                  }
+                },
+                "livenessProbe": {
+                    "timeoutSeconds": 3,
+                    "initialDelaySeconds": 30,
+                    "httpGet": {
+                        "path": "/nginx_status/",
+                        "port": 1337
+                    }
+                },
 				
                 "resources": {
                     "limits": {
-                        "memory": "4Gi"
-                    }
+                        "memory": "5Gi",
+						"cpu": "2"
+                    },
+					"requests": {
+						"memory": "4Gi",
+						"cpu": "1"
+					}
                 },
                 "env": [
 					{

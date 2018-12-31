@@ -256,12 +256,12 @@
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "5",
-                    "memory": "20Gi"
+				    "cpu": "4",
+                    "memory": "16Gi"
                   },
 				  "requests": {
 					"cpu": "3",
-					"memory": "16Gi"
+					"memory": "12Gi"
 				  }
                 }
               }
