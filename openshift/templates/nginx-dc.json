@@ -156,22 +156,7 @@
 					"protocol": "TCP"
                   }
                 ],
-				"readinessProbe": {
-                  "timeoutSeconds": 3,
-                  "initialDelaySeconds": 3,
-                  "httpGet": {
-                    "path": "/nginx_status/",
-                    "port": 1337
-                  }
-                },
-                "livenessProbe": {
-                    "timeoutSeconds": 3,
-                    "initialDelaySeconds": 30,
-                    "httpGet": {
-                        "path": "/nginx_status/",
-                        "port": 1337
-                    }
-                },
+
 				
                 "resources": {
                     "limits": {
