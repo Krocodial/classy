@@ -159,18 +159,22 @@
 				"readinessProbe": {
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
-                  "httpGet": {
-                    "path": "/nginx_status/",
-                    "port": 1337
-                  }
+					"exec": {
+						"command": [
+							"cat",
+							"/tmp/health"
+						]
+					},
                 },
                 "livenessProbe": {
+					"exec": {
+						"command": [
+							"cat",
+							"/tmp/health"
+						]
+					},	
                     "timeoutSeconds": 3,
                     "initialDelaySeconds": 30,
-                    "httpGet": {
-                        "path": "/nginx_status/",
-                        "port": 1337
-                    }
                 },
 				
                 "resources": {
