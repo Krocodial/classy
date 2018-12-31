@@ -156,26 +156,7 @@
 					"protocol": "TCP"
                   }
                 ],
-				"readinessProbe": {
-                  "timeoutSeconds": 3,
-                  "initialDelaySeconds": 3,
-					"exec": {
-						"command": [
-							"cat",
-							"/tmp/health"
-						]
-					}
-                },
-                "livenessProbe": {
-					"exec": {
-						"command": [
-							"cat",
-							"/tmp/health"
-						]
-					},	
-                    "timeoutSeconds": 3,
-                    "initialDelaySeconds": 30
-                },
+
 				
                 "resources": {
                     "limits": {
