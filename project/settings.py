@@ -133,7 +133,7 @@ USE_TZ = True
 FILE_UPLOAD_PERMISSIONS = 0o600
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

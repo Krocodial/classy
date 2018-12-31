@@ -1,0 +1,82 @@
+{% load static %}
+
+.custom-colour>.close {
+    color: #fff;
+}
+
+#wheel {
+    display:    none;
+    position:   fixed;
+    z-index:    1060;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .6 ) 
+                url('https://loading.io/spinners/spookyghost/index.spooky-ghost-ajax-preloader.svg') 
+                50% 50% 
+                no-repeat;
+}
+
+body.loading #wheel {
+	overflow: hidden;
+}
+
+body.loading #wheel {
+	display: block;
+}
+
+
+.thead-inverse tr th {
+	background-color: #79aec8;
+	color: #fff;
+}
+
+.business-header{
+  height: 40vh !important;
+  min-height: 300px;
+  background: url('http://absarokarealty.com/wp-content/uploads/mountains.jpg') center center no-repeat scroll;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+
+}
+.btn-cus {
+	background-color: #79aec8;
+	border-color: #79aec8;
+}
+
+.cus-link {
+	color: #79aec8;
+}
+
+.btn-danger {
+	background-color: #FF7070;
+	border-color: #FF7070;	
+}
+
+
+.recents {
+	max-height: 30vh;
+}
+
+#data-table .selected {
+	background-color: #ffecb3;
+}
+
+
+.modify {
+	background-color: #ffffcc;
+}
+
+.delete {
+	background-color: #ffad99;
+
+}
+
+.iconBan {
+	color: #ffad99;
+	width: 15px;
+	height: 15px;
+}
