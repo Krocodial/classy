@@ -218,10 +218,6 @@
 				    "name": "POSTGRESQL_SERVICE_HOST",
 					"value": "postgresql"
 				  },
-				  {
-				    "name": "DEBUG",
-					"value": "True"
-				  },
                   {
                     "name": "DATABASE_USER",
                     "valueFrom": {
