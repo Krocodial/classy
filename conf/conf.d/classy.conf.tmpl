@@ -23,6 +23,11 @@ server {
         # its helpful to cache these responses
         proxy_cache globalcache;
     }
+	
+	location /static/ {
+		alias /html/;
+		autoindex off;
+	}
     
     # For status of ngnix service
     location /nginx_status/ {
