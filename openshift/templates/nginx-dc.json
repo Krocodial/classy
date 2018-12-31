@@ -164,7 +164,7 @@
 							"cat",
 							"/tmp/health"
 						]
-					},
+					}
                 },
                 "livenessProbe": {
 					"exec": {
@@ -174,7 +174,7 @@
 						]
 					},	
                     "timeoutSeconds": 3,
-                    "initialDelaySeconds": 30,
+                    "initialDelaySeconds": 30
                 },
 				
                 "resources": {
