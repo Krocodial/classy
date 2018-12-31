@@ -160,7 +160,7 @@
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
                   "httpGet": {
-                    "path": "/nginx_status",
+                    "path": "/nginx_status/",
                     "port": 1337
                   }
                 },
@@ -168,7 +168,7 @@
                     "timeoutSeconds": 3,
                     "initialDelaySeconds": 30,
                     "httpGet": {
-                        "path": "/nginx_status",
+                        "path": "/nginx_status/",
                         "port": 1337
                     }
                 },
@@ -181,7 +181,7 @@
                 "env": [
 					{
 						"name": "NGINX_PROXY_URL",
-						"value": "http://classy:8080/"
+						"value": "http://${APP_NAME}-${NAME_SUFFIX}:8080/"
 					}
                 ],
                 "resources": {

@@ -110,7 +110,7 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}",
+        "name": "${APP_NAME}-${NAME_SUFFIX}",
         "annotations": {
           "description": "Exposes and load balances the application pods",
           "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
@@ -125,7 +125,7 @@
           }
         ],
         "selector": {
-          "name": "${APP_NAME}"
+          "name": "${APP_NAME}-${NAME_SUFFIX}"
         }
       }
     },
