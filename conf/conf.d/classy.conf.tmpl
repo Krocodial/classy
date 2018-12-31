@@ -25,7 +25,7 @@ server {
     }
     
     # For status of ngnix service
-    location /nginx_status {
+    location /nginx_status/ {
         # Enable Nginx stats
         stub_status on;
         # Only allow access from localhost
@@ -33,6 +33,6 @@ server {
         # Other request should be denied
         deny all;
         # No need to log this request, its just noise
-        access_log on;
+        access_log off;
     }
 }
