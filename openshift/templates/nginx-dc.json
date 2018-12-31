@@ -55,10 +55,10 @@
       "spec": {
         "ports": [
           {
-            "name": "8080-tcp",
+            "name": "1337-tcp",
 			"protocol": "TCP",
-            "port": 8080,
-            "targetPort": 8080
+            "port": 1337,
+            "targetPort": 1337
           }
         ],
         "selector": {
@@ -82,7 +82,7 @@
           "name": "${NAME}"
         },
 		"port": {
-		  "targetPort": "8080-tcp"
+		  "targetPort": "1337-tcp"
 		},
 		"tls": {
 			"termination": "edge",
@@ -152,10 +152,27 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 8080,
+                    "containerPort": 1337,
 					"protocol": "TCP"
                   }
                 ],
+				"readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 3,
+                  "httpGet": {
+                    "path": "/nginx_status",
+                    "port": 1337
+                  }
+                },
+                "livenessProbe": {
+                    "timeoutSeconds": 3,
+                    "initialDelaySeconds": 30,
+                    "httpGet": {
+                        "path": "/nginx_status",
+                        "port": 1337
+                    }
+                },
+				
                 "resources": {
                     "limits": {
                         "memory": "4Gi"
@@ -164,7 +181,7 @@
                 "env": [
 					{
 						"name": "NGINX_PROXY_URL",
-						"value": "https://classy:8080"
+						"value": "http://classy:8080/"
 					}
                 ],
                 "resources": {

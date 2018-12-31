@@ -44,15 +44,6 @@
 		  "displayName": "Name",
 		  "required": true,
 		  "value": "bcgov-s2i-nginx"
-		},
-		{
-		  "name": "NGINX_PROXY_URL",
-		  "required": true,
-		  "value": "classy:8080"
-		},
-		{
-		  "name": "CONTEXT_DIR",
-		  "value": "project/"
 		}
 		
 	],
@@ -90,9 +81,10 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "https://github.com/Krocodial/s2i-nginx-example.git",
-						"ref": "master"
-                    }
+                        "uri": "${SOURCE_REPOSITORY_URL}",
+						"ref": "${SOURCE_REPOSITORY_REF}"
+                    },
+				"contextDir": "conf/"
                 },
                 "strategy": {
                     "type": "Source",
@@ -104,10 +96,7 @@
                         }
                     },
 					"env": [
-						{
-							"name": "NGINX_PROXY_URL",
-							"value": "${NGINX_PROXY_URL}"
-						}
+
 					]
                 },
                 "output": {
