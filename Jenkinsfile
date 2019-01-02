@@ -158,7 +158,7 @@ pipeline {
 							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
 							-Dsonar.sources=${SONAR_SOURCES} \
 							-Dsonar.host.url=${SONARQUBE_URL}"
-						).trim()
+						)
 						
 						echo "${SONAR_OUT}"
 					}//sonar-runner end
@@ -276,8 +276,11 @@ pipeline {
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
 							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
 							
-						def dc = openshift.selector('dc', 'postgresql')
-						dc.rollout().status()
+						def dcs = openshift.selector('dc', [ app-name : 'classy' ])
+						dcs.rollout().status()
+							
+						//def dc = openshift.selector('dc', 'postgresql')
+						//dc.rollout().status()
 					}
 				}
 			}
