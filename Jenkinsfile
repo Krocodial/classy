@@ -127,17 +127,86 @@ pipeline {
 				}
 			}
 		}
-	}
+	}// end of stage
+	stage('sonar scanner') {
+	  steps {
+        script {
+		openshift.withCluster() {
+		openshift.withProject(TOOLS_PROJECT) {
+		  /*podTemplate(
+			label: 'jenkins-python3nodejs',
+			  name: 'jenkins-python3nodejs',
+			  serviceAccount: 'jenkins',
+			  cloud: 'openshift',
+			  containers: [
+				containerTemplate(
+				  name: 'jnlp',
+				  image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
+				  resourceRequestCpu: '1000m',
+				  resourceLimitCpu: '2000m',
+				  resourceRequestMemory: '2Gi',
+				  resourceLimitMemory: '4Gi',
+				  workingDir: '/tmp',
+				  command: '',
+				  args: '${computer.jnlpmac} ${computer.name}'
+				)
+			  ]
+		  ){
+		    node('jenkins-python3nodejs') {
+			*/
+					checkout scm
+					echo "Performing static SonarQube code analysis ..."
+
+					echo "URL: ${SONARQUBE_URL}"
+					//echo "PWD: ${SONARQUBE_PWD}"
+
+					dir('sonar-runner') {
+						// ======================================================================================================
+						// Set your SonarQube scanner properties at this level, not at the Gradle Build level.
+						// The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
+						//
+						// For more information on available properties visit:
+						// - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
+						// ======================================================================================================
+						
+						sh (
+						  returnStdout: true,
+						  script: "chmod +x gradlew"
+						)
+						
+						SONAR_OUT = sh (
+						  returnStdout: true,
+						  script: "./gradlew sonarqube --stacktrace --info \
+							-Dsonar.verbose=true \
+							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
+							-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
+							-Dsonar.sources=${SONAR_SOURCES} \
+							-Dsonar.host.url=${SONARQUBE_URL}"
+						).trim()
+						
+						echo "${SONAR_OUT}"
+						
+					}//sonar-runner end
+			/*
+			}//node end
+		  }//podTemplate end
+		  */
+		}//script end
+		}
+		}
+	  }//steps end
+	}// end of stage
 	stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						/*openshift.selector("all", [ template : backendBcTag ]).delete()
+						openshift.selector("all", [ template : backendBcTag ]).delete()
 						openshift.selector("all", [ template : backendDcTag ]).delete()
 						openshift.selector("all", [ template : databaseDcTag ]).delete()
-						openshift.selector("all", [ template : nginxDcTag ]).delete()*/
+						openshift.selector("all", [ template : nginxDcTag ]).delete()
 						if (openshift.selector("secrets", "classy-dev").exists()) {
 							openshift.selector("secrets", "classy-dev").delete()
 						}
@@ -146,12 +215,17 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('deploying to dev') {
+	
+	stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-
+						input "Ready to promote to DEV?"
+						
+						//if (openshift.selector("secrets", "classy-dev").exists()) {
+						//	openshift.selector("secrets", "classy-dev").delete()
+						//}
 						if (!openshift.selector("pvc", "postgresql").exists()) {
 							
 							echo "no PVC found, creating..."
@@ -231,79 +305,12 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('sonar scanner') {
-	  steps {
-        script {
-		openshift.withCluster() {
-		openshift.withProject(TOOLS_PROJECT) {
-		  /*podTemplate(
-			label: 'jenkins-python3nodejs',
-			  name: 'jenkins-python3nodejs',
-			  serviceAccount: 'jenkins',
-			  cloud: 'openshift',
-			  containers: [
-				containerTemplate(
-				  name: 'jnlp',
-				  image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
-				  resourceRequestCpu: '1000m',
-				  resourceLimitCpu: '2000m',
-				  resourceRequestMemory: '2Gi',
-				  resourceLimitMemory: '4Gi',
-				  workingDir: '/tmp',
-				  command: '',
-				  args: '${computer.jnlpmac} ${computer.name}'
-				)
-			  ]
-		  ){
-		    node('jenkins-python3nodejs') {
-			*/
-					checkout scm
-					echo "Performing static SonarQube code analysis ..."
 
-					echo "URL: ${SONARQUBE_URL}"
-					//echo "PWD: ${SONARQUBE_PWD}"
-
-					dir('sonar-runner') {
-						// ======================================================================================================
-						// Set your SonarQube scanner properties at this level, not at the Gradle Build level.
-						// The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
-						//
-						// For more information on available properties visit:
-						// - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
-						// ======================================================================================================
-						
-						sh (
-						  returnStdout: true,
-						  script: "chmod +x gradlew"
-						)
-						
-						sh (
-						  returnStdout: true,
-						  script: "./gradlew sonarqube --stacktrace --info \
-							-Dsonar.verbose=true \
-							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-							-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
-							-Dsonar.sources=${SONAR_SOURCES} \
-							-Dsonar.host.url=${SONARQUBE_URL}"
-						)
-						
-						waitForQualityGate abortPipeline: true
-					}//sonar-runner end
-			/*
-			}//node end
-		  }//podTemplate end
-		  */
-		}//script end
-		}
-		}
-	  }//steps end
-	}// end of stage
-	stage('test user input') {
+	stage('Integrations tests') {
 		steps {
 			script {
 				openshift.withCluster() {
-					input "Ready to promote to TEST?"
+					//input "Ready to promote to TEST?"
 					
 					//user_input = input(
 					//	id: 'Proceed-tools', message: 'Proceed to test?', parameters: [
@@ -314,8 +321,80 @@ pipeline {
 			}
 		}
 	}// end of stage
+	stage('Deploy to TEST') {
+		steps {
+			script {
+				openshift.withCluster() {
+					openshift.withProject(TEST_PROJECT) {
+						input "Ready to promote to TEST?"
+						
+						if (openshift.selector("secrets", "classy-dev").exists()) {
+							openshift.selector("secrets", "classy-dev").delete()
+						}
+						if (!openshift.selector("pvc", "postgresql").exists()) {
+							
+							echo "no PVC found, creating..."
+						
+							databasePVC = openshift.process(
+							readFile(file:"${databaseBC}"))
+							
+							openshift.apply(databasePVC)
+						}
+						
+						backend = openshift.process(
+							readFile(file:"${backendDC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+						
+						
+						database = openshift.process(
+							readFile(file:"${databaseDC}"),
+							"-p", 
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}", 
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+						
+						nginx = openshift.process(
+							readFile(file:"${nginxDC}"),
+							"-p",
+							"APP_NAME=${APP_NAME}", 
+							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
+							"ENV_NAME=${DEV_SUFFIX}", 
+							"APP_IMAGE_TAG=${PR_NUM}",
+							"APPLICATION_DOMAIN=${APP_NAME}-${DEV_SUFFIX}.pathfinder.gov.bc.ca")
+						
+						
+						openshift.apply(database)
+							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							'app-name':"${APP_NAME}", 
+							'env-name':"${DEV_SUFFIX}"], 
+							"--overwrite")
+						
+						openshift.apply(backend)
+							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							'app-name':"${APP_NAME}", 
+							'env-name':"${DEV_SUFFIX}"], 
+							"--overwrite")
+
+						openshift.apply(nginx)
+							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							'app-name':"${APP_NAME}", 
+							'env-name':"${DEV_SUFFIX}"], 
+							"--overwrite")
+		
+
+					}
+				}
+			}
+		}
 	
-	
+	}
   }//end of stages
 }//pipeline end
 
