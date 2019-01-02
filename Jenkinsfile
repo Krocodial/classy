@@ -231,6 +231,23 @@ pipeline {
 			}
 		}
 	}//end of stage
+	stage('test user input') {
+		steps {
+			script {
+				openshift.withCluster() {
+					input "Ready to promote to TEST?"
+					
+					//user_input = input(
+					//	id: 'Proceed-tools', message: 'Proceed to test?', parameters: [
+					//		[$class: 'BooleanParameterDefinition', defaultValue: true, description: '', //name: 'Please confirm you wish to proceed to test']
+					//		])
+					//echo "${user_input}"
+				}
+			}
+		}
+	}// end of stage
+	
+	
   }//end of stages
 }//pipeline end
 
