@@ -94,7 +94,7 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}-${NAME_SUFFIX}",
+        "name": "${NAME}-${ENV_NAME}",
         "annotations": {
           "description": "Keeps track of changes in the application image"
         }
@@ -124,7 +124,7 @@
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "${NAME}-${NAME_SUFFIX}:${ENV_NAME}"
+                "name": "${NAME}-${ENV_NAME}:${ENV_NAME}"
               }
             }
           },
@@ -187,7 +187,7 @@
                 "env": [
 					{
 						"name": "NGINX_PROXY_URL",
-						"value": "http://${APP_NAME}-${NAME_SUFFIX}:8080/"
+						"value": "https://${APP_NAME}-${ENV_NAME}:8080/"
 					}
                 ],
                 "resources": {

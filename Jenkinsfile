@@ -222,10 +222,10 @@ pipeline {
 					openshift.withProject(DEV_PROJECT) {
 					
 						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-							"${DEV_PROJECT}/classy-${DEV_SUFFIX}-${PR_NUM}:dev")
+							"${DEV_PROJECT}/classy-${DEV_SUFFIX}:dev")
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}-${PR_NUM}:dev")
+							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
 					}
 				}
 			}
