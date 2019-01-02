@@ -114,9 +114,6 @@
         "strategy": {
           "type": "Recreate"
         },
-		"postCommit": {
-			"script": "./manage.py collectstatic"
-		},
         "triggers": [
           {
             "type": "ImageChange",
