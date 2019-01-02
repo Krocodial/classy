@@ -134,29 +134,8 @@ pipeline {
 	stage('sonar scanner') {
 	  steps {
         script {
-		openshift.withCluster() {
-		openshift.withProject(TOOLS_PROJECT) {
-		  /*podTemplate(
-			label: 'jenkins-python3nodejs',
-			  name: 'jenkins-python3nodejs',
-			  serviceAccount: 'jenkins',
-			  cloud: 'openshift',
-			  containers: [
-				containerTemplate(
-				  name: 'jnlp',
-				  image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
-				  resourceRequestCpu: '1000m',
-				  resourceLimitCpu: '2000m',
-				  resourceRequestMemory: '2Gi',
-				  resourceLimitMemory: '4Gi',
-				  workingDir: '/tmp',
-				  command: '',
-				  args: '${computer.jnlpmac} ${computer.name}'
-				)
-			  ]
-		  ){
-		    node('jenkins-python3nodejs') {
-			*/
+			openshift.withCluster() {
+				openshift.withProject(TOOLS_PROJECT) {
 					checkout scm
 					echo "Performing static SonarQube code analysis ..."
 
@@ -164,14 +143,6 @@ pipeline {
 					//echo "PWD: ${SONARQUBE_PWD}"
 
 					dir('sonar-runner') {
-						// ======================================================================================================
-						// Set your SonarQube scanner properties at this level, not at the Gradle Build level.
-						// The only thing that should be defined at the Gradle Build level is a minimal set of generic defaults.
-						//
-						// For more information on available properties visit:
-						// - https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle
-						// ======================================================================================================
-						
 						sh (
 						  returnStdout: true,
 						  script: "chmod +x gradlew"
@@ -188,19 +159,14 @@ pipeline {
 							-Dsonar.host.url=${SONARQUBE_URL}"
 						).trim()
 						
-						echo "${SONAR_OUT}"
-						
+						//echo "${SONAR_OUT}"
 					}//sonar-runner end
-			/*
-			}//node end
-		  }//podTemplate end
-		  */
-		}//script end
-		}
+				}//script end
+			}
 		}
 	  }//steps end
 	}// end of stage
-	stage('cleaning dev space') {
+	/*stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -218,7 +184,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	
+	*/
 	stage('deploy to dev') {
 		steps {
 			script {
@@ -229,7 +195,7 @@ pipeline {
 						//if (openshift.selector("secrets", "classy-dev").exists()) {
 						//	openshift.selector("secrets", "classy-dev").delete()
 						//}
-						if (!openshift.selector("pvc", "postgresql").exists()) {
+						/*if (!openshift.selector("pvc", "postgresql").exists()) {
 							
 							echo "no PVC found, creating..."
 						
@@ -238,9 +204,14 @@ pipeline {
 							
 							openshift.apply(databasePVC)
 						}
+						*/
+						databasePVC = openshift.process(
+							readFile(file:"${databaseBC}"))
+							
+						openshift.apply(databasePVC)
 						
-						backend = openshift.process(
-							readFile(file:"${backendDC}"),
+						database = openshift.process(
+							readFile(file:"${databaseDC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
@@ -249,8 +220,8 @@ pipeline {
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
 						
 						
-						database = openshift.process(
-							readFile(file:"${databaseDC}"),
+						backend = openshift.process(
+							readFile(file:"${backendDC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
@@ -309,7 +280,7 @@ pipeline {
 		}
 	}// end of stage
 
-	stage('Integrations tests') {
+	/*stage('Integrations tests') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -397,7 +368,7 @@ pipeline {
 			}
 		}
 	
-	}
+	}*/
   }//end of stages
 }//pipeline end
 

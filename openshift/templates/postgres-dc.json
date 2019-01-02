@@ -160,7 +160,7 @@
 			{
             "type": "ImageChange",
             "imageChangeParams": {
-              "automatic": true,
+              "automatic": false,
               "containerNames": [
                 "postgresql"
               ],
@@ -170,7 +170,10 @@
                 "name": "postgresql:${POSTGRESQL_VERSION}"
               }
             }
-          }
+          }, 
+		  {
+			"type": "ConfigChange"
+		  }
         ],
         "replicas": 1,
         "selector": {
