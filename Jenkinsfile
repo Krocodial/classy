@@ -259,7 +259,7 @@ pipeline {
 					echo "Performing static SonarQube code analysis ..."
 
 					echo "URL: ${SONARQUBE_URL}"
-					echo "PWD: ${SONARQUBE_PWD}"
+					//echo "PWD: ${SONARQUBE_PWD}"
 
 					dir('sonar-runner') {
 						// ======================================================================================================
