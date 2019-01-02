@@ -134,10 +134,10 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						/*openshift.selector("all", [ template : backendBcTag ]).delete()
+						openshift.selector("all", [ template : backendBcTag ]).delete()
 						openshift.selector("all", [ template : backendDcTag ]).delete()
 						openshift.selector("all", [ template : databaseDcTag ]).delete()
-						openshift.selector("all", [ template : nginxDcTag ]).delete()*/
+						openshift.selector("all", [ template : nginxDcTag ]).delete()
 						if (openshift.selector("secrets", "classy-dev").exists()) {
 							openshift.selector("secrets", "classy-dev").delete()
 						}
