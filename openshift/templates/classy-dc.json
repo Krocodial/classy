@@ -141,7 +141,7 @@
       },
       "spec": {
         "strategy": {
-          "type": "Rolling"
+          "type": "Recreate"
         },
         "triggers": [
             {
@@ -162,7 +162,7 @@
                     }
         ],
 		"postCommit": {
-			"script": "./manage.py check && ./manage.py migrate"
+			"script": "./manage.py check && ./manage.py migrate && ./manage.py test"
 		},
         "replicas": 1,
         "selector": {
