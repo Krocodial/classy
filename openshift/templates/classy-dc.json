@@ -35,25 +35,6 @@
 		  "required": true
 		},
 		{
-		  "name": "DATABASE_USER",
-		  "displayName": "Database Username",
-		  "required": true,
-		  "value": "krocodial"
-		},
-		{
-		  "name": "DATABASE_PASSWORD",
-		  "displayName": "Database User Password",
-		  "generate": "expression",
-		  "from": "[a-zA-Z0-9]{20}"
-		},
-		{
-		  "name": "DJANGO_SECRET_KEY",
-		  "displayName": "Django Secret Key",
-		  "description": "Set this to a long random string.",
-		  "generate": "expression",
-		  "from": "[\\w]{60}"
-		},
-		{
 		  "name": "DATABASE_SERVICE_NAME",
 		  "displayName": "Database Service Name",
 		  "required": true,
@@ -147,7 +128,7 @@
             {
                 "type": "ImageChange",
 					"imageChangeParams": {
-                        "automatic": true,
+                        "automatic": false,
                         "containerNames": [
                                 "${APP_NAME}-${ENV_NAME}"
                             ],

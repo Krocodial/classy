@@ -149,7 +149,8 @@ pipeline {
 						)
 						
 						SONAR_OUT = sh (
-						  returnStdout: true,
+						  returnStatus: true,
+						  //returnStdout: true,
 						  script: "./gradlew sonarqube --stacktrace --info \
 							-Dsonar.verbose=true \
 							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
@@ -159,7 +160,7 @@ pipeline {
 							-Dsonar.host.url=${SONARQUBE_URL}"
 						).trim()
 						
-						//echo "${SONAR_OUT}"
+						echo "${SONAR_OUT}"
 					}//sonar-runner end
 				}//script end
 			}
@@ -263,7 +264,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('tagging images for promotion to dev') {
+	stage('Promoting images to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -274,6 +275,9 @@ pipeline {
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
 							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
+							
+						def dc = openshift.selector('dc', 'postgresql')
+						dc.rollout().status()
 					}
 				}
 			}
