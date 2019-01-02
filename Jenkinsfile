@@ -83,7 +83,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('Preparing build configs') {
+	stage('Preparing build configs && building images') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -112,16 +112,7 @@ pipeline {
 							)
 							
 						openshift.apply(nginx)
-					}
-				}
-			}
-		}
-	}
-	stage('building classy images') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject() {
+						
 						echo "select 'bc' ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
 						def builds = openshift.selector("bc",
 							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
@@ -131,12 +122,12 @@ pipeline {
 						def nginx = openshift.selector("bc", 
 							"proxy-nginx-${PR_NUM}")
 						nginx.startBuild("--wait")
-							
+						
 					}
 				}
 			}
 		}
-	}// end of stage
+	}
 	stage('cleaning dev space') {
 		steps {
 			script {
@@ -224,7 +215,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('tag') {
+	stage('tagging images for promotion to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
