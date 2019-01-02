@@ -52,7 +52,7 @@ pipeline {
 	SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 	SONAR_PROJECT_NAME = 'Data Security classification Repository'
 	SONAR_PROJECT_KEY = 'classy'
-	SONAR_PROJECT_BASE_DIR = '../'
+	SONAR_PROJECT_BASE_DIR = '../classy/'
 	SONAR_SOURCES = './'
   
 	SONARQUBE_URL = sh (
@@ -134,10 +134,10 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						echo "Destroying backend objects..."
-						openshift.selector("all", [ template : backendBcTag ]).delete()
+						/*openshift.selector("all", [ template : backendBcTag ]).delete()
 						openshift.selector("all", [ template : backendDcTag ]).delete()
 						openshift.selector("all", [ template : databaseDcTag ]).delete()
-						openshift.selector("all", [ template : nginxDcTag ]).delete()
+						openshift.selector("all", [ template : nginxDcTag ]).delete()*/
 						if (openshift.selector("secrets", "classy-dev").exists()) {
 							openshift.selector("secrets", "classy-dev").delete()
 						}
@@ -236,7 +236,7 @@ pipeline {
         script {
 		openshift.withCluster() {
 		openshift.withProject(TOOLS_PROJECT) {
-		  podTemplate(
+		  /*podTemplate(
 			label: 'jenkins-python3nodejs',
 			  name: 'jenkins-python3nodejs',
 			  serviceAccount: 'jenkins',
@@ -256,7 +256,7 @@ pipeline {
 			  ]
 		  ){
 		    node('jenkins-python3nodejs') {
-
+			*/
 					checkout scm
 					echo "Performing static SonarQube code analysis ..."
 
@@ -287,10 +287,13 @@ pipeline {
 							-Dsonar.sources=${SONAR_SOURCES} \
 							-Dsonar.host.url=${SONARQUBE_URL}"
 						)
+						
+						waitForQualityGate abortPipeline: true
 					}//sonar-runner end
-
+			/*
 			}//node end
 		  }//podTemplate end
+		  */
 		}//script end
 		}
 		}
