@@ -46,6 +46,9 @@ pipeline {
 	DEV_SUFFIX = 'dev'
 	DEV_HOST = 'classy-dev.pathfinder.gov.bc.ca'
   
+	TEST_PROJECT = 'l9fjgg-test'
+	TEST_SUFFIX = 'test'
+	TEST_HOST = 'classy-test.pathfinder.gov.bc.ca'
   
 
 	SONAR_ROUTE_NAME = 'sonarqube'
