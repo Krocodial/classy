@@ -116,7 +116,7 @@
         },
 		"postCommit": {
 			"script": "./manage.py collectstatic"
-		}
+		},
         "triggers": [
           {
             "type": "ImageChange",
