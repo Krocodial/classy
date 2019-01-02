@@ -234,6 +234,8 @@ pipeline {
 	stage('sonar scanner') {
 	  steps {
         script {
+		openshift.withCluster() {
+		openshift.withProject(TOOLS_PROJECT) {
 		  podTemplate(
 			label: 'jenkins-python3nodejs',
 			  name: 'jenkins-python3nodejs',
@@ -290,6 +292,8 @@ pipeline {
 			}//node end
 		  }//podTemplate end
 		}//script end
+		}
+		}
 	  }//steps end
 	}// end of stage
 	stage('test user input') {
