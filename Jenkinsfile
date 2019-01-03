@@ -320,12 +320,7 @@ def ZAP_REPORT_STASH = "zap-report"
 					  // Stash the ZAP report for publishing in a different stage (which will run on a different pod).
 					  echo "Stash the report for the publishing stage ..."
 					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
-					
-					def out = sh (
-						returnStdout: true,
-						script: "cat ${ZAP_REPORT_PATH}"
-						)
-					  echo "report is ${out}"
+			
 				
 					checkout scm
 					echo "Performing static SonarQube code analysis ..."
@@ -339,7 +334,7 @@ def ZAP_REPORT_STASH = "zap-report"
 						returnStdout: true,
 						script: "cat ${ZAP_REPORT_PATH}"
 						)
-					  echo "report is ${outN}"
+			
 					
 					dir('sonar-runner') {
 						sh (
@@ -357,7 +352,7 @@ def ZAP_REPORT_STASH = "zap-report"
 							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
 							-Dsonar.sources=${SONAR_SOURCES} \
 							-Dsonar.host.url=${SONARQUBE_URL} \
-							-Dsonar.zaproxy.reportPath=${ZAP_REPORT_PATH} \
+							-Dsonar.zaproxy.reportPath=../${ZAP_REPORT_PATH} \
 							-Dsonar.exculsions=**/*.xml"
 						)
 						sh (
