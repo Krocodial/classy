@@ -220,7 +220,8 @@ pipeline {
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
+							"SOURCE_REPOSITORY_REF=${GIT_REF}")
 						
 						
 						backend = openshift.process(
@@ -230,7 +231,8 @@ pipeline {
 							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
 							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", "SOURCE_REPOSITORY_REF=${GIT_REF}")
+							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
+							"SOURCE_REPOSITORY_REF=${GIT_REF}")
 						
 						nginx = openshift.process(
 							readFile(file:"${nginxDC}"),
@@ -243,19 +245,19 @@ pipeline {
 						
 						
 						openshift.apply(database)
-							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							.label(['app':"classy-${DEV_SUFFIX}", 
 							'app-name':"${APP_NAME}", 
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
 						
 						openshift.apply(backend)
-							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							.label(['app':"classy-${DEV_SUFFIX}", 
 							'app-name':"${APP_NAME}", 
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
 
 						openshift.apply(nginx)
-							.label(['app':"classy-${DEV_SUFFIX}-${PR_NUM}", 
+							.label(['app':"classy-${DEV_SUFFIX}", 
 							'app-name':"${APP_NAME}", 
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
