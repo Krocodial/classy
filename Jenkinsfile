@@ -86,7 +86,7 @@ def ZAP_REPORT_STASH = "zap-report"
 	timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-	stage('preamble & sweeping floor') {
+	/*stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -144,6 +144,7 @@ def ZAP_REPORT_STASH = "zap-report"
 			}
 		}
 	}// end of stage
+	*/
 	/*stage('cleaning dev space') {
 		steps {
 			script {
@@ -162,7 +163,7 @@ def ZAP_REPORT_STASH = "zap-report"
 			}
 		}
 	}*/ // end of stage
-	stage('deploy to dev') {
+	/*stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -250,6 +251,7 @@ def ZAP_REPORT_STASH = "zap-report"
 			}
 		}
 	}// end of stage
+	*/
 	stage('ZAP & SonarQube scan') {
 	  steps {
         script {
