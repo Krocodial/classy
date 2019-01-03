@@ -250,11 +250,11 @@ def ZAP_REPORT_STASH = "zap-report"
 			}
 		}
 	}// end of stage
-	stage('ZAP scan') {
+	stage('ZAP & SonarQube scan') {
 	  steps {
         script {
 			openshift.withCluster() {
-				openshift.withProject(DEV_PROJECT) {
+				openshift.withProject(TOOLS_PROJECT) {
 					  podTemplate(
 					  label: 'owasp-zap', 
 					  name: 'owasp-zap', 
@@ -275,7 +275,7 @@ def ZAP_REPORT_STASH = "zap-report"
 					  ]
 					){
 				  node('owasp-zap') {
-					stage('ZAP Security Scan') {
+					
 
 					  // Dynamicaly determine the target URL for the ZAP scan ...
 					  def TARGET_URL = getUrlForRoute(TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
@@ -308,20 +308,11 @@ def ZAP_REPORT_STASH = "zap-report"
 					  // Stash the ZAP report for publishing in a different stage (which will run on a different pod).
 					  echo "Stash the report for the publishing stage ..."
 					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
-					}
+					
 				  }
-				}
-				}
-			}
-		}
-	  }//steps end
-	}// end of stage
-	stage('SonarQ scan') {
-	  steps {
-        script {
-			openshift.withCluster() {
-				openshift.withProject(TOOLS_PROJECT) {
-					podTemplate(
+				  }
+				  
+				  podTemplate(
 				  label: 'jenkins-python3nodejs',
 				  name: 'jenkins-python3nodejs',
 				  serviceAccount: 'jenkins',
@@ -373,11 +364,26 @@ def ZAP_REPORT_STASH = "zap-report"
 						echo "${SONAR_OUT}"
 					}//sonar-runner end
 					}
+				  
+				  
+				  
+					}
+				}
+			}
+		}
+	  }//steps end
+	}// end of stage
+	stage('SonarQ scan') {
+	  steps {
+        script {
+			openshift.withCluster() {
+				openshift.withProject(TOOLS_PROJECT) {
+					
 					}
 				}//script end
 			}
 		}
-	  }//steps end
+	  //steps end
 	}// end of stage
 	
 	
