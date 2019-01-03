@@ -188,7 +188,7 @@ pipeline {
 		}
 	}// end of stage
 	*/
-	stage('deploy to dev') {
+	/*stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -268,6 +268,7 @@ pipeline {
 			}
 		}
 	}// end of stage
+	*/
 	stage('Promoting images to dev') {
 		steps {
 			script {
