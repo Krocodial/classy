@@ -309,29 +309,7 @@ def ZAP_REPORT_STASH = "zap-report"
 					  echo "Stash the report for the publishing stage ..."
 					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
 					
-				  }
-				  }
 				  
-				  podTemplate(
-				  label: 'jenkins-python3nodejs',
-				  name: 'jenkins-python3nodejs',
-				  serviceAccount: 'jenkins',
-				  cloud: 'openshift',
-				  containers: [
-					containerTemplate(
-					  name: 'jnlp',
-					  image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
-					  resourceRequestCpu: '1000m',
-					  resourceLimitCpu: '2000m',
-					  resourceRequestMemory: '2Gi',
-					  resourceLimitMemory: '4Gi',
-					  workingDir: '/tmp',
-					  command: '',
-					  args: '${computer.jnlpmac} ${computer.name}'
-					)
-				  ]
-				){
-				  node('jenkins-python3nodejs') {
 				
 					checkout scm
 					echo "Performing static SonarQube code analysis ..."
@@ -364,9 +342,7 @@ def ZAP_REPORT_STASH = "zap-report"
 						echo "${SONAR_OUT}"
 					}//sonar-runner end
 					}
-				  
-				  
-				  
+
 					}
 				}
 			}
