@@ -74,8 +74,6 @@
                 "name": "${APP_NAME}",
                 "creationTimestamp": null,
                 "labels": {
-                    "base-name":"classy",
-                    "appver": "${APP_NAME}"
                 },
                 "annotations": {
                     "description": "Keeps track of changes in the application image"
@@ -153,7 +151,7 @@
           "metadata": {
             "name": "${APP_NAME}-${ENV_NAME}",
             "labels": {
-              "name": "${APP_NAME}"
+				"name": "${APP_NAME}-${ENV_NAME}"
             }
           },
           "spec": {
