@@ -269,9 +269,9 @@ pipeline {
 						//	"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
-						dcs.rollout().latest().status()
+						dcs.rollout().latest()
 							
-						echo "${dcs}"
+						dcs.rollout().status()
 							
 						//def dc = openshift.selector('dc', 'postgresql')
 						//dc.rollout().status()
