@@ -296,7 +296,7 @@ def ZAP_REPORT_STASH = "zap-report"
 						  // Other scanner options ...
 						  // zap-api-scan errors out
 						  // script: "/zap/zap-api-scan.py -x ${ZAP_REPORT_NAME} -t ${API_TARGET_URL} -f ${API_FORMAT}"
-						   script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+						   //script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 						)
 						echo "Return value is: ${retVal}"
 
