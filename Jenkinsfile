@@ -335,11 +335,11 @@ def ZAP_REPORT_STASH = "zap-report"
 					echo "URL: ${SONARQUBE_URL}"
 					//echo "PWD: ${SONARQUBE_PWD}"
 
-					def out = sh (
+					def outN = sh (
 						returnStdout: true,
 						script: "cat ${ZAP_REPORT_PATH}"
 						)
-					  echo "report is ${out}"
+					  echo "report is ${outN}"
 					
 					dir('sonar-runner') {
 						sh (
