@@ -330,10 +330,7 @@ def ZAP_REPORT_STASH = "zap-report"
 					echo "URL: ${SONARQUBE_URL}"
 					//echo "PWD: ${SONARQUBE_PWD}"
 
-					def outN = sh (
-						returnStdout: true,
-						script: "cat ${ZAP_REPORT_PATH}"
-						)
+				
 			
 					
 					dir('sonar-runner') {
@@ -341,6 +338,12 @@ def ZAP_REPORT_STASH = "zap-report"
 						  returnStdout: true,
 						  script: "chmod +x gradlew"
 						)
+						
+						def outN = sh (
+						returnStdout: true,
+						script: "cat ..${ZAP_REPORT_PATH}"
+						)
+						echo "${outN}"
 						
 						SONAR_OUT = sh (
 						  returnStatus: true,
@@ -352,14 +355,10 @@ def ZAP_REPORT_STASH = "zap-report"
 							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
 							-Dsonar.sources=${SONAR_SOURCES} \
 							-Dsonar.host.url=${SONARQUBE_URL} \
-							-Dsonar.zaproxy.reportPath=../${ZAP_REPORT_PATH} \
+							-Dsonar.zaproxy.reportPath=..${ZAP_REPORT_PATH} \
 							-Dsonar.exculsions=**/*.xml"
 						)
-						sh (
-							returnStdout: true,
-							script: "cat /home/jenkins/workspace/l9fjgg-tools/l9fjgg-tools-classy-pipeline/zap/wrk/zap-report.xml"
-						)
-						echo "${SONAR_OUT}"
+						
 					}//sonar-runner end
 					}
 
