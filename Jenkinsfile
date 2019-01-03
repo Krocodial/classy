@@ -188,26 +188,13 @@ pipeline {
 		}
 	}// end of stage
 	*/
-	/*stage('deploy to dev') {
+	stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						input "Ready to promote to DEV?"
+						/*input "Ready to promote to DEV?"
 						
-						//if (openshift.selector("secrets", "classy-dev").exists()) {
-						//	openshift.selector("secrets", "classy-dev").delete()
-						//}
-						/*if (!openshift.selector("pvc", "postgresql").exists()) {
-							
-							echo "no PVC found, creating..."
-						
-							databasePVC = openshift.process(
-							readFile(file:"${databaseBC}"))
-							
-							openshift.apply(databasePVC)
-						}
-						*/
 						databasePVC = openshift.process(
 							readFile(file:"${databaseBC}"))
 							
@@ -262,13 +249,13 @@ pipeline {
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
 		
-
+					*/
 					}
 				}
 			}
 		}
 	}// end of stage
-	*/
+	
 	stage('Promoting images to dev') {
 		steps {
 			script {
