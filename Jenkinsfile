@@ -120,7 +120,7 @@ pipeline {
 						
 						echo "select 'bc' ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
 						def builds = openshift.selector("bc",
-							"${APP_NAME}-${DEV_SUFFIX}-${PR_NUM}")
+							"${APP_NAME}")
 						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 						echo "building nginx bc"

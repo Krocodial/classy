@@ -153,7 +153,7 @@
           "metadata": {
             "name": "${APP_NAME}-${ENV_NAME}",
             "labels": {
-              "name": "${APP_NAME}-${ENV_NAME}"
+              "name": "${APP_NAME}"
             }
           },
           "spec": {
