@@ -75,7 +75,7 @@ pipeline {
 	timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-/*	stage('preamble & sweeping floor') {
+	stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -169,7 +169,7 @@ pipeline {
 		}
 	  }//steps end
 	}// end of stage
-	stage('cleaning dev space') {
+	/*stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -186,14 +186,13 @@ pipeline {
 				}
 			}
 		}
-	}// end of stage
-	*/
+	}*/ // end of stage
 	stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						/*input "Ready to promote to DEV?"
+						input "Ready to promote to DEV?"
 						
 						databasePVC = openshift.process(
 							readFile(file:"${databaseBC}"))
@@ -248,8 +247,6 @@ pipeline {
 							'app-name':"${APP_NAME}", 
 							'env-name':"${DEV_SUFFIX}"], 
 							"--overwrite")
-		
-					*/
 					}
 				}
 			}
@@ -262,19 +259,17 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 					
-						//openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-						//	"${DEV_PROJECT}/classy:dev")
+						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+							"${DEV_PROJECT}/classy:dev")
 							
-						//openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-						//	"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
+						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 						dcs.rollout().latest()
 							
 						dcs.rollout().status()
 							
-						//def dc = openshift.selector('dc', 'postgresql')
-						//dc.rollout().status()
 					}
 				}
 			}
