@@ -296,17 +296,24 @@ def ZAP_REPORT_STASH = "zap-report"
 						  // Other scanner options ...
 						  // zap-api-scan errors out
 						  // script: "/zap/zap-api-scan.py -x ${ZAP_REPORT_NAME} -t ${API_TARGET_URL} -f ${API_FORMAT}"
-						  // script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+						   script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 						)
 						echo "Return value is: ${retVal}"
 
 						// Copy the ZAP report into the Jenkins working directory so the Jenkins tools can access it.
-						sh (
+						def tes = sh (
 						  returnStdout: true,
 						  script: "mkdir -p ./wrk/ && cp ${ZAP_REPORT_PATH} ./wrk/"
 						)
 					  }
+					  echo "output is ${tes}"
 
+					  def out = sh (
+						returnStdout: true,
+						script: "cat ${ZAP_REPORT_PATH}"
+						)
+					  echo "report is ${out}"
+					  
 					  sh (
 						returnStdout: true,
 						script: "cp ${ZAP_REPORT_PATH} /home/jenkins/workspace/l9fjgg-tools/l9fjgg-tools-classy-pipeline/zap/wrk/zap-report.xml"
