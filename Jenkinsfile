@@ -305,6 +305,11 @@ def ZAP_REPORT_STASH = "zap-report"
 						)
 					  }
 
+					  sh (
+						returnStdout: true,
+						script: "cp ${ZAP_REPORT_PATH} /home/jenkins/workspace/l9fjgg-tools/l9fjgg-tools-classy-pipeline/zap/wrk/zap-report.xml"
+						)
+					  
 					  // Stash the ZAP report for publishing in a different stage (which will run on a different pod).
 					  echo "Stash the report for the publishing stage ..."
 					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
@@ -338,7 +343,10 @@ def ZAP_REPORT_STASH = "zap-report"
 							-Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
 							-Dsonar.exculsions=**/*.xml"
 						)
-						
+						sh (
+							returnStdout: true,
+							script: "cat /home/jenkins/workspace/l9fjgg-tools/l9fjgg-tools-classy-pipeline/zap/wrk/zap-report.xml"
+						)
 						echo "${SONAR_OUT}"
 					}//sonar-runner end
 					}
