@@ -305,7 +305,7 @@ def ZAP_REPORT_STASH = "zap-report"
 						  returnStdout: true,
 						  script: "mkdir -p ./wrk/ && cp ${ZAP_REPORT_PATH} ./wrk/"
 						)
-						echo "output is ${tesVal}"
+						//echo "output is ${tesVal}"
 					  }
 					  
 
@@ -318,14 +318,14 @@ def ZAP_REPORT_STASH = "zap-report"
 					
 					  
 					  // Stash the ZAP report for publishing in a different stage (which will run on a different pod).
-					  echo "Stash the report for the publishing stage ..."
-					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
+					  //echo "Stash the report for the publishing stage ..."
+					  //stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
 			
 				
 					checkout scm
 					echo "Performing static SonarQube code analysis ..."
 
-					unstash name: "${ZAP_REPORT_STASH}"
+					//unstash name: "${ZAP_REPORT_STASH}"
 					
 					echo "URL: ${SONARQUBE_URL}"
 					//echo "PWD: ${SONARQUBE_PWD}"
@@ -346,19 +346,18 @@ def ZAP_REPORT_STASH = "zap-report"
 						echo "${outN}"
 						
 						SONAR_OUT = sh (
-						  returnStatus: true,
-						  //returnStdout: true,
+						  returnStdout: true,
 						  script: "./gradlew sonarqube --stacktrace --info \
 							-Dsonar.verbose=true \
 							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
 							-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
 							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
 							-Dsonar.sources=${SONAR_SOURCES} \
+							-Dsonar.zaproxy.reportPath='..${ZAP_REPORT_PATH}' \
 							-Dsonar.host.url=${SONARQUBE_URL} \
-							-Dsonar.zaproxy.reportPath=..${ZAP_REPORT_PATH} \
 							-Dsonar.exculsions=**/*.xml"
 						)
-						
+						echo "${SONAR_OUT}"
 					}//sonar-runner end
 					}
 
