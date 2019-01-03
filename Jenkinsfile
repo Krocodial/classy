@@ -309,22 +309,23 @@ def ZAP_REPORT_STASH = "zap-report"
 					  }
 					  
 
-					  def out = sh (
-						returnStdout: true,
-						script: "cat ${ZAP_REPORT_PATH}"
-						)
-					  echo "report is ${out}"
+					  //def out = sh (
+					//	returnStdout: true,
+						//script: "cat ${ZAP_REPORT_PATH}"
+						//)
+					  //echo "report is ${out}"
 					  
-					  sh (
-						returnStdout: true,
-						script: "cp ${ZAP_REPORT_PATH} /home/jenkins/workspace/l9fjgg-tools/l9fjgg-tools-classy-pipeline/zap/wrk/zap-report.xml"
-						)
+					
 					  
 					  // Stash the ZAP report for publishing in a different stage (which will run on a different pod).
 					  echo "Stash the report for the publishing stage ..."
 					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
 					
-				  
+					def out = sh (
+						returnStdout: true,
+						script: "cat ${ZAP_REPORT_PATH}"
+						)
+					  echo "report is ${out}"
 				
 					checkout scm
 					echo "Performing static SonarQube code analysis ..."
@@ -334,6 +335,12 @@ def ZAP_REPORT_STASH = "zap-report"
 					echo "URL: ${SONARQUBE_URL}"
 					//echo "PWD: ${SONARQUBE_PWD}"
 
+					def out = sh (
+						returnStdout: true,
+						script: "cat ${ZAP_REPORT_PATH}"
+						)
+					  echo "report is ${out}"
+					
 					dir('sonar-runner') {
 						sh (
 						  returnStdout: true,
@@ -350,7 +357,7 @@ def ZAP_REPORT_STASH = "zap-report"
 							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
 							-Dsonar.sources=${SONAR_SOURCES} \
 							-Dsonar.host.url=${SONARQUBE_URL} \
-							-Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
+							-Dsonar.zaproxy.reportPath=${ZAP_REPORT_PATH} \
 							-Dsonar.exculsions=**/*.xml"
 						)
 						sh (
