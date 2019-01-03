@@ -75,7 +75,7 @@ pipeline {
 	timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-	stage('preamble & sweeping floor') {
+/*	stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -187,7 +187,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	
+	*/
 	stage('deploy to dev') {
 		steps {
 			script {
@@ -281,7 +281,7 @@ pipeline {
 							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
-						dcs.rollout().status()
+						dcs.rollout().latest().status()
 							
 						echo "${dcs}"
 							
