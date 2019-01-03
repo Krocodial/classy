@@ -301,12 +301,13 @@ def ZAP_REPORT_STASH = "zap-report"
 						echo "Return value is: ${retVal}"
 
 						// Copy the ZAP report into the Jenkins working directory so the Jenkins tools can access it.
-						def tes = sh (
+						def tesVal = sh (
 						  returnStdout: true,
 						  script: "mkdir -p ./wrk/ && cp ${ZAP_REPORT_PATH} ./wrk/"
 						)
+						echo "output is ${tesVal}"
 					  }
-					  echo "output is ${tes}"
+					  
 
 					  def out = sh (
 						returnStdout: true,
