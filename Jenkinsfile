@@ -280,8 +280,10 @@ pipeline {
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
 							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
 							
-						def dcs = openshift.selector("dc", [ app : 'classy' ])
+						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 						dcs.rollout().status()
+							
+						echo "${dcs}"
 							
 						//def dc = openshift.selector('dc', 'postgresql')
 						//dc.rollout().status()
