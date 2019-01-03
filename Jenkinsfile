@@ -1,5 +1,4 @@
 
-
 @NonCPS
 String getUrlForRoute(String routeName, String projectNameSpace = '') {
 
@@ -52,7 +51,6 @@ pipeline {
 	TEST_SUFFIX = 'test'
 	TEST_HOST = 'classy-test.pathfinder.gov.bc.ca'
   
-
 	SONAR_ROUTE_NAME = 'sonarqube'
 	SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 	SONAR_PROJECT_NAME = 'Data Security classification Repository'
@@ -64,7 +62,20 @@ pipeline {
 		script: "oc get routes sonarqube -o wide --no-headers | awk \'/sonarqube/ {print \"https://\"\$2}\'",
 		returnStdout: true
 		)
-	
+	// The name of the target route.  This will be used to dynamically get the URL.
+	def TARGET_ROUTE = 'proxy-nginx'
+
+// The namespace in which the target route can be found.  This will be used to dynamically get the URL.
+	def TARGET_PROJECT_NAMESPACE = 'l9fjgg-dev'
+
+// The name  of the ZAP report
+def ZAP_REPORT_NAME = "zap-report.xml"
+
+// The location of the ZAP reports
+def ZAP_REPORT_PATH = "/zap/wrk/${ZAP_REPORT_NAME}"
+
+// The name of the "stash" containing the ZAP report
+def ZAP_REPORT_STASH = "zap-report"
 
 	PR_NUM = "${BUILD_NUMBER}"
 	
@@ -132,42 +143,6 @@ pipeline {
 				}
 			}
 		}
-	}// end of stage
-	stage('sonar scanner') {
-	  steps {
-        script {
-			openshift.withCluster() {
-				openshift.withProject(TOOLS_PROJECT) {
-					checkout scm
-					echo "Performing static SonarQube code analysis ..."
-
-					echo "URL: ${SONARQUBE_URL}"
-					//echo "PWD: ${SONARQUBE_PWD}"
-
-					dir('sonar-runner') {
-						sh (
-						  returnStdout: true,
-						  script: "chmod +x gradlew"
-						)
-						
-						SONAR_OUT = sh (
-						  returnStatus: true,
-						  //returnStdout: true,
-						  script: "./gradlew sonarqube --stacktrace --info \
-							-Dsonar.verbose=true \
-							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-							-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
-							-Dsonar.sources=${SONAR_SOURCES} \
-							-Dsonar.host.url=${SONARQUBE_URL}"
-						)
-						
-						echo "${SONAR_OUT}"
-					}//sonar-runner end
-				}//script end
-			}
-		}
-	  }//steps end
 	}// end of stage
 	/*stage('cleaning dev space') {
 		steps {
@@ -275,7 +250,137 @@ pipeline {
 			}
 		}
 	}// end of stage
+	stage('ZAP scan') {
+	  steps {
+        script {
+			openshift.withCluster() {
+				openshift.withProject(DEV_PROJECT) {
+					  podTemplate(
+					  label: 'owasp-zap', 
+					  name: 'owasp-zap', 
+					  serviceAccount: 'jenkins', 
+					  cloud: 'openshift', 
+					  containers: [
+						containerTemplate(
+						  name: 'jnlp',
+						  image: '172.50.0.2:5000/openshift/jenkins-slave-zap',
+						  resourceRequestCpu: '500m',
+						  resourceLimitCpu: '1000m',
+						  resourceRequestMemory: '3Gi',
+						  resourceLimitMemory: '4Gi',
+						  workingDir: '/home/jenkins',
+						  command: '',
+						  args: '${computer.jnlpmac} ${computer.name}'
+						)
+					  ]
+					){
+				  node('owasp-zap') {
+					stage('ZAP Security Scan') {
 
+					  // Dynamicaly determine the target URL for the ZAP scan ...
+					  def TARGET_URL = getUrlForRoute(TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
+
+					  echo "Target URL: ${TARGET_URL}"
+					  
+					  dir('zap') {
+
+						// The ZAP scripts are installed on the root of the jenkins-slave-zap image.
+						// When running ZAP from there the reports will be created in /zap/wrk/ by default.
+						// ZAP has problems with creating the reports directly in the Jenkins
+						// working directory, so they have to be copied over after the fact.
+						def retVal = sh (
+						  returnStatus: true,
+						  script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+						  // Other scanner options ...
+						  // zap-api-scan errors out
+						  // script: "/zap/zap-api-scan.py -x ${ZAP_REPORT_NAME} -t ${API_TARGET_URL} -f ${API_FORMAT}"
+						  // script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+						)
+						echo "Return value is: ${retVal}"
+
+						// Copy the ZAP report into the Jenkins working directory so the Jenkins tools can access it.
+						sh (
+						  returnStdout: true,
+						  script: "mkdir -p ./wrk/ && cp ${ZAP_REPORT_PATH} ./wrk/"
+						)
+					  }
+
+					  // Stash the ZAP report for publishing in a different stage (which will run on a different pod).
+					  echo "Stash the report for the publishing stage ..."
+					  stash name: "${ZAP_REPORT_STASH}", includes: "zap/wrk/*.xml"
+					}
+				  }
+				}
+				}
+			}
+		}
+	  }//steps end
+	}// end of stage
+	stage('SonarQ scan') {
+	  steps {
+        script {
+			openshift.withCluster() {
+				openshift.withProject(TOOLS_PROJECT) {
+					podTemplate(
+				  label: 'jenkins-python3nodejs',
+				  name: 'jenkins-python3nodejs',
+				  serviceAccount: 'jenkins',
+				  cloud: 'openshift',
+				  containers: [
+					containerTemplate(
+					  name: 'jnlp',
+					  image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
+					  resourceRequestCpu: '1000m',
+					  resourceLimitCpu: '2000m',
+					  resourceRequestMemory: '2Gi',
+					  resourceLimitMemory: '4Gi',
+					  workingDir: '/tmp',
+					  command: '',
+					  args: '${computer.jnlpmac} ${computer.name}'
+					)
+				  ]
+				){
+				  node('jenkins-python3nodejs') {
+				
+					checkout scm
+					echo "Performing static SonarQube code analysis ..."
+
+					unstash name: "${ZAP_REPORT_STASH}"
+					
+					echo "URL: ${SONARQUBE_URL}"
+					//echo "PWD: ${SONARQUBE_PWD}"
+
+					dir('sonar-runner') {
+						sh (
+						  returnStdout: true,
+						  script: "chmod +x gradlew"
+						)
+						
+						SONAR_OUT = sh (
+						  returnStatus: true,
+						  //returnStdout: true,
+						  script: "./gradlew sonarqube --stacktrace --info \
+							-Dsonar.verbose=true \
+							-Dsonar.projectName='${SONAR_PROJECT_NAME}' \
+							-Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+							-Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
+							-Dsonar.sources=${SONAR_SOURCES} \
+							-Dsonar.host.url=${SONARQUBE_URL} \
+							-Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
+							-Dsonar.exculsions=**/*.xml"
+						)
+						
+						echo "${SONAR_OUT}"
+					}//sonar-runner end
+					}
+					}
+				}//script end
+			}
+		}
+	  }//steps end
+	}// end of stage
+	
+	
 	/*stage('Integrations tests') {
 		steps {
 			script {
