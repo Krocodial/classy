@@ -55,7 +55,7 @@ pipeline {
 	SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
 	SONAR_PROJECT_NAME = 'Data Security classification Repository'
 	SONAR_PROJECT_KEY = 'classy'
-	SONAR_PROJECT_BASE_DIR = '../classy/'
+	SONAR_PROJECT_BASE_DIR = '../'
 	SONAR_SOURCES = './'
   
 	SONARQUBE_URL = sh (
