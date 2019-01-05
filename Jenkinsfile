@@ -379,14 +379,15 @@ podTemplate(
     stage('Publish ZAP Report to SonarQube') {
 
       echo "Checking out the sonar-runner folder ..."
-      checkout([
+      /*checkout([
           $class: 'GitSCM',
           branches: scm.branches,
           extensions: scm.extensions + [
             [$class: 'SparseCheckoutPaths',  sparseCheckoutPaths:[[path:'sonar-runner/']]]
           ],
           userRemoteConfigs: scm.userRemoteConfigs
-      ])
+      ])*/
+	  checkout scm
 
       echo "Preparing the report for the publishing ..."
       unstash name: "${ZAP_REPORT_STASH}"
