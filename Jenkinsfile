@@ -364,7 +364,7 @@ def ZAP_REPORT_STASH = "zap-report"
 						  SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME).trim()
 						  //SONARQUBE_PWD = getSonarQubePwd().trim()
 						  echo "URL: ${SONARQUBE_URL}"
-						  echo "PWD: ${SONARQUBE_PWD}"
+						  //echo "PWD: ${SONARQUBE_PWD}"
 
 						  echo "Publishing the report ..."
 					 
