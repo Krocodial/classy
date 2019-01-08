@@ -12,9 +12,10 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
     returnStdout: true
   ).trim()
 
-
   return url
 }
+
+
 
 def backendBC = 'openshift/templates/classy-bc.json'
 def databaseBC = 'openshift/templates/postgres-bc.json'

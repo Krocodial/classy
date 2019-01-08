@@ -38,24 +38,6 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-
-#KEYCLOAK_BEARER_AUTHENTICATION_EXEMPT_PATHS = [
-#	'admin', 'accounts',
-#	]
-#CONFIG_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
-
-'''KEYCLOAK_CONFIG = {
-	'KEYCLOAK_REALM': 'classy',
-	'KEYCLOAK_CLIENT_ID': 'classy-dev',
-	'KEYCLOAK_DEFAULT_ACCESS': 'DENY',
-	'KEYCLOAK_AUTHORIZATION_CONFIG': os.path.join(BASE_DIR, 'project/authorization-config.json'),
-	'KEYCLOAK_METHOD_VALIDATE_TOKEN': 'DECODE',
-	'KEYCLOAK_SERVER_URL': 'https://sso.pathfinder.gov.bc.ca/auth/'
-	#'KEYCLOAK_CLIENT_SECRET_KEY': os.getenv('KEYCLOAK_SECRET_KEY')
-}'''
-
-
-
 # Application definition
 # Since we customize the default user model via 'classy' the config must come after 
 INSTALLED_APPS = [

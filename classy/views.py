@@ -15,6 +15,7 @@ from django.conf import settings
 from django.urls import reverse
 from django import forms
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 import threading, time, csv, pytz, json, random
 
