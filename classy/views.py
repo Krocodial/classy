@@ -49,9 +49,10 @@ sizes = [10, 25, 50, 100]
 
 
 #Accessed from the home.html page
+@login_required
 def tutorial(request):
-    if not request.user.is_authenticated:
-        return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #    return redirect('classy:index')
     if request.user.is_staff:
         return render(request, 'classy/tutorial.html')
     if request.user.is_authenticated:
@@ -706,11 +707,12 @@ def index(request):
     return render(request, 'classy/index.html', context)
 
 #Home page once logged in. Pulls from classification_counts to show statistics
+@login_required
 def home(request):
 
 
-    if not request.user.is_authenticated:
-            return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #        return redirect('classy:index')
     data_cons = []
     mapping = {}
 

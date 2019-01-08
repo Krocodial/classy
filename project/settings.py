@@ -29,10 +29,29 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
-BYPASS_AUTH = True
+BYPASS_AUTH = os.getenv(AUTH, True)
 PRES = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'classy.User'
+
+
+
+#KEYCLOAK_BEARER_AUTHENTICATION_EXEMPT_PATHS = [
+	'admin', 'accounts',
+	]
+#CONFIG_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
+
+'''KEYCLOAK_CONFIG = {
+	'KEYCLOAK_REALM': 'classy',
+	'KEYCLOAK_CLIENT_ID': 'classy-dev',
+	'KEYCLOAK_DEFAULT_ACCESS': 'DENY',
+	'KEYCLOAK_AUTHORIZATION_CONFIG': os.path.join(BASE_DIR, 'project/authorization-config.json'),
+	'KEYCLOAK_METHOD_VALIDATE_TOKEN': 'DECODE',
+	'KEYCLOAK_SERVER_URL': 'https://sso.pathfinder.gov.bc.ca/auth/'
+	#'KEYCLOAK_CLIENT_SECRET_KEY': os.getenv('KEYCLOAK_SECRET_KEY')
+}'''
+
+
 
 # Application definition
 # Since we customize the default user model via 'classy' the config must come after 
@@ -129,6 +148,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
+
+LOGIN_URL = ''
+LOGIN_REDIRECT_URL = '/home'
 
 FILE_UPLOAD_PERMISSIONS = 0o600
 
