@@ -270,59 +270,6 @@ pipeline {
 							databaseDC, 
 							nginxDC)
 						
-						/*databasePVC = openshift.process(
-							readFile(file:"${databaseBC}"))
-							
-						openshift.apply(databasePVC)
-						
-						database = openshift.process(
-							readFile(file:"${databaseDC}"),
-							"-p", 
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${DEV_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
-							"SOURCE_REPOSITORY_REF=${GIT_REF}")
-						
-						
-						backend = openshift.process(
-							readFile(file:"${backendDC}"),
-							"-p", 
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${DEV_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
-							"SOURCE_REPOSITORY_REF=${GIT_REF}")
-						
-						nginx = openshift.process(
-							readFile(file:"${nginxDC}"),
-							"-p",
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${DEV_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}",
-							"APPLICATION_DOMAIN=${APP_NAME}-${DEV_SUFFIX}.pathfinder.gov.bc.ca")
-						
-						
-						openshift.apply(database)
-							.label(['app':"classy-${DEV_SUFFIX}", 
-							'app-name':"${APP_NAME}", 
-							'env-name':"${DEV_SUFFIX}"], 
-							"--overwrite")
-						
-						openshift.apply(backend)
-							.label(['app':"classy-${DEV_SUFFIX}", 
-							'app-name':"${APP_NAME}", 
-							'env-name':"${DEV_SUFFIX}"], 
-							"--overwrite")
-
-						openshift.apply(nginx)
-							.label(['app':"classy-${DEV_SUFFIX}", 
-							'app-name':"${APP_NAME}", 
-							'env-name':"${DEV_SUFFIX}"], 
-							"--overwrite")*/
 					}
 				}
 			}
@@ -377,9 +324,7 @@ pipeline {
 						  node('owasp-zap') {
 							stage('ZAP Security Scan') {
 
-							  // Dynamicaly determine the target URL for the ZAP scan ...
 							  def TARGET_URL = getUrlForRoute(TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
-							  //def API_TARGET_URL="${TARGET_URL}${API_PATH}/?format=${API_FORMAT}"
 
 							  echo "Target URL: ${TARGET_URL}"
 							  //echo "API Target URL: ${API_TARGET_URL}"
@@ -392,11 +337,11 @@ pipeline {
 								// working directory, so they have to be copied over after the fact.
 								def retVal = sh (
 								  returnStatus: true,
-								  script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+								  //script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 								  // Other scanner options ...
 								  // zap-api-scan errors out
 								  // script: "/zap/zap-api-scan.py -x ${ZAP_REPORT_NAME} -t ${API_TARGET_URL} -f ${API_FORMAT}"
-								  // script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+								   script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 								)
 								echo "Return value is: ${retVal}"
 
