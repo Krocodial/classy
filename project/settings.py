@@ -134,8 +134,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-LOGIN_URL = ''
-LOGIN_REDIRECT_URL = '/home'
+LOGIN_URL = 'classy:index'
+LOGIN_REDIRECT_URL = 'classy:home'
 
 FILE_UPLOAD_PERMISSIONS = 0o600
 
