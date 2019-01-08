@@ -34,11 +34,14 @@ PRES = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'classy.User'
 
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 
 #KEYCLOAK_BEARER_AUTHENTICATION_EXEMPT_PATHS = [
-	'admin', 'accounts',
-	]
+#	'admin', 'accounts',
+#	]
 #CONFIG_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
 
 '''KEYCLOAK_CONFIG = {
