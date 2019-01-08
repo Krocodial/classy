@@ -15,7 +15,7 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
-/*def deployTemplates(name, env, pr, git_repo, git_branch, databaseBC, backendDC, databaseDC, nginxDC) {
+def deployTemplates(String name, String env, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
 
 	databasePVC = openshift.process(
 		readFile(file:"${databaseBC}"))
@@ -70,7 +70,7 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
 		'app-name':"${name}", 
 		'env-name':"${env}"], 
 		"--overwrite")
-}*/
+}
 
 
 def backendBC = 'openshift/templates/classy-bc.json'
@@ -600,61 +600,6 @@ pipeline {
   }//end of stages
 }//pipeline end
 
-def deployTemplates(name, env, pr, git_repo, git_branch, databaseBC, backendDC, databaseDC, nginxDC) {
 
-	databasePVC = openshift.process(
-		readFile(file:"${databaseBC}"))
-		
-	openshift.apply(databasePVC)
-	
-	database = openshift.process(
-		readFile(file:"${databaseDC}"),
-		"-p", 
-		"APP_NAME=${name}", 
-		"NAME_SUFFIX=${env}-${pr}", 
-		"ENV_NAME=${env}", 
-		"APP_IMAGE_TAG=${pr}", 
-		"SOURCE_REPOSITORY_URL=${git_repo}", 
-		"SOURCE_REPOSITORY_REF=${git_branch}")
-	
-	
-	backend = openshift.process(
-		readFile(file:"${backendDC}"),
-		"-p", 
-		"APP_NAME=${name}", 
-		"NAME_SUFFIX=${env}-${pr}", 
-		"ENV_NAME=${env}", 
-		"APP_IMAGE_TAG=${pr}", 
-		"SOURCE_REPOSITORY_URL=${git_repo}", 
-		"SOURCE_REPOSITORY_REF=${git_branch}")
-	
-	nginx = openshift.process(
-		readFile(file:"${nginxDC}"),
-		"-p",
-		"APP_NAME=${name}", 
-		"NAME_SUFFIX=${env}-${pr}", 
-		"ENV_NAME=${env}", 
-		"APP_IMAGE_TAG=${pr}", 
-		"APPLICATION_DOMAIN=${name}-${env}.pathfinder.gov.bc.ca")
-	
-	
-	openshift.apply(database)
-		.label(['app':"classy-${env}", 
-		'app-name':"${name}", 
-		'env-name':"${env}"], 
-		"--overwrite")
-	
-	openshift.apply(backend)
-		.label(['app':"classy-${env}", 
-		'app-name':"${name}", 
-		'env-name':"${env}"], 
-		"--overwrite")
-
-	openshift.apply(nginx)
-		.label(['app':"classy-${env}", 
-		'app-name':"${name}", 
-		'env-name':"${env}"], 
-		"--overwrite")
-}
 
 		  
