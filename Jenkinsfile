@@ -15,7 +15,7 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
-void deployTemplates(String name, String env, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
+def deployTemplates(String name, String env, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
 
 	databasePVC = openshift.process(
 		readFile(file:"${databaseBC}"))
@@ -259,7 +259,7 @@ pipeline {
 					openshift.withProject(DEV_PROJECT) {
 						input "Ready to promote to DEV?"
 						
-						def deployTemplates(
+						deployTemplates(
 							APP_NAME, 
 							DEV_SUFFIX, 
 							PR_NUM, 
