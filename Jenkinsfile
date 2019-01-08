@@ -260,15 +260,15 @@ pipeline {
 						input "Ready to promote to DEV?"
 						
 						def deployTemplates(
-							${APP_NAME}, 
-							${DEV_SUFFIX}, 
-							${PR_NUM}, 
-							${GIT_REPOSITORY}, 
-							${GIT_REF}, 
-							${databaseBC}, 
-							${backendDC}, 
-							${databaseDC}, 
-							${nginxDC})
+							APP_NAME, 
+							DEV_SUFFIX, 
+							PR_NUM, 
+							GIT_REPOSITORY, 
+							GIT_REF, 
+							databaseBC, 
+							backendDC, 
+							databaseDC, 
+							nginxDC)
 						
 						/*databasePVC = openshift.process(
 							readFile(file:"${databaseBC}"))
