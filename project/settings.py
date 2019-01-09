@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
-BYPASS_AUTH = False
+BYPASS_AUTH = True
 PRES = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'classy.User'
