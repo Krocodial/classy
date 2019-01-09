@@ -1,0 +1,36 @@
+.login-form {
+	max-width: 450px;
+	margin: 75px auto;
+
+}
+
+.inputs {
+	padding: 26px 26px;
+}
+
+#bootstrapoverride {
+	background-color:#417690;
+	color:#f5dd5d;
+	padding: 20px 20px;
+}
+
+.custom-colour {
+    color:#f5dd5d;
+    font-size: 22px;
+}
+
+.text-faint {
+	color:#F1F1F2;
+}
+
+#avatar {
+    width: 96px;
+    height: 96px;
+    margin: 10px auto 10px;
+    display: block;
+}
+
+.blue-submit {
+	background-color:#79aec8;
+	border-color:#79aec8;
+}

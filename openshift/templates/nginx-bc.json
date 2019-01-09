@@ -1,14 +1,38 @@
 {
-    "kind": "Template",
-    "apiVersion": "v1",
-    "metadata": {
-	  "name": "${APP_NAME}",
-	},
-	"labels": {
-		"template": "nginx-bc",
-		"app": "classy"
-	},
-	"parameters": [
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx-bc"
+  },
+  "labels": {
+	"template": "nginx-bc",
+	"app": "classy"
+  },
+    "parameters": [
+		{
+		  "name": "APP_NAME",
+		  "required": true
+		},
+		{
+		  "name": "NAME_SUFFIX",
+		  "required": true
+		},
+		{
+		  "name": "ENV_NAME",
+		  "required": true
+		},
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true
+		},
 		{
 		  "name": "NAME",
 		  "displayName": "Name",
@@ -16,23 +40,12 @@
 		  "value": "proxy-nginx"
 		},
 		{
-		  "name": "GIT_REPO",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "https://github.com/Krocodial/classy.git"
-		},
-		{
-		  "name": "GIT_BRANCH",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "master"
-		},
-		{
 		  "name": "IMG_SRC",
 		  "displayName": "Name",
 		  "required": true,
 		  "value": "bcgov-s2i-nginx"
 		}
+		
 	],
 	"objects": [
         {
@@ -49,37 +62,29 @@
                 "lookupPolicy": {
                     "local": false
                 }
-            },
-            "status": {
-                "dockerImageRepository": ""
             }
         },
         {
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${NAME}",
+                "name": "${NAME}-${APP_IMAGE_TAG}",
                 "creationTimestamp": null,
                 "labels": {
-                    "build": "${NAME}"
+                    "app": "${NAME}-${APP_IMAGE_TAG}"
                 }
             },
             "spec": {
                 "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChange": {}
-                    }
                 ],
+				"runPolicy": "Serial",
                 "source": {
                     "type": "Git",
                     "git": {
-                        "uri": "${GIT_REPO}",
-						"ref": "${GIT_BRANCH}"
-                    }
+                        "uri": "${SOURCE_REPOSITORY_URL}",
+						"ref": "${SOURCE_REPOSITORY_REF}"
+                    },
+				"contextDir": "conf/"
                 },
                 "strategy": {
                     "type": "Source",
@@ -89,16 +94,21 @@
                             "namespace": "openshift",
                             "name": "${IMG_SRC}:latest"
                         }
-                    }
+                    },
+					"env": [
+
+					]
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${NAME}:latest"
+                        "name": "${NAME}:${APP_IMAGE_TAG}"
                     }
                 },
                 "resources": {},
-                "postCommit": {},
+                "postCommit": {
+					
+				},
                 "nodeSelector": null
             }
         }

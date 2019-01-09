@@ -1,0 +1,116 @@
+td {
+	user-select: none; /* CSS3 (little to no support) */
+        -ms-user-select: none; /* IE 10+ */
+	-moz-user-select: none; /* Gecko (Firefox) */
+	-webkit-user-select: none; /* Webkit (Safari, Chrome) */
+}
+
+{% load static %}
+
+#wheel {
+    display:    none;
+    position:   fixed;
+    z-index:    1060;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .6 ) 
+                url('../images/index.spooky-ghost-ajax-preloader.svg') 
+                50% 50% 
+                no-repeat;
+}
+
+body.loading #wheel {
+	overflow: hidden;
+}
+
+body.loading #wheel {
+	display: block;
+}
+
+.navbar-light .navbar-nav .nav-link {
+	color: #fff;
+}
+
+.navbar-light .navbar-brand {
+	color: #fff;
+}
+
+.thead-inverse tr th {
+	background-color: #79aec8;
+	color: #fff;
+}
+
+.business-header{
+  height: 30vh !important;
+  background: url('../images/mountains.jpg') center center no-repeat scroll;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+
+}
+
+canvas {
+	max-height: 400px !important;
+	height: 30vh;
+}
+
+#bootstrapoverride {
+}
+
+.navbar {
+	background-color: #417690;/*#003366;*/
+}
+
+.btn-cus {
+	background-color: #79aec8;
+	border-color: #79aec8;
+}
+
+.cus-link {
+	color: #79aec8;
+}
+
+.btn-danger {
+	background-color: #FF7070;
+	border-color: #FF7070;	
+}
+
+.th-cus {
+	font-weight: 500;
+}
+
+.recents {
+	max-height: 30vh;
+}
+
+
+.pending {
+	background-color: #e6ffff;
+}
+
+.selected {
+	background-color: #ffecb3;
+}
+
+.icon {
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+.modify {
+	background-color: #ffffcc;
+}
+
+.delete {
+	background-color: #ffad99;
+
+}
+
+.iconBan {
+	color: #ffad99;
+	width: 15px;
+	height: 15px;
+}

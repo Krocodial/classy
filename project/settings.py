@@ -34,6 +34,8 @@ PRES = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'classy.User'
 
+
+
 # Application definition
 # Since we customize the default user model via 'classy' the config must come after 
 INSTALLED_APPS = [
@@ -130,10 +132,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+LOGIN_URL = 'classy:index'
+LOGIN_REDIRECT_URL = 'classy:home'
+
 FILE_UPLOAD_PERMISSIONS = 0o600
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

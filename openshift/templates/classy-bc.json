@@ -64,15 +64,15 @@
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${NAME_SUFFIX}",
+        "name": "${APP_NAME}",
         "annotations": {
           "description": "Defines how to build the application",
           "template.alpha.openshift.io/wait-for-ready": "true"
 		},
 		"labels":
 		  {
-				"appver": "${APP_NAME}-${NAME_SUFFIX}",
-				"app": "${APP_NAME}-${NAME_SUFFIX}"
+				"appver": "${APP_NAME}",
+				"app": "${APP_NAME}"
 		  }
       },
       "spec": {

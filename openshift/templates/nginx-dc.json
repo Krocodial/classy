@@ -1,0 +1,208 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx-dc"
+  },
+  "labels": {
+	"template": "nginx-dc",
+	"app": "classy"
+  },
+    "parameters": [
+	{
+	  "name": "APP_NAME",
+	  "required": true
+	},
+	{
+	  "name": "NAME_SUFFIX",
+	  "required": true
+	},
+	{
+	  "name": "ENV_NAME",
+	  "required": true
+	},
+	{
+	  "name": "APP_IMAGE_TAG",
+	  "required": true
+	},
+    {
+      "name": "NAME",
+      "displayName": "Name",
+      "description": "The name assigned to all of the frontend objects defined in this template.",
+      "required": true,
+      "value": "proxy-nginx"
+    },
+    {
+      "name": "APPLICATION_DOMAIN",
+      "displayName": "Application Hostname",
+      "description": "The exposed hostname that will route to the nginx service, if left blank a value will be defaulted.",
+      "value": ""
+    }
+  ],
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Exposes and load balances the application pods"
+        },
+		"labels": {
+			"app": "${NAME}"
+		}
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "1337-tcp",
+			"protocol": "TCP",
+            "port": 1337,
+            "targetPort": 1337
+          }
+        ],
+        "selector": {
+          "app": "${NAME}"
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "template.openshift.io/expose-uri": "http://{.spec.host}{.spec.path}"
+        }
+      },
+      "spec": {
+        "host": "${APPLICATION_DOMAIN}",
+        "to": {
+          "kind": "Service",
+          "name": "${NAME}"
+        },
+		"port": {
+		  "targetPort": "1337-tcp"
+		},
+		"tls": {
+			"termination": "edge",
+			"insecureEdgeTerminationPolicy": "Redirect"
+		}
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}-${ENV_NAME}",
+        "annotations": {
+          "description": "Keeps track of changes in the application image"
+        }
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "annotations": {
+          "description": "Defines how to deploy the application server",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate"
+        },
+		"postCommit": {
+			"script": "./manage.py collectstatic"
+		},
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": false,
+              "containerNames": [
+                "${NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${NAME}-${ENV_NAME}:${ENV_NAME}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "replicas": 2,
+        "selector": {
+          "name": "${NAME}",
+		  "app": "${NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${NAME}",
+            "labels": {
+              "name": "${NAME}",
+			  "app": "${NAME}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "${NAME}",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 1337,
+					"protocol": "TCP"
+                  }
+                ],
+
+				"readinessProbe": {
+                  "timeoutSeconds": 3,
+                  "initialDelaySeconds": 3,
+                  "httpGet": {
+                    "path": "/nginx_status/",
+                    "port": 1337
+                  }
+                },
+                "livenessProbe": {
+                    "timeoutSeconds": 3,
+                    "initialDelaySeconds": 30,
+                    "httpGet": {
+                        "path": "/nginx_status/",
+                        "port": 1337
+                    }
+                },
+				
+                "resources": {
+                    "limits": {
+                        "memory": "5Gi",
+						"cpu": "2"
+                    },
+					"requests": {
+						"memory": "4Gi",
+						"cpu": "1"
+					}
+                },
+                "env": [
+					{
+						"name": "NGINX_PROXY_URL",
+						"value": "http://${APP_NAME}-${ENV_NAME}:8080/"
+					}
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "4Gi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

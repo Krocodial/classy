@@ -35,25 +35,6 @@
 		  "required": true
 		},
 		{
-		  "name": "DATABASE_USER",
-		  "displayName": "Database Username",
-		  "required": true,
-		  "value": "krocodial"
-		},
-		{
-		  "name": "DATABASE_PASSWORD",
-		  "displayName": "Database User Password",
-		  "generate": "expression",
-		  "from": "[a-zA-Z0-9]{20}"
-		},
-		{
-		  "name": "DJANGO_SECRET_KEY",
-		  "displayName": "Django Secret Key",
-		  "description": "Set this to a long random string.",
-		  "generate": "expression",
-		  "from": "[\\w]{60}"
-		},
-		{
 		  "name": "DATABASE_SERVICE_NAME",
 		  "displayName": "Database Service Name",
 		  "required": true,
@@ -90,11 +71,9 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APP_NAME}-${NAME_SUFFIX}",
+                "name": "${APP_NAME}",
                 "creationTimestamp": null,
                 "labels": {
-                    "base-name":"classy",
-                    "appver": "${APP_NAME}-${NAME_SUFFIX}"
                 },
                 "annotations": {
                     "description": "Keeps track of changes in the application image"
@@ -110,7 +89,7 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${NAME_SUFFIX}",
+        "name": "${APP_NAME}-${ENV_NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods",
           "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
@@ -125,32 +104,15 @@
           }
         ],
         "selector": {
-          "name": "${APP_NAME}-${NAME_SUFFIX}"
+          "name": "${APP_NAME}-${ENV_NAME}"
         }
-      }
-    },
-    {
-      "kind": "Route",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${APP_NAME}"
-      },
-      "spec": {
-        "host": "",
-        "to": {
-          "kind": "Service",
-          "name": "${APP_NAME}-${NAME_SUFFIX}"
-        },
-		"tls": {
-			"termination": "edge"
-		}
       }
     },
 	{
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${NAME_SUFFIX}",
+        "name": "${APP_NAME}-${ENV_NAME}",
         "annotations": {
           "description": "Defines how to deploy the application server",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -158,19 +120,19 @@
       },
       "spec": {
         "strategy": {
-          "type": "Rolling"
+          "type": "Recreate"
         },
         "triggers": [
             {
                 "type": "ImageChange",
 					"imageChangeParams": {
-                        "automatic": true,
+                        "automatic": false,
                         "containerNames": [
-                                "classy-${NAME_SUFFIX}"
+                                "${APP_NAME}-${ENV_NAME}"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
-                                "name": "classy-${NAME_SUFFIX}:${ENV_NAME}"
+                                "name": "${APP_NAME}:${ENV_NAME}"
                             }
                         }
                     },
@@ -179,23 +141,23 @@
                     }
         ],
 		"postCommit": {
-			"script": "./manage.py check && ./manage.py migrate"
+			"script": "./manage.py check && ./manage.py migrate && ./manage.py test"
 		},
         "replicas": 1,
         "selector": {
-          "name": "${APP_NAME}-${NAME_SUFFIX}"
+          "name": "${APP_NAME}-${ENV_NAME}"
         },
         "template": {
           "metadata": {
-            "name": "${APP_NAME}-${NAME_SUFFIX}",
+            "name": "${APP_NAME}-${ENV_NAME}",
             "labels": {
-              "name": "${APP_NAME}-${NAME_SUFFIX}"
+				"name": "${APP_NAME}-${ENV_NAME}"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "${APP_NAME}-${NAME_SUFFIX}",
+                "name": "${APP_NAME}-${ENV_NAME}",
                 "image": " ",
                 "ports": [
                   {
@@ -235,12 +197,11 @@
 				    "name": "POSTGRESQL_SERVICE_HOST",
 					"value": "postgresql"
 				  },
-				  
                   {
                     "name": "DATABASE_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "name" : "${APP_NAME}-${ENV_NAME}",
                         "key" : "database-user"
                       }
                     }
@@ -249,7 +210,7 @@
                     "name": "DATABASE_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "name" : "${APP_NAME}-${ENV_NAME}",
                         "key" : "database-password"
                       }
                     }
@@ -262,7 +223,7 @@
                     "name": "DJANGO_SECRET_KEY",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${NAME_SUFFIX}",
+                        "name" : "${APP_NAME}-${ENV_NAME}",
                         "key" : "django-secret-key"
                       }
                     }
@@ -270,12 +231,12 @@
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "5",
-                    "memory": "20Gi"
+				    "cpu": "4",
+                    "memory": "16Gi"
                   },
 				  "requests": {
 					"cpu": "3",
-					"memory": "16Gi"
+					"memory": "12Gi"
 				  }
                 }
               }

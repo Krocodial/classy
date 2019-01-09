@@ -15,6 +15,7 @@ from django.conf import settings
 from django.urls import reverse
 from django import forms
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 import threading, time, csv, pytz, json, random
 
@@ -49,18 +50,20 @@ sizes = [10, 25, 50, 100]
 
 
 #Accessed from the home.html page
+@login_required
 def tutorial(request):
-    if not request.user.is_authenticated:
-        return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #    return redirect('classy:index')
     if request.user.is_staff:
         return render(request, 'classy/tutorial.html')
     if request.user.is_authenticated:
         return render(request, 'classy/base_tutorial.html')
 
 #Download search results from the search function
+@login_required
 def download(request):
-    if not request.user.is_authenticated:
-            return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #        return redirect('classy:index')
     if not request.method == 'POST':
             return redirect('classy:index')
     form = advancedSearch(request.POST)
@@ -103,6 +106,7 @@ def download(request):
     return redirect('classy:index')
 
 #Allow staff to review basic user changes, and accept/reject them
+@login_required
 def review(request):
     if not request.user.is_staff:
             return redirect('classy:index')
@@ -165,6 +169,7 @@ def review(request):
     return render(request, 'classy/review.html', context)
 
 #Allows us to see what has been pre-classified before upload into this tool, for verification purposes
+@login_required
 def exceptions(request):
     if not request.user.is_staff:
         return redirect('classy:index')        
@@ -238,9 +243,10 @@ def exceptions(request):
         return render(request, 'classy/exceptions.html', context)
 
 #Master log page, searchable
+@login_required
 def log_list(request):
-        if not request.user.is_authenticated:
-            return redirect('classy:index')
+        #if not request.user.is_authenticated:
+        #    return redirect('classy:index')
         form = basic_search(request.GET)
 
         num = classification_review_groups.objects.all().count()
@@ -327,9 +333,10 @@ def log_list(request):
             return render(request, 'classy/log_list.html', context)
 
 #Shows all information known about a classification object. History, variables, associated users, masking instructions.
+@login_required
 def log_detail(request, classy_id):
-    if not request.user.is_authenticated:
-        return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #    return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
     try:
         fil = classification.objects.filter(id=classy_id)
@@ -354,9 +361,10 @@ def log_detail(request, classy_id):
     return render(request, 'classy/log_details.html', context)
 
 #The search page POSTs to here, this will auto-change values for staff, and create a review group for basic users.
+@login_required
 def modi(request):
-    if not request.user.is_authenticated:
-            return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #        return redirect('classy:index')
     if request.method == 'POST':
         if 'toMod' in request.POST:
             toMod = request.POST['toMod']
@@ -441,9 +449,10 @@ def modi(request):
         return redirect('classy:data')
 
 #Once a user makes a search in the data tab this handles that request
+@login_required
 def search(request):
-    if not request.user.is_authenticated:
-        return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #    return redirect('classy:index')
 
     num = classification_review_groups.objects.all().count()
     if request.method == 'GET':
@@ -570,11 +579,12 @@ def search(request):
             return render(request, 'classy/data_tables.html', context)
     return redirect('classy:index')
 
-
+@login_required
 def gov_temp(request):
     return render(request, 'classy/gov_temp.html')
     
 #A work in progress. Node tree displaying all of the information in the DB, drill-down is enabled. 
+@login_required
 def test(request):
 
     if request.method == 'POST':
@@ -706,11 +716,12 @@ def index(request):
     return render(request, 'classy/index.html', context)
 
 #Home page once logged in. Pulls from classification_counts to show statistics
+@login_required
 def home(request):
 
 
-    if not request.user.is_authenticated:
-            return redirect('classy:index')
+    #if not request.user.is_authenticated:
+    #        return redirect('classy:index')
     data_cons = []
     mapping = {}
 
@@ -776,6 +787,7 @@ def home(request):
     return render(request, 'classy/home.html', context);
 
 #Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A cron job pings the Task queue and takes care of the rest.
+@login_required
 def uploader(request):
     spaces = re.compile(' ')
     if not request.user.is_staff:
@@ -839,6 +851,7 @@ def uploader(request):
     return render(request, 'classy/jobs.html', context)
 
 #Initial page for data (could replace?)
+@login_required
 def data(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')
