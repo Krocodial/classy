@@ -17,6 +17,8 @@ from django import forms
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
+from ratelimit.decorators import ratelimit
+
 import threading, time, csv, pytz, json, random
 
 from .models import *
@@ -656,6 +658,8 @@ def test(request):
 
 
 #Main page, can authenticate users with siteminder or the default django authentication method. To alternate change the variable BYPASS_AUTH in settings.py
+@ratelimit(key='ip', rate='10/m', method=['POST'], block=True)
+@ratelimit(key='ip', rate='30/m', block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
@@ -787,6 +791,7 @@ def home(request):
     return render(request, 'classy/home.html', context);
 
 #Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A cron job pings the Task queue and takes care of the rest.
+@ratelimit(key='ip', rate='5/m', block=True, method=['POST'])
 @login_required
 def uploader(request):
     spaces = re.compile(' ')
@@ -852,6 +857,7 @@ def uploader(request):
 
 #Initial page for data (could replace?)
 @login_required
+@ratelimit(key='ip', rate='10/m', block=True, method=['POST'])
 def data(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')

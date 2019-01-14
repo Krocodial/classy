@@ -96,7 +96,7 @@ pipeline {
 	APP_NAME = 'classy'
 	
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
-	GIT_REF = 'nginx-openshift'
+	GIT_REF = 'master'
 	
 	PR_NUM = "${BUILD_NUMBER}"
 	
@@ -196,7 +196,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('SonarQ scan') {
+	/*stage('SonarQ scan') {
 	  steps {
         script {
 			openshift.withCluster() {
@@ -234,6 +234,7 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
+    */
 	/*stage('cleaning dev space') {
 		steps {
 			script {
@@ -297,7 +298,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('ZAP & SonarQube scan') {
+	/*stage('ZAP & SonarQube scan') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -541,7 +542,7 @@ pipeline {
 				}
 			}
 		}
-	}
+	}*/
   }//end of stages
 }//pipeline end
 
