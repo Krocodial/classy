@@ -35,7 +35,9 @@
      the FLNR security team.
             </div>
             <div class="col-lg-6">
+                {% if not empty %}
                 <canvas id="pieChart"></canvas>
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -176,7 +178,7 @@ var config = {
                 }
         };
 
-
+{% if not empty %}
 piedata = {
     datasets: [{
         data: {{data_cons}},
@@ -213,20 +215,22 @@ pieoptions = {
 
 
 var pie = document.getElementById('pieChart').getContext('2d');
+{% endif %}
 var line = document.getElementById('lineChart').getContext('2d');
 
 window.onload = function() {
     window.myLine = new Chart(line, config);
+    var size = {width: window.myLine.width};
+    lineResizing(window.myLine, size);
+    {% if not empty %}
     var myDoughnutChart = new Chart(pie, {
         type: 'doughnut',
         data: piedata,
         options: pieoptions
     });
-    var size = {width: window.myLine.width};
-    lineResizing(window.myLine, size);
     var size = {width: myDoughnutChart.width};
     afterResizing(myDoughnutChart, size);
-
+    {% endif %}
 };
 function lineResizing(chart, size){
     console.log(chart, size);

@@ -730,12 +730,19 @@ def home(request):
     mapping = {}
 
     for op in options:
-        tmp = classification.objects.filter(classification_name__exact=op).count()
+        tmp = classification.objects.filter(classification_name__exact=op)
+        tmp = query_constructor(tmp, request.user)
+        tmp = tmp.count()
         data_cons.append(tmp)
         mapping[op] = tmp
     num = classification_review_groups.objects.all().count()
 
-    query_constructor(classification.objects.all(), request.user)
+    if query_constructor(classification.objects.all(), request.user).count() == 0:
+        empty = True
+    else:
+        empty = False
+
+    #query_constructor(classification.objects.all(), request.user)
     
     label_cons = ex_options
     dates = []
@@ -776,6 +783,7 @@ def home(request):
 
     context = {
         #'queryset': queryset,
+        'empty': empty,
         'data_cons': data_cons,
         'label_cons': mark_safe(label_cons),
         'untranslate': mark_safe(untranslate),
