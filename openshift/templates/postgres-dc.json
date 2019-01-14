@@ -250,7 +250,8 @@
                 },
                 "resources": {
                   "limits": {
-                    "memory": "${MEMORY_POSTGRESQL_LIMIT}"
+                    "memory": "2Gi",
+                    "cpu": "1"
                   }
                 }
               }

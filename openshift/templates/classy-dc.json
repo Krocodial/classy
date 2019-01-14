@@ -231,13 +231,9 @@
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "4",
-                    "memory": "16Gi"
-                  },
-				  "requests": {
-					"cpu": "3",
-					"memory": "12Gi"
-				  }
+				    "cpu": "2",
+                    "memory": "8Gi"
+                  }				  
                 }
               }
             ]
