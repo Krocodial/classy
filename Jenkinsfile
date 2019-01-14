@@ -138,7 +138,7 @@ pipeline {
 	timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-	/*stage('preamble & sweeping floor') {
+	stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -151,13 +151,12 @@ pipeline {
 			}
 		}
 	}// end of stage
-    */
 	stage('Preparing build configs && building images') {
 		steps {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						/*backend = openshift.process(
+						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
@@ -168,7 +167,7 @@ pipeline {
 							"SOURCE_REPOSITORY_REF=${GIT_REF}")
 
 						openshift.apply(backend)
-						*/
+						
 						nginx = openshift.process(
 							readFile(file:"${nginxBC}"),
 							"-p",
@@ -183,9 +182,9 @@ pipeline {
 						openshift.apply(nginx)
 						
 						echo "select 'bc' ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
-						//def builds = openshift.selector("bc",
-						//	"${APP_NAME}")
-						//builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
+						def builds = openshift.selector("bc",
+							"${APP_NAME}")
+						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 						echo "building nginx bc"
 						def nginx = openshift.selector("bc", 
@@ -283,7 +282,7 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 					
-						openshift.tag("${TOOLS_PROJECT}/classy:67",
+						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
 							"${DEV_PROJECT}/classy:dev")
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
