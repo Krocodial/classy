@@ -191,7 +191,11 @@
 					{
 						"name": "NGINX_PROXY_URL",
 						"value": "http://${APP_NAME}-${ENV_NAME}:8080/"
-					}
+					},
+                    {
+                        "name": "DOLLAR",
+                        "value": "$"
+                    }
                 ],
                 "resources": {
                   "limits": {
