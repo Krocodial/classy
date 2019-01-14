@@ -8,3 +8,4 @@ mydatabase
 *.cpython-36.pyc
 db.sqlite*
 *.csv
+*.swp
