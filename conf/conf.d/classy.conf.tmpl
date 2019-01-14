@@ -18,11 +18,14 @@
         # note the trailing slash strips out the /proxy path on 
         # the request to the upstream server
         # Ensure HTTP get passed thru
+location / {
+
 proxy_pass_request_headers on;
 # its helpful to cache these responses
 proxy_cache globalcache;
 
 proxy_pass ${NGINX_PROXY_URL} ;
+}
     #}
 	
 #	location /static/ {
