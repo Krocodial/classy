@@ -445,7 +445,8 @@ pipeline {
 			}
 		}//steps end
 	}// end of stage
-	stage('Integrations tests') {
+    */
+	/*stage('Integrations tests') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -456,93 +457,53 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('Deploy to TEST') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject(TEST_PROJECT) {
-						input "Ready to promote to TEST?"
+    */
+    stage('deploy to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+                        input "Ready to promote to TEST?"
 
-						databasePVC = openshift.process(
-							readFile(file:"${databaseBC}"))
-							
-						openshift.apply(databasePVC)
-						
-						database = openshift.process(
-							readFile(file:"${databaseDC}"),
-							"-p", 
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${TEST_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${TEST_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
-							"SOURCE_REPOSITORY_REF=${GIT_REF}")
-						
-						
-						backend = openshift.process(
-							readFile(file:"${backendDC}"),
-							"-p", 
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${TEST_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${TEST_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}", 
-							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
-							"SOURCE_REPOSITORY_REF=${GIT_REF}")
-						
-						nginx = openshift.process(
-							readFile(file:"${nginxDC}"),
-							"-p",
-							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${TEST_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${TEST_SUFFIX}", 
-							"APP_IMAGE_TAG=${PR_NUM}",
-							"APPLICATION_DOMAIN=${APP_NAME}-${TEST_SUFFIX}.pathfinder.gov.bc.ca")
-						
-						
-						openshift.apply(database)
-							.label(['app':"classy-${TEST_SUFFIX}", 
-							'app-name':"${APP_NAME}", 
-							'env-name':"${TEST_SUFFIX}"], 
-							"--overwrite")
-						
-						openshift.apply(backend)
-							.label(['app':"classy-${TEST_SUFFIX}", 
-							'app-name':"${APP_NAME}", 
-							'env-name':"${TEST_SUFFIX}"], 
-							"--overwrite")
+                        deployTemplates(
+                            APP_NAME,
+                            TEST_SUFFIX,
+                            PR_NUM,
+                            GIT_REPOSITORY,
+                            GIT_REF,
+                            databaseBC,
+                            backendDC,
+                            databaseDC,
+                            nginxDC)
 
-						openshift.apply(nginx)
-							.label(['app':"classy-${TEST_SUFFIX}", 
-							'app-name':"${APP_NAME}", 
-							'env-name':"${TEST_SUFFIX}"], 
-							"--overwrite")
-					}
-				}
-			}
-		}
-	}//end of stage
-	stage('Promoting images to TEST') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject(TEST_PROJECT) {
-					
-						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-							"${TEST_PROJECT}/classy:test")
-							
-						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-							"${TEST_PROJECT}/proxy-nginx-${TEST_SUFFIX}:test")
-							
-						def dcs = openshift.selector("dc", [ app : 'classy-test' ])
-						dcs.rollout().latest()
-							
-						dcs.rollout().status()
-							
-					}
-				}
-			}
-		}
-	}*/
+                    }
+                }
+            }
+        }
+    }// end of stage
+    stage('Promoting images to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+
+                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                            "${TEST_PROJECT}/classy:test")
+
+                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+                            "${TEST_PROJECT}/proxy-nginx-${TEST_SUFFIX}:test")
+
+                        def dcs = openshift.selector("dc", [ app : 'classy-test' ])
+                        dcs.rollout().latest()
+
+                        dcs.rollout().status()
+
+                    }
+                }
+            }
+        }
+    }// end of stage
+
   }//end of stages
 }//pipeline end
 
