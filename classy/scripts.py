@@ -117,10 +117,11 @@ def process_file(tsk):
     fs = FileSystemStorage()
     try: 
         uploaded_file_url = fs.url(filename)
-        row_count = sum(1 for row in csv.reader(uploaded_file_url))
+        row_count = sum(1 for row in csv.DictReader(open(uploaded_file_url)))
         reader = csv.DictReader(open(uploaded_file_url))
-        #print(row_count)
-        itera = row_count/100
+        itera = int(row_count/100)
+        if itera == 0:
+            itera = 1
         counter = 0
         if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
             for row in reader:
@@ -128,7 +129,7 @@ def process_file(tsk):
                 if counter%itera == 0:
                     prog = (counter/itera)*0.01
                     tsk.progress = prog
-                    tsk.save()         
+                    tsk.save()  
                 data_list = re.split(':', row['Datasource Description'])
                 database = data_list[3].strip()
                 if classification.objects.filter(

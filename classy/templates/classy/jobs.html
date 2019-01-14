@@ -1,6 +1,7 @@
 {% load static %}
 {% include 'classy/head.html' %}
 <title>Uploads - Classy</title>
+{% load classy_extras %}
 </head>
 <body>
     {% include 'classy/navbar.html' %}
@@ -47,7 +48,7 @@
                                 <td>{{tsk.name}}</td>
                                 <td>{{tsk.priority}}</td>
                                 <td>{{tsk.run_at}}</td>
-                                <td>{{tsk.progress}}/1</td>
+                                <td>{{tsk.progress|multiply:100}}%</td>
                                 <td>{{tsk.user}}</td>
                             </tr>
                             {% endfor %}
