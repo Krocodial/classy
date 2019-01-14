@@ -1,5 +1,5 @@
 
-limit_req_zone ${DOLLAR}binary_remote_addr zone=login:1m rate=20r/m;
+limit_req_zone ${DOLLAR}binary_remote_addr zone=login:10m rate=1r/s;
 limit_req_status 503;
 
 server {
@@ -29,7 +29,7 @@ server {
         proxy_pass ${NGINX_PROXY_URL} ;
 
         proxy_set_header X-Forwarded-Host ${DOLLAR}host;
-        proxy_set_header x-real-ip ${DOLLAR}remote_addr;
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
         #proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_forwarded_for;
         proxy_set_header Host ${DOLLAR}http_host; 
     }

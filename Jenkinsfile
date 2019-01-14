@@ -504,6 +504,51 @@ pipeline {
             }
         }
     }// end of stage
+    stage('deploy to prod') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(PROD_PROJECT) {
+                        input "Ready to promote to PROD?"
+
+                        deployTemplates(
+                            APP_NAME,
+                            PROD_SUFFIX,
+                            PR_NUM,
+                            GIT_REPOSITORY,
+                            GIT_REF,
+                            databaseBC,
+                            backendDC,
+                            databaseDC,
+                            nginxDC)
+
+                    }
+                }
+            }
+        }
+    }// end of stage
+    stage('Promoting images to prod') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(PROD_PROJECT) {
+
+                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                            "${PROD_PROJECT}/classy:prod")
+
+                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+                            "${PROD_PROJECT}/proxy-nginx-${PROD_SUFFIX}:prod")
+
+                        def dcs = openshift.selector("dc", [ app : 'classy-prod' ])
+                        dcs.rollout().latest()
+
+                        dcs.rollout().status()
+
+                    }
+                }
+            }
+        }
+    }// end of stage
 
   }//end of stages
 }//pipeline end
