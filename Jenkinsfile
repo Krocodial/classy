@@ -434,7 +434,7 @@ pipeline {
 									-Dsonar.projectBaseDir=../ \
 									-Dsonar.sources=${SONAR_SOURCES} \
 									-Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
-									-Dsonar.exclusions=**/*.xml"
+									-Dsonar.exclusions="
 								)
 							  }
 							}
