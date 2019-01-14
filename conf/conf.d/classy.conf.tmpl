@@ -1,8 +1,9 @@
+limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
 
 server {
     listen       1337;
     server_name  _;
-    
+
     # Allows non-standard headers like SMGOV_USERGUID
     ignore_invalid_headers off;
     
@@ -12,14 +13,17 @@ server {
     #real_ip_header    X-Forwarded-For;
 
     location / {
+
+        limit_req zone=login burst=5;
         # proxy all traffic to this URL, 
         # note the trailing slash strips out the /proxy path on 
         # the request to the upstream server
         proxy_pass ${NGINX_PROXY_URL};
-        
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
         # Ensure HTTP get passed thru
         proxy_pass_request_headers on;
-        
         # its helpful to cache these responses
         proxy_cache globalcache;
     }
