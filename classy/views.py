@@ -19,7 +19,7 @@ from django.contrib.auth.decorators import login_required
 
 from ratelimit.decorators import ratelimit
 
-import threading, time, csv, pytz, json, random
+import threading, time, csv, pytz, json, random, os
 
 from .models import *
 from .forms import *
@@ -665,17 +665,30 @@ def test(request):
     context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
     return render(request, 'classy/test.html', context)
 
+def login_complete(request):
+    print(request.GET['code'])
+    print(request.GET['state'])
+    print(request.GET['session_state'])
+    try:
+        token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') + reverse('classy:login_complete'))
+        print(token)
+    except Exception as e:
+        print(e)
+    return redirect('classy:index')
 
 #Main page, can authenticate users with siteminder or the default django authentication method. To alternate change the variable BYPASS_AUTH in settings.py
 #@ratelimit(key='ip', rate='11/m', method=['POST'], block=True)
 #@ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
 #@ratelimit(key='post:username', rate='11/m')
-#@ratelimit(key='post:password', rate='11/m')
+@ratelimit(key='post:password', rate='6/m', method=['POST'], block=True)
 @ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
     #SiteMinder Authentication
+    
+
+
     if settings.BYPASS_AUTH:
         pass
     else:
@@ -701,6 +714,7 @@ def index(request):
 
     #First time login
     if request.method == 'POST':
+        return redirect(settings.OIDC_CLIENT.authorization_url(redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf'))
         form = loginform(request.POST)
         if form.is_valid():
             if settings.BYPASS_AUTH:

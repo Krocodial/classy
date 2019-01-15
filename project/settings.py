@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
+from keycloak.realm import KeycloakRealm
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -34,13 +34,16 @@ PRES = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'classy.User'
 
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
-CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_HTTPONLY = True
+#SECURE_BROWSER_XSS_FILTER = True
+#SECURE_CONTENT_TYPE_NOSNIFF = True
+#SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
+#CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
+#CSRF_COOKIE_HTTPONLY = True
+#SESSION_COOKIE_HTTPONLY = True
 
+SSO_REALM = KeycloakRealm(server_url=os.getenv('SSO_SERVER'), realm_name=os.getenv('SSO_REALM'))
+OIDC_CLIENT = SSO_REALM.open_id_connect(client_id=os.getenv('SSO_CLIENT_ID'), 
+                                        client_secret=os.getenv('SSO_CLIENT_SECRET'))
 
 # Application definition
 # Since we customize the default user model via 'classy' the config must come after 

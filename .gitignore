@@ -9,3 +9,4 @@ mydatabase
 db.sqlite*
 *.csv
 *.swp
+sso*
