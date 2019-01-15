@@ -141,7 +141,7 @@
                     }
         ],
 		"postCommit": {
-			"script": "./manage.py check && ./manage.py migrate && ./manage.py test && ./manage.py createcachetable"
+			"script": "./manage.py check && ./manage.py migrate && ./manage.py test"
 		},
         "replicas": 1,
         "selector": {
@@ -227,11 +227,7 @@
                         "key" : "django-secret-key"
                       }
                     }
-                  },
-		  {
-		     "name": "DEBUG",
-		     "value": "True"
-		  }
+                  }
                 ],
                 "resources": {
                   "limits": {

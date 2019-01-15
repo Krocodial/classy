@@ -671,11 +671,10 @@ def test(request):
 #@ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
 #@ratelimit(key='post:username', rate='11/m')
 #@ratelimit(key='post:password', rate='11/m')
-@ratelimit(key='post:username', rate='1/m', method=['POST'], block=True)
+@ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
-    print(request.META.get('HTTP_X_FORWARDED_FOR')) 
     #SiteMinder Authentication
     if settings.BYPASS_AUTH:
         pass
@@ -812,7 +811,7 @@ def home(request):
 
 #Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A cron job pings the Task queue and takes care of the rest.
 @login_required
-@ratelimit(key='ip', rate='5/m', block=True, method=['POST'])
+@ratelimit(key='user', rate='5/m', block=True, method=['POST'])
 def uploader(request):
     spaces = re.compile(' ')
     if not request.user.is_staff:
@@ -877,7 +876,7 @@ def uploader(request):
 
 #Initial page for data (could replace?)
 @login_required
-@ratelimit(key='ip', rate='10/m', block=True, method=['POST'])
+@ratelimit(key='user', rate='10/m', block=True, method=['POST'])
 def data(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')

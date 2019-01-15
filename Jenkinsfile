@@ -298,7 +298,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('ZAP & SonarQube scan') {
+	/*stage('ZAP & SonarQube scan') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -445,6 +445,7 @@ pipeline {
 			}
 		}//steps end
 	}// end of stage
+    */
     stage('deploy to test') {
         steps {
             script {

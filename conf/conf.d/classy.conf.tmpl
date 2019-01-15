@@ -1,5 +1,5 @@
 
-limit_req_zone ${DOLLAR}binary_remote_addr zone=login:10m rate=30r/m;
+limit_req_zone ${DOLLAR}binary_remote_addr zone=login:10m rate=1r/s;
 limit_req_status 503;
 
 server {
@@ -46,8 +46,4 @@ server {
         access_log off;
     }
 
-    location /hidden/sec/kek/ {
-        return 200 ${DOLLAR}remote_addr;
-        access_log off;
-    }
 }
