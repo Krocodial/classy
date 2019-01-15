@@ -51,6 +51,7 @@ lock = threading.Lock()
 sizes = [10, 25, 50, 100]
 
 @login_required
+
 def debugg(request):
     for key, value in request.META.items():
         print(key, value)
@@ -670,14 +671,11 @@ def test(request):
 #@ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
 #@ratelimit(key='post:username', rate='11/m')
 #@ratelimit(key='post:password', rate='11/m')
-@ratelimit(key='header:x-forwarded-for', rate='15/m', method=['POST'], block=True)
-@ratelimit(key='header:X-Forwarded-For', rate='15/m', block=True)
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='15/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
-    print(request.META.get('X_FORWARDED_FOR'))
     print(request.META.get('HTTP_X_FORWARDED_FOR')) 
-    print(request.META.get('HTTP_X_Forwarded_For'))
     #SiteMinder Authentication
     if settings.BYPASS_AUTH:
         pass
