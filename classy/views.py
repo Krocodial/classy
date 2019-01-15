@@ -668,11 +668,14 @@ def test(request):
 #Main page, can authenticate users with siteminder or the default django authentication method. To alternate change the variable BYPASS_AUTH in settings.py
 #@ratelimit(key='ip', rate='11/m', method=['POST'], block=True)
 @ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
-@ratelimit(key='post:username', rate='11/m', block=True)
-@ratelimit(key='post:password', rate='11/m', block=True)
+@ratelimit(key='post:username', rate='11/m')
+@ratelimit(key='post:password', rate='11/m')
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
+
+    was_limited = getattr(request, 'limited', False)
+    print(was_limited)
     
     #SiteMinder Authentication
     if settings.BYPASS_AUTH:
