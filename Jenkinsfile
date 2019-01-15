@@ -151,7 +151,6 @@ pipeline {
 			}
 		}
 	}// end of stage
-*/
 	stage('Preparing build configs && building images') {
 		steps {
 			script {
@@ -183,9 +182,9 @@ pipeline {
 						openshift.apply(nginx)
 						
 						echo "select 'bc' ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
-						//def builds = openshift.selector("bc",
-						//	"${APP_NAME}")
-						//builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
+						def builds = openshift.selector("bc",
+							"${APP_NAME}")
+						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 						echo "building nginx bc"
 						def nginx = openshift.selector("bc", 
@@ -197,7 +196,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('SonarQ scan') {
+	stage('SonarQ scan') {
 	  steps {
         script {
 			openshift.withCluster() {
@@ -235,7 +234,6 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
-    */
 	/*stage('cleaning dev space') {
 		steps {
 			script {
@@ -283,7 +281,7 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 					
-						openshift.tag("${TOOLS_PROJECT}/classy:77",
+						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
 							"${DEV_PROJECT}/classy:dev")
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
@@ -299,7 +297,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('ZAP & SonarQube scan') {
+	stage('ZAP & SonarQube scan') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -435,7 +433,7 @@ pipeline {
 									-Dsonar.projectBaseDir=../ \
 									-Dsonar.sources=${SONAR_SOURCES} \
 									-Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
-									-Dsonar.exclusions="
+									-Dsonar.exclusions=**/*.xml"
 								)
 							  }
 							}
@@ -446,7 +444,6 @@ pipeline {
 			}
 		}//steps end
 	}// end of stage
-    */
 	/*stage('Integrations tests') {
 		steps {
 			script {
