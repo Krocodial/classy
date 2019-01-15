@@ -50,6 +50,9 @@ threads = []
 lock = threading.Lock()
 sizes = [10, 25, 50, 100]
 
+@login_required
+def debugg(request):
+    return request.META
 
 #Accessed from the home.html page
 @login_required

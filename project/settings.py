@@ -115,9 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-def show_toolbar(request):
-    return True
-SHOW_TOOLBAR_CALLBACK = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

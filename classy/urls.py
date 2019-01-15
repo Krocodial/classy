@@ -12,7 +12,7 @@ urlpatterns = [
     path('uploader', views.uploader, name='uploader'),
     path('search', views.search, name='search'),
     path('home', views.home, name='home'),
-    path('test', views.test, name='test'),
+    #path('test', views.test, name='test'),
     path('modi', views.modi, name='modi'),
     path('review', views.review, name='review'),
     path('exceptions', views.exceptions, name='exceptions'),
@@ -20,6 +20,7 @@ urlpatterns = [
     path('download', views.download, name='download'),
     path('tutorial', views.tutorial, name='tutorial'),
     path('health', views.health, name='health'),
-    path('gov_temp', views.gov_temp, name='gov_temp'),
+    #path('gov_temp', views.gov_temp, name='gov_temp'),
+    path('debugg', views.debugg, name='debugg'),
 ]
 

@@ -227,11 +227,7 @@
                         "key" : "django-secret-key"
                       }
                     }
-                  },
-		  {
-			"name": "DEBUG",
-			"value": "True"
-		  }
+                  }
                 ],
                 "resources": {
                   "limits": {
