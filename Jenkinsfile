@@ -98,7 +98,7 @@ pipeline {
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
 	GIT_REF = 'master'
 	
-	PR_NUM = 84 //"${BUILD_NUMBER}"
+	PR_NUM = "${BUILD_NUMBER}"
 	
 	TOOLS_PROJECT = 'l9fjgg-tools'
 	
@@ -138,7 +138,7 @@ pipeline {
 	timeout(time: 40, unit: 'MINUTES')
   }
   stages {
-	/*stage('preamble & sweeping floor') {
+	stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -234,7 +234,6 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
-    */
 	/*stage('cleaning dev space') {
 		steps {
 			script {
@@ -253,7 +252,7 @@ pipeline {
 			}
 		}
 	}*/ // end of stage
-	/*stage('deploy to dev') {
+	stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -298,7 +297,6 @@ pipeline {
 			}
 		}
 	}// end of stage
-    */
 	stage('ZAP & SonarQube scan') {
 		steps {
 			script {
