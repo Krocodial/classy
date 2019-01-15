@@ -141,7 +141,7 @@
                     }
         ],
 		"postCommit": {
-			"script": "./manage.py check && ./manage.py migrate && ./manage.py test"
+			"script": "./manage.py check && ./manage.py migrate"
 		},
         "replicas": 1,
         "selector": {
@@ -227,7 +227,11 @@
                         "key" : "django-secret-key"
                       }
                     }
-                  }
+                  },
+		  {
+		     "name": "DEBUG",
+		     "value": "True"
+		  }
                 ],
                 "resources": {
                   "limits": {

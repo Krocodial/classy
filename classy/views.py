@@ -671,7 +671,7 @@ def test(request):
 #@ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
 #@ratelimit(key='post:username', rate='11/m')
 #@ratelimit(key='post:password', rate='11/m')
-@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='15/m', method=['POST'], block=True)
+@ratelimit(key='post:username', rate='1/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home');
