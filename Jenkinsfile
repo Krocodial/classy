@@ -135,7 +135,7 @@ pipeline {
   
   agent any
   options {
-	timeout(time: 30, unit: 'MINUTES')
+	timeout(time: 40, unit: 'MINUTES')
   }
   stages {
 	/*stage('preamble & sweeping floor') {
@@ -258,7 +258,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						input "Ready to promote to DEV?"
+						//input "Ready to promote to DEV?"
 						
 						deployTemplates(
 							APP_NAME, 
@@ -339,11 +339,11 @@ pipeline {
 								// working directory, so they have to be copied over after the fact.
 								def retVal = sh (
 								  returnStatus: true,
-								  script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+								  //script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 								  // Other scanner options ...
 								  // zap-api-scan errors out
 								  // script: "/zap/zap-api-scan.py -x ${ZAP_REPORT_NAME} -t ${API_TARGET_URL} -f ${API_FORMAT}"
-								  //script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+								  script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 								)
 								echo "Return value is: ${retVal}"
 
