@@ -87,6 +87,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wsgi.application'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'ratelimit_cache_table',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

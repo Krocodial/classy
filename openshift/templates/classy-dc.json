@@ -141,7 +141,7 @@
                     }
         ],
 		"postCommit": {
-			"script": "./manage.py check && ./manage.py migrate && ./manage.py test"
+			"script": "./manage.py check && ./manage.py migrate && ./manage.py test && ./manage.py createcachetable"
 		},
         "replicas": 1,
         "selector": {
