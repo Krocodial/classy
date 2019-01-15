@@ -117,10 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 def show_toolbar(request):
     return True
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
-}
-
+SHOW_TOOLBAR_CALLBACK = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -149,5 +146,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-INTERNAL_IPS = ['*']
+INTERNAL_IPS = ['127.0.0.1']
 
