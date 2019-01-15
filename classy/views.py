@@ -52,7 +52,12 @@ sizes = [10, 25, 50, 100]
 
 @login_required
 def debugg(request):
-    return request.META
+    for key, value in request.META.items():
+        print(key, value)
+
+    template = "you are %(user)s; your IP address is %(ipaddress)s"
+    options = dict(user = request.META['USER'], ipaddress = request.META['REMOTE_ADDR'])
+    return HttpResponse(template % options)
 
 #Accessed from the home.html page
 @login_required

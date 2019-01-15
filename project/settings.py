@@ -41,6 +41,7 @@ CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 
+
 # Application definition
 # Since we customize the default user model via 'classy' the config must come after 
 INSTALLED_APPS = [
@@ -51,7 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'classy.apps.ClassyConfig',
-    'debug_toolbar',
+    #'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -63,7 +64,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -143,5 +144,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-INTERNAL_IPS = ['127.0.0.1']
+#INTERNAL_IPS = ['127.0.0.1']
 
