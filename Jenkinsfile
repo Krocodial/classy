@@ -98,7 +98,7 @@ pipeline {
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
 	GIT_REF = 'master'
 	
-	PR_NUM = "${BUILD_NUMBER}"
+	PR_NUM = 84 //"${BUILD_NUMBER}"
 	
 	TOOLS_PROJECT = 'l9fjgg-tools'
 	
@@ -135,10 +135,10 @@ pipeline {
   
   agent any
   options {
-	timeout(time: 20, unit: 'MINUTES')
+	timeout(time: 30, unit: 'MINUTES')
   }
   stages {
-	stage('preamble & sweeping floor') {
+	/*stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -234,6 +234,7 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
+    */
 	/*stage('cleaning dev space') {
 		steps {
 			script {
@@ -252,7 +253,7 @@ pipeline {
 			}
 		}
 	}*/ // end of stage
-	stage('deploy to dev') {
+	/*stage('deploy to dev') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -297,6 +298,7 @@ pipeline {
 			}
 		}
 	}// end of stage
+    */
 	stage('ZAP & SonarQube scan') {
 		steps {
 			script {
@@ -337,11 +339,11 @@ pipeline {
 								// working directory, so they have to be copied over after the fact.
 								def retVal = sh (
 								  returnStatus: true,
-								  //script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+								  script: "/zap/zap-baseline.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 								  // Other scanner options ...
 								  // zap-api-scan errors out
 								  // script: "/zap/zap-api-scan.py -x ${ZAP_REPORT_NAME} -t ${API_TARGET_URL} -f ${API_FORMAT}"
-								   script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
+								  //script: "/zap/zap-full-scan.py -x ${ZAP_REPORT_NAME} -t ${TARGET_URL}"
 								)
 								echo "Return value is: ${retVal}"
 
@@ -444,18 +446,6 @@ pipeline {
 			}
 		}//steps end
 	}// end of stage
-	/*stage('Integrations tests') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject(DEV_PROJECT) {
-					input "Ready to promote to TEST?"
-					}
-				}
-			}
-		}
-	}// end of stage
-    */
     stage('deploy to test') {
         steps {
             script {
