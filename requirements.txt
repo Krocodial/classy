@@ -2,7 +2,6 @@ Django==2.0.10
 django-debug-toolbar==1.11
 django-ratelimit==2.0.0
 gunicorn==19.5.0
-pkg-resources==0.0.0
 psycopg2==2.7.6
 pytz==2018.7
 sqlparse==0.2.4
