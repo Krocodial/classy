@@ -16,6 +16,8 @@ from django.urls import reverse
 from django import forms
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.contrib.auth import get_user_model
 
 from ratelimit.decorators import ratelimit
 
@@ -666,16 +668,54 @@ def test(request):
     return render(request, 'classy/test.html', context)
 
 def login_complete(request):
-    print(request.GET['code'])
-    print(request.GET['state'])
-    print(request.GET['session_state'])
+    #print(request.GET['code'])
+    #print(request.GET['state'])
+    #print(request.GET['session_state'])
     try:
-        token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') + reverse('classy:login_complete'))
-        print(token)
+        redirect_uri = 'http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete')
+        token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri=redirect_uri)
+        #print(token)
+        #print(settings.OIDC_CLIENT.certs()['keys'][0])
+        payload = settings.OIDC_CLIENT.decode_token(token['access_token'], settings.OIDC_CLIENT.certs()['keys'][0])
     except Exception as e:
-        print(e)
-    return redirect('classy:index')
+        return HttpResponseForbidden('Invalid JWT token') 
+        
+    User = get_user_model()
 
+    username = payload.get('sub')
+    if username is None:
+        return HttpResponseForbidden('Invalid payload')
+
+    try:
+        user, user_created = User.objects.get_or_create(username=username)
+    except Exception as e:
+        return HttpResponseForbidden('Error creating user') 
+
+    if user_created:
+        user.set_password(User.objects.make_random_password(length=40))
+        user.email = payload.get('email')
+        user.first_name = payload.get('name')
+        user.last_name = payload.get('preferred_username')
+        user.save()    
+    elif user.email != payload.get('email'):
+        user.email = payload.get('email')
+        user.save()
+
+    roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
+
+    if 'staff' in roles:
+        user.is_staff = True
+        user.is_superuser = False
+        user.save()
+
+    if 'superuser' in roles:
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+
+    login(request, user)
+    return redirect('classy:home')
+ 
 #Main page, can authenticate users with siteminder or the default django authentication method. To alternate change the variable BYPASS_AUTH in settings.py
 #@ratelimit(key='ip', rate='11/m', method=['POST'], block=True)
 #@ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
@@ -684,35 +724,14 @@ def login_complete(request):
 @ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
-        return redirect('classy:home');
+        return redirect('classy:home')
     #SiteMinder Authentication
-    
 
+    auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf')
+    print(auth_url)
+    return redirect(auth_url)   
 
-    if settings.BYPASS_AUTH:
-        pass
-    else:
-
-        user_name = request.META.get('HTTP_SM_UNIVERSALID')
-        user_id = request.META.get('HTTP_SMGOV_USERIDENTIFIER')
-
-        user_email = request.META.get('HTTP_SMGOV_USEREMAIL')
-        user_display = request.META.get('HTTP_SMGOV_USERDISPLAYNAME')
-
-        user_type = request.META.get('HTTP_SMGOV_USERTYPE')
-
-        if user_type != 'Internal':
-            form = loginform()
-            context = {'form': form}
-            return render(request, 'classy/index.html', context) 
-
-
-        user = authenticate(request, username=user_name, password=user_id)
-        if user is not None:
-            login(request, user)
-            return redirect('classy:home') 
-
-    #First time login
+    '''
     if request.method == 'POST':
         return redirect(settings.OIDC_CLIENT.authorization_url(redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf'))
         form = loginform(request.POST)
@@ -743,7 +762,7 @@ def index(request):
     form = loginform()
     context = {'form': form}
     return render(request, 'classy/index.html', context)
-
+    '''
 #Home page once logged in. Pulls from classification_counts to show statistics
 @login_required
 def home(request):
