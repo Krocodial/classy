@@ -121,8 +121,10 @@
 			    "containerName": "${APP_NAME}-${ENV_NAME}",
 				"command": [
 					"/bin/bash",
-					"-c",
-					"psql -atAX -c 'select 1'"
+					"psql",
+					"-h",
+					"postgresql",
+					"-V"
 				]
 			  }
 			}, 
