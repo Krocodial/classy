@@ -115,19 +115,6 @@
         "strategy": {
           "type": "Rolling",
 		  "rollingParams": {
-			"pre": {
-			  "failurePolicy": "Retry",
-			  "execNewPod": {
-			    "containerName": "${APP_NAME}-${ENV_NAME}",
-				"command": [
-					"/bin/bash",
-					"psql",
-					"-h",
-					"postgresql",
-					"-V"
-				]
-			  }
-			}, 
 			"mid": {
 				"failurePolicy": "Abort",
 				"execNewPod": {

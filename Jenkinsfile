@@ -17,10 +17,10 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
 
 def deployTemplates(String name, String env, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
 
-	databasePVC = openshift.process(
-		readFile(file:"${databaseBC}"))
+	//databasePVC = openshift.process(
+	//	readFile(file:"${databaseBC}"))
 		
-	openshift.apply(databasePVC)
+	//openshift.apply(databasePVC)
 	
 	database = openshift.process(
 		readFile(file:"${databaseDC}"),
@@ -227,7 +227,7 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
-	stage('cleaning dev space') {
+	/*stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -246,6 +246,7 @@ pipeline {
 			}
 		}
 	} // end of stage
+	*/
 	stage('deploy to dev') {
 		steps {
 			script {
