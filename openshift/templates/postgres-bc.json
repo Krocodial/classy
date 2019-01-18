@@ -22,12 +22,12 @@
 	{
 	  "name": "DATABASE_USER",
 	  "generate": "expression",
-	  "value": "[a-zA-Z]{16}"
+	  "from": "[a-zA-Z]{16}"
 	},
 	{
 	  "name": "DATABASE_PASSWORD",
 	  "generate": "expression",
-	  "value": "[a-zA-Z0-9]{30}"
+	  "from": "[\\w]{30}"
 	},
 	{
 	  "name": "DJANGO_SECRET_KEY",
