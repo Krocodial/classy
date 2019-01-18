@@ -15,24 +15,24 @@
 		  "value": "classy"
 		},
 		{
-		  "name": "NAME_SUFFIX",
-		  "required": true
-		},
-		{
 		  "name": "ENV_NAME",
-		  "required": true
+		  "required": true,
+		  "value": "dev"
 		},
 		{
 		  "name": "APP_IMAGE_TAG",
-		  "required": true
+		  "required": true,
+		  "value": "NS"
 		},
 		{
 		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true
+		  "required": true,
+		  "value": "https://github.com/krocodial/classy.git"
 		},	
 		{
 		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true
+		  "required": true,
+		  "value": "master"
 		},
 		{
 		  "name": "DATABASE_SERVICE_NAME",
@@ -57,13 +57,6 @@
 		  "name": "APP_CONFIG",
 		  "displayName": "Application Configuration File Path",
 		  "description": "Relative path to Gunicorn configuration file (optional)."
-		},
-		{
-		  "name": "MEMORY_LIMIT",
-		  "displayName": "Memory Limit",
-		  "required": true,
-		  "description": "Maximum amount of memory the Django container can use.",
-		  "value": "8Gi"
 		}
   ],
   "objects": [
@@ -120,29 +113,32 @@
       },
       "spec": {
         "strategy": {
-          "type": "Recreate"
+          "type": "Rolling",
+		  "rollingParams": {
+			"pre": {
+			  "failurePolicy": "Retry",
+			  "execNewPod": {
+			    "containerName": "${APP_NAME}-${ENV_NAME}",
+				"command": [
+					"/bin/bash",
+					"-c",
+					"psql -atAX -c 'select 1'"
+				]
+			  }
+			}, 
+			"mid": {
+				"failurePolicy": "Abort",
+				"execNewPod": {
+					"containerName": "${APP_NAME}-${ENV_NAME}",
+					"command": [
+						"/bin/bash",
+						"/opt/app-root/src/conf/classy-deploy.sh"
+					]
+				}
+			}
         },
         "triggers": [
-            {
-                "type": "ImageChange",
-					"imageChangeParams": {
-                        "automatic": false,
-                        "containerNames": [
-                                "${APP_NAME}-${ENV_NAME}"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "${APP_NAME}:${ENV_NAME}"
-                            }
-                        }
-                    },
-                    {
-                        "type": "ConfigChange"
-                    }
         ],
-		"postCommit": {
-			"script": "./manage.py check && ./manage.py migrate && ./manage.py test"
-		},
         "replicas": 1,
         "selector": {
           "name": "${APP_NAME}-${ENV_NAME}"
@@ -227,7 +223,47 @@
                         "key" : "django-secret-key"
                       }
                     }
-                  }
+                  },
+				  {
+				    "name": "SSO_SERVER",
+					"valueFrom": {
+					  "secretKeyRef": {
+					    "name" : "sso-keycloak",
+						"key": "sso-server"
+					  }
+					}
+				  },
+				  {
+				    "name": "SSO_REALM",
+					"valueFrom": {
+					  "secretKeyRef": {
+					    "name" : "sso-keycloak",
+						"key": "sso-realm"
+					  }
+					}
+				  },
+				  {
+				    "name": "SSO_CLIENT_ID",
+					"valueFrom": {
+					  "secretKeyRef": {
+					    "name" : "sso-keycloak",
+						"key": "sso-client"
+					  }
+					}
+				  },
+				  {
+				    "name": "SSO_CLIENT_SECRET",
+					"valueFrom": {
+					  "secretKeyRef": {
+					    "name" : "sso-keycloak",
+						"key": "sso-secret"
+					  }
+					}
+				  }, 
+				  {
+				    "name": "DEBUG",
+					"value": "True"
+				  }
                 ],
                 "resources": {
                   "limits": {
@@ -241,5 +277,6 @@
         }
       }
     }
+	}
    ]
 }

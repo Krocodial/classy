@@ -15,24 +15,19 @@
 		  "value": "classy"
 		},
 		{
-		  "name": "NAME_SUFFIX",
-		  "required": true
-		},
-		{
-		  "name": "ENV_NAME",
-		  "required": true
-		},
-		{
 		  "name": "APP_IMAGE_TAG",
-		  "required": true
+		  "required": true,
+		  "value": "NS"
 		},
 		{
 		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true
+		  "required": true,
+		  "value": "https://github.com/krocodial/classy.git"
 		},	
 		{
 		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true
+		  "required": true,
+		  "value": "master"
 		},
 		{
 		  "name": "PYTHON_VERSION",
@@ -64,15 +59,15 @@
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}",
+        "name": "${APP_NAME}-${APP_IMAGE_TAG}",
         "annotations": {
           "description": "Defines how to build the application",
           "template.alpha.openshift.io/wait-for-ready": "true"
 		},
 		"labels":
 		  {
-				"appver": "${APP_NAME}",
-				"app": "${APP_NAME}"
+				"appver": "${APP_NAME}-${APP_IMAGE_TAG}",
+				"app": "${APP_NAME}-${APP_IMAGE_TAG}"
 		  }
       },
       "spec": {

@@ -9,25 +9,61 @@
 	"app": "classy"
   },
     "parameters": [
-
+	{
+	  "name": "APP_NAME",
+	  "required": true,
+	  "value": "classy"
+	},
+	{
+	  "name": "ENV_NAME",
+	  "required": true,
+	  "value": "dev"
+	},
+	{
+	  "name": "DATABASE_USER",
+	  "generate": "expression",
+	  "value": "[a-zA-Z]{16}"
+	},
+	{
+	  "name": "DATABASE_PASSWORD",
+	  "generate": "expression",
+	  "value": "[a-zA-Z0-9]{30}"
+	},
+	{
+	  "name": "DJANGO_SECRET_KEY",
+	  "generate": "expression",
+	  "from": "[\\w]{60}"
+	}
 	],
 	"objects": [
-		{
-		  "kind": "PersistentVolumeClaim",
-		  "apiVersion": "v1",
-		  "metadata": {
-			"name": "postgresql"
-		  },
-		  "spec": {
-			"accessModes": [
-			  "ReadWriteMany"
-			],
-			"resources": {
-			  "requests": {
-				"storage": "100Gi"
-			  }
-			}
+	{
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}-${ENV_NAME}"
+      },
+      "stringData" : {
+        "database-user" : "${DATABASE_USER}",
+        "database-password" : "${DATABASE_PASSWORD}",
+        "django-secret-key" : "${DJANGO_SECRET_KEY}"
+      }
+    },
+	{
+	  "kind": "PersistentVolumeClaim",
+	  "apiVersion": "v1",
+	  "metadata": {
+		"name": "postgresql"
+	  },
+	  "spec": {
+		"accessModes": [
+		  "ReadWriteMany"
+		],
+		"resources": {
+		  "requests": {
+			"storage": "100Gi"
 		  }
+		}
+	  }
 	}
 	]
 }
