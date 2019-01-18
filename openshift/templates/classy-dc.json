@@ -148,7 +148,7 @@
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"name": "${APP_NAME}-${ENV_NAME}"
+				"name": "${APP_NAME}:${ENV_NAME}"
 			  }
 			}
 		  }
