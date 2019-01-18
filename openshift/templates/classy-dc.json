@@ -122,8 +122,30 @@
 				"command": [
 					"/bin/psql",
 					"-qtAX",
-					"-c 'select 1'",
-					"-h postgresql"
+					"-c 'select 1'"
+				],
+				"env": [
+					{
+					  "name": "PGDATABASE",
+					  "value": "${DATABASE_NAME}"
+					},
+					{
+					  "name": "PGUSER",
+					  "value": "classy"
+					},
+					{
+					  "name": "PGPASSWORD",
+					  "valueFrom": {
+						"secretKeyRef": {
+						  "name" : "${APP_NAME}-${ENV_NAME}",
+                          "key" : "database-password"
+						}
+                      }
+					},
+					{
+					  "name": "PGHOST",
+					  "value": "postgresql"
+					}
 				]
 			  }
 			}, 
