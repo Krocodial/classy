@@ -227,8 +227,7 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
-	
-	/*stage('cleaning dev space') {
+	stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -246,7 +245,6 @@ pipeline {
 			}
 		}
 	} // end of stage
-	*/
 	stage('deploy to dev') {
 		steps {
 			script {
