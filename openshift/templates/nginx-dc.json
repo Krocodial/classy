@@ -112,18 +112,7 @@
       "spec": {
         "strategy": {
           "type": "Rolling",
-		  "rollingParams": {
-		    "pre": {
-			  "failurePolicy": "Abort",
-			  "execNewPod": {
-					"containerName": "${NAME}",
-					"command": [
-						""
-					]
-			  }
-			}
-	      }
-        },
+		},
         "triggers": [
 		  {
 		    "type": "ImageChange",
