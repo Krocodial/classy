@@ -21,8 +21,8 @@
 	},
 	{
 	  "name": "DATABASE_USER",
-	  "generate": "expression",
-	  "from": "[a-zA-Z]{16}"
+	  "required": true,
+	  "value": "classy"
 	},
 	{
 	  "name": "DATABASE_PASSWORD",
@@ -50,7 +50,6 @@
     },
 	{
 	  "kind": "PersistentVolumeClaim",
-	  "claimName": "postgresql",
 	  "apiVersion": "v1",
 	  "metadata": {
 		"name": "postgresql"
