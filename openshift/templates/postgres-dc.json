@@ -104,6 +104,20 @@
           "type": "Rolling"
         },
         "triggers": [
+		  {
+		    "type": "ImageChange",
+			"imageChangeParams": {
+			  "automatic": false,
+			  "containerNames": [
+			    "postgresql"
+			  ],
+			  "from": {
+			    "kind": "ImageStreamTag",
+				"namespace": "openshift",
+				"name": "postgresql:${POSTGRESQL_VERSION}"
+			  }
+			}
+		  }
         ],
         "replicas": 1,
         "selector": {

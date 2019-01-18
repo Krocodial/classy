@@ -139,6 +139,19 @@
           }
 		},
         "triggers": [
+		  {
+		    "type": "ImageChange",
+			"imageChangeParams": {
+			  "automatic": false,
+			  "containerNames": [
+			    "${APP_NAME}-${ENV_NAME}"
+			  ],
+			  "from": {
+			    "kind": "ImageStreamTag",
+				"name": "${APP_NAME}-${ENV_NAME}"
+			  }
+			}
+		  }
         ],
         "replicas": 1,
         "selector": {
