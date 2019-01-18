@@ -45,6 +45,7 @@ def group_deconstructor(permitted, group):
     return permitted
 
 def query_constructor(queryset, user):
+    user = user.profile
     permitted = classification.objects.none()
 
     for auth in user.data_authorizations.all():

@@ -22,5 +22,6 @@ urlpatterns = [
     path('health', views.health, name='health'),
     #path('gov_temp', views.gov_temp, name='gov_temp'),
     path('debugg', views.debugg, name='debugg'),
+    path('login_complete', views.login_complete, name='login_complete'),
 ]
 

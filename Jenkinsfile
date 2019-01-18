@@ -26,7 +26,6 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		readFile(file:"${databaseDC}"),
 		"-p", 
 		"APP_NAME=${name}", 
-		"NAME_SUFFIX=${env}-${pr}", 
 		"ENV_NAME=${env}", 
 		"APP_IMAGE_TAG=${pr}", 
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
@@ -37,7 +36,6 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		readFile(file:"${backendDC}"),
 		"-p", 
 		"APP_NAME=${name}", 
-		"NAME_SUFFIX=${env}-${pr}", 
 		"ENV_NAME=${env}", 
 		"APP_IMAGE_TAG=${pr}", 
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
@@ -47,7 +45,6 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		readFile(file:"${nginxDC}"),
 		"-p",
 		"APP_NAME=${name}", 
-		"NAME_SUFFIX=${env}-${pr}", 
 		"ENV_NAME=${env}", 
 		"APP_IMAGE_TAG=${pr}", 
 		"APPLICATION_DOMAIN=${name}-${env}.pathfinder.gov.bc.ca")
@@ -160,8 +157,6 @@ pipeline {
 							readFile(file:"${backendBC}"),
 							"-p", 
 							"APP_NAME=${APP_NAME}", 
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}", 
-							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
 							"SOURCE_REPOSITORY_REF=${GIT_REF}")
@@ -172,8 +167,6 @@ pipeline {
 							readFile(file:"${nginxBC}"),
 							"-p",
 							"APP_NAME=${APP_NAME}",
-							"NAME_SUFFIX=${DEV_SUFFIX}-${PR_NUM}",
-							"ENV_NAME=${DEV_SUFFIX}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
 							"SOURCE_REPOSITORY_REF=${GIT_REF}"
@@ -181,9 +174,9 @@ pipeline {
 							
 						openshift.apply(nginx)
 						
-						echo "select 'bc' ${APP_NAME}-${DEV_SUFFIX}-${PR_NUM} and run startBuild() on them"
+						echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
 						def builds = openshift.selector("bc",
-							"${APP_NAME}")
+							"${APP_NAME}-${PR_NUM}")
 						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 						echo "building nginx bc"
@@ -235,7 +228,7 @@ pipeline {
 	  //steps end
 	}// end of stage
 	
-	stage('cleaning dev space') {
+	/*stage('cleaning dev space') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -253,6 +246,7 @@ pipeline {
 			}
 		}
 	} // end of stage
+	*/
 	stage('deploy to dev') {
 		steps {
 			script {
@@ -298,7 +292,52 @@ pipeline {
 			}
 		}
 	}// end of stage
-	/*stage('ZAP & SonarQube scan') {
+    stage('deploy to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+                        input "Ready to promote to TEST?"
+
+                        deployTemplates(
+                            APP_NAME,
+                            TEST_SUFFIX,
+                            PR_NUM,
+                            GIT_REPOSITORY,
+                            GIT_REF,
+                            databaseBC,
+                            backendDC,
+                            databaseDC,
+                            nginxDC)
+
+                    }
+                }
+            }
+        }
+    }// end of stage
+    stage('Promoting images to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+
+                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                            "${TEST_PROJECT}/classy:test")
+
+                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+                            "${TEST_PROJECT}/proxy-nginx-${TEST_SUFFIX}:test")
+
+                        def dcs = openshift.selector("dc", [ app : 'classy-test' ])
+                        dcs.rollout().latest()
+
+                        dcs.rollout().status()
+
+                    }
+                }
+            }
+        }
+    }// end of stage
+	stage('ZAP & SonarQube scan') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -445,52 +484,6 @@ pipeline {
 			}
 		}//steps end
 	}// end of stage
-    */
-    stage('deploy to test') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject(TEST_PROJECT) {
-                        input "Ready to promote to TEST?"
-
-                        deployTemplates(
-                            APP_NAME,
-                            TEST_SUFFIX,
-                            PR_NUM,
-                            GIT_REPOSITORY,
-                            GIT_REF,
-                            databaseBC,
-                            backendDC,
-                            databaseDC,
-                            nginxDC)
-
-                    }
-                }
-            }
-        }
-    }// end of stage
-    stage('Promoting images to test') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject(TEST_PROJECT) {
-
-                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-                            "${TEST_PROJECT}/classy:test")
-
-                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-                            "${TEST_PROJECT}/proxy-nginx-${TEST_SUFFIX}:test")
-
-                        def dcs = openshift.selector("dc", [ app : 'classy-test' ])
-                        dcs.rollout().latest()
-
-                        dcs.rollout().status()
-
-                    }
-                }
-            }
-        }
-    }// end of stage
     stage('deploy to prod') {
         steps {
             script {

@@ -11,27 +11,23 @@
     "parameters": [
 		{
 		  "name": "APP_NAME",
-		  "required": true
-		},
-		{
-		  "name": "NAME_SUFFIX",
-		  "required": true
-		},
-		{
-		  "name": "ENV_NAME",
-		  "required": true
+		  "required": true,
+		  "value": "classy"
 		},
 		{
 		  "name": "APP_IMAGE_TAG",
-		  "required": true
+		  "required": true,
+		  "value": "NS"
 		},
 		{
 		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true
+		  "required": true,
+		  "value": "https://github.com/krocodial/classy.git"
 		},	
 		{
 		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true
+		  "required": true,
+		  "value": "master"
 		},
 		{
 		  "name": "NAME",

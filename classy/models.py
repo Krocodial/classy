@@ -1,12 +1,13 @@
 from django.db import models
 import datetime
 from django.utils import timezone
-#from django.contrib.auth.models import User
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.manager import EmptyManager
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 classification_choices = (
     ('UN', 'unclassified'),
@@ -44,7 +45,8 @@ class data_authorization(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.name = self.datasource + '/' + self.schema + '/' + self.table + '/' + self.column
+        if self.name == '':
+            self.name = self.datasource + '/' + self.schema + '/' + self.table + '/' + self.column
         super(data_authorization, self).save(*args, **kwargs)
 
 class dataset_authorization(models.Model):
@@ -62,8 +64,9 @@ class dataset_authorization(models.Model):
     def __str__(self):
         return self.name
 
-
-class User(AbstractUser):
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    location = models.CharField(max_length=30, blank=True)
     data_authorizations = models.ManyToManyField(
         data_authorization,
         verbose_name=_('Data Authorizations'),
@@ -74,10 +77,16 @@ class User(AbstractUser):
         verbose_name=_('Dataset Authorizations'),
         blank=True,
     )
-    class Meta:
-        models.label = 'auth' 
- 
-    #app_label = 'django.contrib.auth'
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
 
 class task(models.Model):
     name = models.CharField(max_length=255)
