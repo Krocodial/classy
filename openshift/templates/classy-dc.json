@@ -137,8 +137,7 @@
 				}
 			}
           }
-		}
-	  },
+		},
         "triggers": [
         ],
         "replicas": 1,
@@ -272,11 +271,16 @@
 				    "cpu": "2",
                     "memory": "8Gi"
                   }				  
-                }
+                },
+				
               }
-            ]
+            ],
+			"restartPolicy": "Always",
+			"terminationGracePeriodSeconds": 30,
+			"dnsPolicy": "ClusterFirst"
           }
         }
       }
+	}
    ]
 }
