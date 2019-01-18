@@ -56,7 +56,7 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		'env-name':"${env}"], 
 		"--overwrite")
 	
-	openshift.apply(backend)
+	/*openshift.apply(backend)
 		.label(['app':"classy-${env}", 
 		'app-name':"${name}", 
 		'env-name':"${env}"], 
@@ -66,7 +66,7 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		.label(['app':"classy-${env}", 
 		'app-name':"${name}", 
 		'env-name':"${env}"], 
-		"--overwrite")
+		"--overwrite")*/
 }
 
 
@@ -148,7 +148,7 @@ pipeline {
 			}
 		}
 	}// end of stage
-	stage('Preparing build configs && building images') {
+	/*stage('Preparing build configs && building images') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -227,6 +227,7 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
+	*/
 	/*stage('cleaning dev space') {
 		steps {
 			script {
@@ -276,11 +277,11 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 					
-						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+						/*openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
 							"${DEV_PROJECT}/classy:dev")
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
+							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")*/
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 						dcs.rollout().latest()

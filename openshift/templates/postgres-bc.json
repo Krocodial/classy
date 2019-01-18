@@ -50,6 +50,7 @@
     },
 	{
 	  "kind": "PersistentVolumeClaim",
+	  "claimName": "postgresql",
 	  "apiVersion": "v1",
 	  "metadata": {
 		"name": "postgresql"

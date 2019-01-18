@@ -115,6 +115,18 @@
         "strategy": {
           "type": "Rolling",
 		  "rollingParams": {
+			"pre": {
+			  "failurePolicy": "Retry",
+			  "execNewPod": {
+			    "containerName": "${APP_NAME}-${ENV_NAME}",
+				"command": [
+					"/bin/psql",
+					"-qtAX",
+					"-c 'select 1'",
+					"-h postgresql"
+				]
+			  }
+			}, 
 			"mid": {
 				"failurePolicy": "Abort",
 				"execNewPod": {
