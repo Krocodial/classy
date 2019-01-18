@@ -120,9 +120,9 @@
 			  "execNewPod": {
 			    "containerName": "${APP_NAME}-${ENV_NAME}",
 				"command": [
-					"/bin/psql",
-					"-qtAX",
-					"-c 'select 1'"
+					"/bin/bash",
+					"-c",
+					"psql -qtAX -c 'select 1'"
 				],
 				"env": [
 					{
