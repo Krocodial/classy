@@ -673,7 +673,7 @@ def login_complete(request):
     #print(request.GET['session_state'])
     try:
         for key, value in request.META.items():
-		    print(key, value)
+            print(key, value)
         redirect_uri = 'https://' + os.getenv('HTTP_HOST') +  reverse('classy:login_complete')
         token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri=redirect_uri)
         #print(token)
