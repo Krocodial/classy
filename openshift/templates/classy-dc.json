@@ -24,6 +24,10 @@
 		  "required": true,
 		  "value": "NS"
 		},
+        {
+          "name": "APPLICATION_DOMAIN",
+          "required": true
+        },
 		{
 		  "name": "SOURCE_REPOSITORY_URL",
 		  "required": true,
@@ -296,7 +300,11 @@
 						"key": "sso-secret"
 					  }
 					}
-				  }, 
+				  },
+                  {
+                    "name": "REDIRECT_URI",
+                    "value": "${APPLICATION_DOMAIN}"
+                  },
 				  {
 				    "name": "DEBUG",
 					"value": "True"

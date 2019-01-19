@@ -27,7 +27,7 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		"-p", 
 		"APP_NAME=${name}", 
 		"ENV_NAME=${env}", 
-		"APP_IMAGE_TAG=${pr}", 
+		"APP_IMAGE_TAG=${pr}",
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
 		"SOURCE_REPOSITORY_REF=${git_branch}")
 	
@@ -37,7 +37,8 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		"-p", 
 		"APP_NAME=${name}", 
 		"ENV_NAME=${env}", 
-		"APP_IMAGE_TAG=${pr}", 
+		"APP_IMAGE_TAG=${pr}",
+        "APPLICATION_DOMAIN=https://${name}-${env}.pathfinder.gov.bc.ca",
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
 		"SOURCE_REPOSITORY_REF=${git_branch}")
 	
