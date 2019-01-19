@@ -672,7 +672,9 @@ def login_complete(request):
     #print(request.GET['state'])
     #print(request.GET['session_state'])
     try:
-        redirect_uri = 'http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete')
+		for key, value in request.META.items():
+			print(key, value)
+        redirect_uri = 'https://' + os.getenv('HTTP_HOST') +  reverse('classy:login_complete')
         token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri=redirect_uri)
         #print(token)
         #print(settings.OIDC_CLIENT.certs()['keys'][0])
@@ -728,7 +730,6 @@ def index(request):
     #SiteMinder Authentication
 
     auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf')
-    print(auth_url)
     return redirect(auth_url)   
 
     '''
