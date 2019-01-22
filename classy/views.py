@@ -53,7 +53,6 @@ lock = threading.Lock()
 sizes = [10, 25, 50, 100]
 
 @login_required
-
 def debugg(request):
     for key, value in request.META.items():
         print(key, value)
