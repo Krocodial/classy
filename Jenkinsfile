@@ -299,7 +299,6 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(TEST_PROJECT) {
-						cleanSpace(backendBcTag, backendDcTag, databaseBcTag, databaseDcTag, nginxDcTag, TEST_SUFFIX)
                         input "Ready to promote to TEST?"
 
                         deployTemplates(
@@ -491,6 +490,7 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(PROD_PROJECT) {
+						cleanSpace(backendBcTag, backendDcTag, databaseBcTag, databaseDcTag, nginxDcTag, PROD_SUFFIX)
                         input "Ready to promote to PROD?"
 
                         deployTemplates(
