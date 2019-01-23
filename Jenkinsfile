@@ -182,9 +182,9 @@ pipeline {
 						openshift.apply(nginx)
 						
 						echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
-						//def builds = openshift.selector("bc",
-						//	"${APP_NAME}-${PR_NUM}")
-						//builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
+						def builds = openshift.selector("bc",
+							"${APP_NAME}-${PR_NUM}")
+						builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
 						echo "building nginx bc"
 						def nginx = openshift.selector("bc", 
