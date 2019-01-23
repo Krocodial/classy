@@ -18,12 +18,12 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
 def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, String databaseDcTag, String nginxDcTag, String env) {
 	openshift.selector("all", [ template : backendBcTag ]).delete()
 	openshift.selector("all", [ template : backendDcTag ]).delete()
-	openshift.selector("all", [ template : databaseBcTag ]).delete()
+	//openshift.selector("all", [ template : databaseBcTag ]).delete()
 	openshift.selector("all", [ template : databaseDcTag ]).delete()
 	openshift.selector("all", [ template : nginxDcTag ]).delete()
-	if (openshift.selector("secrets", "classy-" + env).exists()) {
-		openshift.selector("secrets", "classy-" + env).delete()
-	}
+	//if (openshift.selector("secrets", "classy-" + env).exists()) {
+	//	openshift.selector("secrets", "classy-" + env).delete()
+	//}
 }
 
 
@@ -32,7 +32,9 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 	if (!openshift.selector("pvc", "postgresql").exists()) {
 	
 		databasePVC = openshift.process(
-			readFile(file:"${databaseBC}"))
+			readFile(file:"${databaseBC}"),
+			"-p",
+			"ENV_NAME=${env}")
 		
 		openshift.apply(databasePVC)
 	} else {
