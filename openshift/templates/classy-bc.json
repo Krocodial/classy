@@ -49,7 +49,7 @@
       "apiVersion": "v1",
       "metadata":
       {
-        "name": "test_${APP_NAME}",
+        "name": "${APP_NAME}",
         "generation": 1,
         "creationTimestamp": null
       }
@@ -84,8 +84,7 @@
           "sourceStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-			  "namespace": "openshift",
-              "name": "python:${PYTHON_VERSION}"
+              "name": "3.6"
             },
             "env": [
               {
@@ -107,7 +106,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "test_${APP_NAME}:${APP_IMAGE_TAG}"
+            "name": "${APP_NAME}:${APP_IMAGE_TAG}"
           }
         },
 		"resources": {
