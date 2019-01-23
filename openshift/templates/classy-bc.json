@@ -33,7 +33,7 @@
 		  "name": "PYTHON_VERSION",
 		  "displayName": "Version of Python Image",
 		  "description": "Version of Python image to be used (3.6 or latest).",
-		  "value": "3.6",
+		  "value": "3.5",
 		  "required": true
 		},
 		{
@@ -94,7 +94,7 @@
               },
 			  {
 				  "name": "UPGRADE_PIP_TO_LATEST",
-				  "value": "true"
+				  "value": "false"
 			  },
 			  {
 				  "name": "BUILD_LOGLEVEL",
