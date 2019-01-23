@@ -15,6 +15,18 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
+def cleanSpace() {
+	openshift.selector("all", [ template : backendBcTag ]).delete()
+	openshift.selector("all", [ template : backendDcTag ]).delete()
+	openshift.selector("all", [ template : databaseBcTag ]).delete()
+	openshift.selector("all", [ template : databaseDcTag ]).delete()
+	openshift.selector("all", [ template : nginxDcTag ]).delete()
+	if (openshift.selector("secrets", "classy-dev").exists()) {
+		openshift.selector("secrets", "classy-dev").delete()
+	}
+}
+
+
 def deployTemplates(String name, String env, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
 
 	if (!openshift.selector("pvc", "postgresql").exists()) {
@@ -235,26 +247,6 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
-	/*stage('cleaning dev space') {
-		steps {
-			script {
-				openshift.withCluster() {
-					openshift.withProject(DEV_PROJECT) {
-						echo "Destroying backend objects..."
-						openshift.selector("all", [ template : backendBcTag ]).delete()
-						openshift.selector("all", [ template : backendDcTag ]).delete()
-						openshift.selector("all", [ template : databaseBcTag ]).delete()
-						openshift.selector("all", [ template : databaseDcTag ]).delete()
-						openshift.selector("all", [ template : nginxDcTag ]).delete()
-						if (openshift.selector("secrets", "classy-dev").exists()) {
-							openshift.selector("secrets", "classy-dev").delete()
-						}
-					}
-				}
-			}
-		}
-	} // end of stage
-	*/
 	stage('deploy to dev') {
 		steps {
 			script {
@@ -305,6 +297,7 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(TEST_PROJECT) {
+						cleanSpace()
                         input "Ready to promote to TEST?"
 
                         deployTemplates(
@@ -328,7 +321,6 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(TEST_PROJECT) {
-
                         openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${TEST_PROJECT}/classy:test")
 
