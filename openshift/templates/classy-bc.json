@@ -83,8 +83,8 @@
           "type": "Source",
           "sourceStrategy": {
             "from": {
-              "kind": "ImageStreamTag",
-              "name": "3.6"
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/python-35-rhel7:latest"
             },
             "env": [
               {
