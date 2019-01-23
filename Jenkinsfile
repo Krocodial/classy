@@ -15,14 +15,14 @@ String getUrlForRoute(String routeName, String projectNameSpace = '') {
   return url
 }
 
-def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, String databaseDcTag, String nginxDcTag) {
+def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, String databaseDcTag, String nginxDcTag, String env) {
 	openshift.selector("all", [ template : backendBcTag ]).delete()
 	openshift.selector("all", [ template : backendDcTag ]).delete()
 	openshift.selector("all", [ template : databaseBcTag ]).delete()
 	openshift.selector("all", [ template : databaseDcTag ]).delete()
 	openshift.selector("all", [ template : nginxDcTag ]).delete()
-	if (openshift.selector("secrets", "classy-dev").exists()) {
-		openshift.selector("secrets", "classy-dev").delete()
+	if (openshift.selector("secrets", "classy-" + env).exists()) {
+		openshift.selector("secrets", "classy-" + env).delete()
 	}
 }
 
@@ -297,7 +297,7 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(TEST_PROJECT) {
-						cleanSpace(backendBcTag, backendDcTag, databaseBcTag, databaseDcTag, nginxDcTag)
+						cleanSpace(backendBcTag, backendDcTag, databaseBcTag, databaseDcTag, nginxDcTag, TEST_SUFFIX)
                         input "Ready to promote to TEST?"
 
                         deployTemplates(
