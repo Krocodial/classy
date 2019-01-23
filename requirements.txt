@@ -1,8 +1,5 @@
 Django==2.0.10
 django-ratelimit==2.0.0
 gunicorn==19.5.0
-python-jose==3.0.1
-python-keycloak==0.14.4
-python-keycloak-client==0.2.1
 sqlparse==0.2.4
 whitenoise==3.3.1
