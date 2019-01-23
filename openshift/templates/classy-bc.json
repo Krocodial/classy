@@ -59,7 +59,7 @@
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}:${APP_IMAGE_TAG}",
+        "name": "${APP_NAME}-${APP_IMAGE_TAG}",
         "annotations": {
           "description": "Defines how to build the application",
           "template.alpha.openshift.io/wait-for-ready": "true"
