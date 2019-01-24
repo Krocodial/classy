@@ -699,19 +699,25 @@ def login_complete(request):
     elif user.email != payload.get('email'):
         user.email = payload.get('email')
         user.save()
-
-    roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
-
+    try:
+        roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
+    except:
+        roles = []
+		
     if 'staff' in roles:
         user.is_staff = True
         user.is_superuser = False
         user.save()
 
-    if 'superuser' in roles:
+    elif 'superuser' in roles:
         user.is_staff = True
         user.is_superuser = True
         user.save()
-
+    else:
+        user.is_staff = False
+        user.is_superuser = False
+        user.save()
+		
     login(request, user)
     return redirect('classy:home')
  
