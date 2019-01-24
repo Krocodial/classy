@@ -474,7 +474,7 @@ pipeline {
 									-Dsonar.projectBaseDir=../ \
 									-Dsonar.sources=${SONAR_SOURCES} \
 									-Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
-									-Dsonar.exclusions="
+									-Dsonar.exclusions=**/*.xml"
 								)
 							  }
 							}
@@ -490,7 +490,6 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(PROD_PROJECT) {
-						cleanSpace(backendBcTag, backendDcTag, databaseBcTag, databaseDcTag, nginxDcTag, PROD_SUFFIX)
                         input "Ready to promote to PROD?"
 
                         deployTemplates(

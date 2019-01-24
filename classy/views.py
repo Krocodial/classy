@@ -703,20 +703,20 @@ def login_complete(request):
         roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
     except:
         roles = []
-		
-    if 'staff' in roles:
+    if 'superuser' in roles:
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()		
+    elif 'staff' in roles:
         user.is_staff = True
         user.is_superuser = False
         user.save()
-
-    elif 'superuser' in roles:
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-    else:
+    elif 'basic' in roles:
         user.is_staff = False
         user.is_superuser = False
         user.save()
+    else:
+        return HttpResponseForbidden('Contact the appropriate responsible party for permission. This access attempt has been logged.')
 		
     login(request, user)
     return redirect('classy:home')
