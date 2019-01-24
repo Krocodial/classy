@@ -154,8 +154,6 @@ FILE_UPLOAD_PERMISSIONS = 0o600
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'conf/tmp/')
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 #INTERNAL_IPS = ['127.0.0.1']
