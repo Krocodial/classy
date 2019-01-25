@@ -26,7 +26,7 @@ import threading, time, csv, pytz, json, random, os
 from .models import *
 from .forms import *
 from .scripts import calc_scheduler, upload
-from .helper import query_constructor
+from .helper import query_constructor, role_checker
 
 if settings.CONCURRENCY:
     uthread = thread(False)
@@ -64,8 +64,7 @@ def debugg(request):
 #Accessed from the home.html page
 @login_required
 def tutorial(request):
-    #if not request.user.is_authenticated:
-    #    return redirect('classy:index')
+    return HttpResponse('coming soon...')
     if request.user.is_staff:
         return render(request, 'classy/tutorial.html')
     if request.user.is_authenticated:
@@ -74,10 +73,8 @@ def tutorial(request):
 #Download search results from the search function
 @login_required
 def download(request):
-    #if not request.user.is_authenticated:
-    #        return redirect('classy:index')
     if not request.method == 'POST':
-            return redirect('classy:index')
+            return redirect('classy:home')
     form = advancedSearch(request.POST)
     if form.is_valid():
         if(form.cleaned_data['query'] != ''):
@@ -121,7 +118,7 @@ def download(request):
 @login_required
 def review(request):
     if not request.user.is_staff:
-            return redirect('classy:index')
+            return redirect('classy:home')
     num = classification_review_groups.objects.all().count()
     message = ''
     if request.method == 'POST':
@@ -666,19 +663,19 @@ def test(request):
     context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
     return render(request, 'classy/test.html', context)
 
+@ratelimit(key='ip', rate='6/m', method=['GET'], block=True)
 def login_complete(request):
-    #print(request.GET['code'])
-    #print(request.GET['state'])
-    #print(request.GET['session_state'])
     try:
         redirect_uri = os.getenv('REDIRECT_URI') +  reverse('classy:login_complete')
         token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri=redirect_uri)
-        #print(token)
-        #print(settings.OIDC_CLIENT.certs()['keys'][0])
         payload = settings.OIDC_CLIENT.decode_token(token['access_token'], settings.OIDC_CLIENT.certs()['keys'][0])
+    
+        request.session['access_token'] = token['access_token']
+        request.session['refresh_token'] = token['refresh_token']
+
     except Exception as e:
         return HttpResponseForbidden('Invalid JWT token') 
-        
+
     User = get_user_model()
 
     username = payload.get('sub')
@@ -699,81 +696,31 @@ def login_complete(request):
     elif user.email != payload.get('email'):
         user.email = payload.get('email')
         user.save()
+
+    role_checker(user, payload, request)
     try:
         roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
     except:
         roles = []
-    if 'superuser' in roles:
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()		
-    elif 'staff' in roles:
-        user.is_staff = True
-        user.is_superuser = False
-        user.save()
-    elif 'basic' in roles:
-        user.is_staff = False
-        user.is_superuser = False
-        user.save()
-    else:
+
+    if user.is_active == False:
         return HttpResponseForbidden('Contact the appropriate responsible party for permission. This access attempt has been logged.')
-		
     login(request, user)
     return redirect('classy:home')
  
-#Main page, can authenticate users with siteminder or the default django authentication method. To alternate change the variable BYPASS_AUTH in settings.py
-#@ratelimit(key='ip', rate='11/m', method=['POST'], block=True)
-#@ratelimit(key='header:x-forwarded-for', rate='15/m', block=True)
-#@ratelimit(key='post:username', rate='11/m')
 @ratelimit(key='post:password', rate='6/m', method=['POST'], block=True)
 @ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home')
-    #SiteMinder Authentication
 
     auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf')
     return redirect(auth_url)   
 
-    '''
-    if request.method == 'POST':
-        return redirect(settings.OIDC_CLIENT.authorization_url(redirect_uri='http://' + os.getenv('HTTP_HOST', 'localhost:1337') +  reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf'))
-        form = loginform(request.POST)
-        if form.is_valid():
-            if settings.BYPASS_AUTH:
-                usern = form.cleaned_data['username']
-            else:
-                usern = user_name
-            passw = form.cleaned_data['password']
-            user = authenticate(request, username=usern, password=passw)
-            if user is not None:
-
-                if not settings.BYPASS_AUTH:
-                    user.set_password(user_id)
-                    user.email = user_email
-                    user.last_name = user_display
-                    user.save()
-                login(request, user)
-                return redirect('classy:home')
-            else:
-                form = loginform()
-                context = {
-                'error_message': 'Not an authorized user',
-                'form': form
-                }
-                return render(request, 'classy/index.html', context)
-
-    form = loginform()
-    context = {'form': form}
-    return render(request, 'classy/index.html', context)
-    '''
 #Home page once logged in. Pulls from classification_counts to show statistics
 @login_required
 def home(request):
 
-
-    #if not request.user.is_authenticated:
-    #        return redirect('classy:index')
     data_cons = []
     mapping = {}
 
@@ -790,8 +737,6 @@ def home(request):
     else:
         empty = False
 
-    #query_constructor(classification.objects.all(), request.user)
-    
     label_cons = ex_options
     dates = []
     keys = {}

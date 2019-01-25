@@ -29,8 +29,8 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
-BYPASS_AUTH = True
-PRES = True
+BYPASS_AUTH = os.getenv('BYPASS_AUTH', False)
+PRES = os.getenv('PRES', False)
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'auth.User'
 
@@ -40,7 +40,12 @@ SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
 CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_AGE = 60
+SECURE_HSTS_SECONDS = 600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = True
+X_FRAME_OPTIONS = 'DENY'
+#SESSION_COOKIE_AGE = 300 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 USE_X_FORWARDED_HOST = True
 
@@ -48,8 +53,6 @@ SSO_REALM = KeycloakRealm(server_url=os.getenv('SSO_SERVER'), realm_name=os.gete
 OIDC_CLIENT = SSO_REALM.open_id_connect(client_id=os.getenv('SSO_CLIENT_ID'), 
                                         client_secret=os.getenv('SSO_CLIENT_SECRET'))
 
-# Application definition
-# Since we customize the default user model via 'classy' the config must come after 
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -58,7 +61,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'classy.apps.ClassyConfig',
-    #'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -67,10 +69,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'classy.middleware.authentication.authentication_middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -100,8 +102,6 @@ CACHES = {
     }
 }
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 from . import database
 
@@ -110,8 +110,6 @@ DATABASES = {
 }
 
 CONCURRENCY = database.CONCURRENCY
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,8 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -143,8 +139,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 LOGIN_URL = 'classy:index'
 LOGIN_REDIRECT_URL = 'classy:home'
@@ -155,6 +149,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-#INTERNAL_IPS = ['127.0.0.1']
 

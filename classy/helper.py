@@ -1,4 +1,36 @@
 from .models import *
+import os
+from django.http import HttpResponseForbidden
+from django.contrib.auth import logout
+
+def role_checker(user, payload, request):
+
+    try:
+        roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
+    except:
+        roles = []
+    if 'superuser' in roles:
+        user.is_active = True
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+    elif 'staff' in roles:
+        user.is_active = True
+        user.is_staff = True
+        user.is_superuser = False
+        user.save()
+    elif 'basic' in roles:
+        user.is_active = True
+        user.is_staff = False
+        user.is_superuser = False
+        user.save()
+    else:
+        user.is_active = False
+        user.is_staff = False
+        user.is_superuser = False
+        user.save()
+        if request.user.is_authenticated:
+            logout(request)
 
 def wildcard_handler(auth):
     permitted = classification.objects.none()

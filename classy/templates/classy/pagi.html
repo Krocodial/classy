@@ -3,11 +3,11 @@
         <ul class='pagination pagination-sm'>
         {% if queryset.has_previous %}
         <li class='page-item'><a class='page-link' href='?page={{queryset.previous_page_number}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>&lt; PREV</a></li>
-        <li><p>&nbsp;&nbsp;</p></li>
+        <!--<li><p>&nbsp;&nbsp;</p></li>-->
         {% endif %}
         {% if first %}
         <li class='page-item'><a class='page-link' href='?page=1&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>1</a></li>
-        <li><p>&nbsp;....&nbsp;</p></li>
+        <!--<li><p>&nbsp;....&nbsp;</p></li>-->
         {% endif %}
         {% for value in pags %}
 
@@ -15,13 +15,13 @@
         {% endfor %}
 
         {% if last %}
-        <li><p>&nbsp;....&nbsp;</p></li>
+        <!--<li><p>&nbsp;....&nbsp;</p></li>-->
         <li class='page-item'><a class='page-link' href='?page={{queryset.paginator.num_pages}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'>{{queryset.paginator.num_pages}}</a></li>
         {% endif %}
 
         {% if queryset.has_next %}
-        <li><p>&nbsp;&nbsp;</p></li>
-        <li class='page-item'><a class='page-link' href='?page={{queryset.next_page_number}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'> NEXT &gt;</a></li>
+        <!--<li><p>&nbsp;&nbsp;</p></li>-->
+        <li class='page-item next'><a class='page-link' href='?page={{queryset.next_page_number}}&query={{query}}&data_source={{ds}}&schema={{sch}}&table={{tab}}&column={{co}}{%for i in classi %}&classi={{i}}{%endfor%}{% for i in stati %}&stati={{i}}{% endfor%}'> NEXT &gt;</a></li>
         {% endif %}
         </ul>
 </nav>
