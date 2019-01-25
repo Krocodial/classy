@@ -40,7 +40,7 @@
                 <div id="accordion">
                 {% for group in groups %}
                     <div class="row">
-                        <div class="col-sm-4"><h4>User: <small class="text-muted"> {{group.user}}</small></h4></div>
+                        <div class="col-sm-4"><h4>User: <small class="text-muted"> {{group.user.first_name}}</small></h4></div>
                         <div class="col-sm-4"><h4>Time: <small class="text-muted"> {{group.time}}</small></h4></div>
                         <div class="col-sm-4"><button class="btn btn-primary" style="width: 250px; background-color: #417690;" data-toggle="collapse" data-target=".hidden{{forloop.counter}}" class="accordion-toggle">View Modifications</button>	
                         </div>

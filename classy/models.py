@@ -132,7 +132,8 @@ class classification(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     state = models.CharField(max_length=1, choices=state_choices)
-    masking = models.CharField(max_length=600, null=True)
+    masking = models.CharField(max_length=200, null=True)
+    notes = models.CharField(max_length=400, null=True)
     
 class classification_exception(models.Model):
     classy = models.ForeignKey(classification, on_delete=models.CASCADE)

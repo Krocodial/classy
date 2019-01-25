@@ -49,7 +49,7 @@
                                 <td>{{tsk.priority}}</td>
                                 <td>{{tsk.run_at}}</td>
                                 <td>{{tsk.progress|multiply:100}}%</td>
-                                <td>{{tsk.user}}</td>
+                                <td>{{tsk.user.first_name}}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

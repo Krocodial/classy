@@ -32,7 +32,8 @@
 	</tr>
         <tr>
                 <td><strong>State</strong></td>
-                <td>{{obj.state}}</td>
+                <td>{{state_translate|get_item:obj.state}}</td>
+                <!--<td>{{obj.state}}</td>-->
         </tr>
 	<tr>
 		<td><strong>Datasource</strong></td>
@@ -56,7 +57,7 @@
         </tr>
         <tr>
                 <td><strong>Creator</strong></td>
-                <td>{{obj.creator}}</td>
+                <td>{{obj.creator.first_name}}</td>
         </tr>
 </tbody>
 </table>
@@ -86,8 +87,8 @@
 			{% elif item.flag == 2 %}
 				<td>CREATE</td>
 			{% endif %}
-			<td>{{item.user}}</td>
-			<td>{{item.approver}}</td>
+			<td>{{item.user.first_name}}</td>
+			<td>{{item.approver.first_name}}</td>
 			<td>{{translate|get_item:item.old_classification}}</td>
 			<td>{{translate|get_item:item.new_classification}}</td>
 			<td>{{state_translate|get_item:item.state}}</td>

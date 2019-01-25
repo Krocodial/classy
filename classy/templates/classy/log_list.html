@@ -7,7 +7,7 @@
     {% include 'classy/navbar.html' %}
     <div id="topicTemplate" class="template container-fluid gov-container">
         <div class="row">
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 {% include 'classy/basic_pagi.html' %}
             </div>
             <div class="col-lg-8">
@@ -20,7 +20,8 @@
                     </div>
                 </form>
             </div>
-            <div class="col-lg-2"></div>
+            <div class="col-lg-1">
+            </div>
         </div>
         <div class="row">
             <div class="col-lg-12">
@@ -53,8 +54,8 @@
                             {% endif %}
                             <td>{{translate|get_item:tuple.old_classification}}</td>
                             <td>{{translate|get_item:tuple.new_classification}}</td>
-                            <td>{{tuple.user}}</td>
-                            <td>{{tuple.approver}}</td>
+                            <td>{{tuple.user.first_name}}</td>
+                            <td>{{tuple.approver.first_name}}</td>
                             <td>{{state_translate|get_item:tuple.state}}</td>
                         </tr>
                         {% endfor %}

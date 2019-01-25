@@ -148,21 +148,21 @@ def review(request):
                         log['new_classification'] = tup.classification_name
                         log['state'] = 'A'
                         form = classificationLogForm(log)
-                    if form.is_valid():
-                        item.classification_name = tup.classification_name
-                        item.state='A'
-                        item.save()
-                        form.save()
+                        if form.is_valid():
+                            item.classification_name = tup.classification_name
+                            item.state='A'
+                            item.save()
+                            form.save()
 
                     #delete
                     elif tup.flag == 0:
                         log['new_classification'] = tup.classification_name
                         log['state'] = 'I'
                         form = classificationLogForm(log)
-                    if form.is_valid():
-                        item.state = 'I'
-                        item.save()
-                        form.save()
+                        if form.is_valid():
+                            item.state = 'I'
+                            item.save()
+                            form.save()
                     tup.delete()
                 group_info.delete()
             else:
@@ -386,17 +386,20 @@ def modi(request):
         else:
             toDelRed = []
 
+
         if not request.user.is_staff:
             new_group = classification_review_groups(user=request.user)
             new_group.save()
 
         for i in toModRed:
-            if 'id' not in i:
+            try:
+                ide = i['id']
+                classy = i['classy']
+            except:
+                #invalid json obj
                 continue
-            try: 
-                tup = classification.objects.get(id=int(i["id"]))
-            except Exception as e:
-                continue
+
+            tup = classification.objects.get(id=ide)
             if tup.state == 'P':
                 continue
             
@@ -404,20 +407,22 @@ def modi(request):
 
             info['classy'] = tup.pk
             info['flag'] = 1
+                        
 
             if request.user.is_staff:
                 info['state'] = 'A'
-                info['new_classification'] = untranslate[i['classy']]
+                info['new_classification'] = untranslate[classy]
                 info['old_classification'] = tup.classification_name
                 info['user'] = request.user.pk
                 info['approver'] = request.user.pk
 
                 form = classificationLogForm(info)
-                tup.classification_name = untranslate[i["classy"]]
+                tup.classification_name = untranslate[classy]
+                tup.state = 'A'
             
             else:
                 info['group'] = new_group.pk
-                info['classification_name'] = untranslate[i['classy']]
+                info['classification_name'] = untranslate[classy]
                 
                 form = classificationReviewForm(info)
                 tup.state = 'P'
@@ -428,10 +433,13 @@ def modi(request):
         for i in toDelRed:
             try:
                 tup = classification.objects.get(id=int(i))
-            except Exception as e:
+            except:
+                #invalid list of vals
                 continue
+
             if tup.state == 'P':
                 continue
+
             info  = {}
             info['classy'] = tup.pk
             info['flag'] = 0
@@ -578,7 +586,6 @@ def search(request):
             }
             return render(request, 'classy/data_tables.html', context)
         else:
-            print(form.errors)
             form = advancedSearch()
             context = {
                 'num': num,
@@ -698,10 +705,6 @@ def login_complete(request):
         user.save()
 
     role_checker(user, payload, request)
-    try:
-        roles = payload.get('resource_access').get(os.getenv('SSO_CLIENT_ID')).get('roles')
-    except:
-        roles = []
 
     if user.is_active == False:
         return HttpResponseForbidden('Contact the appropriate responsible party for permission. This access attempt has been logged.')

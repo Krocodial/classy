@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
 from jose.exceptions import ExpiredSignatureError, JWTError
+from ..helper import role_checker
 
 def authentication_middleware(get_response):
    
@@ -27,9 +28,9 @@ def authentication_middleware(get_response):
                     payload = settings.OIDC_CLIENT.decode_token(token['access_token'], settings.OIDC_CLIENT.certs()['keys'][0])
                     role_checker(request.user, payload, request)
 
-                except:
+                except Exception as e:
                     logout(request)
-            except:
+            except Exception as e:
                 logout(request)
 
         response = get_response(request)
