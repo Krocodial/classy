@@ -304,10 +304,6 @@
                   {
                     "name": "REDIRECT_URI",
                     "value": "${APPLICATION_DOMAIN}"
-                  },
-                  {
-                    "name": "DEBUG",
-                    "value": "True"
                   }
                 ],
                 "resources": {
