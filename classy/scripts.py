@@ -123,7 +123,12 @@ def process_file(tsk):
         if itera == 0:
             itera = 1
         counter = 0
+        notes, masking_ins = False
         if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
+            if 'notes' in reader.fieldnames:
+                notes = True
+            if 'masking instructions' in reader.fieldnames:
+                masking_ins = True
             for row in reader:
                 counter = counter + 1
                 if counter%itera == 0:
@@ -137,7 +142,10 @@ def process_file(tsk):
                     schema__exact=row['Schema'],
                     table__exact=row['Table Name'],
                     column__exact=row['Column Name']).count() < 1:
-                    
+                   
+                    note = row['notes'] if notes else note = ''
+                    masking = row['masking_instructions'] if masking_ins else masking = ''
+ 
                     data = {}
                     data['classification_name'] = translate[row['Classification Name']]
                     data['datasource'] = database
@@ -146,6 +154,8 @@ def process_file(tsk):
                     data['column'] = row['Column Name']
                     data['creator'] = user
                     data['state'] = 'A'
+                    data['masking'] = masking
+                    data['notes'] = note
                     form = ClassificationForm(data)
                     if form.is_valid():
                         tmp = form.save()
