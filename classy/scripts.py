@@ -143,8 +143,14 @@ def process_file(tsk):
                     table__exact=row['Table Name'],
                     column__exact=row['Column Name']).count() < 1:
                    
-                    note = row['notes'] if notes else note = ''
-                    masking = row['masking_instructions'] if masking_ins else masking = ''
+                    if notes:
+                        note = row['notes']
+                    else:
+                        note = ''
+                    if masking_ins:
+                        masking = row['masking_instructions'] 
+                    else:
+                        masking = ''
  
                     data = {}
                     data['classification_name'] = translate[row['Classification Name']]
