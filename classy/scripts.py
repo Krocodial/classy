@@ -10,7 +10,7 @@ import csv, re, hashlib, os, threading, time
 options = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
 #options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
 
-translate = {'CONFIDENTIAL': 'CO', 'PUBLIC': 'PU', 'Unclassified': 'UN', 'PROTECTED A': 'PA', 'PROTECTED B': 'PB', 'PROTECTED C': 'PC'}
+translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protected_a': 'PA', 'protected_b': 'PB', 'protected_c': 'PC'}
 
 #Called once at web server initialization to check current counts for graphing purposes.
 #@background(schedule=60, queue='calculate_count')
@@ -123,7 +123,8 @@ def process_file(tsk):
         if itera == 0:
             itera = 1
         counter = 0
-        notes, masking_ins = False
+        notes = False
+        masking_ins = False
         if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
             if 'notes' in reader.fieldnames:
                 notes = True
@@ -148,12 +149,17 @@ def process_file(tsk):
                     else:
                         note = ''
                     if masking_ins:
-                        masking = row['masking_instructions'] 
+                        masking = row['masking instructions'] 
                     else:
                         masking = ''
- 
+
+                    classy = row['Classification Name']
+                    classy = classy.lower()
+                    classy = re.sub(' ', '_', classy)
+                    classy = translate[classy]
+
                     data = {}
-                    data['classification_name'] = translate[row['Classification Name']]
+                    data['classification_name'] = classy 
                     data['datasource'] = database
                     data['schema'] = row['Schema']
                     data['table'] =  row['Table Name']
@@ -168,8 +174,8 @@ def process_file(tsk):
                         log_data = {}
                         log_data['classy'] = tmp.id
                         log_data['flag'] = 2
-                        log_data['new_classification'] = translate[row['Classification Name']]
-                        log_data['old_classification'] = translate[row['Classification Name']]
+                        log_data['new_classification'] = classy
+                        log_data['old_classification'] = classy
                         log_data['user'] = user
                         log_data['state'] = 'A'
                         log_data['approver'] = user
@@ -179,7 +185,7 @@ def process_file(tsk):
                         else:
                             #invalid log form values
                             pass
-                        if row['Classification Name'] != 'Unclassified':
+                        if classy != 'UN':
                             exc_data = {}
                             exc_data['classy'] = tmp.id
                             exc_form = classificationExceptionForm(exc_data)
