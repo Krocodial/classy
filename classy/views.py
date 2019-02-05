@@ -711,8 +711,8 @@ def login_complete(request):
     login(request, user)
     return redirect('classy:home')
  
-@ratelimit(key='post:password', rate='6/m', method=['POST'], block=True)
-@ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
+#@ratelimit(key='post:password', rate='6/m', method=['POST'], block=True)
+#@ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home')
