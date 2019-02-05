@@ -18,16 +18,17 @@ server {
         # note the trailing slash strips out the /proxy path on 
         # the request to the upstream server
         # Ensure HTTP get passed thru
-    location / {
-
+    location /login_complete/ {
         limit_req zone=login burst=5;
+        proxy_pass_request_headers on;
+        proxy_pass ${NGINX_PROXY_URL};
+    }
 
+    location / {
         proxy_pass_request_headers on;
         # its helpful to cache these responses
         proxy_cache globalcache;
-
         proxy_pass ${NGINX_PROXY_URL} ;
-
         proxy_set_header X-Forwarded-Host ${DOLLAR}host;
         proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
         #proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_forwarded_for;

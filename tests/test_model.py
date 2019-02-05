@@ -25,7 +25,9 @@ class existanceTests(TestCase):
             'column': 'testo',
             'creator': user.id,
             'state': 'A',
-            'classification_name': 'PU'
+            'classification_name': 'PU',
+            'masking': '',
+            'notes': ''
         }        
 
     def test_invalid_classifications(self):
@@ -82,7 +84,7 @@ class creationTests(TestCase):
         self.user = User.objects.create(username='basic', is_staff=False)
         self.user.set_password('password')
         self.user.save()
-        data = {'classification_name': 'PU', 'schema': 'testo', 'table': 'testo', 'column': 'testo', 'datasource': 'testo', 'creator': self.user.id, 'state': 'A'}
+        data = {'classification_name': 'PU', 'schema': 'testo', 'table': 'testo', 'column': 'testo', 'datasource': 'testo', 'creator': self.user.id, 'state': 'A', 'masking': 'delet the data', 'notes': 'this data contains a little bit of PII'}
         form = ClassificationForm(data)
         tmp = form.save()
         self.classy = tmp.pk#classification.objects.get(pk=tmp.pk)
@@ -96,7 +98,7 @@ class creationTests(TestCase):
 
 
     def test_classification_count(self):
-        data = {'classification_name': 'PU', 'count': 99, 'date': datetime.datetime.now().date()}
+        data = {'classification_name': 'PU', 'count': 99, 'date': datetime.datetime.now().date(), 'user': self.user.id}
         form = classificationCountForm(data)
         tmp = form.save()
         new = classification_count.objects.get(pk=tmp.pk)

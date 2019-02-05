@@ -767,7 +767,7 @@ def home(request):
             for clas, arr in keys.items():
                 #print(clas, d)
                 try:
-                    tmp = classification_count.objects.get(date=d, classification_name=clas)
+                    tmp = classification_count.objects.get(date=d, classification_name=clas, user=request.user)
                     arr.append(tmp.count)
                 except classification_count.DoesNotExist:
                     #print('dne')
