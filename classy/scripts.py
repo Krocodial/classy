@@ -53,7 +53,6 @@ def calculate_count(user):
                 elif log.flag == 0:
                     counts[log.old_classification] = counts[log.old_classification] + 1
             d = timezone.now().date() - timezone.timedelta(days=i+1)
-            print(counts)
             for classi, count in counts.items():
                 try:  
                     cobj = classification_count.objects.get(date=d, classification_name=classi, user=user)
@@ -64,7 +63,6 @@ def calculate_count(user):
                     pass
     except Exception as e:
         error = e
-        print(e)
 
     try:
         tmp = task.objects.get(queue='counter')
