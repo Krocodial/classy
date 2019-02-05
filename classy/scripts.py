@@ -1,7 +1,8 @@
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.conf import settings
-
+from django.contrib.auth.models import User
+from .helper import query_constructor
 from classy.models import *
 from classy.forms import *
 
@@ -14,31 +15,35 @@ translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protec
 
 #Called once at web server initialization to check current counts for graphing purposes.
 #@background(schedule=60, queue='calculate_count')
-def calculate_count(): 
+def calculate_count(user): 
     info = {}
     error = ''
     try: 
         counts = {}
         for op in options:
-            count = classification.objects.filter(classification_name=op).count()
+            count = query_constructor(classification.objects.filter(classification_name=op), user).count()
             counts[op] = count
 
         d = timezone.now().date()
         for classi, count in counts.items():
             try:
-                cobj = classification_count.objects.get(date=d, classification_name=classi)
+                cobj = classification_count.objects.get(date=d, classification_name=classi, user=user)
                 cobj.count = count
                 cobj.save()
             except classification_count.DoesNotExist:
-                new = classification_count(classification_name=classi, count=count, date=d)
+                new = classification_count(classification_name=classi, count=count, date=d, user=user)
                 new.save()
             except classification_count.MultipleObjectsReturned:
                 pass
+        permitted = query_constructor(classification.objects.all(), user)
+        permitted = permitted.values_list('pk', flat=True)
 
         for i in range(60):
             d = timezone.now().date() - timezone.timedelta(days=i)
             logs = classification_logs.objects.filter(
                             time__startswith=d)
+            logs = logs.filter(classy__in=permitted)
+
             for log in logs:
                 if log.flag == 2:
                    counts[log.old_classification] = counts[log.old_classification] - 1 
@@ -48,16 +53,18 @@ def calculate_count():
                 elif log.flag == 0:
                     counts[log.old_classification] = counts[log.old_classification] + 1
             d = timezone.now().date() - timezone.timedelta(days=i+1)
+            print(counts)
             for classi, count in counts.items():
                 try:  
-                    cobj = classification_count.objects.get(date=d, classification_name=classi)
+                    cobj = classification_count.objects.get(date=d, classification_name=classi, user=user)
                 except classification_count.DoesNotExist:
-                    new = classification_count(classification_name=classi, count=count, date=d)
+                    new = classification_count(classification_name=classi, count=count, date=d, user=user)
                     new.save()
                 except classification_count.MultipleObjectsReturned:
                     pass
     except Exception as e:
         error = e
+        print(e)
 
     try:
         tmp = task.objects.get(queue='counter')
@@ -91,7 +98,8 @@ def calc_scheduler(cthread):
         try:
             tmp = task.objects.get(queue='counter')
             tmp.save()
-            calculate_count()
+            for user in User.objects.all():
+                calculate_count(user)
         except task.DoesNotExist: 
             info = {}
             info['name'] = 'counter'
@@ -102,7 +110,8 @@ def calc_scheduler(cthread):
             form = taskForm(info)
             if form.is_valid():
                 form.save()
-            calculate_count()
+            for user in User.objects.all():
+                calculate_count(user)
         except task.MultipleObjectsReturned:
             tmp = task.objects.filter(queue='counter')
             tmp.delete()

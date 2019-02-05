@@ -71,7 +71,7 @@ def wildcard_handler(auth):
     return permitted
 
 def group_deconstructor(permitted, group):
-    for auth in group:
+    for auth in group.data_authorizations.all():
         permitted = permitted | wildcard_handler(auth)
 
     return permitted
@@ -87,4 +87,6 @@ def query_constructor(queryset, user):
         permitted = group_deconstructor(permitted, group) 
 
     return queryset & permitted
+
+
 

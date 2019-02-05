@@ -59,12 +59,12 @@ class loginform(forms.Form):
 class ClassificationForm(ModelForm):
     class Meta:
         model = classification
-        fields = ['classification_name', 'datasource', 'schema', 'table', 'column', 'creator', 'state']
+        fields = ['classification_name', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
 
 class classificationCountForm(ModelForm):
     class Meta:
         model = classification_count
-        fields = ['classification_name', 'count', 'date']   
+        fields = ['classification_name', 'count', 'date', 'user']   
 
 class classificationExceptionForm(ModelForm):
     class Meta:

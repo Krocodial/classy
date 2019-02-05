@@ -46,7 +46,7 @@ class postTests(TransactionTestCase):
         self.assertEqual(form.is_valid(), True)
         tmp = form.save()
         
-        self.user.data_authorizations.add(self.d1)
+        self.user.profile.data_authorizations.add(self.d1)
         
         c = Client()
         c.post(reverse('classy:index'), {'username': 'basic', 'password': 'password'})
@@ -180,7 +180,7 @@ class postTests(TransactionTestCase):
     
     def test_uploader(self):
         c = Client()
-        self.staff.data_authorizations.add(self.d1)
+        self.staff.profile.data_authorizations.add(self.d1)
         response = c.post(reverse('classy:index'), {'username': 'staff', 'password': 'staff_password'})
         self.assertEqual(response.status_code, 302)
 
@@ -229,9 +229,8 @@ class postTests(TransactionTestCase):
     
     def test_admin(self):
         c = Client()
-        response = c.post(reverse('classy:index'), {'username': 'super', 'password': 'super_password'})
-        self.assertEqual(response.status_code, 302)
-        response = c.get(reverse('admin:index') + 'classy/user/')
+        c.login(username='super', password='super_password')
+        response = c.get(reverse('admin:index') + 'auth/user/')
         self.assertEqual(response.status_code, 200)
 
         creds = {'username': 'new_user', 'password1': 'password', 'password2': 'password', '_save': 'Save'}
