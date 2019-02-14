@@ -16,7 +16,7 @@ from django.urls import reverse
 from django import forms
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 
 from ratelimit.decorators import ratelimit
@@ -123,7 +123,10 @@ def review(request):
         if 'response' in request.POST:
             message = request.POST['response']
         else:
-            groupi = json.loads(request.POST['group'])
+            try:
+                groupi = json.loads(request.POST['group'])
+            except KeyError:
+                return HttpResponseBadRequest()
             group_info = classification_review_groups.objects.get(id=groupi)
             user = group_info.user
             group_set = classification_review.objects.filter(group__exact=groupi)
@@ -249,11 +252,9 @@ def exceptions(request):
     }
         return render(request, 'classy/exceptions.html', context)
 
-#Master log page, searchable
+# List all of the classification logs, filtered down to the classification objects you are allowed to view. Searchable by classification, flag, username, approver, and index
 @login_required
 def log_list(request):
-        #if not request.user.is_authenticated:
-        #    return redirect('classy:index')
         form = basic_search(request.GET)
 
         num = classification_review_groups.objects.all().count()
@@ -342,8 +343,6 @@ def log_list(request):
 #Shows all information known about a classification object. History, variables, associated users, masking instructions.
 @login_required
 def log_detail(request, classy_id):
-    #if not request.user.is_authenticated:
-    #    return redirect('classy:index')
     num = classification_review_groups.objects.all().count()
     try:
         fil = classification.objects.filter(id=classy_id)
@@ -367,11 +366,9 @@ def log_detail(request, classy_id):
         context = {}
     return render(request, 'classy/log_details.html', context)
 
-#The search page POSTs to here, this will auto-change values for staff, and create a review group for basic users.
+#The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.
 @login_required
 def modi(request):
-    #if not request.user.is_authenticated:
-    #        return redirect('classy:index')
     if request.method == 'POST':
         if 'toMod' in request.POST:
             toMod = request.POST['toMod']
@@ -463,12 +460,9 @@ def modi(request):
     else:
         return redirect('classy:data')
 
-#Once a user makes a search in the data tab this handles that request
+#Once a user makes a search in the data view handle the request. Just search all the features of our classification objects to find even partial matches and return them. The call to query_constructor will filter out values the user is not allowed to view.
 @login_required
 def search(request):
-    #if not request.user.is_authenticated:
-    #    return redirect('classy:index')
-
     num = classification_review_groups.objects.all().count()
     if request.method == 'GET':
         form = advancedSearch(request.GET)
@@ -593,6 +587,7 @@ def search(request):
             return render(request, 'classy/data_tables.html', context)
     return redirect('classy:index')
 
+# serve up the EX gov template for dev purposes
 @login_required
 def gov_temp(request):
     return render(request, 'classy/gov_temp.html')
@@ -668,6 +663,7 @@ def test(request):
     context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
     return render(request, 'classy/test.html', context)
 
+# User is redirected here after authentication is complete via keycloak authentication server with a long, short-lived code. We exchange this code via an out-of-band REST call to the keycloak auth server for an access and refresh token. In the token is a list of permissions the user has, we check and set these via middleware. Once the token is verified we log the user in via a local session and give them a session cookie (they will never see the tokens so no risk of mishandling)
 @ratelimit(key='ip', rate='6/m', method=['GET'], block=True)
 def login_complete(request):
     try:
@@ -709,8 +705,7 @@ def login_complete(request):
     login(request, user)
     return redirect('classy:home')
  
-#@ratelimit(key='post:password', rate='6/m', method=['POST'], block=True)
-#@ratelimit(key='post:username', rate='6/m', method=['POST'], block=True)
+# If user is authenticated redirect to home, otherwise redirect to the auth url of the keycloak server. Here the user chooses how to authenticate (IDIR or local keycloak account). Once authenticated they are redirected to /login_complete
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home')
@@ -718,7 +713,7 @@ def index(request):
     auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf')
     return redirect(auth_url)   
 
-#Home page once logged in. Pulls from classification_counts to show statistics
+#Home page once logged in. Pulls from classification_counts to show statistics for the rows you are allowed to view (query_constructor)
 @login_required
 def home(request):
 
@@ -792,7 +787,7 @@ def home(request):
     }
     return render(request, 'classy/home.html', context);
 
-#Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A cron job pings the Task queue and takes care of the rest.
+#Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A thread spawned by the classy instance will handle this file upload. I might change this back to a cron job to allow multiple classy containers in the future for higher stability. I'll need to figure out a way to share file uploads cross pods though which I'm not too keen on for now. .
 @login_required
 @ratelimit(key='user', rate='5/m', block=True, method=['POST'])
 def uploader(request):
@@ -857,7 +852,7 @@ def uploader(request):
     context = {'tsks': tsks, 'form': form, 'num': num}
     return render(request, 'classy/jobs.html', context)
 
-#Initial page for data (could replace?)
+#Initial landing page for data table
 @login_required
 @ratelimit(key='user', rate='10/m', block=True, method=['POST'])
 def data(request):
@@ -882,7 +877,7 @@ def data(request):
         }
     return render(request, 'classy/data_tables.html', context)
 
-#Basic logout(useless if siteminder is in use)
+#Basic logout, this will end the local user session. However if the user is still authenticated with a SMSESSION cookie they will be automatically logged in again once directed to the index page. This is useful for immediately getting a new token pair from the keycloak server.
 def user_logout(request):
     logout(request)
     return redirect('classy:index')
