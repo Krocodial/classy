@@ -1,9 +1,5 @@
 from django import forms
 from django.forms import ModelForm
-from django.contrib.auth.models import Permission
-from django.conf import settings
-
-import datetime
 
 from .models import *
 

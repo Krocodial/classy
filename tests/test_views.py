@@ -1,12 +1,11 @@
 from django.contrib.auth.models import AnonymousUser, User
-from django.test import RequestFactory, TestCase, Client
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from django.conf import settings
 
 from classy.models import classification_review_groups, classification, classification_review, data_authorization
-from classy.views import index, home, login_complete, download, review, exceptions, log_list, log_detail, modi, search, uploader
+from classy.views import home, login_complete, download, review, exceptions, log_list, log_detail, modi, search, uploader
 
-import os, json
+import json
 
 class renderTest(TestCase):
     def setUp(self):
