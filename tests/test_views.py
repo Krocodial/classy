@@ -16,7 +16,7 @@ class renderTest(TestCase):
         self.supa = User.objects.create_superuser('super', 'xx@xx.com', 'password')
         self.anon = AnonymousUser()
         self.users = [self.anon, self.basic, self.staff, self.supa]
-
+    '''
     def test_index_view(self):
         index_request = self.factory.get(reverse('classy:index'))
         users = [self.anon, self.basic, self.staff, self.supa]
@@ -29,6 +29,7 @@ class renderTest(TestCase):
             response = index(request)
             response.client = Client()
             self.assertRedirects(response, pages[tran[user]], fetch_redirect_response=False)
+    '''
 
     def test_login_complete_view(self):
         for user in self.users:
