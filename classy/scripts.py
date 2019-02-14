@@ -1,12 +1,9 @@
 from django.core.files.storage import FileSystemStorage
-from django.utils import timezone
-from django.conf import settings
-from django.contrib.auth.models import User
 from .helper import query_constructor
-from classy.models import *
+from classy.models import classification, classification_count, classification_logs, task, completed_task
 from classy.forms import *
 
-import csv, re, hashlib, os, threading, time
+import csv, re, time
 
 options = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
 #options = ['CONFIDENTIAL', 'PUBLIC', 'Unclassified', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
@@ -16,7 +13,6 @@ translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protec
 #Called once at web server initialization to check current counts for graphing purposes.
 #@background(schedule=60, queue='calculate_count')
 def calculate_count(user): 
-    info = {}
     error = ''
     try: 
         counts = {}
@@ -55,7 +51,7 @@ def calculate_count(user):
             d = timezone.now().date() - timezone.timedelta(days=i+1)
             for classi, count in counts.items():
                 try:  
-                    cobj = classification_count.objects.get(date=d, classification_name=classi, user=user)
+                    classification_count.objects.get(date=d, classification_name=classi, user=user)
                 except classification_count.DoesNotExist:
                     new = classification_count(classification_name=classi, count=count, date=d, user=user)
                     new.save()

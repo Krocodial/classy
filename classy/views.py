@@ -1,27 +1,22 @@
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+from django.contrib.auth import login, logout
+from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
-from django.contrib.auth.models import User
 from django.utils.dateparse import *
 from django.shortcuts import render
-from django.template import loader
-from django.utils import timezone
-from django.conf import settings
 from django.urls import reverse
-from django import forms
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from ratelimit.decorators import ratelimit
 
-import threading, time, csv, pytz, json, random, os
+import threading, csv, json, random, os
 
 from .models import *
 from .forms import *
@@ -223,7 +218,7 @@ def exceptions(request):
             nex = True
         pags = []
 
-        if current > 3 and current < paginator.num_pages - 2:
+        if 3 < current < paginator.num_pages - 2:
             init = current -2
             for i in range(5):
                 pags.append(init + i)
@@ -467,8 +462,13 @@ def search(request):
     if request.method == 'GET':
         form = advancedSearch(request.GET)
         if form.is_valid():
-            value=ds=sch=tab=co=''
-            classi=stati=[]
+            value=''
+            ds=''
+            sch=''
+            tab=''
+            co=''
+            classi=[]
+            stati=[]
 
             value = form.cleaned_data['query']
             cols = classification.objects.filter(column__icontains=value);
@@ -700,7 +700,7 @@ def login_complete(request):
 
     role_checker(user, payload, request)
 
-    if user.is_active == False:
+    if not user.is_active:
         return HttpResponseForbidden('Contact the appropriate responsible party for permission. This access attempt has been logged.')
     login(request, user)
     return redirect('classy:home')

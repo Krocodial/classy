@@ -1,6 +1,5 @@
-from .models import *
+from .models import classification
 import os
-from django.http import HttpResponseForbidden
 from django.contrib.auth import logout
 
 def role_checker(user, payload, request):
@@ -33,7 +32,6 @@ def role_checker(user, payload, request):
             logout(request)
 
 def wildcard_handler(auth):
-    permitted = classification.objects.none()
 
     if auth.datasource == '':
         tmp = classification.objects.filter(
