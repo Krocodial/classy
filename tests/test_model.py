@@ -73,11 +73,16 @@ class existanceTests(TestCase):
             self.assertIsNotNone(new)
 
     def test_missing_classification_vals(self):
-        for key in self.data:
-            data = self.data
-            data[key] = ''
-            form = ClassificationForm(data)
+        for key in ['classification_name', 'datasource', 'schema', 'table', 'column', 'creator', 'state']:
+            classy = dict(self.data)
+            classy[key] = ''
+            form = ClassificationForm(classy)
             self.assertEqual(form.is_valid(), False)
+        for key in ['masking', 'notes']:
+            classy = dict(self.data)
+            classy[key] = ''
+            form = ClassificationForm(classy)
+            self.assertEqual(form.is_valid(), True)
 
 class creationTests(TestCase):
     def setUp(self):
