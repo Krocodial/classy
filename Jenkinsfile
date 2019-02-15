@@ -26,7 +26,7 @@ def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, S
 	//}
 }
 
-def unitTests(String env) {
+def unitTests(String env, String pr_num) {
 	def newVersion = openshift.selector('dc', 'postgresql').object().status.latestVersion
 	def DB = openshift.selector('pod', [deployment: "postgresql-${newVersion}"])
 	def db_ocoutput_grant = openshift.exec(
@@ -39,7 +39,8 @@ def unitTests(String env) {
 	echo "Temporary DB grant results: " + db_ocoutput_grant.actions[0].out
 	
 	def target = "classy-" + env
-	newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
+	//newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
+	newVersion = pr_num
 	def pods = openshift.selector('pod', [deployment: "${target}-${newVersion}"])
 	
 	echo "Running unit tests"
@@ -336,7 +337,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						unitTests(DEV_SUFFIX)
+						unitTests(DEV_SUFFIX, PR_NUM)
 					}
 				}
 			}
