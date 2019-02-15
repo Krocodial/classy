@@ -33,7 +33,7 @@ def unitTests(String env) {
 		DB.objects()[0].metadata.name,
 		"--",
 		"bash -c '\
-			psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH SUPERUSER;\"
+			psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH SUPERUSER;\" \
 		'"
 		)
 	echo "Temporary DB grant results: " + db_ocoutput_grant.actions[0].out
