@@ -27,14 +27,14 @@ def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, S
 }
 
 def unitTests(String env) {
-	echo "starting"
 	def newVersion = openshift.selector('dc', 'postgresql').object().status.latestVersion
 	def DB = openshift.selector('pod', [deployment: "postgresql-${newVersion}"])
-	echo "${DB}"
 	def db_ocoutput_grant = openshift.exec(
 		DB.objects()[0].metadata.name,
 		"--",
-		"bash -c psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH SUPERUSER;\""
+		"bash -c '\
+			psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH SUPERUSER;\"
+		'"
 		)
 	echo "Temporary DB grant results: " + db_ocoutput_grant.actions[0].out
 	
@@ -46,7 +46,10 @@ def unitTests(String env) {
 	def ocoutput = openshift.exec(
 		pods.objects()[0].metadata.name,
 		"--",
-		"bash -c cd /opt/app-root/src; python manage.py test"
+		"bash -c '\
+			cd /opt/app-root/src; \
+			python manage.py test \
+		'"
 		)
 	echo "Django test results: " + ocoutput.actions[0].out
 	
@@ -54,7 +57,9 @@ def unitTests(String env) {
 	def db_ocoutput_revoke = openshift.exec(
 		DB.objects()[0].metadata.name,
 		"--",
-		"bash -c psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH NOSUPERUSER;\""
+		"bash -c '\
+			psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH NOSUPERUSER;\" \
+		'"
 		)
 	echo "DB revocation results: " + db_ocoutput_revoke.actions[0].out
 }
