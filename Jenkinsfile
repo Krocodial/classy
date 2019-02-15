@@ -331,7 +331,7 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
-						unitTests(${DEV_SUFFIX})
+						unitTests(DEV_SUFFIX)
 					}
 				}
 			}
