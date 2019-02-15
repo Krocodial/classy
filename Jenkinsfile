@@ -33,13 +33,13 @@ def unitTests(String env) {
 		DB.objects()[0].metadata.name,
 		"--",
 		"bash -c '\
-			psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH SUPERUSER;\" \
+			psql -c \"ALTER USER \\\"classy\\\" WITH SUPERUSER;\" \
 		'"
 		)
 	echo "Temporary DB grant results: " + db_ocoutput_grant.actions[0].out
 	
 	def target = "classy-" + env
-	newVersion = openshift.selectory('dc', "${target}").objects().status.latestVersion
+	newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
 	def pods = openshift.selector('pod', [deployment: "${target}-${newVersion}"])
 	
 	echo "Running unit tests"
@@ -58,7 +58,7 @@ def unitTests(String env) {
 		DB.objects()[0].metadata.name,
 		"--",
 		"bash -c '\
-			psql -c \"ALTER USER \\\"\${POSTGRESQL_USER}\\\" WITH NOSUPERUSER;\" \
+			psql -c \"ALTER USER \\\"classy\\\" WITH NOSUPERUSER;\" \
 		'"
 		)
 	echo "DB revocation results: " + db_ocoutput_revoke.actions[0].out
