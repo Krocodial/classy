@@ -141,12 +141,12 @@ def process_file(tsk):
                     tsk.save()  
                 data_list = re.split(':', row['Datasource Description'])
                 database = data_list[3].strip()
-                if classification.objects.filter(
-                    datasource__exact=database,
-                    schema__exact=row['Schema'],
-                    table__exact=row['Table Name'],
-                    column__exact=row['Column Name']).count() < 1:
-                   
+                entCount = classification.objects.filter(
+                        datasource__exact=database,
+                        schema__exact=row['Schema'],
+                        table__exact=row['Table Name'],
+                        column__exact=row['Column Name']).count()
+                if entCount < 1:
                     if notes:
                         note = row['notes']
                     else:
@@ -185,9 +185,6 @@ def process_file(tsk):
                         log_form = classificationLogForm(log_data)
                         if log_form.is_valid():
                             log_form.save()
-                        else:
-                            #invalid log form values
-                            pass
                         if classy != 'UN':
                             exc_data = {}
                             exc_data['classy'] = tmp.id
@@ -200,6 +197,23 @@ def process_file(tsk):
                     else:
                         #Invalid value in form
                         pass
+                elif entCount == 1:
+                    classy = classification.objects.get(
+                            datasource__exact=database,
+                            schema__exact=row['Schema'],
+                            table__exact=row['Table Name'],
+                            column__exact=row['Column Name'])
+                    if masking_ins:
+                        if len(row['masking instructions']) > len(classy.masking):
+                            classy.masking = row['masking instructions']
+                            classy.save()
+                    if notes:
+                        if len(row['notes']) > len(classy.notes):
+                            classy.notes = row['notes']
+                            classy.save()
+                else:
+                    #Now we have encountered a critical issue with the upload function. Consider raising an error on the admin console or even sending an email. 
+                    pass
         else:
             #This is not a guardium report
             pass

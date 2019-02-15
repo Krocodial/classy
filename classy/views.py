@@ -99,10 +99,10 @@ def download(request):
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['classification', 'datasource', 'schema', 'table', 'column', 'created', 'creator', 'state', 'masking instructions'])
+        writer.writerow(['classification', 'datasource', 'schema', 'table', 'column', 'created', 'creator', 'state', 'masking instructions', 'notes'])
         
         for tuple in queryset:
-            writer.writerow([translate[tuple.classification_name], tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator, state_translate[tuple.state], tuple.masking])
+            writer.writerow([translate[tuple.classification_name], tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator.first_name, state_translate[tuple.state], tuple.masking, tuple.notes])
         return response
 
     return redirect('classy:index')
@@ -339,26 +339,37 @@ def log_list(request):
 @login_required
 def log_detail(request, classy_id):
     num = classification_review_groups.objects.all().count()
-    try:
-        fil = classification.objects.filter(id=classy_id)
-        queryset = query_constructor(fil, request.user)
+    #try:
+    fil = classification.objects.filter(id=classy_id)
+    queryset = query_constructor(fil, request.user)
 
-        if queryset.count() == 1:
-            obj = classification.objects.get(id=classy_id)
-            tup = classification_logs.objects.filter(classy_id__exact=classy_id)
-        else:
-            return redirect('classy:index')        
-    
-        tup = tup.order_by('-time')
-        context = {
-            'result': tup,
-            'obj': obj,
-            'num': num,
-            'translate': translate,
-            'state_translate': state_translate,
-        }
-    except classification.DoesNotExist:
-        context = {}
+    if queryset.count() == 1:
+        obj = classification.objects.get(id=classy_id)
+        tup = classification_logs.objects.filter(classy_id__exact=classy_id)
+    else:
+        return redirect('classy:index')        
+
+    if request.method == 'POST':
+        try: 
+            masking = request.POST['masking']
+            notes = request.POST['notes']
+        except KeyError:
+            masking = obj.masking
+            notes = obj.notes
+        obj.masking = masking
+        obj.notes = notes
+        obj.save()
+
+    tup = tup.order_by('-time')
+    context = {
+        'result': tup,
+        'obj': obj,
+        'num': num,
+        'translate': translate,
+        'state_translate': state_translate,
+    }
+    #except classification.DoesNotExist:
+    #    context = {}
     return render(request, 'classy/log_details.html', context)
 
 #The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.
