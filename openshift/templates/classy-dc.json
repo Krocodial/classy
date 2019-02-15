@@ -154,7 +154,7 @@
 			  }
 			}, 
 			"post": {
-				"failurePolicy": "Abort",
+				"failurePolicy": "Retry",
 				"execNewPod": {
 					"containerName": "${APP_NAME}-${ENV_NAME}",
 					"command": [
