@@ -43,8 +43,10 @@ def unitTests(String env, String pr_num) {
 	newVersion = pr_num
 	def pods = openshift.selector('pod', [deployment: "${target}-${newVersion}"])
 	echo "${pods}"
-	echo "${pods}.objects()"
-	echo "${pods}.objects()[0]"
+	def obs = pods.objects()
+	echo "${obs}"
+	def ob_sel = pods.objects()[0]
+	echo "${ob_sel}"
 	echo "Running unit tests"
 	def ocoutput = openshift.exec(
 		pods.objects()[0].metadata.name,
