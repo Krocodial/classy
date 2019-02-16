@@ -39,9 +39,11 @@ def unitTests(String env, String pr_num) {
 	echo "Temporary DB grant results: " + db_ocoutput_grant.actions[0].out
 	
 	def target = "classy-" + env
-	//newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
-	newVersion = pr_num
+	newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
+	echo "${newVersion}"
+	//newVersion = pr_num
 	def pods = openshift.selector('pod', [deployment: "${target}-${newVersion}"])
+	
 	echo "${pods}"
 	def obs = pods.objects()
 	echo "${obs}"
