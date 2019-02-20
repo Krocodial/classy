@@ -63,7 +63,8 @@ class renderTest(TestCase):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
         response_codes_post_invalid = {self.anon: 302, self.basic: 302, self.staff: 400, self.supa: 400}
         response_codes_post_valid = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa:200}
-        for i in range(4):
+        for i in range(1,5):
+            print(i)
             rev = classification_review.objects.create(
                     classy=classification.objects.create(
                         classification_name='PA',
@@ -77,7 +78,8 @@ class renderTest(TestCase):
                     group = classification_review_groups.objects.create(user=self.basic),
                     classification_name = 'PU',
                     flag = 0)
-        group = 0
+        group = 1
+        print(classification_review_groups.objects.all())
         for user in self.users:
             request = self.factory.get(reverse('classy:review'))
             request.user = user
