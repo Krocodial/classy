@@ -153,7 +153,7 @@
 				]
 			  }
 			}, 
-			"pre": {
+			"post": {
 				"failurePolicy": "Retry",
 				"execNewPod": {
 					"containerName": "${APP_NAME}-${ENV_NAME}",
@@ -308,8 +308,8 @@
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "2",
-                    "memory": "8Gi"
+				    "cpu": "500m",
+                    "memory": "1Gi"
                   }				  
                 }
               }
