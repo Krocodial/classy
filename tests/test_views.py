@@ -64,7 +64,6 @@ class renderTest(TestCase):
         response_codes_post_invalid = {self.anon: 302, self.basic: 302, self.staff: 400, self.supa: 400}
         response_codes_post_valid = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa:200}
         for i in range(1,5):
-            print(i)
             rev = classification_review.objects.create(
                     classy=classification.objects.create(
                         classification_name='PA',
@@ -78,9 +77,7 @@ class renderTest(TestCase):
                     group = classification_review_groups.objects.create(user=self.basic),
                     classification_name = 'PU',
                     flag = 0)
-        group = 1
-        print(classification_review_groups.objects.all())
-        for user in self.users:
+        for user, group in zip(self.users, classification_review_groups.objects.all()):
             request = self.factory.get(reverse('classy:review'))
             request.user = user
             response = review(request)
@@ -91,12 +88,10 @@ class renderTest(TestCase):
             response = review(request)
             self.assertEquals(response.status_code, response_codes_post_invalid[user])
 
-            request = self.factory.post(reverse('classy:review'), data={'group': group})
+            request = self.factory.post(reverse('classy:review'), data={'group': group.pk})
             request.user = user
             response = review(request)
             self.assertEquals(response.status_code, response_codes_post_valid[user])
-
-            group = group + 1
 
     def test_exceptions_view(self):
         response_codes = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
