@@ -128,7 +128,7 @@
 			}
 		  }
         ],
-        "replicas": 2,
+        "replicas": 3,
         "selector": {
           "name": "${NAME}",
 		  "app": "${NAME}"
@@ -181,8 +181,8 @@
                 ],
                 "resources": {
                   "limits": {
-                    "memory": "3Gi",
-                    "cpu": "500m"
+                    "memory": "2Gi",
+                    "cpu": "300m"
                   }
                 }
               }
