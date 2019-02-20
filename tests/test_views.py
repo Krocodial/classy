@@ -77,7 +77,7 @@ class renderTest(TestCase):
                     group = classification_review_groups.objects.create(user=self.basic),
                     classification_name = 'PU',
                     flag = 0)
-        group = 1
+        group = 0
         for user in self.users:
             request = self.factory.get(reverse('classy:review'))
             request.user = user
