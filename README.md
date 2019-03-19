@@ -11,7 +11,7 @@ Release 1.0.1
   
 ## Technology Stack Used
 Python 3 (Django)  
-Initially built for MySQL, currently being ported to PostgreSQL  
+PostgreSQL 9.6  
 
 ## Getting Started  
 These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
