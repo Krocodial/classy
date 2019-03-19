@@ -113,8 +113,8 @@
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"namespace": "openshift",
-				"name": "postgresql:${POSTGRESQL_VERSION}"
+				"namespace": "rhscl",
+				"name": "postgresql-96-rhel7:latest"
 			  }
 			}
 		  }
