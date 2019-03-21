@@ -118,24 +118,25 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		"APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
 	
 	
-	openshift.apply(database)
-		.label(
-			[
-				'app':"classy${env}", 
-				'app-name':"${name}"
-			], 
-			"--overwrite")
+	openshift.apply(database).label(
+		[
+			'app':"classy${env}", 
+			'app-name':"${name}"
+		], 
+		"--overwrite")
 	
-	openshift.apply(backend)
-		.label(['app':"classy${env}", 
-		'app-name':"${name}", 
-		'env-name':"${env}"], 
+	openshift.apply(backend).label(
+		[
+			'app':"classy${env}", 
+			'app-name':"${name}"
+		], 
 		"--overwrite")
 
-	openshift.apply(nginx)
-		.label(['app':"classy${env}", 
-		'app-name':"${name}", 
-		'env-name':"${env}"], 
+	openshift.apply(nginx).label(
+		[
+			'app':"classy${env}", 
+			'app-name':"${name}"
+		], 
 		"--overwrite")
 }
 
