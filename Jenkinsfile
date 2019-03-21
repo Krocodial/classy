@@ -74,7 +74,7 @@ def unitTests(String env, String pr_num) {
 }
 
 
-def deployTemplates(String name, String env, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
+def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
 
 	if (!openshift.selector("pvc", "postgresql").exists()) {
 	
@@ -94,6 +94,7 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		"-p", 
 		"APP_NAME=${name}", 
 		"ENV_NAME=${env}", 
+		"ENV_TAG=${tag}",
 		"APP_IMAGE_TAG=${pr}",
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
 		"SOURCE_REPOSITORY_REF=${git_branch}")
@@ -103,7 +104,8 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		readFile(file:"${backendDC}"),
 		"-p", 
 		"APP_NAME=${name}", 
-		"ENV_NAME=${env}", 
+		"ENV_NAME=${env}",  
+		"ENV_TAG=${tag}",
 		"APP_IMAGE_TAG=${pr}",
         "APPLICATION_DOMAIN=https://${name}${env}.pathfinder.gov.bc.ca",
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
@@ -113,7 +115,8 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		readFile(file:"${nginxDC}"),
 		"-p",
 		"APP_NAME=${name}", 
-		"ENV_NAME=${env}", 
+		"ENV_NAME=${env}",  
+		"ENV_TAG=${tag}",
 		"APP_IMAGE_TAG=${pr}", 
 		"APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
 	
@@ -172,14 +175,17 @@ pipeline {
 	
 	DEV_PROJECT = 'l9fjgg-dev'
 	DEV_SUFFIX = '-dev'
+	DEV_TAG = 'dev'
 	DEV_HOST = 'classy-dev.pathfinder.gov.bc.ca'
   
 	TEST_PROJECT = 'l9fjgg-test'
 	TEST_SUFFIX = '-test'
+	TEST_TAG = 'test'
 	TEST_HOST = 'classy-test.pathfinder.gov.bc.ca'
   
 	PROD_PROJECT = 'l9fjgg-prod'
 	PROD_SUFFIX = ''
+	PROD_TAG = 'prod'
 	PROD_HOST = 'classy.pathfinder.gov.bc.ca'
   
 	SONAR_ROUTE_NAME = 'sonarqube'
@@ -324,7 +330,8 @@ pipeline {
 						
 						deployTemplates(
 							APP_NAME, 
-							DEV_SUFFIX, 
+							DEV_SUFFIX,
+							DEV_TAG,
 							PR_NUM, 
 							GIT_REPOSITORY, 
 							GIT_REF, 

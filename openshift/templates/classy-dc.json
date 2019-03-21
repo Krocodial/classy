@@ -20,6 +20,11 @@
 		  "value": "-dev"
 		},
 		{
+		  "name": "ENV_TAG",
+		  "required": true,
+		  "value": "dev"
+		},
+		{
 		  "name": "APP_IMAGE_TAG",
 		  "required": true,
 		  "value": "NS"
@@ -175,7 +180,7 @@
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"name": "${APP_NAME}:${ENV_NAME}"
+				"name": "${APP_NAME}:${ENV_TAG}"
 			  }
 			}
 		  }

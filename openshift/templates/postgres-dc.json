@@ -17,6 +17,11 @@
 		{
 		  "name": "ENV_NAME",
 		  "required": true,
+		  "value": "-dev"
+		},
+		{
+		  "name": "ENV_TAG",
+		  "required": true,
 		  "value": "dev"
 		},
 		{
@@ -113,7 +118,7 @@
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"name": "postgresql:dev"
+				"name": "postgresql:${ENV_TAG}"
 			  }
 			}
 		  }
