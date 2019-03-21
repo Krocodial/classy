@@ -233,7 +233,8 @@ pipeline {
 							"my-rhscl/python-35-rhel7",
 							"--from=registry.access.redhat.com/rhscl/python-35-rhel7",
 							"--confirm",
-							"--all")
+							"--all",
+							"--request-timeout='5m'")
 						echo "${result.out}"
 					
 						backend = openshift.process(
