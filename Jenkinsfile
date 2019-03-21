@@ -208,7 +208,8 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						openshift._import("my-rhscl/postgresql-96-rhel7 	--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7
+						openshift._import("my-rhscl/postgresql-96-rhel7 \
+						--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7 \
 						--confirm")
 						echo "Destroying backend objects..."
 						test = openshift.selector("bc", [ template : backendBcTag ]).delete()
