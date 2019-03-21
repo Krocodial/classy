@@ -208,6 +208,8 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
+						openshift._import("my-rhscl/postgresql-96-rhel7 	--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7
+						--confirm")
 						echo "Destroying backend objects..."
 						test = openshift.selector("bc", [ template : backendBcTag ]).delete()
 						test1 = openshift.selector("bc", [ template : nginxBcTag ]).delete()
@@ -251,6 +253,8 @@ pipeline {
 						def nginx = openshift.selector("bc", 
 							"proxy-nginx-${PR_NUM}")
 						nginx.startBuild("--wait")
+						
+						
 						
 					}
 				}
@@ -328,9 +332,9 @@ pipeline {
 							"${DEV_PROJECT}/classy:dev")
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-							"${DEV_PROJECT}/proxy-nginx${DEV_SUFFIX}:dev")
+							"${DEV_PROJECT}/proxy-nginx:dev")
 							
-						openshift.tag("registry.access.redhat.com/rhscl/postgresql-96-rhel7", 	"${DEV_PROJECT}/postgresql${DEV_SUFFIX}:dev")
+						openshift.tag("registry.access.redhat.com/rhscl/postgresql-96-rhel7", 	"${DEV_PROJECT}/postgresql:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 						dcs.rollout().latest()

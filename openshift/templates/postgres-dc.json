@@ -113,8 +113,7 @@
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"namespace": "l9fjgg-dev",
-				"name": "postgresql-96-rhel7:latest"
+				"name": "postgresql:dev"
 			  }
 			}
 		  }

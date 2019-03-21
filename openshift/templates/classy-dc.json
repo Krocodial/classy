@@ -141,7 +141,7 @@
 					  "name": "PGPASSWORD",
 					  "valueFrom": {
 						"secretKeyRef": {
-						  "name" : "${APP_NAME}-${ENV_NAME}",
+						  "name" : "${APP_NAME}${ENV_NAME}",
                           "key" : "database-password"
 						}
                       }
