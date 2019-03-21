@@ -208,11 +208,6 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						def result = openshift.raw("import-image",
-							"my-rhscl/postgresql-96-rhel7",
-							"--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7",
-							"--confirm")
-						echo "${result.out}"
 						echo "Destroying backend objects..."
 						test = openshift.selector("bc", [ template : backendBcTag ]).delete()
 						test1 = openshift.selector("bc", [ template : nginxBcTag ]).delete()
@@ -226,10 +221,25 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
+						def result = openshift.raw(
+							"import-image",
+							"my-rhscl/postgresql-96-rhel7",
+							"--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7",
+							"--confirm",
+							"--all")
+						echo "${result.out}"
+					
+						result = openshift.raw(
+							"import-image",
+							"my-rhscl/python-35-rhel7",
+							"--from=registry.access.redhat.com/rhscl/python-35-rhel7",
+							"--confirm",
+							"--all")
+						echo "${result.out}"
+					
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),
 							"-p", 
-							"APP_NAME=${APP_NAME}", 
 							"APP_IMAGE_TAG=${PR_NUM}", 
 							"SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
 							"SOURCE_REPOSITORY_REF=${GIT_REF}")
@@ -337,7 +347,8 @@ pipeline {
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
 							"${DEV_PROJECT}/proxy-nginx:dev")
 							
-						openshift.tag("registry.access.redhat.com/rhscl/postgresql-96-rhel7", 	"${DEV_PROJECT}/postgresql:dev")
+						openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest", 		
+							"${DEV_PROJECT}/postgresql:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 						dcs.rollout().latest()

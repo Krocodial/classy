@@ -10,37 +10,17 @@
   },
     "parameters": [
 		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
 		  "name": "APP_IMAGE_TAG",
 		  "required": true,
 		  "value": "NS"
 		},
 		{
 		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true,
-		  "value": "https://github.com/krocodial/classy.git"
+		  "required": true
 		},	
 		{
 		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true,
-		  "value": "master"
-		},
-		{
-		  "name": "PYTHON_VERSION",
-		  "displayName": "Version of Python Image",
-		  "description": "Version of Python image to be used (3.6 or latest).",
-		  "value": "3.5",
 		  "required": true
-		},
-		{
-		  "name": "PIP_INDEX_URL",
-		  "displayName": "Custom PyPi Index URL",
-		  "description": "The custom PyPi index URL",
-		  "value": ""
 		}
 	],
   "objects": [
@@ -84,8 +64,7 @@
           "sourceStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-			  "namespace": "openshift",
-              "name": "python:3.5"
+              "name": "python-35-rhel7:latest"
             },
             "env": [
               {
