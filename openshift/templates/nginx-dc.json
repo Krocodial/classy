@@ -31,16 +31,12 @@
 	},
     {
       "name": "NAME",
-      "displayName": "Name",
-      "description": "The name assigned to all of the frontend objects defined in this template.",
       "required": true,
       "value": "proxy-nginx"
     },
     {
       "name": "APPLICATION_DOMAIN",
-      "displayName": "Application Hostname",
-      "description": "The exposed hostname that will route to the nginx service, if left blank a value will be defaulted.",
-      "value": ""
+	  "required": true
     }
   ],
   "objects": [
@@ -53,7 +49,7 @@
           "description": "Exposes and load balances the application pods"
         },
 		"labels": {
-			"app": "classy"
+			"app": "${NAME}${ENV_NAME}"
 		}
       },
       "spec": {
@@ -136,7 +132,7 @@
         "replicas": 3,
         "selector": {
           "name": "${NAME}${ENV_NAME}",
-		  "app": "classy"
+		  "app": "${NAME}${ENV_NAME}"
         },
         "template": {
           "metadata": {
