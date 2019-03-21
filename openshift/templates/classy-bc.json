@@ -67,10 +67,6 @@
               "name": "python-35-rhel7:latest"
             },
             "env": [
-              {
-                  "name": "PIP_INDEX_URL",
-                  "value": "${PIP_INDEX_URL}"
-              },
 			  {
 				  "name": "UPGRADE_PIP_TO_LATEST",
 				  "value": "true"
