@@ -119,10 +119,12 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 	
 	
 	openshift.apply(database)
-		.label(['app':"classy${env}", 
-		'app-name':"${name}", 
-		'env-name':"${env}"], 
-		"--overwrite")
+		.label(
+			[
+				'app':"classy${env}", 
+				'app-name':"${name}"
+			], 
+			"--overwrite")
 	
 	openshift.apply(backend)
 		.label(['app':"classy${env}", 
@@ -209,8 +211,8 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject() {
 						echo "Destroying backend objects..."
-						test = openshift.selector("bc", [ template : backendBcTag ]).delete()
-						test1 = openshift.selector("bc", [ template : nginxBcTag ]).delete()
+						openshift.selector("bc", [ template : backendBcTag ]).delete()
+						openshift.selector("bc", [ template : nginxBcTag ]).delete()
 					}
 				}
 			}
