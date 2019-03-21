@@ -71,7 +71,7 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${DATABASE_SERVICE_NAME}",
+        "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
         "annotations": {
           "description": "Exposes the database server"
         }
@@ -79,13 +79,13 @@
       "spec": {
         "ports": [
           {
-            "name": "postgresql",
+            "name": "postgresql${ENV_NAME}",
             "port": 5432,
             "targetPort": 5432
           }
         ],
         "selector": {
-          "name": "${DATABASE_SERVICE_NAME}"
+          "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}"
         }
       }
     },
@@ -93,7 +93,7 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${DATABASE_SERVICE_NAME}",
+        "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
         "annotations": {
           "description": "Defines how to deploy the database",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -109,11 +109,11 @@
 			"imageChangeParams": {
 			  "automatic": false,
 			  "containerNames": [
-			    "postgresql"
+			    "postgresql${ENV_NAME}"
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"namespace": "rhscl",
+				"namespace": "l9fjgg-dev",
 				"name": "postgresql-96-rhel7:latest"
 			  }
 			}
@@ -121,13 +121,13 @@
         ],
         "replicas": 1,
         "selector": {
-          "name": "${DATABASE_SERVICE_NAME}"
+          "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}"
         },
         "template": {
           "metadata": {
-            "name": "${DATABASE_SERVICE_NAME}",
+            "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
             "labels": {
-              "name": "${DATABASE_SERVICE_NAME}"
+              "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}"
             }
           },
           "spec": {
@@ -141,7 +141,7 @@
             ],
             "containers": [
               {
-                "name": "postgresql",
+                "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
                 "image": " ",
                 "ports": [
                   {
@@ -153,7 +153,7 @@
                     "name": "POSTGRESQL_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "${APP_NAME}${ENV_NAME}",
                         "key" : "database-user"
                       }
                     }
@@ -162,7 +162,7 @@
                     "name": "POSTGRESQL_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "${APP_NAME}${ENV_NAME}",
                         "key" : "database-password"
                       }
                     }

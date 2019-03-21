@@ -17,7 +17,7 @@
 		{
 		  "name": "ENV_NAME",
 		  "required": true,
-		  "value": "dev"
+		  "value": "-dev"
 		},
 		{
 		  "name": "APP_IMAGE_TAG",
@@ -68,7 +68,7 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APP_NAME}",
+                "name": "${APP_NAME}${ENV_NAME}",
                 "creationTimestamp": null,
                 "labels": {
                 },
@@ -86,7 +86,7 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${ENV_NAME}",
+        "name": "${APP_NAME}${ENV_NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods",
           "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
@@ -101,7 +101,7 @@
           }
         ],
         "selector": {
-          "name": "${APP_NAME}-${ENV_NAME}"
+          "name": "${APP_NAME}${ENV_NAME}"
         }
       }
     },
@@ -109,7 +109,7 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${ENV_NAME}",
+        "name": "${APP_NAME}${ENV_NAME}",
         "annotations": {
           "description": "Defines how to deploy the application server",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -122,7 +122,7 @@
 			"pre": {
 			  "failurePolicy": "Retry",
 			  "execNewPod": {
-			    "containerName": "${APP_NAME}-${ENV_NAME}",
+			    "containerName": "${APP_NAME}${ENV_NAME}",
 				"command": [
 					"/bin/bash",
 					"-c",
@@ -148,7 +148,7 @@
 					},
 					{
 					  "name": "PGHOST",
-					  "value": "postgresql"
+					  "value": "postgresql${ENV_NAME}"
 					}
 				]
 			  }
@@ -156,7 +156,7 @@
 			"post": {
 				"failurePolicy": "Retry",
 				"execNewPod": {
-					"containerName": "${APP_NAME}-${ENV_NAME}",
+					"containerName": "${APP_NAME}${ENV_NAME}",
 					"command": [
 						"/bin/bash",
 						"/opt/app-root/src/conf/classy-deploy.sh"
@@ -171,7 +171,7 @@
 			"imageChangeParams": {
 			  "automatic": false,
 			  "containerNames": [
-			    "${APP_NAME}-${ENV_NAME}"
+			    "${APP_NAME}${ENV_NAME}"
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
@@ -182,19 +182,19 @@
         ],
         "replicas": 1,
         "selector": {
-          "name": "${APP_NAME}-${ENV_NAME}"
+          "name": "${APP_NAME}${ENV_NAME}"
         },
         "template": {
           "metadata": {
-            "name": "${APP_NAME}-${ENV_NAME}",
+            "name": "${APP_NAME}${ENV_NAME}",
             "labels": {
-				"name": "${APP_NAME}-${ENV_NAME}"
+				"name": "${APP_NAME}${ENV_NAME}"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "${APP_NAME}-${ENV_NAME}",
+                "name": "${APP_NAME}${ENV_NAME}",
                 "image": " ",
                 "ports": [
                   {
@@ -232,13 +232,13 @@
                   },
 				  {
 				    "name": "POSTGRESQL_SERVICE_HOST",
-					"value": "postgresql"
+					"value": "postgresql${ENV_NAME}"
 				  },
                   {
                     "name": "DATABASE_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "${APP_NAME}${ENV_NAME}",
                         "key" : "database-user"
                       }
                     }
@@ -247,7 +247,7 @@
                     "name": "DATABASE_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "${APP_NAME}${ENV_NAME}",
                         "key" : "database-password"
                       }
                     }
@@ -260,7 +260,7 @@
                     "name": "DJANGO_SECRET_KEY",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "${APP_NAME}${ENV_NAME}",
                         "key" : "django-secret-key"
                       }
                     }

@@ -105,7 +105,7 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		"APP_NAME=${name}", 
 		"ENV_NAME=${env}", 
 		"APP_IMAGE_TAG=${pr}",
-        "APPLICATION_DOMAIN=https://${name}-${env}.pathfinder.gov.bc.ca",
+        "APPLICATION_DOMAIN=https://${name}${env}.pathfinder.gov.bc.ca",
 		"SOURCE_REPOSITORY_URL=${git_repo}", 
 		"SOURCE_REPOSITORY_REF=${git_branch}")
 	
@@ -115,23 +115,23 @@ def deployTemplates(String name, String env, String pr, String git_repo, String 
 		"APP_NAME=${name}", 
 		"ENV_NAME=${env}", 
 		"APP_IMAGE_TAG=${pr}", 
-		"APPLICATION_DOMAIN=${name}-${env}.pathfinder.gov.bc.ca")
+		"APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
 	
 	
 	openshift.apply(database)
-		.label(['app':"classy-${env}", 
+		.label(['app':"classy${env}", 
 		'app-name':"${name}", 
 		'env-name':"${env}"], 
 		"--overwrite")
 	
 	openshift.apply(backend)
-		.label(['app':"classy-${env}", 
+		.label(['app':"classy${env}", 
 		'app-name':"${name}", 
 		'env-name':"${env}"], 
 		"--overwrite")
 
 	openshift.apply(nginx)
-		.label(['app':"classy-${env}", 
+		.label(['app':"classy${env}", 
 		'app-name':"${name}", 
 		'env-name':"${env}"], 
 		"--overwrite")
@@ -161,23 +161,23 @@ pipeline {
 	APP_NAME = 'classy'
 	
 	GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
-	GIT_REF = 'master'
+	GIT_REF = 'release-2'
 	
 	PR_NUM = "${BUILD_NUMBER}"
 	
 	TOOLS_PROJECT = 'l9fjgg-tools'
 	
 	DEV_PROJECT = 'l9fjgg-dev'
-	DEV_SUFFIX = 'dev'
+	DEV_SUFFIX = '-dev'
 	DEV_HOST = 'classy-dev.pathfinder.gov.bc.ca'
   
 	TEST_PROJECT = 'l9fjgg-test'
-	TEST_SUFFIX = 'test'
+	TEST_SUFFIX = '-test'
 	TEST_HOST = 'classy-test.pathfinder.gov.bc.ca'
   
 	PROD_PROJECT = 'l9fjgg-prod'
-	PROD_SUFFIX = 'prod'
-	PROD_HOST = 'classy-prod.pathfinder.gov.bc.ca'
+	PROD_SUFFIX = ''
+	PROD_HOST = 'classy.pathfinder.gov.bc.ca'
   
 	SONAR_ROUTE_NAME = 'sonarqube'
 	SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
@@ -328,7 +328,9 @@ pipeline {
 							"${DEV_PROJECT}/classy:dev")
 							
 						openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-							"${DEV_PROJECT}/proxy-nginx-${DEV_SUFFIX}:dev")
+							"${DEV_PROJECT}/proxy-nginx${DEV_SUFFIX}:dev")
+							
+						openshift.tag("registry.access.redhat.com/rhscl/postgresql-96-rhel7", 	"${DEV_PROJECT}/postgresql${DEV_SUFFIX}:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 						dcs.rollout().latest()

@@ -17,7 +17,7 @@
 	{
 	  "name": "ENV_NAME",
 	  "required": true,
-	  "value": "dev"
+	  "value": "-dev"
 	},
 	{
 	  "name": "APP_IMAGE_TAG",
@@ -43,7 +43,7 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${NAME}${ENV_NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods"
         },
@@ -69,7 +69,7 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${NAME}${ENV_NAME}",
         "annotations": {
           "template.openshift.io/expose-uri": "http://{.spec.host}{.spec.path}"
         }
@@ -78,7 +78,7 @@
         "host": "${APPLICATION_DOMAIN}",
         "to": {
           "kind": "Service",
-          "name": "${NAME}"
+          "name": "${NAME}${ENV_NAME}"
         },
 		"port": {
 		  "targetPort": "1337-tcp"
@@ -93,7 +93,7 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}-${ENV_NAME}",
+        "name": "${NAME}",
         "annotations": {
           "description": "Keeps track of changes in the application image"
         }
@@ -103,7 +103,7 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${NAME}${ENV_NAME}",
         "annotations": {
           "description": "Defines how to deploy the application server",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -119,18 +119,18 @@
 			"imageChangeParams": {
 			  "automatic": false,
 			  "containerNames": [
-			    "${NAME}"
+			    "${NAME}${ENV_NAME}"
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"name": "${NAME}-${ENV_NAME}:${ENV_NAME}"
+				"name": "${NAME}:${ENV_NAME}"
 			  }
 			}
 		  }
         ],
         "replicas": 3,
         "selector": {
-          "name": "${NAME}",
+          "name": "${NAME}${ENV_NAME}",
 		  "app": "${NAME}"
         },
         "template": {
@@ -144,7 +144,7 @@
           "spec": {
             "containers": [
               {
-                "name": "${NAME}",
+                "name": "${NAME}${ENV_NAME}",
                 "image": " ",
                 "ports": [
                   {
@@ -172,7 +172,7 @@
                 "env": [
 					{
 						"name": "NGINX_PROXY_URL",
-						"value": "http://${APP_NAME}-${ENV_NAME}:8080/"
+						"value": "http://${APP_NAME}${ENV_NAME}:8080/"
 					},
                     {
                         "name": "DOLLAR",
