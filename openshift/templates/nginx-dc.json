@@ -36,7 +36,8 @@
     },
     {
       "name": "APPLICATION_DOMAIN",
-	  "required": true
+	  "required": true,
+	  "value": "empty"
     }
   ],
   "objects": [

@@ -118,7 +118,7 @@
 			  ],
 			  "from": {
 			    "kind": "ImageStreamTag",
-				"namespace": "l9fjgg${ENV_TAG}"
+				"namespace": "l9fjgg${ENV_TAG}",
 				"name": "postgresql:${ENV_TAG}"
 			  }
 			}

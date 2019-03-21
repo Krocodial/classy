@@ -31,7 +31,8 @@
 		},
         {
           "name": "APPLICATION_DOMAIN",
-          "required": true
+          "required": true,
+		  "value": "empty"
         },
 		{
 		  "name": "SOURCE_REPOSITORY_URL",
