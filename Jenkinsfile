@@ -225,16 +225,14 @@ pipeline {
 							"import-image",
 							"my-rhscl/postgresql-96-rhel7",
 							"--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7",
-							"--confirm",
-							"--all")
+							"--confirm")
 						echo "${result.out}"
 					
 						result = openshift.raw(
 							"import-image",
 							"my-rhscl/python-35-rhel7",
 							"--from=registry.access.redhat.com/rhscl/python-35-rhel7",
-							"--confirm",
-							"--all")
+							"--confirm")
 						echo "${result.out}"
 					
 						backend = openshift.process(
