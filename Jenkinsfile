@@ -212,7 +212,7 @@ pipeline {
 	timeout(time: 40, unit: 'MINUTES')
   }
   stages {
-	stage('preamble & sweeping floor') {
+	/*stage('preamble & sweeping floor') {
 		steps {
 			script {
 				openshift.withCluster() {
@@ -321,6 +321,7 @@ pipeline {
 		}
 	  //steps end
 	}// end of stage
+	*/
 	stage('deploy to dev') {
 		steps {
 			script {
