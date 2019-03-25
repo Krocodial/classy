@@ -313,7 +313,29 @@
                   {
                     "name": "REDIRECT_URI",
                     "value": "${APPLICATION_DOMAIN}"
-                  }
+                  },
+				  {
+					"name": "TEST_ACCOUNT_USERNAME",
+					"value": "dne",
+					"valueFrom": {
+						"secretKeyRef": {
+							"name": "keycloak-test-account",
+							"key": "username"
+						}
+					"required": "False"
+					}
+				  },
+				  {
+				    "name": "TEST_ACCOUNT_PASSWORD",
+					"value": "dne",
+					"valueFrom": {
+						"secretKeyRef": {
+							"name": "keycloak-test-account",
+							"key": "password"
+						}
+					"required": "False"
+					}
+				  }
                 ],
                 "resources": {
                   "limits": {

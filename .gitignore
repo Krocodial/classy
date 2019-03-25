@@ -10,3 +10,4 @@ db.sqlite*
 *.csv
 *.swp
 sso*
+geckodriver*

@@ -177,7 +177,7 @@ pipeline {
 	TEST_HOST = 'classy-test.pathfinder.gov.bc.ca'
   
 	PROD_PROJECT = 'l9fjgg-prod'
-	PROD_SUFFIX = ''
+	PROD_SUFFIX = ""
 	PROD_TAG = 'prod'
 	PROD_HOST = 'classy.pathfinder.gov.bc.ca'
   
