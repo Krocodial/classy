@@ -608,7 +608,7 @@ pipeline {
 						openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
 							"${PROD_PROJECT}/postgresql:prod")
 
-                        def dcs = openshift.selector("dc", [ app : 'classy-prod' ])
+                        def dcs = openshift.selector("dc", [ app : 'classy' ])
                         //dcs.rollout().latest()
 
                         dcs.rollout().status()
