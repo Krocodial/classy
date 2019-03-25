@@ -175,7 +175,7 @@
 		  {
 		    "type": "ImageChange",
 			"imageChangeParams": {
-			  "automatic": false,
+			  "automatic": true,
 			  "containerNames": [
 			    "${APP_NAME}${ENV_NAME}"
 			  ],
@@ -184,6 +184,9 @@
 				"name": "${APP_NAME}:${ENV_TAG}"
 			  }
 			}
+		  },
+		  {
+			"type": "ConfigChange"
 		  }
         ],
         "replicas": 1,

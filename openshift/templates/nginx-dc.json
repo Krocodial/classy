@@ -119,7 +119,7 @@
 		  {
 		    "type": "ImageChange",
 			"imageChangeParams": {
-			  "automatic": false,
+			  "automatic": true,
 			  "containerNames": [
 			    "${NAME}${ENV_NAME}"
 			  ],
@@ -128,6 +128,9 @@
 				"name": "${NAME}:${ENV_TAG}"
 			  }
 			}
+		  },
+		  {
+			"type": "ConfigChange"
 		  }
         ],
         "replicas": 3,

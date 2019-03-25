@@ -112,7 +112,7 @@
 		  {
 		    "type": "ImageChange",
 			"imageChangeParams": {
-			  "automatic": false,
+			  "automatic": true,
 			  "containerNames": [
 			    "postgresql${ENV_NAME}"
 			  ],
@@ -121,6 +121,9 @@
 				"name": "postgresql:${ENV_TAG}"
 			  }
 			}
+		  },
+		  {
+			"type": "ConfigChange"
 		  }
         ],
         "replicas": 1,
