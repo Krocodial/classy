@@ -28,9 +28,7 @@ def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, S
 
 def unitTests(String env, String pr_num) {
 	def newVersion = openshift.selector('dc', 'postgresql' + env).object().status.latestVersion
-	echo "${newVersion}"
 	def DB = openshift.selector('pod', [deployment: "postgresql${env}-${newVersion}"])
-	echo "${DB}"
 	def db_ocoutput_grant = openshift.exec(
 		DB.objects()[0].metadata.name,
 		"--",
@@ -43,16 +41,9 @@ def unitTests(String env, String pr_num) {
 	def target = "classy" + env
 	newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
 	def test = newVersion[0]
-	echo "${test}"
-	echo "${newVersion}"
-	//newVersion = pr_num
-	//def pods = openshift.selector('pod', [deployment: "${target}-${newVersion}"])
 	def pods = openshift.selector('pod', [ deploymentconfig: "${target}"])
-	echo "${pods}"
 	def obs = pods.objects()
-	echo "${obs}"
 	def ob_sel = pods.objects()[0]
-	echo "${ob_sel}"
 	echo "Running unit tests"
 	def ocoutput = openshift.exec(
 		pods.objects()[0].metadata.name,
@@ -393,6 +384,7 @@ pipeline {
                         deployTemplates(
                             APP_NAME,
                             TEST_SUFFIX,
+							TEST_TAG,
                             PR_NUM,
                             GIT_REPOSITORY,
                             GIT_REF,
@@ -411,17 +403,20 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(TEST_PROJECT) {
+					
                         openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${TEST_PROJECT}/classy:test")
 
                         openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-                            "${TEST_PROJECT}/proxy-nginx-${TEST_SUFFIX}:test")
+                            "${TEST_PROJECT}/proxy-nginx:test")
+							
+						openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
+							"${TEST_PROJECT}/postgresql:test")
 
                         def dcs = openshift.selector("dc", [ app : 'classy-test' ])
-                        dcs.rollout().latest()
+                        //dcs.rollout().latest()
 
                         dcs.rollout().status()
-
                     }
                 }
             }
@@ -584,6 +579,7 @@ pipeline {
                         deployTemplates(
                             APP_NAME,
                             PROD_SUFFIX,
+							PROD_TAG,
                             PR_NUM,
                             GIT_REPOSITORY,
                             GIT_REF,
@@ -607,10 +603,13 @@ pipeline {
                             "${PROD_PROJECT}/classy:prod")
 
                         openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-                            "${PROD_PROJECT}/proxy-nginx-${PROD_SUFFIX}:prod")
+                            "${PROD_PROJECT}/proxy-nginx:prod")
+							
+						openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
+							"${PROD_PROJECT}/postgresql:prod")
 
                         def dcs = openshift.selector("dc", [ app : 'classy-prod' ])
-                        dcs.rollout().latest()
+                        //dcs.rollout().latest()
 
                         dcs.rollout().status()
 
