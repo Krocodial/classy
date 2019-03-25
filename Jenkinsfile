@@ -361,7 +361,7 @@ pipeline {
 							"${DEV_PROJECT}/postgresql:dev")
 							
 						def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
-						dcs.rollout().latest()
+						//dcs.rollout().latest()
 							
 						dcs.rollout().status()
 							
