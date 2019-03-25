@@ -160,7 +160,7 @@
                     "name": "POSTGRESQL_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}${ENV_NAME}",
+                        "name" : "${APP_NAME}-${ENV_TAG}",
                         "key" : "database-user"
                       }
                     }
@@ -169,7 +169,7 @@
                     "name": "POSTGRESQL_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}${ENV_NAME}",
+                        "name" : "${APP_NAME}-${ENV_TAG}",
                         "key" : "database-password"
                       }
                     }
