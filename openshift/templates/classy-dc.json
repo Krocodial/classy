@@ -322,8 +322,8 @@
 							"name": "keycloak-test-account",
 							"key": "username"
 						}
+					},
 					"required": "False"
-					}
 				  },
 				  {
 				    "name": "TEST_ACCOUNT_PASSWORD",
@@ -333,8 +333,8 @@
 							"name": "keycloak-test-account",
 							"key": "password"
 						}
+					},
 					"required": "False"
-					}
 				  }
                 ],
                 "resources": {
