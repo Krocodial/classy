@@ -16,8 +16,8 @@
 		},
 		{
 		  "name": "ENV_NAME",
-		  "required": true,
-		  "value": "-dev"
+		  "required": false,
+		  "value": ""
 		},
 		{
 		  "name": "ENV_TAG",
