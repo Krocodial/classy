@@ -316,7 +316,6 @@
                   },
 				  {
 					"name": "TEST_ACCOUNT_USERNAME",
-					"value": "dne",
 					"valueFrom": {
 						"secretKeyRef": {
 							"name": "keycloak-test-account",
@@ -327,7 +326,6 @@
 				  },
 				  {
 				    "name": "TEST_ACCOUNT_PASSWORD",
-					"value": "dne",
 					"valueFrom": {
 						"secretKeyRef": {
 							"name": "keycloak-test-account",
