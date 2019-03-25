@@ -29,7 +29,7 @@ def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, S
 def unitTests(String env, String pr_num) {
 	def newVersion = openshift.selector('dc', 'postgresql' + env).object().status.latestVersion
 	echo "${newVersion}"
-	def DB = openshift.selector('pod', [deployment: "postgresql-${newVersion}"])
+	def DB = openshift.selector('pod', [deployment: "postgresql${env}-${newVersion}"])
 	echo "${DB}"
 	def db_ocoutput_grant = openshift.exec(
 		DB.objects()[0].metadata.name,
