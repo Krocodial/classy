@@ -578,7 +578,7 @@ pipeline {
 
                         deployTemplates(
                             APP_NAME,
-                            PROD_SUFFIX,
+                            "",
 							PROD_TAG,
                             PR_NUM,
                             GIT_REPOSITORY,
