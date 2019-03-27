@@ -26,6 +26,25 @@ def cleanSpace(String backendBcTag, String backendDcTag, String databaseBcTag, S
 	//}
 }
 
+def intTests(String env, String pr_num) {
+	def target = "classy" + env
+	newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
+	def test = newVersion[0]
+	def pods = openshift.selector('pod', [ deploymentconfig: "${target}"])
+	def obs = pods.objects()
+	def ob_sel = pods.objects()[0]
+	echo "Running integration tests"
+	def ocoutput = openshift.exec(
+		pods.objects()[0].metadata.name,
+		"--",
+		"bash -c '\
+			cd /opt/app-root/src; \
+			python manage.py test integration-tests \
+		'"
+		)
+	echo "Django test results: " + ocoutput.actions[0].out
+}
+
 def unitTests(String env, String pr_num) {
 	def newVersion = openshift.selector('dc', 'postgresql' + env).object().status.latestVersion
 	def DB = openshift.selector('pod', [deployment: "postgresql${env}-${newVersion}"])
@@ -369,6 +388,7 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						unitTests(DEV_SUFFIX, PR_NUM)
+						intTests(DEV_SUFFIX, PR_NUM)
 					}
 				}
 			}
