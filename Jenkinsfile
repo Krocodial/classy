@@ -69,7 +69,7 @@ def unitTests(String env, String pr_num) {
 		"--",
 		"bash -c '\
 			cd /opt/app-root/src; \
-			python manage.py test unit-tests \
+			python manage.py test \
 		'"
 		)
 	echo "Django test results: " + ocoutput.actions[0].out
@@ -388,7 +388,7 @@ pipeline {
 				openshift.withCluster() {
 					openshift.withProject(DEV_PROJECT) {
 						unitTests(DEV_SUFFIX, PR_NUM)
-						intTests(DEV_SUFFIX, PR_NUM)
+						//intTests(DEV_SUFFIX, PR_NUM)
 					}
 				}
 			}
