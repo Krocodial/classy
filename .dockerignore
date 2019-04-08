@@ -1,0 +1,13 @@
+*envs*
+*tmp/*
+*.pyc
+*__pycache__*
+*.env*
+*bak*
+mydatabase
+*.cpython-36.pyc
+db.sqlite*
+*.csv
+*.swp
+sso*
+geckodriver*

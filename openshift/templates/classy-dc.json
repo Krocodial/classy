@@ -229,15 +229,15 @@
                 "env": [
                   {
                     "name": "DATABASE_SERVICE_NAME",
-                    "value": "${DATABASE_SERVICE_NAME}"
+                    "value": "postgresql"
                   },
                   {
                     "name": "DATABASE_ENGINE",
-                    "value": "${DATABASE_ENGINE}"
+                    "value": "postgresql"
                   },
                   {
                     "name": "DATABASE_NAME",
-                    "value": "${DATABASE_NAME}"
+                    "value": "default"
                   },
 				  {
 				    "name": "POSTGRESQL_SERVICE_HOST",
@@ -247,7 +247,7 @@
                     "name": "DATABASE_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_TAG}",
+                        "name" : "classy-${ENV_TAG}",
                         "key" : "database-user"
                       }
                     }
@@ -256,7 +256,7 @@
                     "name": "DATABASE_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_TAG}",
+                        "name" : "classy-${ENV_TAG}",
                         "key" : "database-password"
                       }
                     }

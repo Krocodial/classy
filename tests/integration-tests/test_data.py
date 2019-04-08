@@ -13,7 +13,7 @@ class DataTestCase(TestCase):
     def setUp(self):
         self.classifications = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
         options = Options()
-        options.headless = True
+        options.headless = False
         selenium = webdriver.Firefox(options=options)
         domain = os.getenv('REDIRECT_URI')
 
