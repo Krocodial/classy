@@ -150,11 +150,11 @@ def process_file(tsk):
                         column__exact=row['Column Name']).count()
                 if entCount < 1:
                     if notes:
-                        note = row['notes']
+                        note = row['notes'][:400]
                     else:
                         note = ''
                     if masking_ins:
-                        masking = row['masking instructions'] 
+                        masking = row['masking instructions'][:200]
                     else:
                         masking = ''
 
@@ -207,11 +207,11 @@ def process_file(tsk):
                             column__exact=row['Column Name'])
                     if masking_ins:
                         if len(row['masking instructions']) > len(classy.masking):
-                            classy.masking = row['masking instructions']
+                            classy.masking = row['masking instructions'][:200]
                             classy.save()
                     if notes:
                         if len(row['notes']) > len(classy.notes):
-                            classy.notes = row['notes']
+                            classy.notes = row['notes'][:400]
                             classy.save()
                 else:
                     #Now we have encountered a critical issue with the upload function. Consider raising an error on the admin console or even sending an email. 

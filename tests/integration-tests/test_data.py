@@ -9,11 +9,16 @@ from requests.auth import HTTPBasicAuth
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.select import Select
 
+
+
 class DataTestCase(TestCase):
     def setUp(self):
         self.classifications = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
+
+
+
         options = Options()
-        options.headless = False
+        options.headless = True
         selenium = webdriver.Firefox(options=options)
         domain = os.getenv('REDIRECT_URI')
 

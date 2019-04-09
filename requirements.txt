@@ -7,3 +7,4 @@ python-keycloak-client==0.2.1
 sqlparse==0.2.4
 whitenoise==3.3.1
 psycopg2==2.7.7
+selenium==3.141.0
