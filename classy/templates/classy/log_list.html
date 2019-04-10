@@ -29,7 +29,7 @@
                     <thead style="color:#fff;" class="thead-inverse">
                         <tr>
                             
-                            <th class="th-cus">ID</th>
+			    <th class="th-cus">ID</th>
                             <th class="th-cus">Action Time</th>
                             <th class="th-cus">Action Flag</th>
                             <th class="th-cus">Old Clas.</th>
@@ -43,15 +43,9 @@
                         {% for tuple in queryset %}
                         <tr>
                             
-                            <td>{{tuple.classy_id}}</td>
+			    <td><a href={% url 'classy:log_detail' tuple.classy_id %}>{{tuple.classy_id}}</a></td>
                             <td>{{tuple.time}}</td>
-                            {% if tuple.flag == 0 %}
-                            <td>DELETE</td>
-                            {% elif tuple.flag == 1 %}
-                            <td>MODIFY</td>
-                            {% elif tuple.flag == 2 %}
-                            <td>CREATE</td>
-                            {% endif %}
+			    <td>{{flag_translate|get_item:tuple.flag}}</td>
                             <td>{{translate|get_item:tuple.old_classification}}</td>
                             <td>{{translate|get_item:tuple.new_classification}}</td>
                             <td>{{tuple.user.first_name}}</td>

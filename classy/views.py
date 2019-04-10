@@ -42,6 +42,8 @@ options = ['UN', 'PU', 'CO', 'PA', 'PB', 'PC']
 translate = {'UN': 'UNCLASSIFIED', 'CO': 'CONFIDENTIAL', 'PU': 'PUBLIC', 'PA': 'PROTECTED A', 'PB': 'PROTECTED B', 'PC': 'PROTECTED C'}
 untranslate = {'UNCLASSIFIED': 'UN', 'CONFIDENTIAL': 'CO', 'PUBLIC': 'PU', 'PROTECTED A': 'PA', 'PROTECTED B': 'PB', 'PROTECTED C': 'PC'}
 state_translate = {'A': 'Active', 'P': 'Pending', 'I': 'Inactive'}
+flag_translate = {'0': 'DELETE', '1': 'MODIFY', '2': 'CREATE'}
+
 
 threads = []
 lock = threading.Lock()
@@ -332,6 +334,7 @@ def log_list(request):
                     'last': last,
                     'translate': translate,
                     'state_translate': state_translate,
+                    'flag_translate': flag_translate,
             }
             return render(request, 'classy/log_list.html', context)
 
@@ -350,26 +353,41 @@ def log_detail(request, classy_id):
         return redirect('classy:index')        
 
     if request.method == 'POST':
-        try: 
-            masking = request.POST['masking']
-            notes = request.POST['notes']
-        except KeyError:
-            masking = obj.masking
-            notes = obj.notes
-        obj.masking = masking
-        obj.notes = notes
-        obj.save()
+        if 'masking' in request.POST and 'notes' in request.POST:
+            form = logDetailMNForm(request.POST, instance=obj)
+            if form.is_valid():
+                form.save()
+
+        if 'classification_name' in request.POST:
+            if not request.POST['classification_name'] == obj.classification_name:
+                form = logDetailForm(request.POST, instance=obj)
+                log_data = {}
+                log_data['classy'] = obj.pk
+                log_data['flag'] = 1
+                log_data['new_classification'] = request.POST['classification_name']
+                log_data['old_classification'] = obj.classification_name
+                log_data['user'] = request.user.pk
+                log_data['state'] = 'A'
+                log_data['approver'] = request.user.pk
+                log_form = classificationLogForm(log_data)
+
+                if form.is_valid() and log_form.is_valid():
+                    form.save()
+                    log_form.save()
 
     tup = tup.order_by('-time')
+
+    form = logDetailForm(initial={'classification_name': obj.classification_name})
+
     context = {
+        'form': form,
         'result': tup,
         'obj': obj,
         'num': num,
         'translate': translate,
         'state_translate': state_translate,
+        'flag_translate': flag_translate,
     }
-    #except classification.DoesNotExist:
-    #    context = {}
     return render(request, 'classy/log_details.html', context)
 
 #The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.

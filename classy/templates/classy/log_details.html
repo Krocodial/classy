@@ -18,6 +18,8 @@
 
 
 <div class="col-sm-3">
+<form action="{% url 'classy:log_detail' obj.id %}" method='post'>
+{% csrf_token %}
 <table class="table">
 <thead>
 	<tr>
@@ -59,8 +61,18 @@
                 <td><strong>Creator</strong></td>
                 <td>{{obj.creator.first_name}}</td>
         </tr>
+	{{form}}<!--
+	<tr>
+		<td>{{form}}</td>
+	</tr>-->
+	<tr>
+		<td></td>
+		<td><input type='submit' value='Submit'></td>
+	</tr>
+		
 </tbody>
 </table>
+</form>
 </div>
 <div class="col-sm-1"></div>
 <div class="col-sm-8">

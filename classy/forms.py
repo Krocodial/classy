@@ -92,3 +92,14 @@ class completed_taskForm(ModelForm):
         model = completed_task
         fields = ['name', 'verbose_name', 'priority', 'run_at', 'queue', 'error', 'user']
 
+class logDetailForm(ModelForm):
+    class Meta:
+        model = classification
+        fields = ['classification_name']
+
+class logDetailMNForm(ModelForm):
+    class Meta:
+        model = classification
+        fields = ['masking', 'notes']
+
+
