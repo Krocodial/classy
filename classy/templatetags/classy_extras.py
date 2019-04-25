@@ -10,3 +10,7 @@ def get_item(dictionary, key):
 def multiply(value, arg):
     return value*arg
 
+@register.filter
+def replace_font(value):
+    value = value.replace('<font color="green">', '<font color="green">')
+    return value

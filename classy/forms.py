@@ -102,4 +102,8 @@ class logDetailMNForm(ModelForm):
         model = classification
         fields = ['masking', 'notes']
 
+class classificationFullLogForm(ModelForm):
+    class Meta:
+        model = classification_logs
+        fields = ['classy', 'flag', 'new_classification', 'old_classification', 'user', 'state', 'approver', 'masking_change', 'note_change']
 

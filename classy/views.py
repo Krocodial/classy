@@ -13,10 +13,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.html import escape
 
 from ratelimit.decorators import ratelimit
 
-import threading, csv, json, random, os
+import threading, csv, json, random, os, difflib
 
 from .models import *
 from .forms import *
@@ -351,12 +352,28 @@ def log_detail(request, classy_id):
         tup = classification_logs.objects.filter(classy_id__exact=classy_id)
     else:
         return redirect('classy:index')        
-
     if request.method == 'POST':
         if 'masking' in request.POST and 'notes' in request.POST:
+            old_masking = obj.masking
+            old_notes = obj.notes
             form = logDetailMNForm(request.POST, instance=obj)
             if form.is_valid():
-                form.save()
+                if form.cleaned_data['masking'] != old_masking or form.cleaned_data['notes'] != old_notes:
+
+                    log_data = {}
+                    log_data['classy'] = obj.pk
+                    log_data['flag'] = 1
+                    log_data['new_classification'] = obj.classification_name 
+                    log_data['old_classification'] = obj.classification_name
+                    log_data['user'] = request.user.pk
+                    log_data['state'] = 'A'
+                    log_data['approver'] = request.user.pk
+                    log_data['masking_change'] = form.cleaned_data['masking']
+                    log_data['note_change'] = form.cleaned_data['notes']
+                    log_form = classificationFullLogForm(log_data)
+                    if log_form.is_valid():
+                        form.save()
+                        log_form.save()
 
         if 'classification_name' in request.POST:
             if not request.POST['classification_name'] == obj.classification_name:

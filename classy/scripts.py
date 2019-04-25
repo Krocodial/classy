@@ -205,14 +205,25 @@ def process_file(tsk):
                             schema__exact=row['Schema'],
                             table__exact=row['Table Name'],
                             column__exact=row['Column Name'])
+                    MN = {}
+                    MN['masking'] = classy.masking
+                    MN['notes'] = classy.notes
+                    #Once MN is assigned to the form the object values will also change
+                    old_masking = classy.masking
+                    old_notes = classy.notes
                     if masking_ins:
                         if len(row['masking instructions']) > len(classy.masking):
-                            classy.masking = row['masking instructions'][:200]
-                            classy.save()
+                            MN['masking'] = row['masking instructions'][:200]
                     if notes:
                         if len(row['notes']) > len(classy.notes):
-                            classy.notes = row['notes'][:400]
-                            classy.save()
+                            MN['notes'] = row['notes'][:400]
+                    form = logDetailMNForm(MN, instance=classy)
+                    if form.is_valid() and (old_masking != MN['masking'] or old_notes != MN['notes']):
+                        log_data = {'classy': classy.pk, 'flag': 1, 'new_classification': classy.classification_name, 'old_classification': classy.classification_name, 'user': user, 'state': 'A', 'approver': user, 'masking_change': form.cleaned_data['masking'], 'note_change': form.cleaned_data['notes']}
+                        log_form = classificationFullLogForm(log_data)
+                        if log_form.is_valid():
+                            form.save()
+                            log_form.save()
                 else:
                     #Now we have encountered a critical issue with the upload function. Consider raising an error on the admin console or even sending an email. 
                     pass
@@ -220,7 +231,7 @@ def process_file(tsk):
             #This is not a guardium report
             pass
                 
-    except Exception as e: 
+    except Exception as e:
         #Some error called e
         cinfo['error'] = e
     fs.delete(filename)

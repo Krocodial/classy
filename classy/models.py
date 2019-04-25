@@ -146,6 +146,8 @@ class classification_logs(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Modifier')
     approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Approver')
     state = models.CharField(max_length=1, choices=state_choices)
+    masking_change = models.TextField(blank=True)
+    note_change = models.TextField(blank=True)
 
     class Meta:
         default_permissions = ()
