@@ -72,7 +72,7 @@ MIDDLEWARE = [
     'classy.middleware.authentication.authentication_middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -148,5 +148,5 @@ FILE_UPLOAD_PERMISSIONS = 0o600
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

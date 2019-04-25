@@ -47,7 +47,7 @@ ENV TEST_ACCOUNT_PASSWORD=${TEST_ACCOUNT_PASSWORD}
 
 #CMD python manage.py runserver 0.0.0.0:1337
 
-CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && python manage.py runserver 0.0.0.0:1337
+CMD python manage.py migrate && python manage.py createcachetable && python manage.py collectstatic --noinput && python manage.py check && python manage.py runserver 0.0.0.0:1337
 
 
 EXPOSE 1337
