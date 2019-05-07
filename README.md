@@ -7,25 +7,24 @@ A metadata classification repository for tracking and auditing purposes
 
 ## Status
   
-Release 1.0.1
+Release 1.0.2
   
 ## Technology Stack Used
-Python 3 (Django)  
-PostgreSQL 9.6  
+Python ~3.6 (Django)  
+PostgreSQL 9.6 (or latest)  
 
 ## Getting Started  
 These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
   
-## Prerequisites  
-Install system dependencies    
-```sh  
-$ sudo apt-get install python3  
-//If you are using a MySQL DB install a connector  
-$ sudo apt-get install mysqlclient    
-```    
-  
+## Prerequisites 
+You'll need an instance of OpenShift currently running. The current project hardware requests are 8 cores, 32GBs RAM, and 200GB persistant storage per project space.  
+
+Go through the Jenkinsfile in the project root directory and modify the global values accordingly. The most important will be the namespace.   
+   
+This setup assumes you have Jenkins and a SonarQube instance running in your TOOLS environment. If these are missing you can always remove the SAST/DAST functions from the Jenkinsfile, although I can't recommend this.  
 # Initial Setup
   
+
 Clone github repo  
 ```sh  
 $ git clone https://github.com/Krocodial/classy.git <project directory>  
