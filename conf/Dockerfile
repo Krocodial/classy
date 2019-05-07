@@ -9,7 +9,7 @@ ENV DOLLAR=${DOLLAR}
 WORKDIR /usr/share/nginx
 
 RUN rm -rf /usr/share/nginx/html/*
-COPY --from=docker-registry.default.svc:5000/l9fjgg-tools/classy /opt/app-root/src/conf/html /usr/share/nginx/html
+COPY --from=${CLASSY_IMAGE} /opt/app-root/src/conf/html /usr/share/nginx/html
 
 WORKDIR /etc/nginx/conf.d
 COPY ./conf.d/classy.conf.tmpl /etc/nginx/conf.d/classy.tmpl

@@ -31,15 +31,12 @@
 		},
 		{
 		  "name": "NAME",
-		  "displayName": "Name",
 		  "required": true,
 		  "value": "proxy-nginx"
 		},
 		{
 		  "name": "IMG_SRC",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "bcgov-s2i-nginx"
+		  "required": true
 		}
 		
 	],
@@ -91,7 +88,11 @@
                         {
                             "name": "NGINX_PROXY_URL",
                             "value": "http://classy${ENV_NAME}:8080/"
-                        }
+                        },
+			            {
+                            "name": "CLASSY_IMAGE",
+                            "value": "${IMG_SRC}"
+			            }
 		            ]
                 },
                 "output": {
