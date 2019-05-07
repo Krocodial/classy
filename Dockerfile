@@ -1,21 +1,35 @@
-FROM python:3
+#FROM python:3
+#need to set permissions due to windows dev environment
+FROM python as builder
 
-WORKDIR /usr/src/app
+COPY . /opt/app-root/src
+RUN chmod -R 775 /opt/app-root/src
+
+FROM registry.access.redhat.com/rhscl/python-36-rhel7
+
+WORKDIR /opt/app-root/src
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /usr/src/app
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-WORKDIR /usr/bin
+COPY --from=builder /opt/app-root/src .
+#RUN ls -la
+RUN python manage.py collectstatic --noinput
 
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz 
-RUN tar -xzvf geckodriver-v0.24.0-linux64.tar.gz
-RUN rm geckodriver-v0.24.0-linux64.tar.gz 
-RUN apt-get update && apt-get install firefox-esr -y
+#WORKDIR /opt/app-root
+#RUN cp -r src/* .
+
+#WORKDIR /usr/bin
+
+#RUN yum -y install wget
+
+#RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz 
+#RUN tar -xzvf geckodriver-v0.24.0-linux64.tar.gz
+#RUN rm geckodriver-v0.24.0-linux64.tar.gz 
+#RUN apt-get update && apt-get install firefox-esr -y
 
 
-WORKDIR /usr/src/app
 
 ARG SSO_SERVER
 ARG SSO_REALM
@@ -47,10 +61,10 @@ ENV TEST_ACCOUNT_PASSWORD=${TEST_ACCOUNT_PASSWORD}
 
 #CMD python manage.py runserver 0.0.0.0:1337
 
-CMD python manage.py migrate && python manage.py createcachetable && python manage.py collectstatic --noinput && python manage.py check && python manage.py runserver 0.0.0.0:1337
+CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && python manage.py test tests/unit-tests/ && gunicorn --bind 0.0.0.0:1337 wsgi
 
 
 EXPOSE 1337
 
+#docker build --no-cache --build-arg SSO_SERVER --build-arg SSO_REALM --build-arg SSO_CLIENT_ID --build-arg SSO_CLIENT_SECRET --build-arg REDIRECT_URI --build-arg DEBUG -t classy .
 
-#docker build --build-arg SSO_CLIENT_SECRET --build-arg SSO_CLIENT_ID --build-arg SSO_SERVER --build-arg SSO_REALM -t classy .

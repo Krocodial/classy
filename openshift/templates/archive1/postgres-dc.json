@@ -1,0 +1,215 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "postgres-dc"
+  },
+  "labels": {
+	"template": "postgres-dc",
+	"app": "classy"
+  },
+  "parameters": [
+		{
+		  "name": "APP_NAME",
+		  "required": true,
+		  "value": "classy"
+		},
+		{
+		  "name": "ENV_NAME",
+		  "required": false,
+		  "value": ""
+		},
+		{
+		  "name": "ENV_TAG",
+		  "required": true,
+		  "value": "dev"
+		},
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true,
+		  "value": "NS"
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true,
+		  "value": "https://github.com/krocodial/classy.git"
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true,
+		  "value": "master"
+		},
+		{
+		  "name": "DATABASE_NAME",
+		  "displayName": "Database Name",
+		  "required": true,
+		  "value": "default"
+		},
+		{
+		  "name": "DATABASE_SERVICE_NAME",
+		  "displayName": "Database Service Name",
+		  "required": true,
+		  "value": "postgresql"
+		},
+		{
+		  "name": "DATABASE_ENGINE",
+		  "displayName": "Database Engine",
+		  "required": true,
+		  "description": "Database engine: postgresql, mysql or sqlite (default).",
+		  "value": "postgresql"
+		},
+		{
+		  "name": "APP_CONFIG",
+		  "displayName": "Application Configuration File Path",
+		  "description": "Relative path to Gunicorn configuration file (optional)."
+		},
+		{
+		  "name": "POSTGRESQL_VERSION",
+		  "displayName": "Version of PostgreSQL Image",
+		  "description": "Version of PostgreSQL image to be used (10 or latest).",
+		  "value": "9.6",
+		  "required": true
+		}
+  ],
+  "objects": [
+	{
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
+        "annotations": {
+          "description": "Exposes the database server"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "postgresql${ENV_NAME}",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}"
+        }
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
+        "annotations": {
+          "description": "Defines how to deploy the database",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate"
+        },
+        "triggers": [
+		  {
+		    "type": "ImageChange",
+			"imageChangeParams": {
+			  "automatic": true,
+			  "containerNames": [
+			    "postgresql${ENV_NAME}"
+			  ],
+			  "from": {
+			    "kind": "ImageStreamTag",
+				"name": "postgresql:${ENV_TAG}"
+			  }
+			}
+		  },
+		  {
+			"type": "ConfigChange"
+		  }
+        ],
+        "replicas": 1,
+        "selector": {
+          "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
+            "labels": {
+              "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "${DATABASE_SERVICE_NAME}-data",
+                "persistentVolumeClaim": {
+                  "claimName": "${DATABASE_SERVICE_NAME}"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "${DATABASE_SERVICE_NAME}${ENV_NAME}",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "POSTGRESQL_USER",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${APP_NAME}-${ENV_TAG}",
+                        "key" : "database-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef" : {
+                        "name" : "${APP_NAME}-${ENV_TAG}",
+                        "key" : "database-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_DATABASE",
+                    "value": "${DATABASE_NAME}"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "${DATABASE_SERVICE_NAME}-data",
+                    "mountPath": "/var/lib/pgsql/data"
+                  }
+                ],
+                "readinessProbe": {
+                  "timeoutSeconds": 1,
+                  "initialDelaySeconds": 10,
+                  "exec": {
+                    "command": [ "/usr/libexec/check-container" ]
+                  }
+                },
+                "livenessProbe": {
+                  "timeoutSeconds": 10,
+                  "initialDelaySeconds": 120,
+                  "exec": {
+                    "command": [ "/usr/libexec/check-container", "--live" ]
+                  }
+                },
+                "resources": {
+                  "limits": {
+                    "memory": "2Gi",
+                    "cpu": "1"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+	}
+   ]
+}

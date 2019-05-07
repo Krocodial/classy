@@ -83,16 +83,17 @@
 				"contextDir": "conf/"
                 },
                 "strategy": {
-                    "type": "Docker",
-                    "dockerStrategy": {
-			            "noCache": true
-                    },
-		            "env": [
-                        {
-                            "name": "NGINX_PROXY_URL",
-                            "value": "http://classy${ENV_NAME}:8080/"
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "namespace": "openshift",
+                            "name": "${IMG_SRC}:latest"
                         }
-		            ]
+                    },
+					"env": [
+
+					]
                 },
                 "output": {
                     "to": {
