@@ -15,7 +15,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY --from=builder /opt/app-root/src .
 #RUN ls -la
-RUN python manage.py collectstatic --noinput
+#RUN python manage.py collectstatic --noinput
 
 #WORKDIR /opt/app-root
 #RUN cp -r src/* .
