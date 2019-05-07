@@ -72,15 +72,9 @@
                 ],
 				"runPolicy": "Serial",
                 "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-						"ref": "${SOURCE_REPOSITORY_REF}"
-                    },
-				"contextDir": "conf/"
+                    "dockerfile": "FROM classy as builder\nFROM nginx\nARG NGINX_PROXY_URL=http://172.17.0.1:1337\nARG DOLLAR=$\nENV NGINX_PROXY_URL=${NGINX_PROXY_URL}\nENV DOLLAR=${DOLLAR}\nWORKDIR /usr/share/nginx\nRUN rm -rf /usr/share/nginx/html/*\nCOPY --from=builder /opt/app-root/src/conf/html /usr/share/nginx/html\nWORKDIR /etc/nginx/conf.d\nCOPY ./conf.d/classy.conf.tmpl /etc/nginx/conf.d/classy.tmpl\nRUN cat classy.tmpl | envsubst > classy.conf"
                 },
                 "strategy": {
-                    "type": "Docker",
                     "dockerStrategy": {
 			            "noCache": true
                     },
