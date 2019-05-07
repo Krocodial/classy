@@ -154,10 +154,6 @@
 					"protocol": "TCP"
                   }
                 ],
-                "volumeMounts": {
-                    "mountPath": ""
-                },
-
 				"readinessProbe": {
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
@@ -183,9 +179,6 @@
                   }
                 }
               }
-            ],
-            "volumes": [
-
             ]
           }
         }
