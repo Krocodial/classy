@@ -63,7 +63,7 @@
           "type": "Docker",
           "dockerStrategy": {
             "dockerfilePath": "",
-            "noCache": true,
+            "noCache": false,
             "forcePull": true,
             "env": [
             ]
