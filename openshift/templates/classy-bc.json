@@ -82,7 +82,7 @@
 
 		],
         "postCommit": {
-           "script": "./manage.py check"
+           "script": "python manage.py check"
         }
       }
     }
