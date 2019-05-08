@@ -60,23 +60,13 @@
           "contextDir": ""
         },
         "strategy": {
-          "type": "Source",
-          "sourceStrategy": {
-            "from": {
-              "kind": "ImageStreamTag",
-              "name": "python-35-rhel7:latest"
-            },
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "",
+            "noCache": "true",
+            "forcePull": "true",
             "env": [
-			  {
-				  "name": "UPGRADE_PIP_TO_LATEST",
-				  "value": "true"
-			  },
-			  {
-				  "name": "BUILD_LOGLEVEL",
-				  "value": "5"
-			  }
-            ],
-			"incremental": false
+            ]
           }
         },
         "output": {
@@ -92,7 +82,7 @@
 
 		],
         "postCommit": {
-           "script": "./manage.py check && ./manage.py test"
+           "script": "./manage.py check"
         }
       }
     }
