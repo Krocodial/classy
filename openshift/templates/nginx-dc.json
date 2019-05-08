@@ -171,6 +171,14 @@
                     }
                 },
                 "env": [
+                        {
+                            "name": "NGINX_PROXY_URL",
+                            "value": "http://classy${ENV_NAME}:8080"
+                        },
+                        {
+                            "name": "DOLLAR",
+                            "value": "$"
+                        }
                 ],
                 "resources": {
                   "limits": {

@@ -63,7 +63,7 @@
           "type": "Docker",
           "dockerStrategy": {
             "dockerfilePath": "",
-            "noCache": false,
+            "noCache": true,
             "forcePull": true,
             "env": [
             ]
@@ -82,7 +82,7 @@
 
 		],
         "postCommit": {
-           "script": "python manage.py check"
+           "script": ""
         }
       }
     }
