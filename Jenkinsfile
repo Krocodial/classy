@@ -242,21 +242,21 @@ pipeline {
 			script {
 				openshift.withCluster() {
 					openshift.withProject() {
-						def result = openshift.raw(
+						/*def result = openshift.raw(
 							"import-image",
 							"my-rhscl/postgresql-96-rhel7",
 							"--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7",
 							"--confirm",
 							"--request-timeout=5m")
-						echo "${result.out}"
+						echo "${result.out}"*/
 					
-						result = openshift.raw(
+						/*result = openshift.raw(
 							"import-image",
 							"my-rhscl/python-35-rhel7",
 							"--from=registry.access.redhat.com/rhscl/python-35-rhel7",
 							"--confirm",
 							"--request-timeout=5m")
-						echo "${result.out}"
+						echo "${result.out}"*/
 					
 						backend = openshift.process(
 							readFile(file:"${backendBC}"),

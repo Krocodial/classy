@@ -5,69 +5,69 @@
     "name": "classy-dc"
   },
   "labels": {
-	"template": "classy-dc",
-	"app": "classy"
+    "template": "classy-dc",
+    "app": "classy"
   },
   "parameters": [
-		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
-		  "name": "ENV_NAME",
-		  "required": false,
-		  "value": ""
-		},
-		{
-		  "name": "ENV_TAG",
-		  "required": true,
-		  "value": "dev"
-		},
-		{
-		  "name": "APP_IMAGE_TAG",
-		  "required": true,
-		  "value": "NS"
-		},
+        {
+          "name": "APP_NAME",
+          "required": true,
+          "value": "classy"
+        },
+        {
+          "name": "ENV_NAME",
+          "required": false,
+          "value": ""
+        },
+        {
+          "name": "ENV_TAG",
+          "required": true,
+          "value": "dev"
+        },
+        {
+          "name": "APP_IMAGE_TAG",
+          "required": true,
+          "value": "NS"
+        },
         {
           "name": "APPLICATION_DOMAIN",
           "required": true,
-		  "value": "empty"
+          "value": "empty"
         },
-		{
-		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true,
-		  "value": "https://github.com/krocodial/classy.git"
-		},	
-		{
-		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true,
-		  "value": "master"
-		},
-		{
-		  "name": "DATABASE_SERVICE_NAME",
-		  "displayName": "Database Service Name",
-		  "required": true,
-		  "value": "postgresql"
-		},
-		{
-		  "name": "DATABASE_NAME",
-		  "displayName": "Database Name",
-		  "required": true,
-		  "value": "default"
-		},
-		{
-		  "name": "DATABASE_ENGINE",
-		  "displayName": "Database Engine",
-		  "required": true,
-		  "description": "Database engine: postgresql, mysql or sqlite (default).",
-		  "value": "postgresql"
-		},
-		{
-		  "name": "APP_CONFIG",
-		  "displayName": "Application Configuration File Path",
-		  "description": "Relative path to Gunicorn configuration file (optional)."
-		}
+        {
+          "name": "SOURCE_REPOSITORY_URL",
+          "required": true,
+          "value": "https://github.com/krocodial/classy.git"
+        },  
+        {
+          "name": "SOURCE_REPOSITORY_REF",
+          "required": true,
+          "value": "master"
+        },
+        {
+          "name": "DATABASE_SERVICE_NAME",
+          "displayName": "Database Service Name",
+          "required": true,
+          "value": "postgresql"
+        },
+        {
+          "name": "DATABASE_NAME",
+          "displayName": "Database Name",
+          "required": true,
+          "value": "default"
+        },
+        {
+          "name": "DATABASE_ENGINE",
+          "displayName": "Database Engine",
+          "required": true,
+          "description": "Database engine: postgresql, mysql or sqlite (default).",
+          "value": "postgresql"
+        },
+        {
+          "name": "APP_CONFIG",
+          "displayName": "Application Configuration File Path",
+          "description": "Relative path to Gunicorn configuration file (optional)."
+        }
   ],
   "objects": [
           {
@@ -111,7 +111,7 @@
         }
       }
     },
-	{
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -124,70 +124,70 @@
       "spec": {
         "strategy": {
           "type": "Rolling",
-		  "rollingParams": {
-			"pre": {
-			  "failurePolicy": "Retry",
-			  "execNewPod": {
-			    "containerName": "${APP_NAME}${ENV_NAME}",
-				"command": [
-					"/bin/bash",
-					"-c",
-					"psql -qtAX -c 'select 1'"
-				],
-				"env": [
-					{
-					  "name": "PGDATABASE",
-					  "value": "${DATABASE_NAME}"
-					},
-					{
-					  "name": "PGUSER",
-					  "value": "classy"
-					},
-					{
-					  "name": "PGPASSWORD",
-					  "valueFrom": {
-						"secretKeyRef": {
-						  "name" : "${APP_NAME}-${ENV_TAG}",
+          "rollingParams": {
+            "pre": {
+              "failurePolicy": "Retry",
+              "execNewPod": {
+                "containerName": "${APP_NAME}${ENV_NAME}",
+                "command": [
+                    "/bin/bash",
+                    "-c",
+                    "psql -qtAX -c 'select 1'"
+                ],
+                "env": [
+                    {
+                      "name": "PGDATABASE",
+                      "value": "${DATABASE_NAME}"
+                    },
+                    {
+                      "name": "PGUSER",
+                      "value": "classy"
+                    },
+                    {
+                      "name": "PGPASSWORD",
+                      "valueFrom": {
+                        "secretKeyRef": {
+                          "name" : "${APP_NAME}-${ENV_TAG}",
                           "key" : "database-password"
-						}
+                        }
                       }
-					},
-					{
-					  "name": "PGHOST",
-					  "value": "postgresql${ENV_NAME}"
-					}
-				]
-			  }
-			}, 
-			"post": {
-				"failurePolicy": "Retry",
-				"execNewPod": {
-					"containerName": "${APP_NAME}${ENV_NAME}",
-					"command": [
-						"/bin/bash",
-						"/opt/app-root/src/conf/classy-deploy.sh"
-					]
-				}
-			}
+                    },
+                    {
+                      "name": "PGHOST",
+                      "value": "postgresql${ENV_NAME}"
+                    }
+                ]
+              }
+            }, 
+            "post": {
+                "failurePolicy": "Retry",
+                "execNewPod": {
+                    "containerName": "${APP_NAME}${ENV_NAME}",
+                    "command": [
+                        "/bin/bash",
+                        "/opt/app-root/src/conf/classy-deploy.sh"
+                    ]
+                }
+            }
           }
-		},
+        },
         "triggers": [
-		  {
-		    "type": "ImageChange",
-			"imageChangeParams": {
-			  "automatic": true,
-			  "containerNames": [
-			    "${APP_NAME}${ENV_NAME}"
-			  ],
-			  "from": {
-			    "kind": "ImageStreamTag",
-				"name": "${APP_NAME}:${ENV_TAG}"
-			  }
-			}
-		  },
-		  {
-			"type": "ConfigChange"
-		  }
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${APP_NAME}${ENV_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${APP_NAME}:${ENV_TAG}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
         ],
         "replicas": 1,
         "selector": {
@@ -197,7 +197,7 @@
           "metadata": {
             "name": "${APP_NAME}${ENV_NAME}",
             "labels": {
-				"name": "${APP_NAME}${ENV_NAME}"
+                "name": "${APP_NAME}${ENV_NAME}"
             }
           },
           "spec": {
@@ -239,10 +239,10 @@
                     "name": "DATABASE_NAME",
                     "value": "default"
                   },
-				  {
-				    "name": "POSTGRESQL_SERVICE_HOST",
-					"value": "postgresql${ENV_NAME}"
-				  },
+                  {
+                    "name": "POSTGRESQL_SERVICE_HOST",
+                    "value": "postgresql${ENV_NAME}"
+                  },
                   {
                     "name": "DATABASE_USER",
                     "valueFrom": {
@@ -274,81 +274,81 @@
                       }
                     }
                   },
-				  {
-				    "name": "SSO_SERVER",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-server"
-					  }
-					}
-				  },
-				  {
-				    "name": "SSO_REALM",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-realm"
-					  }
-					}
-				  },
-				  {
-				    "name": "SSO_CLIENT_ID",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-client"
-					  }
-					}
-				  },
-				  {
-				    "name": "SSO_CLIENT_SECRET",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-secret"
-					  }
-					}
-				  },
+                  {
+                    "name": "SSO_SERVER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-server"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SSO_REALM",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-realm"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SSO_CLIENT_ID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-client"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SSO_CLIENT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-secret"
+                      }
+                    }
+                  },
                   {
                     "name": "REDIRECT_URI",
                     "value": "${APPLICATION_DOMAIN}"
                   },
-				  {
-					"name": "TEST_ACCOUNT_USERNAME",
-					"valueFrom": {
-						"secretKeyRef": {
-							"name": "keycloak-test-account",
-							"key": "username"
-						}
-					},
-					"required": "False"
-				  },
-				  {
-				    "name": "TEST_ACCOUNT_PASSWORD",
-					"valueFrom": {
-						"secretKeyRef": {
-							"name": "keycloak-test-account",
-							"key": "password"
-						}
-					},
-					"required": "False"
-				  }
+                  {
+                    "name": "TEST_ACCOUNT_USERNAME",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "keycloak-test-account",
+                            "key": "username"
+                        }
+                    },
+                    "required": "False"
+                  },
+                  {
+                    "name": "TEST_ACCOUNT_PASSWORD",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "keycloak-test-account",
+                            "key": "password"
+                        }
+                    },
+                    "required": "False"
+                  }
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "1",
+                    "cpu": "1",
                     "memory": "4.5Gi"
-                  }				  
+                  }               
                 }
               }
             ],
-			"restartPolicy": "Always",
-			"terminationGracePeriodSeconds": 30,
-			"dnsPolicy": "ClusterFirst"
+            "restartPolicy": "Always",
+            "terminationGracePeriodSeconds": 30,
+            "dnsPolicy": "ClusterFirst"
           }
         }
       }
-	}
+    }
    ]
 }

@@ -5,43 +5,43 @@
     "name": "nginx-bc"
   },
   "labels": {
-	"template": "nginx-bc",
-	"app": "classy"
+    "template": "nginx-bc",
+    "app": "classy"
   },
     "parameters": [
-		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
-		  "name": "APP_IMAGE_TAG",
-		  "required": true,
-		  "value": "NS"
-		},
-		{
-		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true,
-		  "value": "https://github.com/krocodial/classy.git"
-		},	
-		{
-		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true,
-		  "value": "master"
-		},
-		{
-		  "name": "NAME",
-		  "required": true,
-		  "value": "proxy-nginx"
-		},
-		{
-		  "name": "IMG_SRC",
-		  "required": true,
-		  "value": "classy"
-		}
-		
-	],
-	"objects": [
+        {
+          "name": "APP_NAME",
+          "required": true,
+          "value": "classy"
+        },
+        {
+          "name": "APP_IMAGE_TAG",
+          "required": true,
+          "value": "NS"
+        },
+        {
+          "name": "SOURCE_REPOSITORY_URL",
+          "required": true,
+          "value": "https://github.com/krocodial/classy.git"
+        },  
+        {
+          "name": "SOURCE_REPOSITORY_REF",
+          "required": true,
+          "value": "master"
+        },
+        {
+          "name": "NAME",
+          "required": true,
+          "value": "proxy-nginx"
+        },
+        {
+          "name": "IMG_SRC",
+          "required": true,
+          "value": "classy"
+        }
+        
+    ],
+    "objects": [
         {
             "kind": "ImageStream",
             "apiVersion": "v1",
@@ -71,16 +71,16 @@
             "spec": {
                 "triggers": [
                 ],
-				"runPolicy": "Serial",
+                "runPolicy": "Serial",
                 "source": {
-                    "dockerfile": "FROM ${IMG_SRC}:${APP_IMAGE_TAG} as builder\nFROM nginx\nWORKDIR /usr/share/nginx\nRUN rm -rf /usr/share/nginx/html/*\nCOPY --from=builder /opt/app-root/src/conf/html /usr/share/nginx/html\nWORKDIR /etc/nginx/conf.d/\nCOPY --from=builder /opt/app-root/src/conf/conf.d/classy.conf.tmpl /tmp/\nCMD /bin/bash -c 'envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/default.conf && exec nginx -g \"daemon off;\"'"
+                    "dockerfile": "FROM ${IMG_SRC}:${APP_IMAGE_TAG} as builder\nWORKDIR /opt/app-root\nRUN python manage.py collectstatic --noinput\nFROM nginx\nWORKDIR /usr/share/nginx\nRUN rm -rf /usr/share/nginx/html/*\nCOPY --from=builder /opt/app-root/src/conf/html /usr/share/nginx/html\nWORKDIR /etc/nginx/conf.d/\nCOPY --from=builder /opt/app-root/src/conf/conf.d/classy.conf.tmpl /tmp/\nRUN rm -f /etc/nginx/conf.d/default.conf\nCMD /bin/bash -c 'envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/default.conf && exec nginx -g \"daemon off;\"'\nEXPOSE 1337"
                 },
                 "strategy": {
                     "dockerStrategy": {
-			            "noCache": true
+                        "noCache": true
                     },
-		            "env": [
-		            ]
+                    "env": [
+                    ]
                 },
                 "output": {
                     "to": {
@@ -90,8 +90,8 @@
                 },
                 "resources": {},
                 "postCommit": {
-					
-				},
+                    
+                },
                 "nodeSelector": null
             }
         }

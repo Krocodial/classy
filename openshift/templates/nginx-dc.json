@@ -5,30 +5,30 @@
     "name": "nginx-dc"
   },
   "labels": {
-	"template": "nginx-dc",
-	"app": "classy"
+    "template": "nginx-dc",
+    "app": "classy"
   },
     "parameters": [
-	{
-	  "name": "APP_NAME",
-	  "required": true,
-	  "value": "classy"
-	},
-	{
-	  "name": "ENV_NAME",
-	  "required": false,
-	  "value": ""
-	},
-	{
-		"name": "ENV_TAG",
-		"required": true,
-		"value": "dev"
-	},
-	{
-	  "name": "APP_IMAGE_TAG",
-	  "required": true,
-	  "value": "NS"
-	},
+    {
+      "name": "APP_NAME",
+      "required": true,
+      "value": "classy"
+    },
+    {
+      "name": "ENV_NAME",
+      "required": false,
+      "value": ""
+    },
+    {
+        "name": "ENV_TAG",
+        "required": true,
+        "value": "dev"
+    },
+    {
+      "name": "APP_IMAGE_TAG",
+      "required": true,
+      "value": "NS"
+    },
     {
       "name": "NAME",
       "required": true,
@@ -36,8 +36,8 @@
     },
     {
       "name": "APPLICATION_DOMAIN",
-	  "required": true,
-	  "value": "empty"
+      "required": true,
+      "value": "empty"
     }
   ],
   "objects": [
@@ -49,15 +49,15 @@
         "annotations": {
           "description": "Exposes and load balances the application pods"
         },
-		"labels": {
-			"app": "${NAME}${ENV_NAME}"
-		}
+        "labels": {
+            "app": "${NAME}${ENV_NAME}"
+        }
       },
       "spec": {
         "ports": [
           {
             "name": "1337-tcp",
-			"protocol": "TCP",
+            "protocol": "TCP",
             "port": 1337,
             "targetPort": 1337
           }
@@ -79,13 +79,13 @@
           "kind": "Service",
           "name": "${NAME}${ENV_NAME}"
         },
-		"port": {
-		  "targetPort": "1337-tcp"
-		},
-		"tls": {
-			"termination": "edge",
-			"insecureEdgeTerminationPolicy": "Redirect"
-		}
+        "port": {
+          "targetPort": "1337-tcp"
+        },
+        "tls": {
+            "termination": "edge",
+            "insecureEdgeTerminationPolicy": "Redirect"
+        }
       }
     },
     {
@@ -111,36 +111,36 @@
       "spec": {
         "strategy": {
           "type": "Rolling"
-		},
+        },
         "triggers": [
-		  {
-		    "type": "ImageChange",
-			"imageChangeParams": {
-			  "automatic": true,
-			  "containerNames": [
-			    "${NAME}${ENV_NAME}"
-			  ],
-			  "from": {
-			    "kind": "ImageStreamTag",
-				"name": "${NAME}:${ENV_TAG}"
-			  }
-			}
-		  },
-		  {
-			"type": "ConfigChange"
-		  }
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${NAME}${ENV_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${NAME}:${ENV_TAG}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
         ],
         "replicas": 3,
         "selector": {
           "name": "${NAME}${ENV_NAME}",
-		  "app": "${NAME}${ENV_NAME}"
+          "app": "${NAME}${ENV_NAME}"
         },
         "template": {
           "metadata": {
             "name": "${NAME}${ENV_NAME}",
             "labels": {
               "name": "${NAME}${ENV_NAME}",
-			  "app": "${NAME}${ENV_NAME}"
+              "app": "${NAME}${ENV_NAME}"
             }
           },
           "spec": {
@@ -151,10 +151,10 @@
                 "ports": [
                   {
                     "containerPort": 1337,
-					"protocol": "TCP"
+                    "protocol": "TCP"
                   }
                 ],
-				"readinessProbe": {
+                "readinessProbe": {
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
                   "httpGet": {

@@ -23,10 +23,10 @@ server {
         proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
         proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
         proxy_set_header Host ${DOLLAR}host; 
-	proxy_pass ${NGINX_PROXY_URL};
+        proxy_pass ${NGINX_PROXY_URL};
     }
     
-	
+    
     location /static/ {
         alias /usr/share/nginx/html/;
         #autoindex off;
