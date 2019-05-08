@@ -37,7 +37,7 @@
   	
 	{
       "kind": "BuildConfig",
-      "apiVersion": "v1",
+      "apiVersion": "v2",
       "metadata": {
         "name": "classy-${APP_IMAGE_TAG}",
         "annotations": {
@@ -63,8 +63,8 @@
           "type": "Docker",
           "dockerStrategy": {
             "dockerfilePath": "",
-            "noCache": "true",
-            "forcePull": "true",
+            "noCache": true,
+            "forcePull": true,
             "env": [
             ]
           }
