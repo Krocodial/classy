@@ -32,7 +32,7 @@ COPY --from=builder /opt/app-root .
 #RUN apt-get update && apt-get install firefox-esr -y
 
 
-CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && python manage.py test tests/unit-tests/ && gunicorn --bind 0.0.0.0:8080 wsgi
+CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && gunicorn --bind 0.0.0.0:8080 wsgi
 
 #docker build --no-cache -t classy .
 #docker run -p 0.0.0.0:8080:8080 --env-file .env classy
