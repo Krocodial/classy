@@ -8,7 +8,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /opt/app-root/src/conf/html /usr/share/nginx/html
 COPY --from=builder /opt/app-root/src/conf/conf.d/classy.conf.tmpl /tmp/
 WORKDIR /etc/nginx/conf.d/
-RUN chmod -R 666 /etc/nginx/conf.d
+RUN chmod -R 666 /etc/nginx/conf.d/default.conf
 #RUN rm -f /etc/nginx/conf.d/default.conf
 
 CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"

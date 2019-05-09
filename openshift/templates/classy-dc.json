@@ -165,7 +165,7 @@
                     "containerName": "${APP_NAME}${ENV_NAME}",
                     "command": [
                         "/bin/bash",
-                        "/opt/app-root/src/conf/classy-deploy.sh"
+                        "/opt/app-root/conf/classy-deploy.sh"
                     ]
                 }
             }
