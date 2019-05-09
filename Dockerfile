@@ -2,8 +2,8 @@
 #need to set permissions due to windows dev environment
 FROM python:3.6 as builder
 
-COPY . /opt/app-root/src
-RUN chmod -R 775 /opt/app-root/src
+COPY . /opt/app-root
+RUN chmod -R 775 /opt/app-root
 
 FROM registry.access.redhat.com/rhscl/python-36-rhel7
 
@@ -33,9 +33,6 @@ COPY --from=builder /opt/app-root .
 
 
 CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && python manage.py test tests/unit-tests/ && gunicorn --bind 0.0.0.0:8080 wsgi
-
-
-EXPOSE 1337
 
 #docker build --no-cache -t classy .
 #docker run -p 0.0.0.0:8080:8080 --env-file .env classy
