@@ -87,7 +87,7 @@
                         "forcePull": true,
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "${IMG_SRC}:${APP_IMAGE_TAG}"
+                            "name": "classy:${APP_IMAGE_TAG}"
                         }
                     },
                     "env": [
