@@ -2,18 +2,18 @@
 #need to set permissions due to windows dev environment
 FROM python:3.6 as builder
 
-COPY . /opt/app-root
+COPY . /opt/app-root/src
 RUN chmod -R 775 /opt/app-root
 
 FROM registry.access.redhat.com/rhscl/python-36-rhel7
 
-WORKDIR /opt/app-root
+WORKDIR /opt/app-root/src
 
 COPY requirements.txt ./
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY --from=builder /opt/app-root .
+COPY --from=builder /opt/app-root/src .
 
 #COPY --from=builder /opt/app-root/src .
 #RUN ls -la
