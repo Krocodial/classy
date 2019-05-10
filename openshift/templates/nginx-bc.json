@@ -81,7 +81,7 @@
                     "images": {
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "classy:latest"
+                            "name": "classy:${APP_IMAGE_TAG}"
                         },
                         "paths": {
                             "sourcePath": "/opt/app-root",
