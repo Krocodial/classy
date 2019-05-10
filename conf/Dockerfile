@@ -3,6 +3,9 @@
 FROM nginx
 RUN ls -la
 RUN pwd
+RUN ls -la /usr/share/nginx
+RUN ls -la /usr/share/nginx/html
+
 WORKDIR /usr/share/nginx
 RUN rm -rf /usr/share/nginx/html/*
 #COPY --from=builder /opt/app-root/src/conf/html /usr/share/nginx/html

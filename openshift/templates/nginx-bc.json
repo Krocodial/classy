@@ -86,8 +86,12 @@
                             },
                             "paths": [
                                 {
-                                    "sourcePath": "/opt/app-root",
-                                    "destinationDir": "."
+                                    "sourcePath": "/opt/app-root/conf/html",
+                                    "destinationDir": "/usr/share/nginx/html"
+                                },
+                                {
+                                    "sourcePath": "/opt/app-root/conf/conf.d/classy.conf.tmpl",
+                                    "destinationDir": "/tmp/"
                                 }
                             ]
                         }
