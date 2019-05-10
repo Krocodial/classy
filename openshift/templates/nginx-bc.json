@@ -79,13 +79,17 @@
                     },
                     "contextDir": "conf",
                     "images": [
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "classy:${APP_IMAGE_TAG}"
-                        },
-                        "paths": {
-                            "sourcePath": "/opt/app-root",
-                            "destinationDir": "."
+                        {
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "classy:${APP_IMAGE_TAG}"
+                            },
+                            "paths": [
+                                {
+                                    "sourcePath": "/opt/app-root",
+                                    "destinationDir": "."
+                                }
+                            ]
                         }
                     ]
                 },
