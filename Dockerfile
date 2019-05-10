@@ -3,8 +3,7 @@
 FROM python:3.6 as builder
 
 COPY . /opt/app-root
-WORKDIR /opt/app-root
-RUN python manage.py collectstatic --no-input
+
 RUN chmod -R 775 /opt/app-root
 
 FROM registry.access.redhat.com/rhscl/python-36-rhel7
@@ -19,7 +18,7 @@ COPY --from=builder /opt/app-root .
 
 #COPY --from=builder /opt/app-root/src .
 #RUN ls -la
-#RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
 
 #WORKDIR /opt/app-root
 #RUN cp -r src/* .
