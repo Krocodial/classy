@@ -78,7 +78,7 @@
                         "ref": "${SOURCE_REPOSITORY_REF}"
                     },
                     "contextDir": "conf",
-                    "images": {
+                    "images": [
                         "from": {
                             "kind": "ImageStreamTag",
                             "name": "classy:${APP_IMAGE_TAG}"
@@ -87,7 +87,7 @@
                             "sourcePath": "/opt/app-root",
                             "destinationDir": "."
                         }
-                    }
+                    ]
                 },
                 "strategy": {
                     "type": "Docker",
