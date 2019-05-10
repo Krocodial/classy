@@ -77,18 +77,24 @@
                         "uri": "${SOURCE_REPOSITORY_URL}",
                         "ref": "${SOURCE_REPOSITORY_REF}"
                     },
-                    "contextDir": "conf"
+                    "contextDir": "conf",
+                    "images": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "classy:latest"
+                        },
+                        "paths": {
+                            "sourcePath": "/opt/app-root",
+                            "destinationDir": "."
+                        }
+                    }
                 },
                 "strategy": {
                     "type": "Docker",
                     "dockerStrategy": {
                         "dockerfilePath": "",
                         "noCache": true,
-                        "forcePull": true,
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "classy:${APP_IMAGE_TAG}"
-                        }
+                        "forcePull": true
                     },
                     "env": [
                     ]
