@@ -3,6 +3,7 @@
 FROM python:3.6 as builder
 
 COPY . /opt/app-root
+WORKDIR /opt/app-root
 RUN python manage.py collectstatic --no-input
 RUN chmod -R 775 /opt/app-root
 
