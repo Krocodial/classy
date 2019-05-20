@@ -81,8 +81,7 @@
                 "strategy": {
                     "dockerStrategy": {
                         "dockerfilePath": "",
-                        "noCache": true,
-                        "forcePull": true
+                        "noCache": true
                     },
                     "env": [
                     ]

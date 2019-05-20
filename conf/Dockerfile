@@ -1,5 +1,5 @@
 
-FROM l9fjgg-tools/classy as builder
+FROM l9fjgg-tools/classy 
 RUN python manage.py collectstatic --noinput
 RUN chmod -R +r conf
 
