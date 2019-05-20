@@ -1,21 +1,13 @@
-#This file is used for development. Since the version of Docker on OpenShift is out-of-date dockerfiles are instead passed in as strings. This can be seen in the ~/openshit/templates/nginx-bc.json config.
-#FROM classy:latest as builder
-FROM classy
-RUN ls -la
+FROM classy as builder
+
+RUN python manage.py collectstatic --noinput
+RUN chmod -R +r conf
 
 FROM nginx
-RUN ls -la
-RUN pwd
-RUN ls -la /usr/share/nginx
-RUN ls -la /usr/share/nginx/html
 
-WORKDIR /usr/share/nginx
 RUN rm -rf /usr/share/nginx/html/*
-#COPY --from=builder /opt/app-root/src/conf/html /usr/share/nginx/html
-#COPY --from=builder /opt/app-root/src/conf/conf.d/classy.conf.tmpl /tmp/
-WORKDIR /etc/nginx/conf.d/
-RUN chmod -R 666 /etc/nginx/conf.d/default.conf
-#RUN rm -f /etc/nginx/conf.d/default.conf
+COPY --from=builder /home/classy/conf/html /usr/share/nginx/html
+COPY --from=builder /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
 
 CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
 
