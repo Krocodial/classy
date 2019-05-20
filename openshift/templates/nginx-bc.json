@@ -72,12 +72,30 @@
                 ],
                 "runPolicy": "Serial",
                 "source": {
-                    "type": "Git",
                     "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-                        "ref": "${SOURCE_REPOSITORY_REF}"
+                       "uri": "${SOURCE_REPOSITORY_URL}",
+                       "ref": "${SOURCE_REPOSITORY_REF}" 
                     },
-                    "contextDir": "conf"
+                    "contextDir": "conf",
+                    "images": [
+                    {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "classy:latest",
+                            "namespace": "l9fjgg-tools"
+                        },
+                        "paths": [
+                            {
+                                "destinationDir": "conf/html",
+                                "sourcePath": "/home/classy/conf/html"
+                            },
+                            {
+                                "destinationDir": "/tmp",
+                                "sourcePath": "/home/classy/conf/conf.d/classy.conf.tmpl"
+                            }
+                        ]
+                    }
+                    ]
                 },
                 "strategy": {
                     "type": "Docker",
