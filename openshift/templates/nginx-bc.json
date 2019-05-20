@@ -76,30 +76,15 @@
                        "uri": "${SOURCE_REPOSITORY_URL}",
                        "ref": "${SOURCE_REPOSITORY_REF}" 
                     },
-                    "contextDir": "conf",
-                    "images": [
-                    {
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "classy:latest",
-                            "namespace": "l9fjgg-tools"
-                        },
-                        "paths": [
-                            {
-                                "destinationDir": "usr/share/nginx/html",
-                                "sourcePath": "/home/classy/conf/html"
-                            },
-                            {
-                                "destinationDir": "usr/share/nginx",
-                                "sourcePath": "/home/classy/conf/conf.d/classy.conf.tmpl"
-                            }
-                        ]
-                    }
-                    ]
+                    "contextDir": "conf"
                 },
                 "strategy": {
-                    "type": "Docker",
                     "dockerStrategy": {
+                        "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "classy:latest",
+                                "namespace": "l9fjgg-tools"
+                        },
                         "dockerfilePath": "",
                         "noCache": true,
                         "forcePull": true

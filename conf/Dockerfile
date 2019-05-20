@@ -1,5 +1,8 @@
 
 FROM classy as builder
+RUN python manage.py collectstatic --noinput
+RUN chmod -R +r conf
+
 FROM nginx
 
 RUN rm -rf /usr/share/nginx/html/*

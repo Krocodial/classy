@@ -7,8 +7,8 @@ COPY . /home/classy
 RUN chown -R classy:classy /home/classy 
 USER classy
 WORKDIR /home/classy
-RUN python manage.py collectstatic --noinput
-RUN chmod -R +r conf
+#RUN python manage.py collectstatic --noinput
+#RUN chmod -R +r conf
 
 CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && gunicorn --bind 0.0.0.0:8080 wsgi
 
