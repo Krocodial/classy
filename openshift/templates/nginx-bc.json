@@ -85,6 +85,10 @@
                                 "name": "classy:latest",
                                 "namespace": "l9fjgg-tools"
                         },
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "nginx"
+                        },
                         "dockerfilePath": "",
                         "noCache": true,
                         "forcePull": true
