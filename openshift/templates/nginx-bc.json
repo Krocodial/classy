@@ -80,8 +80,7 @@
                 },
                 "strategy": {
                     "dockerStrategy": {
-                        "dockerfilePath": "",
-                        "noCache": true
+                        "dockerfilePath": ""
                     },
                     "env": [
                     ]
