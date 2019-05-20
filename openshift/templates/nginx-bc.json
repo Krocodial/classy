@@ -86,11 +86,11 @@
                         },
                         "paths": [
                             {
-                                "destinationDir": "conf/html",
+                                "destinationDir": "usr/share/nginx/html",
                                 "sourcePath": "/home/classy/conf/html"
                             },
                             {
-                                "destinationDir": "",
+                                "destinationDir": "usr/share/nginx",
                                 "sourcePath": "/home/classy/conf/conf.d/classy.conf.tmpl"
                             }
                         ]
