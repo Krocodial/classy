@@ -72,12 +72,6 @@
                 ],
                 "runPolicy": "Serial",
                 "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-                        "ref": "${SOURCE_REPOSITORY_REF}"
-                    },
-                    "contextDir": "conf",
                     "images": [
                         {
                             "from": {
@@ -85,14 +79,6 @@
                                 "name": "classy:${APP_IMAGE_TAG}"
                             },
                             "paths": [
-                                {
-                                    "sourcePath": "/opt/app-root/conf/html",
-                                    "destinationDir": "usr/share/nginx/html"
-                                },
-                                {
-                                    "sourcePath": "/opt/app-root/conf/conf.d/classy.conf.tmpl",
-                                    "destinationDir": "tmp/"
-                                }
                             ]
                         }
                     ]
