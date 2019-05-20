@@ -72,16 +72,6 @@
                 ],
                 "runPolicy": "Serial",
                 "source": {
-                    "images": [
-                        {
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "classy:${APP_IMAGE_TAG}"
-                            },
-                            "paths": [
-                            ]
-                        }
-                    ]
                 },
                 "strategy": {
                     "type": "Docker",

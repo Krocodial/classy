@@ -290,6 +290,8 @@ pipeline {
 						nginx.startBuild("--wait")
 						
 						
+						openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+							"${TOOLS_PROJECT}/classy:latest")
 						
 					}
 				}
