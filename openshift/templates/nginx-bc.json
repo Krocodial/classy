@@ -90,7 +90,7 @@
                                 "sourcePath": "/home/classy/conf/html"
                             },
                             {
-                                "destinationDir": "/tmp",
+                                "destinationDir": "",
                                 "sourcePath": "/home/classy/conf/conf.d/classy.conf.tmpl"
                             }
                         ]
