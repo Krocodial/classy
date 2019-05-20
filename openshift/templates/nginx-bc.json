@@ -87,7 +87,7 @@
                         },
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "nginx"
+                            "name": "nginx:latest"
                         },
                         "dockerfilePath": "",
                         "noCache": true,
