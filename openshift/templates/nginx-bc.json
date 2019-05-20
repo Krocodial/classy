@@ -81,13 +81,13 @@
                 "strategy": {
                     "dockerStrategy": {
                         "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "nginx:latest"
+                        },
+                        "from": {
                                 "kind": "ImageStreamTag",
                                 "name": "classy:latest",
                                 "namespace": "l9fjgg-tools"
-                        },
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "nginx:latest"
                         },
                         "dockerfilePath": "",
                         "noCache": true,
