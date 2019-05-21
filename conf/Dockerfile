@@ -9,7 +9,7 @@ FROM nginx
 
 RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
-COPY --from=builder /home/classy/conf/html ./
+COPY --from=builder /home/classy/conf/html /usr/share/nginx/html/
 COPY --from=builder /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
 
 RUN useradd --gid 0 -c "SVR usr" www-svr
