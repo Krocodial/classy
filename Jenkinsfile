@@ -133,7 +133,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
     
     
-    openshift.apply(database).label(
+    /*openshift.apply(database).label(
         [
             'app':"classy${env}", 
             'app-name':"${name}"
@@ -146,7 +146,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
             'app-name':"${name}"
         ], 
         "--overwrite")
-
+    */
     openshift.apply(nginx).label(
         [
             'app':"classy${env}", 
