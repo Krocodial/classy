@@ -10,6 +10,11 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /home/classy/conf/html /usr/share/nginx/html
 COPY --from=builder /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
 
+RUN useradd --create-home --shell /bin/bash nginx
+RUN chown -R nginx:nginx /usr/share/nginx/html
+RUN chown -R nginx:nginx /etc/nginx
+USER nginx
+
 CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
 
 EXPOSE 1337
