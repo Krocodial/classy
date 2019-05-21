@@ -5,7 +5,19 @@
 server {
     listen       1337;
     server_name  _;
+    root /var/www/classy;
 
+    access_log /etc/nginx/logs/access.log main;
+    error_log /etc/nginx/logs/error.log warn;
+    
+    access_log /dev/stdout;
+    error_log /dev/stdout info;    
+
+    #access_log logs/nginx-proxy.access.log;
+    #error_log logs/nginx-proxy.error.log;
+
+    #access_log /var/www/classy/nginx.access.log main;
+    #error_log /var/www/classy/nginx.error.log warn;
     # Allows non-standard headers like SMGOV_USERGUID
     ignore_invalid_headers off;
     
@@ -13,6 +25,9 @@ server {
     set_real_ip_from  172.51.0.0/22;
     set_real_ip_from  172.51.4.0/22;
     real_ip_header    X-Forwarded-For;
+    proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+    proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+    proxy_set_header Host ${DOLLAR}host; 
 
     location / {
         proxy_pass_request_headers on;
@@ -20,15 +35,15 @@ server {
         #proxy_cache globalcache;
 
         #proxy_set_header X-Forwarded-Host ${DOLLAR}host;
-        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
-        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
-        proxy_set_header Host ${DOLLAR}host; 
+        #proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        #proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        #proxy_set_header Host ${DOLLAR}host; 
         proxy_pass ${NGINX_PROXY_URL};
     }
     
     
     location /static/ {
-        alias /usr/share/nginx/html/;
+        alias /var/www/classy/;
         #autoindex off;
     }
     
