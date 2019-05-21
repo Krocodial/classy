@@ -279,14 +279,14 @@ pipeline {
                             
                         openshift.apply(nginx)
                         
-                        echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
+                        /*echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
                         def builds = openshift.selector("bc",
                             "${APP_NAME}-${PR_NUM}")
                         builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
                         openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${TOOLS_PROJECT}/classy:latest")
-			
+			            */
                         echo "building nginx bc"
                         def nginx = openshift.selector("bc", 
                             "proxy-nginx-${PR_NUM}")
