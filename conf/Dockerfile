@@ -1,28 +1,37 @@
 
-#FROM classy as builder
-FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
+FROM classy as builder
+#FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
 RUN python manage.py collectstatic --noinput
 RUN chmod -R +r conf
 
 FROM nginx
+#FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
 
 RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
-COPY --from=builder /home/classy/conf/html /usr/share/nginx/html
+COPY --from=builder /home/classy/conf/html ./
 COPY --from=builder /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
-#RUN touch /var/run/nginx.pid && chown -R www-data:www-data /var/run/nginx.pid
-#RUN chown -R www-data:www-data /var/cache/nginx
-#RUN chown -R www-data:www-data /usr/share/nginx
-#RUN chown -R www-data:www-data /etc/nginx
-#RUN chown -R www-data:www-data /var/log/nginx
 
-#USER www-data
+RUN useradd --shell /bin/bash www-svr
 
+RUN touch /var/run/nginx.pid 
+RUN chown -R www-svr:0 /var/run/nginx.pid
+RUN chown -R www-svr:0 /var/cache/nginx
+RUN chown -R www-svr:0 /usr/share/nginx
+RUN chown -R www-svr:0 /etc/nginx
+RUN chown -R www-svr:0 /var/log/nginx
+RUN chown -R www-svr:0 /tmp/classy.conf.tmpl
+
+USER www-svr
+
+RUN chmod +rw /etc/nginx/conf.d/
+
+#RUN chmod +rw /etc/nginx/conf.d
 #RUN chown -R nginx:nginx /usr/share/nginx
 #RUN chown -R nginx:nginx /etc/nginx
 #USER nginx
-
-CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+RUN ls -la /etc/nginx/conf.d
+CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
 
 EXPOSE 1337
 
