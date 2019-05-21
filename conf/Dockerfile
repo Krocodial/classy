@@ -1,6 +1,6 @@
 
-#FROM classy as builder
-FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
+FROM classy as builder
+#FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
 RUN python manage.py collectstatic --noinput
 RUN chmod -R +r conf
 
@@ -12,7 +12,7 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 COPY --from=builder /home/classy/conf/html ./
 COPY --from=builder /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
 
-RUN useradd --shell /bin/bash www-svr
+RUN useradd --gid 0 -c "SVR usr" www-svr
 
 RUN touch /var/run/nginx.pid 
 RUN chown -R www-svr:0 /var/run/nginx.pid
@@ -24,14 +24,13 @@ RUN chown -R www-svr:0 /tmp/classy.conf.tmpl
 
 USER www-svr
 
-RUN chmod +rw /etc/nginx/conf.d/
+RUN chmod 775 /etc/nginx/conf.d/
 
 #RUN chmod +rw /etc/nginx/conf.d
 #RUN chown -R nginx:nginx /usr/share/nginx
 #RUN chown -R nginx:nginx /etc/nginx
 #USER nginx
-RUN ls -la /etc/nginx/conf.d
-CMD ls -la /etc/nginx/conf.d/ && whoami && /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
+CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
 
 EXPOSE 1337
 
