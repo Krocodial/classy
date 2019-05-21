@@ -31,7 +31,7 @@ RUN chmod +rw /etc/nginx/conf.d/
 #RUN chown -R nginx:nginx /etc/nginx
 #USER nginx
 RUN ls -la /etc/nginx/conf.d
-CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
+CMD ls -la /etc/nginx/conf.d/ && whoami && /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
 
 EXPOSE 1337
 
