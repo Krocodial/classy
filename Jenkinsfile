@@ -87,7 +87,7 @@ def unitTests(String env, String pr_num) {
 
 
 def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
-
+    /*
     if (!openshift.selector("pvc", "postgresql").exists()) {
     
         databasePVC = openshift.process(
@@ -122,7 +122,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APPLICATION_DOMAIN=https://${name}${env}.pathfinder.gov.bc.ca",
         "SOURCE_REPOSITORY_URL=${git_repo}", 
         "SOURCE_REPOSITORY_REF=${git_branch}")
-    
+    */
     nginx = openshift.process(
         readFile(file:"${nginxDC}"),
         "-p",
@@ -365,15 +365,15 @@ pipeline {
                 openshift.withCluster() {
                     openshift.withProject(DEV_PROJECT) {
                     
-                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                        /*openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${DEV_PROJECT}/classy:dev")
-                            
+                        */  
                         openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
                             "${DEV_PROJECT}/proxy-nginx:dev")
-                            
+                        /*    
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
-                            
+                        */    
                         def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
                         //dcs.rollout().latest()
                             
