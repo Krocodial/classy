@@ -343,7 +343,6 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject(DEV_PROJECT) {
-                        //input "Ready to promote to DEV?"
                         
                         deployTemplates(
                             APP_NAME, 
@@ -378,7 +377,6 @@ pipeline {
                             "${DEV_PROJECT}/postgresql:dev")
                             
                         //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
-                        //def dcs = openshift.selector("dc", [ template : 'nginx-dc' ])
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
@@ -386,9 +384,6 @@ pipeline {
                         dcs = openshift.selector("dc", [ comp : 'front' ])
                         dcs.rollout().status()
                         //dcs.rollout().latest()
-                            
-                        //dcs.rollout().status()
-                            
                     }
                 }
             }
@@ -445,9 +440,16 @@ pipeline {
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${TEST_PROJECT}/postgresql:test")
 
-                        def dcs = openshift.selector("dc", [ app : 'classy-test' ])
+                        //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
                         //dcs.rollout().latest()
 
+                        //dcs.rollout().status()
+
+
+                        def dcs = openshift.selector("dc", [ comp : 'back' ])
+                        dcs.rollout().status()
+
+                        dcs = openshift.selector("dc", [ comp : 'front' ])
                         dcs.rollout().status()
                     }
                 }
@@ -640,11 +642,16 @@ pipeline {
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${PROD_PROJECT}/postgresql:prod")
 
-                        def dcs = openshift.selector("dc", [ app : 'classy' ])
+                        //def dcs = openshift.selector("dc", [ app : 'classy' ])
                         //dcs.rollout().latest()
 
+                        //dcs.rollout().status()
+
+                        def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
 
+                        dcs = openshift.selector("dc", [ comp : 'front' ])
+                        dcs.rollout().status()
                     }
                 }
             }
