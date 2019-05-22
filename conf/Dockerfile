@@ -11,7 +11,6 @@ FROM nginx
 
 #RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
-RUN mkdir /var/www/classy
 COPY html/ /var/www/classy/
 #COPY --from=builder /home/classy/conf/html /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
