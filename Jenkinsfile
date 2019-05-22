@@ -276,7 +276,8 @@ pipeline {
                             "APP_IMAGE_TAG=${PR_NUM}", 
                             "SOURCE_REPOSITORY_URL=${GIT_REPOSITORY}", 
                             "SOURCE_REPOSITORY_REF=${GIT_REF}",
-                            "IMG_SRC=docker-registry.default.svc:5000/${TOOLS_PROJECT}/${APP_NAME}"
+                            "IMG_SRC=docker-registry.default.svc:5000/${TOOLS_PROJECT}/${APP_NAME}",
+                            "NAMESPACE=${TOOLS_PROJECT}"
                             )
                             
                         openshift.apply(nginx)

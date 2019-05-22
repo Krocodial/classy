@@ -37,6 +37,10 @@
         {
           "name": "IMG_SRC",
           "required": true
+        },
+        {
+          "name": "NAMESPACE",
+          "required": "true"
         }
     ],
     "objects": [
@@ -75,7 +79,22 @@
                        "uri": "${SOURCE_REPOSITORY_URL}",
                        "ref": "${SOURCE_REPOSITORY_REF}" 
                     },
-                    "contextDir": "conf"
+                    "contextDir": "conf",
+                    "images": [
+                      {
+                        "from": {
+                          "kind": "ImageStreamTag",
+                          "name": "classy:latest",
+                          "namespace": "${NAMESPACE}"
+                        },
+                        "paths": [
+                          {
+                            "destinationDir": "var/www/classy/",
+                            "sourcePath": "/home/classy/conf/html"
+                          }
+                        ]
+                      }  
+                    ]
                 },
                 "strategy": {
                     "dockerStrategy": {

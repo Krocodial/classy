@@ -1,17 +1,18 @@
-ARG docker_repo=classy
-RUN echo '${docker_repo}'
+#ARG docker_repo=classy
+#RUN echo '${docker_repo}'
 
-FROM "${docker_repo}" as builder
+#FROM "${docker_repo}" as builder
 #FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
-RUN python manage.py collectstatic --noinput
-RUN chmod -R +r conf
+#RUN python manage.py collectstatic --noinput
+#RUN chmod -R +r conf
 
 FROM nginx
 #FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
 
 RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
-COPY --from=builder /home/classy/conf/html /var/www/classy/
+COPY html/ /var/www/classy/
+#COPY --from=builder /home/classy/conf/html /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
 COPY nginx.conf /etc/nginx/nginx.conf
 
