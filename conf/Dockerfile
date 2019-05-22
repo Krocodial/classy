@@ -10,7 +10,6 @@ FROM nginx
 #FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
 RUN ls -la /var
 RUN ls -la 
-RUN ls -la /var/www/
 
 
 
