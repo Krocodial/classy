@@ -88,8 +88,8 @@
                         },
                         "paths": [
                           {
-                            "destinationDir": "/var/www/html",
-                            "sourcePath": "/home/"
+                            "destinationDir": "var/",
+                            "sourcePath": "/home"
                           }
                         ]
                       }  
