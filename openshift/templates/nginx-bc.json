@@ -84,8 +84,7 @@
                       {
                         "from": {
                           "kind": "ImageStreamTag",
-                          "name": "classy:latest",
-                          "namespace": "${NAMESPACE}"
+                          "name": "classy:latest"
                         },
                         "paths": [
                           {

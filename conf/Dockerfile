@@ -9,8 +9,9 @@
 FROM nginx
 #FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
 
-RUN rm -rf /usr/share/nginx/html/*
+#RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
+RUN mkdir /var/www/classy
 COPY html/ /var/www/classy/
 #COPY --from=builder /home/classy/conf/html /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
@@ -32,11 +33,11 @@ RUN mkdir /etc/nginx/logs
 #RUN ln -sf /dev/stdout /etc/nginx/logs/nginx-proxy.access.log;
 #RUN ln -sf /dev/stderr /etc/nginx/logs/nginx-proxy.error.log;
 
-RUN chmod g+rw /var/run/nginx.pid
+#RUN chmod g+rw /var/run/nginx.pid
 RUN chmod -R g+rwx /var/cache/nginx/
-RUN chmod -R g+rw /etc/nginx
-RUN chmod -R g+rw /var/log/nginx
-RUN chmod -R g+rw /tmp/classy.conf.tmpl
+RUN chmod -R g+rw /etc/nginx /var/log/nginx /tmp/classy.conf.tmpl /var/run/nginx.pid
+#RUN chmod -R g+rw /var/log/nginx
+#RUN chmod -R g+rw /tmp/classy.conf.tmpl
 RUN chmod -R g+r /var/www/classy
 #RUN chmod +rw /etc/nginx/conf.d
 #RUN chown -R nginx:nginx /usr/share/nginx
