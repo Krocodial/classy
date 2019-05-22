@@ -12,7 +12,6 @@ RUN ls -la /var
 RUN ls -la 
 RUN ls -la /home
 
-COPY /home/classy . 
 RUN ls -la 
 
 

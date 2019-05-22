@@ -83,11 +83,11 @@
                       {
                         "from": {
                           "kind": "ImageStreamTag",
-                          "name": "classy:latest"
+                          "name": "${IMG_SRC}:latest"
                         },
                         "paths": [
                           {
-                            "destinationDir": "var/",
+                            "destinationDir": "static_content/",
                             "sourcePath": "/home/classy/"
                           }
                         ]
