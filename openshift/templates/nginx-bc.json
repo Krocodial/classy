@@ -97,6 +97,7 @@
                 },
                 "strategy": {
                     "dockerStrategy": {
+                        "noCache": true,
                         "buildArgs": [
                         ],
                         "env": [

@@ -10,13 +10,13 @@ FROM nginx
 #FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
 RUN ls -la /var
 RUN ls -la 
-
-
+RUN ls -la /home
 
 
 #RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY html/ /var/www/classy/
+COPY /var/classy /var/www/classy
 #COPY --from=builder /home/classy/conf/html /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
 COPY nginx.conf /etc/nginx/nginx.conf
