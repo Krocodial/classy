@@ -79,16 +79,19 @@
                 },
                 "strategy": {
                     "dockerStrategy": {
-                        "dockerfilePath": "",
                         "buildArgs": [
                           {
                             "name": "docker_repo",
                             "value": "${IMG_SRC}"
                           }
+                        ],
+                        "env": [
+                          {
+                            "name": "docker_repo",
+                            "value": "${IMG_SRC}"
+                          }
                         ]
-                    },
-                    "env": [
-                    ]
+                    }
                 },
                 "output": {
                     "to": {
