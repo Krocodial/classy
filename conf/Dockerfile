@@ -12,14 +12,17 @@ RUN ls -la /var
 RUN ls -la 
 RUN ls -la /home
 
+COPY . . 
+RUN ls -la
+
 
 #RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
-COPY html/ /var/www/classy/
+COPY /home/classy/conf/html/ /var/www/classy/
 COPY /var/classy /var/www/classy
 #COPY --from=builder /home/classy/conf/html /var/www/classy/
-COPY conf.d/classy.conf.tmpl /tmp/
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
+COPY /home/classy/conf/nginx.conf /etc/nginx/nginx.conf
 
 RUN useradd --gid 0 -c "SVR usr" www-svr
 
