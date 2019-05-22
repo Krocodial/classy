@@ -154,6 +154,12 @@
                     "protocol": "TCP"
                   }
                 ],
+                "volumeMounts": [
+                {
+                    "mountPath": "/etc/nginx/logs",
+                    "name": "nginx-logs"
+                }
+                ],
                 "readinessProbe": {
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
@@ -185,6 +191,14 @@
                     "memory": "2Gi",
                     "cpu": "500m"
                   }
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "nginx-logs",
+                "persistentVolumeClaim": {
+                  "claimName": "nginx-logs"
                 }
               }
             ]

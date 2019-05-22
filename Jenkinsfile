@@ -87,7 +87,7 @@ def unitTests(String env, String pr_num) {
 
 
 def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
-    /*
+    
     if (!openshift.selector("pvc", "postgresql").exists()) {
     
         databasePVC = openshift.process(
@@ -99,7 +99,6 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
     } else {
         echo "PVC already exists"
     }
-    
     
     database = openshift.process(
         readFile(file:"${databaseDC}"),
@@ -122,7 +121,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APPLICATION_DOMAIN=https://${name}${env}.pathfinder.gov.bc.ca",
         "SOURCE_REPOSITORY_URL=${git_repo}", 
         "SOURCE_REPOSITORY_REF=${git_branch}")
-    */
+    
     nginx = openshift.process(
         readFile(file:"${nginxDC}"),
         "-p",
@@ -133,7 +132,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
     
     
-    /*openshift.apply(database).label(
+    openshift.apply(database).label(
         [
             'app':"classy${env}", 
             'app-name':"${name}"
@@ -146,7 +145,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
             'app-name':"${name}"
         ], 
         "--overwrite")
-    */
+    
     openshift.apply(nginx).label(
         [
             'app':"classy${env}", 
@@ -374,7 +373,8 @@ pipeline {
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
                         */    
-                        def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
+                        //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
+                        def dcs = openshift.selector("dc", [ template : 'nginx-dc' ])
                         //dcs.rollout().latest()
                             
                         dcs.rollout().status()
