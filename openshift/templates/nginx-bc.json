@@ -36,8 +36,7 @@
         },
         {
           "name": "IMG_SRC",
-          "required": true,
-          "value": "classy"
+          "required": true
         }
     ],
     "objects": [
@@ -80,7 +79,13 @@
                 },
                 "strategy": {
                     "dockerStrategy": {
-                        "dockerfilePath": ""
+                        "dockerfilePath": "",
+                        "buildArgs": [
+                          {
+                            "name": "docker_repo",
+                            "value": "${IMG_SRC}"
+                          }
+                        ]
                     },
                     "env": [
                     ]
@@ -94,8 +99,7 @@
                 "resources": {},
                 "postCommit": {
                     
-                },
-                "nodeSelector": null
+                }
             }
         }
     ]

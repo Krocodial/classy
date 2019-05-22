@@ -1,6 +1,7 @@
+ARG docker_repo=classy
 
-#FROM classy as builder
-FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
+FROM $docker_repo as builder
+#FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
 RUN python manage.py collectstatic --noinput
 RUN chmod -R +r conf
 
@@ -10,8 +11,8 @@ FROM nginx
 RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY --from=builder /home/classy/conf/html /var/www/classy/
-COPY --from=builder /home/classy/conf/conf.d/classy.conf.tmpl /tmp/
-COPY --from=builder /home/classy/conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf.d/classy.conf.tmpl /tmp/
+COPY nginx.conf /etc/nginx/nginx.conf
 
 RUN useradd --gid 0 -c "SVR usr" www-svr
 
