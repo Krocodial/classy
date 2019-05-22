@@ -278,14 +278,14 @@ pipeline {
                             
                         openshift.apply(nginx)
                         
-                        /*echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
+                        echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
                         def builds = openshift.selector("bc",
                             "${APP_NAME}-${PR_NUM}")
                         builds.startBuild("--wait", "--env=ENABLE_DATA_ENTRY=True")
 
                         openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${TOOLS_PROJECT}/classy:latest")
-			            */
+			            
                         echo "building nginx bc"
                         def nginx = openshift.selector("bc", 
                             "proxy-nginx-${PR_NUM}")
@@ -364,17 +364,17 @@ pipeline {
                 openshift.withCluster() {
                     openshift.withProject(DEV_PROJECT) {
                     
-                        /*openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${DEV_PROJECT}/classy:dev")
-                        */  
+                          
                         openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
                             "${DEV_PROJECT}/proxy-nginx:dev")
-                        /*    
+                            
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
-                        */    
-                        //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
-                        def dcs = openshift.selector("dc", [ template : 'nginx-dc' ])
+                            
+                        def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
+                        //def dcs = openshift.selector("dc", [ template : 'nginx-dc' ])
                         //dcs.rollout().latest()
                             
                         dcs.rollout().status()
