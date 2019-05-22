@@ -1,4 +1,5 @@
 ARG docker_repo=classy
+RUN echo '${docker_repo}'
 
 FROM ${docker_repo} as builder
 #FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
