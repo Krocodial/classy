@@ -1,6 +1,6 @@
 ARG docker_repo=classy
 
-FROM $docker_repo as builder
+FROM ${docker_repo} as builder
 #FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
 RUN python manage.py collectstatic --noinput
 RUN chmod -R +r conf
