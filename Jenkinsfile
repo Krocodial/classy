@@ -135,21 +135,24 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
     openshift.apply(database).label(
         [
             'app':"classy${env}", 
-            'app-name':"${name}"
+            'app-name':"${name}",
+            'comp': 'back'
         ], 
         "--overwrite")
     
     openshift.apply(backend).label(
         [
             'app':"classy${env}", 
-            'app-name':"${name}"
+            'app-name':"${name}",
+            'comp': 'front'
         ], 
         "--overwrite")
     
     openshift.apply(nginx).label(
         [
             'app':"classy${env}", 
-            'app-name':"${name}"
+            'app-name':"${name}",
+            'comp': 'front'
         ], 
         "--overwrite")
 }
@@ -373,11 +376,17 @@ pipeline {
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
                             
-                        def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
+                        //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
                         //def dcs = openshift.selector("dc", [ template : 'nginx-dc' ])
+
+                        def dcs = openshift.selector("dc", [ comp : 'back' ])
+                        dcs.rollout().status()
+
+                        dcs = openshift.selector("dc", [ comp : 'front' ])
+                        dcs.rollout().status()
                         //dcs.rollout().latest()
                             
-                        dcs.rollout().status()
+                        //dcs.rollout().status()
                             
                     }
                 }

@@ -125,40 +125,6 @@
         "strategy": {
           "type": "Rolling",
           "rollingParams": {
-            "pre": {
-              "failurePolicy": "Retry",
-              "execNewPod": {
-                "containerName": "${APP_NAME}${ENV_NAME}",
-                "command": [
-                    "/bin/bash",
-                    "-c",
-                    "psql -qtAX -c 'select 1'"
-                ],
-                "env": [
-                    {
-                      "name": "PGDATABASE",
-                      "value": "${DATABASE_NAME}"
-                    },
-                    {
-                      "name": "PGUSER",
-                      "value": "classy"
-                    },
-                    {
-                      "name": "PGPASSWORD",
-                      "valueFrom": {
-                        "secretKeyRef": {
-                          "name" : "${APP_NAME}-${ENV_TAG}",
-                          "key" : "database-password"
-                        }
-                      }
-                    },
-                    {
-                      "name": "PGHOST",
-                      "value": "postgresql${ENV_NAME}"
-                    }
-                ]
-              }
-            }, 
             "post": {
                 "failurePolicy": "Retry",
                 "execNewPod": {
