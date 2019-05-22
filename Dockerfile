@@ -11,7 +11,7 @@ WORKDIR /home/classy
 #RUN chmod -R +r conf
 RUN python manage.py collectstatic --noinput
 RUN chmod -R +r conf
-
+RUN cp -r /home/classy /tmp
 
 CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && gunicorn --bind 0.0.0.0:8080 wsgi
 
