@@ -79,7 +79,6 @@
                        "uri": "${SOURCE_REPOSITORY_URL}",
                        "ref": "${SOURCE_REPOSITORY_REF}" 
                     },
-                    "contextDir": "conf",
                     "images": [
                       {
                         "from": {
@@ -88,8 +87,8 @@
                         },
                         "paths": [
                           {
-                            "destinationDir": "var",
-                            "sourcePath": ""
+                            "destinationDir": "var/",
+                            "sourcePath": "/home/classy/"
                           }
                         ]
                       }  
@@ -98,6 +97,7 @@
                 "strategy": {
                     "dockerStrategy": {
                         "noCache": true,
+                        "forcePull": true,
                         "buildArgs": [
                         ],
                         "env": [
