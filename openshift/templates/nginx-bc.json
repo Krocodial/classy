@@ -89,8 +89,8 @@
                         },
                         "paths": [
                           {
-                            "destinationDir": "var/www/classy/",
-                            "sourcePath": "/home/classy/conf/html"
+                            "destinationDir": ".",
+                            "sourcePath": "/home/classy/conf/html/"
                           }
                         ]
                       }  
@@ -99,16 +99,8 @@
                 "strategy": {
                     "dockerStrategy": {
                         "buildArgs": [
-                          {
-                            "name": "docker_repo",
-                            "value": "${IMG_SRC}"
-                          }
                         ],
                         "env": [
-                          {
-                            "name": "docker_repo",
-                            "value": "${IMG_SRC}"
-                          }
                         ]
                     }
                 },
