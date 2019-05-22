@@ -88,8 +88,8 @@
                         },
                         "paths": [
                           {
-                            "destinationDir": ".",
-                            "sourcePath": "/home/classy/conf/html/."
+                            "destinationDir": "/var/www/html",
+                            "sourcePath": "html"
                           }
                         ]
                       }  
