@@ -89,7 +89,7 @@
                         "paths": [
                           {
                             "destinationDir": "var",
-                            "sourcePath": "/home/classy"
+                            "sourcePath": ""
                           }
                         ]
                       }  
