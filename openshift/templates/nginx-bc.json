@@ -89,7 +89,7 @@
                         "paths": [
                           {
                             "destinationDir": "/var/www/html",
-                            "sourcePath": "html"
+                            "sourcePath": "/home/"
                           }
                         ]
                       }  
