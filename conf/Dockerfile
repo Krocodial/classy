@@ -12,8 +12,8 @@ RUN ls -la /var
 RUN ls -la 
 RUN ls -la /home
 
-COPY . . 
-RUN ls -la
+COPY /home/classy . 
+RUN ls -la 
 
 
 #RUN rm -rf /usr/share/nginx/html/*
