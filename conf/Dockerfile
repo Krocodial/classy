@@ -8,18 +8,14 @@
 
 FROM nginx
 #FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
-RUN ls -la /var
-RUN ls -la /tmp
-RUN ls -la /home
 WORKDIR /etc/nginx
-
 
 #RUN rm -rf /usr/share/nginx/html/*
 RUN rm -f /etc/nginx/conf.d/default.conf
-COPY conf/html/ /var/www/classy/
+COPY html/ /var/www/classy/
 #COPY --from=builder /home/classy/conf/html /var/www/classy/
-COPY conf/conf.d/classy.conf.tmpl /tmp/
-COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf.d/classy.conf.tmpl /tmp/
+COPY nginx.conf /etc/nginx/nginx.conf
 
 RUN useradd --gid 0 -c "SVR usr" www-svr
 

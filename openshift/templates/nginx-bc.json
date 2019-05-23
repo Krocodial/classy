@@ -75,33 +75,14 @@
                 ],
                 "runPolicy": "Serial",
                 "source": {
-                    
-                    "images": [
-                      {
-                        "from": {
-                          "kind": "ImageStreamTag",
-                          "name": "classy:latest"
-                        },
-                        "paths": [
-                          {
-                            "destinationDir": "tmp",
-                            "sourcePath": "/tmp"
-                          },
-                          {
-                            "destinationDir": "tmp",
-                            "sourcePath": "/home/classy/conf/html/."
-                          }
-                        ]
-                      }  
-                    ],
                     "git": {
                        "uri": "${SOURCE_REPOSITORY_URL}",
                        "ref": "${SOURCE_REPOSITORY_REF}" 
-                    } 
+                    },
+                    "contextDir": "conf" 
                 },
                 "strategy": {
                     "dockerStrategy": {
-                        "dockerfilePath": "conf/Dockerfile",
                         "noCache": true,
                         "forcePull": true
                     }
