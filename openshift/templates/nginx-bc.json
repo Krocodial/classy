@@ -89,7 +89,7 @@
                           },
                           {
                             "destinationDir": "tmp",
-                            "sourcePath": "conf/html/."
+                            "sourcePath": "/home/classy/conf/html/."
                           }
                         ]
                       }  
