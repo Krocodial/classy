@@ -69,7 +69,7 @@ def unitTests(String env, String pr_num) {
         "--",
         "bash -c '\
             cd /home/classy; \
-            python manage.py test tests/unit-tests \
+            python manage.py test tests/unit-tests --noinput \
         '"
         )
     echo "Django test results: " + ocoutput.actions[0].out
