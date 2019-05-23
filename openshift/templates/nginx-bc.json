@@ -84,8 +84,12 @@
                         },
                         "paths": [
                           {
-                            "destinationDir": "var/",
+                            "destinationDir": "tmp",
                             "sourcePath": "/tmp"
+                          },
+                          {
+                            "destinationDir": "tmp",
+                            "sourcePath": "conf/html/."
                           }
                         ]
                       }  
