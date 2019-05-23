@@ -12,7 +12,6 @@ RUN ls -la /var
 RUN ls -la 
 RUN ls -la /home
 
-RUN ls -la 
 
 
 #RUN rm -rf /usr/share/nginx/html/*
