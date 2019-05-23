@@ -84,7 +84,7 @@
                         },
                         "paths": [
                           {
-                            "destinationDir": "/",
+                            "destinationDir": "var/",
                             "sourcePath": "/tmp"
                           }
                         ]
