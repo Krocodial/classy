@@ -54,8 +54,7 @@ sizes = [10, 25, 50, 100]
 def debugg(request):
     if not request.user.is_staff:
         return redirect('classy:home')
-    print(request.META)
-    return HttpResponse('UWU')
+    return HttpResponse(request.META)
 
 #Accessed from the home.html page
 @login_required
