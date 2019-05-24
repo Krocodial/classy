@@ -60,9 +60,10 @@ def unitTests(String env, String pr_num) {
     def target = "classy" + env
     newVersion = openshift.selector('dc', "${target}").objects().status.latestVersion
     def test = newVersion[0]
-    target = "classy" + env + "-" + test
+    target = "classy" + env + "-" + newVersion[0]
+    echo "classy${env}-${newVersion}"
     echo "${target}"
-    def pods = openshift.selector('pod', [ deployment: "classy${env}-${newVersion}"])
+    def pods = openshift.selector('pod', [ deployment: "${target}"])
     def obs = pods.objects()
     def ob_sel = pods.objects()[0]
     echo "Running unit tests"
