@@ -11,6 +11,8 @@ server {
     
     access_log /dev/stdout;
     error_log /dev/stdout warn;    
+    
+    client_max_body_size 100M;
 
     #access_log logs/nginx-proxy.access.log;
     #error_log logs/nginx-proxy.error.log;
