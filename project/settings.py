@@ -138,7 +138,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+MEDIA_URL = '/files/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'files/')
 
 LOGIN_URL = 'classy:index'
 LOGIN_REDIRECT_URL = 'classy:home'

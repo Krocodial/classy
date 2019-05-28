@@ -87,12 +87,12 @@ def save_user_profile(sender, instance, **kwargs):
 class task(models.Model):
     name = models.CharField(max_length=255)
     verbose_name = models.TextField(max_length=255, blank=True)
-    priority = models.SmallIntegerField(default=0, help_text='Higher priority tasks will be executed first')
+    priority = models.SmallIntegerField(null=True, blank=True, default=0, help_text='Higher priority tasks will be executed first')
     run_at = models.DateTimeField(auto_now=True)
     queue = models.CharField(max_length=7, choices=queues)
     error = models.TextField(blank=True, help_text='This will show why the task has failed')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    progress = models.FloatField(blank=True)
+    progress = models.FloatField(blank=True, null=True, default=0)
 
     class Meta:
         default_permissions = ('delete', 'view')
@@ -168,4 +168,8 @@ class classification_review(models.Model):
     class Meta:
         default_permissions = ()
         permissions = (("can_review", "Can review & accept user changes"),)
+
+class Document(models.Model):
+    document = models.FileField()
+    uploaded_at = models.DateField(auto_now_add=True)
 

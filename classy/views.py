@@ -846,16 +846,25 @@ def uploader(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            f = form.cleaned_data['file']
+            '''
+            form.save()
+            context = {
+                'status': '200',
+                'form': UploadFileForm(),
+                'num': num
+            }
+            return render(request, 'classy/jobs.html', context)
+            '''
+            f = form.cleaned_data['document']
             if f.name.endswith('.csv'):
-                inp = request.FILES['file']
-                name = spaces.sub('_', inp.name)
-                fs = FileSystemStorage()
-                filename = fs.save(name, inp)
-                                
+                #inp = request.FILES['file']
+                #name = spaces.sub('_', inp.name)
+                #fs = FileSystemStorage()
+                #filename = fs.save(name, inp)
+                f = form.save() 
+                
                 finfo = {}
-                finfo['name'] = filename
-                finfo['priority'] = 0
+                finfo['name'] = f.document
                 finfo['queue'] = 'uploads'
                 finfo['user'] = request.user.pk
                 finfo['progress'] = 0
@@ -870,7 +879,7 @@ def uploader(request):
                         t = threading.Thread(target=upload, args=(uthread,))
                         uthread.running = True
                         t.start()                 
-
+                
                 context = {
                     'status': '200',
                     'form': UploadFileForm(),

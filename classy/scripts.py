@@ -119,11 +119,11 @@ def process_file(tsk):
     cinfo = {}
     filename = tsk.name
     user = tsk.user.id
-    fs = FileSystemStorage()
+    fs = FileSystemStorage(location=settings.MEDIA_ROOT)
     try: 
-        uploaded_file_url = fs.url(filename)
-        row_count = sum(1 for row in csv.DictReader(open(uploaded_file_url)))
-        reader = csv.DictReader(open(uploaded_file_url))
+        #uploaded_file_url = fs.url(filename)
+        row_count = sum(1 for row in csv.DictReader(fs.open(filename, 'r')))
+        reader = csv.DictReader(fs.open(filename, 'r'))
         itera = int(row_count/100)
         if itera == 0:
             itera = 1

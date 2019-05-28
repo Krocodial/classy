@@ -11,3 +11,4 @@ db.sqlite*
 *.swp
 sso*
 geckodriver*
+files/*

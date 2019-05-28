@@ -3,8 +3,11 @@ from django.forms import ModelForm
 
 from .models import *
 
-class UploadFileForm(forms.Form):
-    file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+class UploadFileForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ('document',)
+        #file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
 
 class thread:
     def __init__(self, running):

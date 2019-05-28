@@ -17,10 +17,9 @@ COPY html/ /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
 COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN useradd --gid 0 -c "SVR usr" www-svr
-
-RUN touch /var/run/nginx.pid 
-RUN mkdir /etc/nginx/logs
+RUN useradd --gid 0 -c "SVR usr" www-svr &&\
+    touch /var/run/nginx.pid && \
+    mkdir /etc/nginx/logs
 #RUN chown -R www-svr:0 /var/run/nginx.pid
 #RUN chown -R www-svr:0 /var/cache/nginx
 #RUN chown -R www-svr:0 /usr/share/nginx
@@ -34,11 +33,9 @@ RUN mkdir /etc/nginx/logs
 #RUN ln -sf /dev/stderr /etc/nginx/logs/nginx-proxy.error.log;
 
 #RUN chmod g+rw /var/run/nginx.pid
-RUN chmod -R g+rwx /var/cache/nginx/
-RUN chmod -R g+rw /etc/nginx /var/log/nginx /tmp/classy.conf.tmpl /var/run/nginx.pid
-#RUN chmod -R g+rw /var/log/nginx
-#RUN chmod -R g+rw /tmp/classy.conf.tmpl
-RUN chmod -R g+r /var/www/classy
+RUN chmod -R g+rwx /var/cache/nginx/ && \
+    chmod -R g+rw /etc/nginx /var/log/nginx /tmp/classy.conf.tmpl /var/run/nginx.pid && \
+    chmod -R g+r /var/www/classy
 #RUN chmod +rw /etc/nginx/conf.d
 #RUN chown -R nginx:nginx /usr/share/nginx
 #RUN chown -R nginx:nginx /etc/nginx
