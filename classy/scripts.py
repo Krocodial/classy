@@ -6,6 +6,7 @@ from classy.models import classification, classification_count, classification_l
 from classy.forms import *
 
 from background_task import background
+from background_task.models_completed import CompletedTask
 import csv, re, time, os, threading
 
 options = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
@@ -95,6 +96,10 @@ def calculate_count(user):
 def calc_scheduler():
     for user in User.objects.all():
         calculate_count(user)
+    
+    #print(CompletedTask.objects.all().order_by('run_at'))
+    tsks = CompletedTask.objects.filter(queue='counter')[:5].values_list('id', flat=True)
+    CompletedTask.objects.filter(queue='counter').exclude(pk__in=list(tsks)).delete()
 
 
 #Called by 'uploader' in views to handle a file once uploaded.

@@ -112,6 +112,68 @@
       }
     },
     {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "File handler"
+      },
+      "spec": {
+        "schedule": "*/1 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                  "parent": "cronjobFile"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "File handler",
+                    "image": "classy",
+                    "command": ["flock", "-n", "/files/QRH7mA40aRL2NVyVUbcH.lockfile", "python manage.py process_tasks --queue=upload"]
+                  }
+                ],
+                "restartPolicy": "OnFailure"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "Counter"
+      },
+      "spec": {
+        "schedule": "*/1 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                  "parent": "cronjobCount"
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "Counter",
+                    "image": "classy",
+                    "command": ["flock", "-n", "/files/uj5l6n7iAGtM8gx9fNuo.lockfile", "python manage.py process_tasks --queue=counter"]
+                  }
+                ],
+                "restartPolicy": "OnFailure"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -174,6 +236,12 @@
                 "ports": [
                   {
                     "containerPort": 8080
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "mountPath": "/home/classy/files",
+                    "name": "classy-files"
                   }
                 ],
                 "readinessProbe": {
@@ -306,6 +374,14 @@
                     "cpu": "1",
                     "memory": "4.5Gi"
                   }               
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "classy-files",
+                "persistentVolumeClaim": {
+                  "claimName": "classy-files"
                 }
               }
             ],
