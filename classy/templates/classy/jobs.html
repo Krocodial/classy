@@ -38,18 +38,23 @@
                                 <th class="th-cus">Current jobs</th>
                                 <th class="th-cus">Priority</th>
                                 <th class="th-cus">Uploaded</th>
-                                <th class="th-cus">Progress</th>
+                                <th class="th-cus">Status</th>
                                 <th class="th-cus">User</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for tsk in tsks %}
                             <tr>
-                                <td>{{tsk.name}}</td>
+                                <td>{{tsk.verbose_name}}</td>
                                 <td>{{tsk.priority}}</td>
                                 <td>{{tsk.run_at}}</td>
-                                <td>{{tsk.progress|multiply:100}}%</td>
-                                <td>{{tsk.user.first_name}}</td>
+                                <td>{% if tsk.locked_by_pid_running %}
+                                    In progress
+                                    {% else %}
+                                    Waiting
+                                    {% endif %}
+                                    </td>
+                                <td>{{tsk.creator.first_name}}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -85,16 +85,6 @@ class classificationReviewForm(ModelForm):
         model = classification_review
         fields = ['classy', 'group', 'classification_name', 'flag']
 
-class taskForm(ModelForm):
-    class Meta:
-        model = task
-        fields = ['name', 'verbose_name', 'priority', 'queue', 'error', 'user', 'progress']
-
-class completed_taskForm(ModelForm):
-    class Meta:
-        model = completed_task
-        fields = ['name', 'verbose_name', 'priority', 'run_at', 'queue', 'error', 'user']
-
 class logDetailForm(ModelForm):
     class Meta:
         model = classification

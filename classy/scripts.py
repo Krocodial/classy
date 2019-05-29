@@ -2,9 +2,10 @@ from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.conf import settings
 from .helper import query_constructor
-from classy.models import classification, classification_count, classification_logs, task, completed_task
+from classy.models import classification, classification_count, classification_logs
 from classy.forms import *
 
+from background_task import background
 import csv, re, time, os, threading
 
 options = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
@@ -60,8 +61,9 @@ def calculate_count(user):
                 except classification_count.MultipleObjectsReturned:
                     pass
     except Exception as e:
-        error = e
-
+        print(e)
+    
+    '''
     try:
         tmp = task.objects.get(queue='counter')
         run_at = tmp.run_at
@@ -87,38 +89,20 @@ def calculate_count(user):
         form = completed_taskForm(info)
         if form.is_valid():
             form.save()
+    '''
 
+@background(queue='counter')
+def calc_scheduler():
+    for user in User.objects.all():
+        calculate_count(user)
 
-def calc_scheduler(cthread):
-    while True:
-        try:
-            tmp = task.objects.get(queue='counter')
-            tmp.save()
-            for user in User.objects.all():
-                calculate_count(user)
-        except task.DoesNotExist: 
-            info = {}
-            info['name'] = 'counter'
-            info['queue'] = 'counter'
-            info['user'] = 1
-            info['priority'] = 0
-            info['progress'] = 0
-            form = taskForm(info)
-            if form.is_valid():
-                form.save()
-            for user in User.objects.all():
-                calculate_count(user)
-        except task.MultipleObjectsReturned:
-            tmp = task.objects.filter(queue='counter')
-            tmp.delete()
-        time.sleep(60)
 
 #Called by 'uploader' in views to handle a file once uploaded.
 #@background(schedule=10, queue='uploads')
-def process_file(tsk):
+def process_file(filename, user):
     cinfo = {}
-    filename = tsk.name
-    user = tsk.user.id
+    #filename = tsk.name
+    #user = tsk.user.id
     fs = FileSystemStorage(location=settings.MEDIA_ROOT)
     try: 
         #uploaded_file_url = fs.url(filename)
@@ -137,10 +121,10 @@ def process_file(tsk):
                 masking_ins = True
             for row in reader:
                 counter = counter + 1
-                if counter%itera == 0:
-                    prog = (counter/itera)*0.01
-                    tsk.progress = prog
-                    tsk.save()  
+                #if counter%itera == 0:
+                #    prog = (counter/itera)*0.01
+                #    tsk.progress = prog
+                #    tsk.save()  
                 data_list = re.split(':', row['Datasource Description'])
                 database = data_list[3].strip()
                 entCount = classification.objects.filter(
@@ -233,8 +217,9 @@ def process_file(tsk):
                 
     except Exception as e:
         #Some error called e
-        cinfo['error'] = e
+        print(e)
     fs.delete(filename)
+    '''
     cinfo['name'] = tsk.name
     cinfo['verbose_name'] = tsk.verbose_name
     cinfo['priority'] = tsk.priority
@@ -245,9 +230,12 @@ def process_file(tsk):
     form = completed_taskForm(cinfo)
     if form.is_valid():
         form.save()
+    '''
 
-def upload(uthread):
-    t = task.objects.filter(queue='uploads').count()
+@background(queue='upload')
+def upload(filename, user):
+    process_file(filename, user)
+    '''
     while(t != 0):
         task_queue = task.objects.filter(queue='uploads').order_by('-priority', 'run_at')
         tsk = task_queue[0]
@@ -257,5 +245,5 @@ def upload(uthread):
         t = task.objects.filter(queue='uploads').count()
     uthread.name = ''
     uthread.running=False
-    return
+    '''
         
