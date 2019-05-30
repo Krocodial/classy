@@ -26,8 +26,8 @@ from .helper import query_constructor, role_checker
 
 from background_task.models import Task
 
-if not Task.objects.filter(queue='counter').count() > 0:
-    calc_scheduler(repeat=300)
+#if not Task.objects.filter(queue='counter').count() > 0:
+#    calc_scheduler(repeat=300)
 
 
 #To translate classifications between the templates and the DB. (For database size optimization)
@@ -756,8 +756,9 @@ def index(request):
 @login_required
 def home(request):
 
-    if not Task.objects.filter(queue='counter').count() > 0:
-        calc_scheduler(repeat=300)
+    #Just in case the appConfig fails
+    #if not Task.objects.filter(queue='counter').count() > 0:
+    #    calc_scheduler(repeat=180)
 
     data_cons = []
     mapping = {}
