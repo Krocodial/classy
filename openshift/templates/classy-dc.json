@@ -131,7 +131,7 @@
                 "containers": [
                   {
                     "name": "filehandler",
-                    "image": "classy",
+                    "image": "classy:dev",
                     "command": ["flock", "-n", "/files/QRH7mA40aRL2NVyVUbcH.lockfile", "python manage.py process_tasks --queue=upload"]
                   }
                 ],
@@ -162,7 +162,7 @@
                 "containers": [
                   {
                     "name": "counter",
-                    "image": "classy",
+                    "image": "classy:dev",
                     "command": ["flock", "-n", "/files/uj5l6n7iAGtM8gx9fNuo.lockfile", "python manage.py process_tasks --queue=counter"]
                   }
                 ],
