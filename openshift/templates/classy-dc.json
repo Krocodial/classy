@@ -115,7 +115,7 @@
       "apiVersion": "batch/v1beta1",
       "kind": "CronJob",
       "metadata": {
-        "name": "fileHandler"
+        "name": "filehandler"
       },
       "spec": {
         "schedule": "*/1 * * * *",
@@ -124,13 +124,13 @@
             "template": {
               "metadata": {
                 "labels": {
-                  "parent": "cronjobFile"
+                  "parent": "cronjobfile"
                 }
               },
               "spec": {
                 "containers": [
                   {
-                    "name": "fileHandler",
+                    "name": "filehandler",
                     "image": "classy",
                     "command": ["flock", "-n", "/files/QRH7mA40aRL2NVyVUbcH.lockfile", "python manage.py process_tasks --queue=upload"]
                   }
@@ -155,7 +155,7 @@
             "template": {
               "metadata": {
                 "labels": {
-                  "parent": "cronjobCount"
+                  "parent": "cronjobcount"
                 }
               },
               "spec": {
