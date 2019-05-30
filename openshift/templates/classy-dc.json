@@ -168,7 +168,7 @@
                 "containers": [
                   {
                     "name": "classy-dev",
-                    "image": "",
+                    "image": "${APP_NAME}${ENV_NAME}",
                     "command": ["flock", "-n", "/files/uj5l6n7iAGtM8gx9fNuo.lockfile", "python manage.py process_tasks --queue=counter"]
                   }
                 ],
