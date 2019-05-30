@@ -24,18 +24,11 @@ from .forms import *
 from .scripts import calc_scheduler, upload
 from .helper import query_constructor, role_checker
 
-if settings.CONCURRENCY:
-    uthread = thread(False)
-    if not uthread.running:
-        t = threading.Thread(target=upload, args=(uthread,), daemon=True)
-        uthread.running = True
-        t.start()
+from background_task.models import Task
 
-    cthread = thread(False)
-    if not cthread.running:
-        t = threading.Thread(target=calc_scheduler, args=(cthread,), daemon=True)
-        cthread.running=True
-        t.start()
+#if not Task.objects.filter(queue='counter').count() > 0:
+#    calc_scheduler(repeat=300)
+
 
 #To translate classifications between the templates and the DB. (For database size optimization)
 ex_options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
@@ -763,6 +756,10 @@ def index(request):
 @login_required
 def home(request):
 
+    #Just in case the appConfig fails
+    #if not Task.objects.filter(queue='counter').count() > 0:
+    #    calc_scheduler(repeat=180)
+
     data_cons = []
     mapping = {}
 
@@ -863,6 +860,9 @@ def uploader(request):
                 #filename = fs.save(name, inp)
                 f = form.save() 
                 
+                upload(f.document.name, request.user.pk, priority=0, verbose_name=f.document.name, creator=request.user)
+
+                '''         
                 finfo = {}
                 finfo['name'] = f.document
                 finfo['queue'] = 'uploads'
@@ -879,7 +879,7 @@ def uploader(request):
                         t = threading.Thread(target=upload, args=(uthread,))
                         uthread.running = True
                         t.start()                 
-                
+                '''
                 context = {
                     'status': '200',
                     'form': UploadFileForm(),
@@ -903,7 +903,7 @@ def uploader(request):
             return render(request, 'classy/jobs.html', context, status=423)
     
     form = UploadFileForm()
-    tsks = task.objects.filter(queue='uploads')
+    tsks = Task.objects.filter(queue='upload')
     context = {'tsks': tsks, 'form': form, 'num': num}
     return render(request, 'classy/jobs.html', context)
 

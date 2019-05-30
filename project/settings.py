@@ -49,6 +49,8 @@ X_FRAME_OPTIONS = 'DENY'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 USE_X_FORWARDED_HOST = True
 
+
+
 SSO_REALM = KeycloakRealm(server_url=os.getenv('SSO_SERVER'), realm_name=os.getenv('SSO_REALM'))
 OIDC_CLIENT = SSO_REALM.open_id_connect(client_id=os.getenv('SSO_CLIENT_ID'), 
                                         client_secret=os.getenv('SSO_CLIENT_SECRET'))
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'background_task',
     'classy.apps.ClassyConfig',
 ]
 

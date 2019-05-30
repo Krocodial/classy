@@ -83,34 +83,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
-
-class task(models.Model):
-    name = models.CharField(max_length=255)
-    verbose_name = models.TextField(max_length=255, blank=True)
-    priority = models.SmallIntegerField(null=True, blank=True, default=0, help_text='Higher priority tasks will be executed first')
-    run_at = models.DateTimeField(auto_now=True)
-    queue = models.CharField(max_length=7, choices=queues)
-    error = models.TextField(blank=True, help_text='This will show why the task has failed')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    progress = models.FloatField(blank=True, null=True, default=0)
-
-    class Meta:
-        default_permissions = ('delete', 'view')
-        permissions = ()
-
-class completed_task(models.Model):
-    name = models.CharField(max_length=255)
-    verbose_name = models.TextField(max_length=255, blank=True)
-    priority = models.SmallIntegerField(default=0, help_text='Higher priority tasks will be executed first')
-    run_at = models.DateTimeField()
-    queue = models.CharField(max_length=7, choices=queues)
-    finished_at = models.DateTimeField(auto_now=True)
-    error = models.TextField(blank=True, help_text='This will show why the task has failed')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    class Meta:
-        default_permissions = ()
-
 class classification_count(models.Model):
     classification_name = models.CharField(max_length=2, choices=classification_choices)
     count = models.BigIntegerField()
