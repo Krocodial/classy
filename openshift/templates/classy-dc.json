@@ -121,6 +121,7 @@
         "successfulJobsHistoryLimit": 3,
         "failedJobsHistoryLimit": 1,
         "schedule": "*/10 * * * *",
+        "ConcurrencyPolicy": "Forbid",
         "jobTemplate": {
           "spec": {
             "template": {
@@ -133,7 +134,7 @@
                 "containers": [
                   {
                     "name": "filehandler",
-                    "image": "classy:dev",
+                    "image": "l9fjgg-dev/classy:dev",
                     "command": ["flock", "-n", "/files/QRH7mA40aRL2NVyVUbcH.lockfile", "python manage.py process_tasks --queue=upload"]
                   }
                 ],
@@ -154,6 +155,7 @@
         "successfulJobsHistoryLimit": 3,
         "failedJobsHistoryLimit": 1,
         "schedule": "*/10 * * * *",
+        "ConcurrencyPolicy": "Forbid",
         "jobTemplate": {
           "spec": {
             "template": {
@@ -165,8 +167,8 @@
               "spec": {
                 "containers": [
                   {
-                    "name": "counter",
-                    "image": "classy:dev",
+                    "name": "classy-dev",
+                    "image": "",
                     "command": ["flock", "-n", "/files/uj5l6n7iAGtM8gx9fNuo.lockfile", "python manage.py process_tasks --queue=counter"]
                   }
                 ],
