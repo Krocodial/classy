@@ -118,6 +118,8 @@
         "name": "filehandler"
       },
       "spec": {
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
         "schedule": "*/1 * * * *",
         "jobTemplate": {
           "spec": {
@@ -149,6 +151,8 @@
         "name": "counter"
       },
       "spec": {
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
         "schedule": "*/1 * * * *",
         "jobTemplate": {
           "spec": {
