@@ -78,7 +78,9 @@
       },
       "spec": {
         "schedule": "* * * * *",
-        "ConcurrencyPolicy": "Forbid",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
         "jobTemplate": {
           "spec": {
             "template": {
