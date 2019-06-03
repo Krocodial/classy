@@ -17,8 +17,8 @@ COPY html/ /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
 COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN useradd --gid 0 -c "SVR usr" www-svr &&\
-    touch /var/run/nginx.pid && \
+#RUN useradd --gid 0 -c "SVR usr" www-svr &&\
+RUN touch /var/run/nginx.pid && \
     mkdir /etc/nginx/logs
 #RUN chown -R www-svr:0 /var/run/nginx.pid
 #RUN chown -R www-svr:0 /var/cache/nginx
@@ -40,7 +40,7 @@ RUN chmod -R g+rwx /var/cache/nginx/ && \
 #RUN chown -R nginx:nginx /usr/share/nginx
 #RUN chown -R nginx:nginx /etc/nginx
 #USER nginx
-USER www-svr
+USER 1001
 CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
 
 EXPOSE 1337

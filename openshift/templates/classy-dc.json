@@ -92,7 +92,7 @@
                 "containers": [
                   {
                     "name": "upload",
-                    "image": "l9fjgg-tools/classy:latest",
+                    "image": "docker-registry.default.svc:5000/l9fjgg-tools/classy:latest",
                     "command": ["python", "manage.py", "process_tasks", "--queue=upload"],
                     "volumeMounts": [
                       {
