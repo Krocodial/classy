@@ -3,8 +3,8 @@ FROM python:3
 COPY . /opt/app-root/
 WORKDIR /opt/app-root
 
-RUN pip install --no-cache-dir -r requirements.txt && \
-    apt-get update && apt-get -y install cron
+RUN pip install --no-cache-dir -r requirements.txt 
+#    apt-get update && apt-get -y install cron
 
 #useradd --gid 0 --create-home --shell /bin/bash classy && \
 
