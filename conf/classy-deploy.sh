@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python /home/classy/manage.py migrate
-python /home/classy/manage.py createcachetable
+python /opt/app-root/manage.py migrate
+python /opt/app-root/manage.py createcachetable
