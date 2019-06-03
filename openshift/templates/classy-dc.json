@@ -100,40 +100,42 @@
                         "name": "classy-files"
                       }
                     ],
-                "env": [
-                  {
-                    "name": "DATABASE_SERVICE_NAME",
-                    "value": "postgresql"
-                  },
-                  {
-                    "name": "DATABASE_ENGINE",
-                    "value": "postgresql"
-                  },
-                  {
-                    "name": "DATABASE_NAME",
-                    "value": "default"
-                  },
-                  {
-                    "name": "POSTGRESQL_SERVICE_HOST",
-                    "value": "postgresql${ENV_NAME}"
-                  },
-                  {
-                    "name": "DATABASE_USER",
-                    "valueFrom": {
-                      "secretKeyRef" : {
-                        "name" : "classy-${ENV_TAG}",
-                        "key" : "database-user"
+                    "env": [
+                      {
+                        "name": "DATABASE_SERVICE_NAME",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_ENGINE",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_NAME",
+                        "value": "default"
+                      },
+                      {
+                        "name": "POSTGRESQL_SERVICE_HOST",
+                        "value": "postgresql${ENV_NAME}"
+                      },
+                      {
+                        "name": "DATABASE_USER",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-user"
+                          }
+                        }
+                      },
+                      {
+                        "name": "DATABASE_PASSWORD",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-password"
+                          }
+                        }
                       }
-                    }
-                  },
-                  {
-                    "name": "DATABASE_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef" : {
-                        "name" : "classy-${ENV_TAG}",
-                        "key" : "database-password"
-                      }
-                    }
+                    ]
                   }
                 ],
                 "volumes": [
