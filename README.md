@@ -7,7 +7,7 @@ A metadata classification repository for tracking and auditing purposes
 
 ## Status
   
-Release 1.0.2
+Release 2.0.0 
   
 ## Technology Stack Used
 Python ~3.6 (Django)  
