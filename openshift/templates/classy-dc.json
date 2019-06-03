@@ -70,6 +70,51 @@
         }
   ],
   "objects": [
+    {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "upload"
+      },
+      "spec": {
+        "schedule": "* * * * *",
+        "ConcurrencyPolicy": "Forbid",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "upload",
+                    "image": "l9fjgg-tools/classy:latest",
+                    "command": ["python", "manage.py", "process_tasks", "--queue=upload"],
+                    "volumeMounts": [
+                      {
+                        "mountPath": "/opt/app-root/files",
+                        "name": "classy-files"
+                      }
+                    ]
+                  }
+                ],
+                "volumes": [
+                  {
+                    "name": "classy-files",
+                    "persistentVolumeClaim": {
+                      "claimName": "classy-files"
+                    }
+                  }
+                ],
+                "restartPolicy": "Never"
+              }
+            }
+          }
+        }
+      }
+    },
           {
             "kind": "ImageStream",
             "apiVersion": "v1",
@@ -108,74 +153,6 @@
         ],
         "selector": {
           "name": "${APP_NAME}${ENV_NAME}"
-        }
-      }
-    },
-    {
-      "apiVersion": "batch/v1beta1",
-      "kind": "CronJob",
-      "metadata": {
-        "name": "filehandler"
-      },
-      "spec": {
-        "successfulJobsHistoryLimit": 3,
-        "failedJobsHistoryLimit": 1,
-        "schedule": "*/10 * * * *",
-        "ConcurrencyPolicy": "Forbid",
-        "jobTemplate": {
-          "spec": {
-            "template": {
-              "metadata": {
-                "labels": {
-                  "parent": "cronjobfile"
-                }
-              },
-              "spec": {
-                "containers": [
-                  {
-                    "name": "filehandler",
-                    "image": "docker-registry.default.svc:5000/l9fjgg-dev/classy",
-                    "command": ["flock", "-n", "/files/QRH7mA40aRL2NVyVUbcH.lockfile", "python manage.py process_tasks --queue=upload"]
-                  }
-                ],
-                "restartPolicy": "Never"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "apiVersion": "batch/v1beta1",
-      "kind": "CronJob",
-      "metadata": {
-        "name": "counter"
-      },
-      "spec": {
-        "successfulJobsHistoryLimit": 3,
-        "failedJobsHistoryLimit": 1,
-        "schedule": "*/10 * * * *",
-        "ConcurrencyPolicy": "Forbid",
-        "jobTemplate": {
-          "spec": {
-            "template": {
-              "metadata": {
-                "labels": {
-                  "parent": "cronjobcount"
-                }
-              },
-              "spec": {
-                "containers": [
-                  {
-                    "name": "classy-dev",
-                    "image": "docker-registry.default.svc:5000/l9fjgg-dev/${APP_NAME}:dev",
-                    "command": ["flock", "-n", "/files/uj5l6n7iAGtM8gx9fNuo.lockfile", "python manage.py process_tasks --queue=counter"]
-                  }
-                ],
-                "restartPolicy": "Never"
-              }
-            }
-          }
         }
       }
     },
@@ -246,7 +223,7 @@
                 ],
                 "volumeMounts": [
                   {
-                    "mountPath": "/home/classy/files",
+                    "mountPath": "/opt/app-root/files",
                     "name": "classy-files"
                   }
                 ],
