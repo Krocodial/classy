@@ -153,6 +153,75 @@
         }
       }
     },
+    {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "counter"
+      },
+      "spec": {
+        "schedule": "* * * * *",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "counter",
+                    "image": "docker-registry.default.svc:5000/l9fjgg-dev/classy:dev",
+                    "command": ["python", "manage.py", "process_tasks", "--queue=counter"],
+                    "env": [
+                      {
+                        "name": "DATABASE_SERVICE_NAME",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_ENGINE",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_NAME",
+                        "value": "default"
+                      },
+                      {
+                        "name": "POSTGRESQL_SERVICE_HOST",
+                        "value": "postgresql${ENV_NAME}"
+                      },
+                      {
+                        "name": "DATABASE_USER",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-user"
+                          }
+                        }
+                      },
+                      {
+                        "name": "DATABASE_PASSWORD",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-password"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "restartPolicy": "Never"
+              }
+            }
+          }
+        }
+      }
+    },
           {
             "kind": "ImageStream",
             "apiVersion": "v1",
