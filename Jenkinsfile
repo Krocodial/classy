@@ -87,7 +87,7 @@ def unitTests(String env, String pr_num) {
 }
 
 
-def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC) {
+def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, String img_repo) {
     
     if (!openshift.selector("pvc", "postgresql").exists()) {
     
@@ -121,7 +121,8 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APP_IMAGE_TAG=${pr}",
         "APPLICATION_DOMAIN=https://${name}${env}.pathfinder.gov.bc.ca",
         "SOURCE_REPOSITORY_URL=${git_repo}", 
-        "SOURCE_REPOSITORY_REF=${git_branch}")
+        "SOURCE_REPOSITORY_REF=${git_branch}",
+        "IMG_REPO=${img_repo}")
     
     nginx = openshift.process(
         readFile(file:"${nginxDC}"),
@@ -185,7 +186,9 @@ pipeline {
     GIT_REF = 'release-2'
     
     PR_NUM = "${BUILD_NUMBER}"
-    
+   
+    IMG_BASE = 'docker-registry.default.svc:5000/'
+ 
     TOOLS_PROJECT = 'l9fjgg-tools'
     
     DEV_PROJECT = 'l9fjgg-dev'
@@ -355,7 +358,8 @@ pipeline {
                             databaseBC, 
                             backendDC, 
                             databaseDC, 
-                            nginxDC)
+                            nginxDC,
+                            IMG_BASE + DEV_PROJECT + '/' + APP_NAME)
                         
                     }
                 }
@@ -419,8 +423,8 @@ pipeline {
                             databaseBC,
                             backendDC,
                             databaseDC,
-                            nginxDC)
-
+                            nginxDC,
+                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME)
                     }
                 }
             }
@@ -621,8 +625,8 @@ pipeline {
                             databaseBC,
                             backendDC,
                             databaseDC,
-                            nginxDC)
-
+                            nginxDC,
+                            IMG_BASE + PROD_PROJECT + '/' + APP_NAME)
                     }
                 }
             }

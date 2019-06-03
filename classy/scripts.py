@@ -23,7 +23,6 @@ def calculate_count(user):
         for op in options:
             count = query_constructor(classification.objects.filter(classification_name=op), user).count()
             counts[op] = count
-
         d = timezone.now().date()
         for classi, count in counts.items():
             try:

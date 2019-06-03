@@ -781,38 +781,24 @@ def home(request):
     keys = {}
     
 
-    if settings.PRES:
-        mul = 20 
-        for op in options:
-            keys[op] = []
-        for i in range(45):
-            t = 44 - i
-            d = timezone.now().date() - timezone.timedelta(days=t)
-            dates.append(str(d))
-            for clas, arr in keys.items():
-                arr.append(random.randrange(i*mul, i*mul+1000)) 
- 
-    else:
-        for op in options:
-            keys[op] = []
+    for op in options:
+        keys[op] = []
 
-        for i in range(45):
-            t = 44 - i
-            d = timezone.now().date() - timezone.timedelta(days=t)
-            dates.append(str(d))
-            for clas, arr in keys.items():
-                #print(clas, d)
-                try:
-                    tmp = classification_count.objects.get(date=d, classification_name=clas, user=request.user)
-                    arr.append(tmp.count)
-                except classification_count.DoesNotExist:
-                    #print('dne')
-                    pass
-                except classification_count.MultipleObjectsReturned:
-                    #print('too many')
-                    pass
-
-
+    for i in range(45):
+        t = 44 - i
+        d = timezone.now().date() - timezone.timedelta(days=t)
+        dates.append(str(d))
+        for clas, arr in keys.items():
+            #print(clas, d)
+            try:
+                tmp = classification_count.objects.get(date=d, classification_name=clas, user=request.user)
+                arr.append(tmp.count)
+            except classification_count.DoesNotExist:
+                #print('dne')
+                pass
+            except classification_count.MultipleObjectsReturned:
+                #print('too many')
+                pass
     context = {
         #'queryset': queryset,
         'empty': empty,

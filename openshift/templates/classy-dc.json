@@ -67,6 +67,10 @@
           "name": "APP_CONFIG",
           "displayName": "Application Configuration File Path",
           "description": "Relative path to Gunicorn configuration file (optional)."
+        },
+        {
+          "name": "IMG_REPO",
+          "required": true
         }
   ],
   "objects": [
@@ -92,7 +96,7 @@
                 "containers": [
                   {
                     "name": "upload",
-                    "image": "docker-registry.default.svc:5000/l9fjgg-dev/classy:dev",
+                    "image": "${IMG_REPO}:${ENV_TAG}",
                     "command": ["python", "manage.py", "process_tasks", "--queue=upload"],
                     "volumeMounts": [
                       {
@@ -175,7 +179,7 @@
                 "containers": [
                   {
                     "name": "counter",
-                    "image": "docker-registry.default.svc:5000/l9fjgg-dev/classy:dev",
+                    "image": "${IMG_REPO}:${ENV_TAG}",
                     "command": ["python", "manage.py", "process_tasks", "--queue=counter"],
                     "env": [
                       {
@@ -307,7 +311,7 @@
             "type": "ConfigChange"
           }
         ],
-        "replicas": 1,
+        "replicas": 2,
         "selector": {
           "name": "${APP_NAME}${ENV_NAME}"
         },

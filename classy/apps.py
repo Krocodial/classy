@@ -10,7 +10,7 @@ class ClassyConfig(AppConfig):
             model = apps.get_model('background_task', 'Task')
             from .scripts import calc_scheduler
             if not model.objects.filter(queue='counter').count() > 0:
-                calc_scheduler(repeat=180)
+                calc_scheduler(repeat=120)
         except:
             pass
         '''
