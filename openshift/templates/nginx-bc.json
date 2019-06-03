@@ -83,8 +83,8 @@
                 },
                 "strategy": {
                     "dockerStrategy": {
-                        "noCache": true,
-                        "forcePull": true
+                        "noCache": false,
+                        "forcePull": false
                     }
                 },
                 "output": {
