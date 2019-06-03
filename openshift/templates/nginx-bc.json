@@ -5,45 +5,45 @@
     "name": "nginx-bc"
   },
   "labels": {
-	"template": "nginx-bc",
-	"app": "classy"
+    "template": "nginx-bc",
+    "app": "classy"
   },
     "parameters": [
-		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
-		  "name": "APP_IMAGE_TAG",
-		  "required": true,
-		  "value": "NS"
-		},
-		{
-		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true,
-		  "value": "https://github.com/krocodial/classy.git"
-		},	
-		{
-		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true,
-		  "value": "master"
-		},
-		{
-		  "name": "NAME",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "proxy-nginx"
-		},
-		{
-		  "name": "IMG_SRC",
-		  "displayName": "Name",
-		  "required": true,
-		  "value": "bcgov-s2i-nginx"
-		}
-		
-	],
-	"objects": [
+        {
+          "name": "APP_NAME",
+          "required": true,
+          "value": "classy"
+        },
+        {
+          "name": "APP_IMAGE_TAG",
+          "required": true,
+          "value": "NS"
+        },
+        {
+          "name": "SOURCE_REPOSITORY_URL",
+          "required": true,
+          "value": "https://github.com/krocodial/classy.git"
+        },  
+        {
+          "name": "SOURCE_REPOSITORY_REF",
+          "required": true,
+          "value": "master"
+        },
+        {
+          "name": "NAME",
+          "required": true,
+          "value": "proxy-nginx"
+        },
+        {
+          "name": "IMG_SRC",
+          "required": true
+        },
+        {
+          "name": "NAMESPACE",
+          "required": true
+        }
+    ],
+    "objects": [
         {
             "kind": "ImageStream",
             "apiVersion": "v1",
@@ -73,27 +73,19 @@
             "spec": {
                 "triggers": [
                 ],
-				"runPolicy": "Serial",
+                "runPolicy": "Serial",
                 "source": {
-                    "type": "Git",
                     "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-						"ref": "${SOURCE_REPOSITORY_REF}"
+                       "uri": "${SOURCE_REPOSITORY_URL}",
+                       "ref": "${SOURCE_REPOSITORY_REF}" 
                     },
-				"contextDir": "conf/"
+                    "contextDir": "conf" 
                 },
                 "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "namespace": "openshift",
-                            "name": "${IMG_SRC}:latest"
-                        }
-                    },
-					"env": [
-
-					]
+                    "dockerStrategy": {
+                        "noCache": false,
+                        "forcePull": false
+                    }
                 },
                 "output": {
                     "to": {
@@ -103,9 +95,8 @@
                 },
                 "resources": {},
                 "postCommit": {
-					
-				},
-                "nodeSelector": null
+                    
+                }
             }
         }
     ]

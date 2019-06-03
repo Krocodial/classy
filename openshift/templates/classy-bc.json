@@ -5,70 +5,50 @@
     "name": "classy-bc"
   },
   "labels": {
-	"template": "classy-bc",
-	"app": "classy"
+    "template": "classy-bc",
+    "app": "classy"
   },
     "parameters": [
-		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
-		  "name": "APP_IMAGE_TAG",
-		  "required": true,
-		  "value": "NS"
-		},
-		{
-		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true,
-		  "value": "https://github.com/krocodial/classy.git"
-		},	
-		{
-		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true,
-		  "value": "master"
-		},
-		{
-		  "name": "PYTHON_VERSION",
-		  "displayName": "Version of Python Image",
-		  "description": "Version of Python image to be used (3.6 or latest).",
-		  "value": "3.5",
-		  "required": true
-		},
-		{
-		  "name": "PIP_INDEX_URL",
-		  "displayName": "Custom PyPi Index URL",
-		  "description": "The custom PyPi index URL",
-		  "value": ""
-		}
-	],
+        {
+          "name": "APP_IMAGE_TAG",
+          "required": true,
+          "value": "NS"
+        },
+        {
+          "name": "SOURCE_REPOSITORY_URL",
+          "required": true
+        },  
+        {
+          "name": "SOURCE_REPOSITORY_REF",
+          "required": true
+        }
+    ],
   "objects": [
-	{
+    {
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata":
       {
-        "name": "${APP_NAME}",
+        "name": "classy",
         "generation": 1,
         "creationTimestamp": null
       }
     }, 
-  	
-	{
+    
+    {
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${APP_IMAGE_TAG}",
+        "name": "classy-${APP_IMAGE_TAG}",
         "annotations": {
           "description": "Defines how to build the application",
           "template.alpha.openshift.io/wait-for-ready": "true"
-		},
-		"labels":
-		  {
-				"appver": "${APP_NAME}-${APP_IMAGE_TAG}",
-				"app": "${APP_NAME}-${APP_IMAGE_TAG}"
-		  }
+        },
+        "labels":
+          {
+                "appver": "classy-${APP_IMAGE_TAG}",
+                "app": "classy-${APP_IMAGE_TAG}"
+          }
       },
       "spec": {
         "source": {
@@ -80,44 +60,29 @@
           "contextDir": ""
         },
         "strategy": {
-          "type": "Source",
-          "sourceStrategy": {
-            "from": {
-              "kind": "ImageStreamTag",
-			  "namespace": "openshift",
-              "name": "python:3.5"
-            },
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "",
+            "noCache": false,
+            "forcePull": false,
             "env": [
-              {
-                  "name": "PIP_INDEX_URL",
-                  "value": "${PIP_INDEX_URL}"
-              },
-			  {
-				  "name": "UPGRADE_PIP_TO_LATEST",
-				  "value": "true"
-			  },
-			  {
-				  "name": "BUILD_LOGLEVEL",
-				  "value": "5"
-			  }
-            ],
-			"incremental": false
+            ]
           }
         },
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${APP_NAME}:${APP_IMAGE_TAG}"
+            "name": "classy:${APP_IMAGE_TAG}"
           }
         },
-		"resources": {
+        "resources": {
 
-		},
-		"triggers": [
+        },
+        "triggers": [
 
-		],
+        ],
         "postCommit": {
-           "script": "./manage.py check && ./manage.py test"
+           "script": ""
         }
       }
     }

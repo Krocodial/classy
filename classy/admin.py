@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.views.decorators.debug import sensitive_post_parameters
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from classy.models import task, completed_task, Profile, data_authorization, dataset_authorization
+from classy.models import Profile, data_authorization, dataset_authorization
 csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
 
@@ -32,25 +32,7 @@ class datasetAdmin(admin.ModelAdmin):
     filter_horizontal = ('data_authorizations',)
 
 
-class taskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'priority', 'run_at', 'progress')
-    list_filter = ('queue', 'priority')
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'verbose_name', 'priority', 'queue', 'error')
-        }),
-        ('Auto-filled fields', {
-            'fields': ('run_at', 'user', 'progress')
-        }),
-    )
-    #fields = ['name', 'priority', 'queue', 'error', 'run_at', 'finished_at']
-    readonly_fields=['name', 'run_at', 'error', 'user', 'progress', 'queue']
-
-class taskCompletedAdmin(admin.ModelAdmin):
-    list_display = ('name', 'run_at', 'finished_at')
 
 admin.site.register(Profile, profileAdmin)
 admin.site.register(data_authorization, dataAdmin)
 admin.site.register(dataset_authorization, datasetAdmin)
-admin.site.register(task, taskAdmin)
-admin.site.register(completed_task, taskCompletedAdmin)

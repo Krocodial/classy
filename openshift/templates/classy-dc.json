@@ -5,65 +5,227 @@
     "name": "classy-dc"
   },
   "labels": {
-	"template": "classy-dc",
-	"app": "classy"
+    "template": "classy-dc",
+    "app": "classy"
   },
   "parameters": [
-		{
-		  "name": "APP_NAME",
-		  "required": true,
-		  "value": "classy"
-		},
-		{
-		  "name": "ENV_NAME",
-		  "required": true,
-		  "value": "dev"
-		},
-		{
-		  "name": "APP_IMAGE_TAG",
-		  "required": true,
-		  "value": "NS"
-		},
+        {
+          "name": "APP_NAME",
+          "required": true,
+          "value": "classy"
+        },
+        {
+          "name": "ENV_NAME",
+          "required": false,
+          "value": ""
+        },
+        {
+          "name": "ENV_TAG",
+          "required": true,
+          "value": "dev"
+        },
+        {
+          "name": "APP_IMAGE_TAG",
+          "required": true,
+          "value": "NS"
+        },
         {
           "name": "APPLICATION_DOMAIN",
-          "required": true
+          "required": true,
+          "value": "empty"
         },
-		{
-		  "name": "SOURCE_REPOSITORY_URL",
-		  "required": true,
-		  "value": "https://github.com/krocodial/classy.git"
-		},	
-		{
-		  "name": "SOURCE_REPOSITORY_REF",
-		  "required": true,
-		  "value": "master"
-		},
-		{
-		  "name": "DATABASE_SERVICE_NAME",
-		  "displayName": "Database Service Name",
-		  "required": true,
-		  "value": "postgresql"
-		},
-		{
-		  "name": "DATABASE_NAME",
-		  "displayName": "Database Name",
-		  "required": true,
-		  "value": "default"
-		},
-		{
-		  "name": "DATABASE_ENGINE",
-		  "displayName": "Database Engine",
-		  "required": true,
-		  "description": "Database engine: postgresql, mysql or sqlite (default).",
-		  "value": "postgresql"
-		},
-		{
-		  "name": "APP_CONFIG",
-		  "displayName": "Application Configuration File Path",
-		  "description": "Relative path to Gunicorn configuration file (optional)."
-		}
+        {
+          "name": "SOURCE_REPOSITORY_URL",
+          "required": true,
+          "value": "https://github.com/krocodial/classy.git"
+        },  
+        {
+          "name": "SOURCE_REPOSITORY_REF",
+          "required": true,
+          "value": "master"
+        },
+        {
+          "name": "DATABASE_SERVICE_NAME",
+          "displayName": "Database Service Name",
+          "required": true,
+          "value": "postgresql"
+        },
+        {
+          "name": "DATABASE_NAME",
+          "displayName": "Database Name",
+          "required": true,
+          "value": "default"
+        },
+        {
+          "name": "DATABASE_ENGINE",
+          "displayName": "Database Engine",
+          "required": true,
+          "description": "Database engine: postgresql, mysql or sqlite (default).",
+          "value": "postgresql"
+        },
+        {
+          "name": "APP_CONFIG",
+          "displayName": "Application Configuration File Path",
+          "description": "Relative path to Gunicorn configuration file (optional)."
+        },
+        {
+          "name": "IMG_REPO",
+          "required": true
+        }
   ],
   "objects": [
+    {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "upload"
+      },
+      "spec": {
+        "schedule": "* * * * *",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "upload",
+                    "image": "${IMG_REPO}:${ENV_TAG}",
+                    "command": ["python", "manage.py", "process_tasks", "--queue=upload"],
+                    "volumeMounts": [
+                      {
+                        "mountPath": "/opt/app-root/files",
+                        "name": "classy-files"
+                      }
+                    ],
+                    "env": [
+                      {
+                        "name": "DATABASE_SERVICE_NAME",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_ENGINE",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_NAME",
+                        "value": "default"
+                      },
+                      {
+                        "name": "POSTGRESQL_SERVICE_HOST",
+                        "value": "postgresql${ENV_NAME}"
+                      },
+                      {
+                        "name": "DATABASE_USER",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-user"
+                          }
+                        }
+                      },
+                      {
+                        "name": "DATABASE_PASSWORD",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-password"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "volumes": [
+                  {
+                    "name": "classy-files",
+                    "persistentVolumeClaim": {
+                      "claimName": "classy-files"
+                    }
+                  }
+                ],
+                "restartPolicy": "Never"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "counter"
+      },
+      "spec": {
+        "schedule": "* * * * *",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "counter",
+                    "image": "${IMG_REPO}:${ENV_TAG}",
+                    "command": ["python", "manage.py", "process_tasks", "--queue=counter"],
+                    "env": [
+                      {
+                        "name": "DATABASE_SERVICE_NAME",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_ENGINE",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_NAME",
+                        "value": "default"
+                      },
+                      {
+                        "name": "POSTGRESQL_SERVICE_HOST",
+                        "value": "postgresql${ENV_NAME}"
+                      },
+                      {
+                        "name": "DATABASE_USER",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-user"
+                          }
+                        }
+                      },
+                      {
+                        "name": "DATABASE_PASSWORD",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-password"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "restartPolicy": "Never"
+              }
+            }
+          }
+        }
+      }
+    },
           {
             "kind": "ImageStream",
             "apiVersion": "v1",
@@ -86,7 +248,7 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${ENV_NAME}",
+        "name": "${APP_NAME}${ENV_NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods",
           "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"}]"
@@ -101,15 +263,15 @@
           }
         ],
         "selector": {
-          "name": "${APP_NAME}-${ENV_NAME}"
+          "name": "${APP_NAME}${ENV_NAME}"
         }
       }
     },
-	{
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${ENV_NAME}",
+        "name": "${APP_NAME}${ENV_NAME}",
         "annotations": {
           "description": "Defines how to deploy the application server",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -118,87 +280,62 @@
       "spec": {
         "strategy": {
           "type": "Rolling",
-		  "rollingParams": {
-			"pre": {
-			  "failurePolicy": "Retry",
-			  "execNewPod": {
-			    "containerName": "${APP_NAME}-${ENV_NAME}",
-				"command": [
-					"/bin/bash",
-					"-c",
-					"psql -qtAX -c 'select 1'"
-				],
-				"env": [
-					{
-					  "name": "PGDATABASE",
-					  "value": "${DATABASE_NAME}"
-					},
-					{
-					  "name": "PGUSER",
-					  "value": "classy"
-					},
-					{
-					  "name": "PGPASSWORD",
-					  "valueFrom": {
-						"secretKeyRef": {
-						  "name" : "${APP_NAME}-${ENV_NAME}",
-                          "key" : "database-password"
-						}
-                      }
-					},
-					{
-					  "name": "PGHOST",
-					  "value": "postgresql"
-					}
-				]
-			  }
-			}, 
-			"post": {
-				"failurePolicy": "Retry",
-				"execNewPod": {
-					"containerName": "${APP_NAME}-${ENV_NAME}",
-					"command": [
-						"/bin/bash",
-						"/opt/app-root/src/conf/classy-deploy.sh"
-					]
-				}
-			}
+          "rollingParams": {
+            "post": {
+                "failurePolicy": "Retry",
+                "execNewPod": {
+                    "containerName": "${APP_NAME}${ENV_NAME}",
+                    "command": [
+                        "/bin/bash",
+                        "/opt/app-root/conf/classy-deploy.sh"
+                    ]
+                }
+            }
           }
-		},
+        },
         "triggers": [
-		  {
-		    "type": "ImageChange",
-			"imageChangeParams": {
-			  "automatic": false,
-			  "containerNames": [
-			    "${APP_NAME}-${ENV_NAME}"
-			  ],
-			  "from": {
-			    "kind": "ImageStreamTag",
-				"name": "${APP_NAME}:${ENV_NAME}"
-			  }
-			}
-		  }
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${APP_NAME}${ENV_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${APP_NAME}:${ENV_TAG}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
         ],
-        "replicas": 1,
+        "replicas": 2,
         "selector": {
-          "name": "${APP_NAME}-${ENV_NAME}"
+          "name": "${APP_NAME}${ENV_NAME}"
         },
         "template": {
           "metadata": {
-            "name": "${APP_NAME}-${ENV_NAME}",
+            "name": "${APP_NAME}${ENV_NAME}",
             "labels": {
-				"name": "${APP_NAME}-${ENV_NAME}"
+                "name": "${APP_NAME}${ENV_NAME}"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "${APP_NAME}-${ENV_NAME}",
+                "name": "${APP_NAME}${ENV_NAME}",
                 "image": " ",
                 "ports": [
                   {
                     "containerPort": 8080
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "mountPath": "/opt/app-root/files",
+                    "name": "classy-files"
                   }
                 ],
                 "readinessProbe": {
@@ -220,25 +357,25 @@
                 "env": [
                   {
                     "name": "DATABASE_SERVICE_NAME",
-                    "value": "${DATABASE_SERVICE_NAME}"
+                    "value": "postgresql"
                   },
                   {
                     "name": "DATABASE_ENGINE",
-                    "value": "${DATABASE_ENGINE}"
+                    "value": "postgresql"
                   },
                   {
                     "name": "DATABASE_NAME",
-                    "value": "${DATABASE_NAME}"
+                    "value": "default"
                   },
-				  {
-				    "name": "POSTGRESQL_SERVICE_HOST",
-					"value": "postgresql"
-				  },
+                  {
+                    "name": "POSTGRESQL_SERVICE_HOST",
+                    "value": "postgresql${ENV_NAME}"
+                  },
                   {
                     "name": "DATABASE_USER",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "classy-${ENV_TAG}",
                         "key" : "database-user"
                       }
                     }
@@ -247,7 +384,7 @@
                     "name": "DATABASE_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "classy-${ENV_TAG}",
                         "key" : "database-password"
                       }
                     }
@@ -260,66 +397,94 @@
                     "name": "DJANGO_SECRET_KEY",
                     "valueFrom": {
                       "secretKeyRef" : {
-                        "name" : "${APP_NAME}-${ENV_NAME}",
+                        "name" : "${APP_NAME}-${ENV_TAG}",
                         "key" : "django-secret-key"
                       }
                     }
                   },
-				  {
-				    "name": "SSO_SERVER",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-server"
-					  }
-					}
-				  },
-				  {
-				    "name": "SSO_REALM",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-realm"
-					  }
-					}
-				  },
-				  {
-				    "name": "SSO_CLIENT_ID",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-client"
-					  }
-					}
-				  },
-				  {
-				    "name": "SSO_CLIENT_SECRET",
-					"valueFrom": {
-					  "secretKeyRef": {
-					    "name" : "sso-keycloak",
-						"key": "sso-secret"
-					  }
-					}
-				  },
+                  {
+                    "name": "SSO_SERVER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-server"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SSO_REALM",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-realm"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SSO_CLIENT_ID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-client"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SSO_CLIENT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name" : "sso-keycloak",
+                        "key": "sso-secret"
+                      }
+                    }
+                  },
                   {
                     "name": "REDIRECT_URI",
                     "value": "${APPLICATION_DOMAIN}"
+                  },
+                  {
+                    "name": "TEST_ACCOUNT_USERNAME",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "keycloak-test-account",
+                            "key": "username"
+                        }
+                    },
+                    "required": "False"
+                  },
+                  {
+                    "name": "TEST_ACCOUNT_PASSWORD",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "keycloak-test-account",
+                            "key": "password"
+                        }
+                    },
+                    "required": "False"
                   }
                 ],
                 "resources": {
                   "limits": {
-				    "cpu": "1",
+                    "cpu": "1",
                     "memory": "4.5Gi"
-                  }				  
+                  }               
                 }
               }
             ],
-			"restartPolicy": "Always",
-			"terminationGracePeriodSeconds": 30,
-			"dnsPolicy": "ClusterFirst"
+            "volumes": [
+              {
+                "name": "classy-files",
+                "persistentVolumeClaim": {
+                  "claimName": "classy-files"
+                }
+              }
+            ],
+            "restartPolicy": "Always",
+            "terminationGracePeriodSeconds": 30,
+            "dnsPolicy": "ClusterFirst"
           }
         }
       }
-	}
+    }
    ]
 }

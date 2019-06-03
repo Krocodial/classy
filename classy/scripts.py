@@ -2,9 +2,11 @@ from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.conf import settings
 from .helper import query_constructor
-from classy.models import classification, classification_count, classification_logs, task, completed_task
+from classy.models import classification, classification_count, classification_logs
 from classy.forms import *
 
+from background_task import background
+from background_task.models_completed import CompletedTask
 import csv, re, time, os, threading
 
 options = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
@@ -21,7 +23,6 @@ def calculate_count(user):
         for op in options:
             count = query_constructor(classification.objects.filter(classification_name=op), user).count()
             counts[op] = count
-
         d = timezone.now().date()
         for classi, count in counts.items():
             try:
@@ -60,8 +61,9 @@ def calculate_count(user):
                 except classification_count.MultipleObjectsReturned:
                     pass
     except Exception as e:
-        error = e
-
+        print(e)
+    
+    '''
     try:
         tmp = task.objects.get(queue='counter')
         run_at = tmp.run_at
@@ -87,43 +89,29 @@ def calculate_count(user):
         form = completed_taskForm(info)
         if form.is_valid():
             form.save()
+    '''
 
+@background(queue='counter')
+def calc_scheduler():
+    for user in User.objects.all():
+        calculate_count(user)
+    
+    #print(CompletedTask.objects.all().order_by('run_at'))
+    tsks = CompletedTask.objects.filter(queue='counter')[:5].values_list('id', flat=True)
+    CompletedTask.objects.filter(queue='counter').exclude(pk__in=list(tsks)).delete()
 
-def calc_scheduler(cthread):
-    while True:
-        try:
-            tmp = task.objects.get(queue='counter')
-            tmp.save()
-            for user in User.objects.all():
-                calculate_count(user)
-        except task.DoesNotExist: 
-            info = {}
-            info['name'] = 'counter'
-            info['queue'] = 'counter'
-            info['user'] = 1
-            info['priority'] = 0
-            info['progress'] = 0
-            form = taskForm(info)
-            if form.is_valid():
-                form.save()
-            for user in User.objects.all():
-                calculate_count(user)
-        except task.MultipleObjectsReturned:
-            tmp = task.objects.filter(queue='counter')
-            tmp.delete()
-        time.sleep(60)
 
 #Called by 'uploader' in views to handle a file once uploaded.
 #@background(schedule=10, queue='uploads')
-def process_file(tsk):
+def process_file(filename, user):
     cinfo = {}
-    filename = tsk.name
-    user = tsk.user.id
-    fs = FileSystemStorage()
+    #filename = tsk.name
+    #user = tsk.user.id
+    fs = FileSystemStorage(location=settings.MEDIA_ROOT)
     try: 
-        uploaded_file_url = fs.url(filename)
-        row_count = sum(1 for row in csv.DictReader(open(uploaded_file_url)))
-        reader = csv.DictReader(open(uploaded_file_url))
+        #uploaded_file_url = fs.url(filename)
+        row_count = sum(1 for row in csv.DictReader(fs.open(filename, 'r')))
+        reader = csv.DictReader(fs.open(filename, 'r'))
         itera = int(row_count/100)
         if itera == 0:
             itera = 1
@@ -137,10 +125,10 @@ def process_file(tsk):
                 masking_ins = True
             for row in reader:
                 counter = counter + 1
-                if counter%itera == 0:
-                    prog = (counter/itera)*0.01
-                    tsk.progress = prog
-                    tsk.save()  
+                #if counter%itera == 0:
+                #    prog = (counter/itera)*0.01
+                #    tsk.progress = prog
+                #    tsk.save()  
                 data_list = re.split(':', row['Datasource Description'])
                 database = data_list[3].strip()
                 entCount = classification.objects.filter(
@@ -150,11 +138,11 @@ def process_file(tsk):
                         column__exact=row['Column Name']).count()
                 if entCount < 1:
                     if notes:
-                        note = row['notes']
+                        note = row['notes'][:400]
                     else:
                         note = ''
                     if masking_ins:
-                        masking = row['masking instructions'] 
+                        masking = row['masking instructions'][:200]
                     else:
                         masking = ''
 
@@ -205,14 +193,25 @@ def process_file(tsk):
                             schema__exact=row['Schema'],
                             table__exact=row['Table Name'],
                             column__exact=row['Column Name'])
+                    MN = {}
+                    MN['masking'] = classy.masking
+                    MN['notes'] = classy.notes
+                    #Once MN is assigned to the form the object values will also change
+                    old_masking = classy.masking
+                    old_notes = classy.notes
                     if masking_ins:
                         if len(row['masking instructions']) > len(classy.masking):
-                            classy.masking = row['masking instructions']
-                            classy.save()
+                            MN['masking'] = row['masking instructions'][:200]
                     if notes:
                         if len(row['notes']) > len(classy.notes):
-                            classy.notes = row['notes']
-                            classy.save()
+                            MN['notes'] = row['notes'][:400]
+                    form = logDetailMNForm(MN, instance=classy)
+                    if form.is_valid() and (old_masking != MN['masking'] or old_notes != MN['notes']):
+                        log_data = {'classy': classy.pk, 'flag': 1, 'new_classification': classy.classification_name, 'old_classification': classy.classification_name, 'user': user, 'state': 'A', 'approver': user, 'masking_change': form.cleaned_data['masking'], 'note_change': form.cleaned_data['notes']}
+                        log_form = classificationFullLogForm(log_data)
+                        if log_form.is_valid():
+                            form.save()
+                            log_form.save()
                 else:
                     #Now we have encountered a critical issue with the upload function. Consider raising an error on the admin console or even sending an email. 
                     pass
@@ -220,10 +219,11 @@ def process_file(tsk):
             #This is not a guardium report
             pass
                 
-    except Exception as e: 
+    except Exception as e:
         #Some error called e
-        cinfo['error'] = e
+        print(e)
     fs.delete(filename)
+    '''
     cinfo['name'] = tsk.name
     cinfo['verbose_name'] = tsk.verbose_name
     cinfo['priority'] = tsk.priority
@@ -234,9 +234,12 @@ def process_file(tsk):
     form = completed_taskForm(cinfo)
     if form.is_valid():
         form.save()
+    '''
 
-def upload(uthread):
-    t = task.objects.filter(queue='uploads').count()
+@background(queue='upload')
+def upload(filename, user):
+    process_file(filename, user)
+    '''
     while(t != 0):
         task_queue = task.objects.filter(queue='uploads').order_by('-priority', 'run_at')
         tsk = task_queue[0]
@@ -246,5 +249,5 @@ def upload(uthread):
         t = task.objects.filter(queue='uploads').count()
     uthread.name = ''
     uthread.running=False
-    return
+    '''
         

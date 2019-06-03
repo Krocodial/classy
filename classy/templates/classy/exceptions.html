@@ -41,7 +41,9 @@
                     <tbody>
                         {% for tuple in queryset %}
                         <tr>
-                            <td>{{tuple.classy.id}}</td>
+			    <td>
+				<a href={% url 'classy:log_detail' tuple.classy.id %}>{{tuple.classy_id}}</a>
+			    </td>
                             <td>{{tuple.classy.created}}</td>
                             <td>{{tuple.classy.datasource}}</td>
                             <td>{{tuple.classy.schema}}</td>

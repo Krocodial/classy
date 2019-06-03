@@ -3,8 +3,11 @@ from django.forms import ModelForm
 
 from .models import *
 
-class UploadFileForm(forms.Form):
-    file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+class UploadFileForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ('document',)
+        #file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
 
 class thread:
     def __init__(self, running):
@@ -82,13 +85,18 @@ class classificationReviewForm(ModelForm):
         model = classification_review
         fields = ['classy', 'group', 'classification_name', 'flag']
 
-class taskForm(ModelForm):
+class logDetailForm(ModelForm):
     class Meta:
-        model = task
-        fields = ['name', 'verbose_name', 'priority', 'queue', 'error', 'user', 'progress']
+        model = classification
+        fields = ['classification_name']
 
-class completed_taskForm(ModelForm):
+class logDetailMNForm(ModelForm):
     class Meta:
-        model = completed_task
-        fields = ['name', 'verbose_name', 'priority', 'run_at', 'queue', 'error', 'user']
+        model = classification
+        fields = ['masking', 'notes']
+
+class classificationFullLogForm(ModelForm):
+    class Meta:
+        model = classification_logs
+        fields = ['classy', 'flag', 'new_classification', 'old_classification', 'user', 'state', 'approver', 'masking_change', 'note_change']
 

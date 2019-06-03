@@ -1,0 +1,69 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "postgres-bc"
+  },
+  "labels": {
+	"template": "postgres-bc",
+	"app": "classy"
+  },
+    "parameters": [
+	{
+	  "name": "APP_NAME",
+	  "required": true,
+	  "value": "classy"
+	},
+	{
+	  "name": "ENV_NAME",
+	  "required": true,
+	  "value": "dev"
+	},
+	{
+	  "name": "DATABASE_USER",
+	  "required": true,
+	  "value": "classy"
+	},
+	{
+	  "name": "DATABASE_PASSWORD",
+	  "generate": "expression",
+	  "from": "[\\w]{30}"
+	},
+	{
+	  "name": "DJANGO_SECRET_KEY",
+	  "generate": "expression",
+	  "from": "[\\w]{60}"
+	}
+	],
+	"objects": [
+	{
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APP_NAME}-${ENV_NAME}"
+      },
+      "stringData" : {
+        "database-user" : "${DATABASE_USER}",
+        "database-password" : "${DATABASE_PASSWORD}",
+        "django-secret-key" : "${DJANGO_SECRET_KEY}"
+      }
+    },
+	{
+	  "kind": "PersistentVolumeClaim",
+	  "apiVersion": "v1",
+	  "metadata": {
+		"name": "postgresql"
+	  },
+	  "spec": {
+		"accessModes": [
+		  "ReadWriteMany"
+		],
+		"resources": {
+		  "requests": {
+			"storage": "100Gi"
+		  }
+		}
+	  }
+	}
+	]
+}

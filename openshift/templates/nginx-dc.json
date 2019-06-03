@@ -5,37 +5,39 @@
     "name": "nginx-dc"
   },
   "labels": {
-	"template": "nginx-dc",
-	"app": "classy"
+    "template": "nginx-dc",
+    "app": "classy"
   },
     "parameters": [
-	{
-	  "name": "APP_NAME",
-	  "required": true,
-	  "value": "classy"
-	},
-	{
-	  "name": "ENV_NAME",
-	  "required": true,
-	  "value": "dev"
-	},
-	{
-	  "name": "APP_IMAGE_TAG",
-	  "required": true,
-	  "value": "NS"
-	},
+    {
+      "name": "APP_NAME",
+      "required": true,
+      "value": "classy"
+    },
+    {
+      "name": "ENV_NAME",
+      "required": false,
+      "value": ""
+    },
+    {
+        "name": "ENV_TAG",
+        "required": true,
+        "value": "dev"
+    },
+    {
+      "name": "APP_IMAGE_TAG",
+      "required": true,
+      "value": "NS"
+    },
     {
       "name": "NAME",
-      "displayName": "Name",
-      "description": "The name assigned to all of the frontend objects defined in this template.",
       "required": true,
       "value": "proxy-nginx"
     },
     {
       "name": "APPLICATION_DOMAIN",
-      "displayName": "Application Hostname",
-      "description": "The exposed hostname that will route to the nginx service, if left blank a value will be defaulted.",
-      "value": ""
+      "required": true,
+      "value": "empty"
     }
   ],
   "objects": [
@@ -43,25 +45,25 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${NAME}${ENV_NAME}",
         "annotations": {
           "description": "Exposes and load balances the application pods"
         },
-		"labels": {
-			"app": "${NAME}"
-		}
+        "labels": {
+            "app": "${NAME}${ENV_NAME}"
+        }
       },
       "spec": {
         "ports": [
           {
             "name": "1337-tcp",
-			"protocol": "TCP",
+            "protocol": "TCP",
             "port": 1337,
             "targetPort": 1337
           }
         ],
         "selector": {
-          "app": "${NAME}"
+          "app": "${NAME}${ENV_NAME}"
         }
       }
     },
@@ -69,31 +71,28 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
-        "annotations": {
-          "template.openshift.io/expose-uri": "http://{.spec.host}{.spec.path}"
-        }
+        "name": "${NAME}${ENV_NAME}"
       },
       "spec": {
         "host": "${APPLICATION_DOMAIN}",
         "to": {
           "kind": "Service",
-          "name": "${NAME}"
+          "name": "${NAME}${ENV_NAME}"
         },
-		"port": {
-		  "targetPort": "1337-tcp"
-		},
-		"tls": {
-			"termination": "edge",
-			"insecureEdgeTerminationPolicy": "Redirect"
-		}
+        "port": {
+          "targetPort": "1337-tcp"
+        },
+        "tls": {
+            "termination": "edge",
+            "insecureEdgeTerminationPolicy": "Redirect"
+        }
       }
     },
     {
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}-${ENV_NAME}",
+        "name": "${NAME}",
         "annotations": {
           "description": "Keeps track of changes in the application image"
         }
@@ -103,7 +102,7 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${NAME}${ENV_NAME}",
         "annotations": {
           "description": "Defines how to deploy the application server",
           "template.alpha.openshift.io/wait-for-ready": "true"
@@ -112,48 +111,63 @@
       "spec": {
         "strategy": {
           "type": "Rolling"
-		},
+        },
         "triggers": [
-		  {
-		    "type": "ImageChange",
-			"imageChangeParams": {
-			  "automatic": false,
-			  "containerNames": [
-			    "${NAME}"
-			  ],
-			  "from": {
-			    "kind": "ImageStreamTag",
-				"name": "${NAME}-${ENV_NAME}:${ENV_NAME}"
-			  }
-			}
-		  }
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${NAME}${ENV_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${NAME}:${ENV_TAG}"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
         ],
         "replicas": 3,
         "selector": {
-          "name": "${NAME}",
-		  "app": "${NAME}"
+          "name": "${NAME}${ENV_NAME}",
+          "app": "${NAME}${ENV_NAME}"
         },
         "template": {
           "metadata": {
-            "name": "${NAME}",
+            "name": "${NAME}${ENV_NAME}",
             "labels": {
-              "name": "${NAME}",
-			  "app": "${NAME}"
+              "name": "${NAME}${ENV_NAME}",
+              "app": "${NAME}${ENV_NAME}"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "${NAME}",
+                "name": "${NAME}${ENV_NAME}",
                 "image": " ",
                 "ports": [
                   {
                     "containerPort": 1337,
-					"protocol": "TCP"
+                    "protocol": "TCP"
                   }
                 ],
-
-				"readinessProbe": {
+                "lifecycle": {
+                  "preStop": {
+                    "exec": {
+                      "command": ["/usr/sbin/nginx", "-s", "quit"]
+                    }
+                  }
+                },
+                "volumeMounts": [
+                {
+                    "mountPath": "/etc/nginx/logs",
+                    "name": "nginx-logs"
+                }
+                ],
+                "readinessProbe": {
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
                   "httpGet": {
@@ -170,20 +184,28 @@
                     }
                 },
                 "env": [
-					{
-						"name": "NGINX_PROXY_URL",
-						"value": "http://${APP_NAME}-${ENV_NAME}:8080/"
-					},
-                    {
-                        "name": "DOLLAR",
-                        "value": "$"
-                    }
+                        {
+                            "name": "NGINX_PROXY_URL",
+                            "value": "http://classy${ENV_NAME}:8080"
+                        },
+                        {
+                            "name": "DOLLAR",
+                            "value": "$"
+                        }
                 ],
                 "resources": {
                   "limits": {
                     "memory": "2Gi",
                     "cpu": "500m"
                   }
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "nginx-logs",
+                "persistentVolumeClaim": {
+                  "claimName": "nginx-logs"
                 }
               }
             ]

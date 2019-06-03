@@ -1,0 +1,100 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "classy-bc"
+  },
+  "labels": {
+	"template": "classy-bc",
+	"app": "classy"
+  },
+    "parameters": [
+		{
+		  "name": "APP_IMAGE_TAG",
+		  "required": true,
+		  "value": "NS"
+		},
+		{
+		  "name": "SOURCE_REPOSITORY_URL",
+		  "required": true
+		},	
+		{
+		  "name": "SOURCE_REPOSITORY_REF",
+		  "required": true
+		}
+	],
+  "objects": [
+	{
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata":
+      {
+        "name": "classy",
+        "generation": 1,
+        "creationTimestamp": null
+      }
+    }, 
+  	
+	{
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "classy-${APP_IMAGE_TAG}",
+        "annotations": {
+          "description": "Defines how to build the application",
+          "template.alpha.openshift.io/wait-for-ready": "true"
+		},
+		"labels":
+		  {
+				"appver": "classy-${APP_IMAGE_TAG}",
+				"app": "classy-${APP_IMAGE_TAG}"
+		  }
+      },
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${SOURCE_REPOSITORY_URL}",
+            "ref": "${SOURCE_REPOSITORY_REF}"
+          },
+          "contextDir": ""
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "python-35-rhel7:latest"
+            },
+            "env": [
+			  {
+				  "name": "UPGRADE_PIP_TO_LATEST",
+				  "value": "true"
+			  },
+			  {
+				  "name": "BUILD_LOGLEVEL",
+				  "value": "5"
+			  }
+            ],
+			"incremental": false
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "classy:${APP_IMAGE_TAG}"
+          }
+        },
+		"resources": {
+
+		},
+		"triggers": [
+
+		],
+        "postCommit": {
+           "script": "./manage.py check && ./manage.py test"
+        }
+      }
+    }
+  ]
+}

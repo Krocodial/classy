@@ -49,6 +49,8 @@ X_FRAME_OPTIONS = 'DENY'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 USE_X_FORWARDED_HOST = True
 
+
+
 SSO_REALM = KeycloakRealm(server_url=os.getenv('SSO_SERVER'), realm_name=os.getenv('SSO_REALM'))
 OIDC_CLIENT = SSO_REALM.open_id_connect(client_id=os.getenv('SSO_CLIENT_ID'), 
                                         client_secret=os.getenv('SSO_CLIENT_SECRET'))
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'background_task',
     'classy.apps.ClassyConfig',
 ]
 
@@ -72,7 +75,7 @@ MIDDLEWARE = [
     'classy.middleware.authentication.authentication_middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -138,7 +141,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+MEDIA_URL = '/files/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'files/')
 
 LOGIN_URL = 'classy:index'
 LOGIN_REDIRECT_URL = 'classy:home'
@@ -148,5 +152,5 @@ FILE_UPLOAD_PERMISSIONS = 0o600
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

@@ -172,7 +172,6 @@ $(document).ready(function(event) {
     $(".search-trigger").on("click", function(e) {
     	var currentForm = $(e.currentTarget).closest("form");
     	if(currentForm.find(".searchbox").val() == ''){
-    		alert("Please enter one or more search terms");
     		return false;
     	} else {
     		$(currentForm).submit();

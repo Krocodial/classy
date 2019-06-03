@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python /opt/app-root/src/manage.py migrate
-python /opt/app-root/src/manage.py createcachetable
+python /opt/app-root/manage.py migrate
+python /opt/app-root/manage.py createcachetable

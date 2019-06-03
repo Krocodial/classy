@@ -13,28 +13,22 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.html import escape
 
 from ratelimit.decorators import ratelimit
 
-import threading, csv, json, random, os
+import threading, csv, json, random, os, difflib
 
 from .models import *
 from .forms import *
 from .scripts import calc_scheduler, upload
 from .helper import query_constructor, role_checker
 
-if settings.CONCURRENCY:
-    uthread = thread(False)
-    if not uthread.running:
-        t = threading.Thread(target=upload, args=(uthread,), daemon=True)
-        uthread.running = True
-        t.start()
+from background_task.models import Task
 
-    cthread = thread(False)
-    if not cthread.running:
-        t = threading.Thread(target=calc_scheduler, args=(cthread,), daemon=True)
-        cthread.running=True
-        t.start()
+#if not Task.objects.filter(queue='counter').count() > 0:
+#    calc_scheduler(repeat=300)
+
 
 #To translate classifications between the templates and the DB. (For database size optimization)
 ex_options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
@@ -42,6 +36,8 @@ options = ['UN', 'PU', 'CO', 'PA', 'PB', 'PC']
 translate = {'UN': 'UNCLASSIFIED', 'CO': 'CONFIDENTIAL', 'PU': 'PUBLIC', 'PA': 'PROTECTED A', 'PB': 'PROTECTED B', 'PC': 'PROTECTED C'}
 untranslate = {'UNCLASSIFIED': 'UN', 'CONFIDENTIAL': 'CO', 'PUBLIC': 'PU', 'PROTECTED A': 'PA', 'PROTECTED B': 'PB', 'PROTECTED C': 'PC'}
 state_translate = {'A': 'Active', 'P': 'Pending', 'I': 'Inactive'}
+flag_translate = {'0': 'DELETE', '1': 'MODIFY', '2': 'CREATE'}
+
 
 threads = []
 lock = threading.Lock()
@@ -51,8 +47,8 @@ sizes = [10, 25, 50, 100]
 def debugg(request):
     if not request.user.is_staff:
         return redirect('classy:home')
-    print(request.META)
-    return HttpResponse('UWU')
+    return JsonResponse(request.META) 
+    #HttpResponse(request.META)
 
 #Accessed from the home.html page
 @login_required
@@ -332,6 +328,7 @@ def log_list(request):
                     'last': last,
                     'translate': translate,
                     'state_translate': state_translate,
+                    'flag_translate': flag_translate,
             }
             return render(request, 'classy/log_list.html', context)
 
@@ -348,28 +345,59 @@ def log_detail(request, classy_id):
         tup = classification_logs.objects.filter(classy_id__exact=classy_id)
     else:
         return redirect('classy:index')        
-
     if request.method == 'POST':
-        try: 
-            masking = request.POST['masking']
-            notes = request.POST['notes']
-        except KeyError:
-            masking = obj.masking
-            notes = obj.notes
-        obj.masking = masking
-        obj.notes = notes
-        obj.save()
+        if 'masking' in request.POST and 'notes' in request.POST:
+            old_masking = obj.masking
+            old_notes = obj.notes
+            form = logDetailMNForm(request.POST, instance=obj)
+            if form.is_valid():
+                if form.cleaned_data['masking'] != old_masking or form.cleaned_data['notes'] != old_notes:
+
+                    log_data = {}
+                    log_data['classy'] = obj.pk
+                    log_data['flag'] = 1
+                    log_data['new_classification'] = obj.classification_name 
+                    log_data['old_classification'] = obj.classification_name
+                    log_data['user'] = request.user.pk
+                    log_data['state'] = 'A'
+                    log_data['approver'] = request.user.pk
+                    log_data['masking_change'] = form.cleaned_data['masking']
+                    log_data['note_change'] = form.cleaned_data['notes']
+                    log_form = classificationFullLogForm(log_data)
+                    if log_form.is_valid():
+                        form.save()
+                        log_form.save()
+
+        if 'classification_name' in request.POST:
+            if not request.POST['classification_name'] == obj.classification_name:
+                form = logDetailForm(request.POST, instance=obj)
+                log_data = {}
+                log_data['classy'] = obj.pk
+                log_data['flag'] = 1
+                log_data['new_classification'] = request.POST['classification_name']
+                log_data['old_classification'] = obj.classification_name
+                log_data['user'] = request.user.pk
+                log_data['state'] = 'A'
+                log_data['approver'] = request.user.pk
+                log_form = classificationLogForm(log_data)
+
+                if form.is_valid() and log_form.is_valid():
+                    form.save()
+                    log_form.save()
 
     tup = tup.order_by('-time')
+
+    form = logDetailForm(initial={'classification_name': obj.classification_name})
+
     context = {
+        'form': form,
         'result': tup,
         'obj': obj,
         'num': num,
         'translate': translate,
         'state_translate': state_translate,
+        'flag_translate': flag_translate,
     }
-    #except classification.DoesNotExist:
-    #    context = {}
     return render(request, 'classy/log_details.html', context)
 
 #The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.
@@ -728,6 +756,10 @@ def index(request):
 @login_required
 def home(request):
 
+    #Just in case the appConfig fails
+    #if not Task.objects.filter(queue='counter').count() > 0:
+    #    calc_scheduler(repeat=180)
+
     data_cons = []
     mapping = {}
 
@@ -749,38 +781,24 @@ def home(request):
     keys = {}
     
 
-    if settings.PRES:
-        mul = 20 
-        for op in options:
-            keys[op] = []
-        for i in range(45):
-            t = 44 - i
-            d = timezone.now().date() - timezone.timedelta(days=t)
-            dates.append(str(d))
-            for clas, arr in keys.items():
-                arr.append(random.randrange(i*mul, i*mul+1000)) 
- 
-    else:
-        for op in options:
-            keys[op] = []
+    for op in options:
+        keys[op] = []
 
-        for i in range(45):
-            t = 44 - i
-            d = timezone.now().date() - timezone.timedelta(days=t)
-            dates.append(str(d))
-            for clas, arr in keys.items():
-                #print(clas, d)
-                try:
-                    tmp = classification_count.objects.get(date=d, classification_name=clas, user=request.user)
-                    arr.append(tmp.count)
-                except classification_count.DoesNotExist:
-                    #print('dne')
-                    pass
-                except classification_count.MultipleObjectsReturned:
-                    #print('too many')
-                    pass
-
-
+    for i in range(45):
+        t = 44 - i
+        d = timezone.now().date() - timezone.timedelta(days=t)
+        dates.append(str(d))
+        for clas, arr in keys.items():
+            #print(clas, d)
+            try:
+                tmp = classification_count.objects.get(date=d, classification_name=clas, user=request.user)
+                arr.append(tmp.count)
+            except classification_count.DoesNotExist:
+                #print('dne')
+                pass
+            except classification_count.MultipleObjectsReturned:
+                #print('too many')
+                pass
     context = {
         #'queryset': queryset,
         'empty': empty,
@@ -811,16 +829,28 @@ def uploader(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            f = form.cleaned_data['file']
+            '''
+            form.save()
+            context = {
+                'status': '200',
+                'form': UploadFileForm(),
+                'num': num
+            }
+            return render(request, 'classy/jobs.html', context)
+            '''
+            f = form.cleaned_data['document']
             if f.name.endswith('.csv'):
-                inp = request.FILES['file']
-                name = spaces.sub('_', inp.name)
-                fs = FileSystemStorage()
-                filename = fs.save(name, inp)
-                                
+                #inp = request.FILES['file']
+                #name = spaces.sub('_', inp.name)
+                #fs = FileSystemStorage()
+                #filename = fs.save(name, inp)
+                f = form.save() 
+                
+                upload(f.document.name, request.user.pk, priority=0, verbose_name=f.document.name, creator=request.user)
+
+                '''         
                 finfo = {}
-                finfo['name'] = filename
-                finfo['priority'] = 0
+                finfo['name'] = f.document
                 finfo['queue'] = 'uploads'
                 finfo['user'] = request.user.pk
                 finfo['progress'] = 0
@@ -835,7 +865,7 @@ def uploader(request):
                         t = threading.Thread(target=upload, args=(uthread,))
                         uthread.running = True
                         t.start()                 
-
+                '''
                 context = {
                     'status': '200',
                     'form': UploadFileForm(),
@@ -859,7 +889,7 @@ def uploader(request):
             return render(request, 'classy/jobs.html', context, status=423)
     
     form = UploadFileForm()
-    tsks = task.objects.filter(queue='uploads')
+    tsks = Task.objects.filter(queue='upload')
     context = {'tsks': tsks, 'form': form, 'num': num}
     return render(request, 'classy/jobs.html', context)
 

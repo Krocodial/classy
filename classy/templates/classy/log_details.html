@@ -18,6 +18,8 @@
 
 
 <div class="col-sm-3">
+<form action="{% url 'classy:log_detail' obj.id %}" method='post'>
+{% csrf_token %}
 <table class="table">
 <thead>
 	<tr>
@@ -59,8 +61,18 @@
                 <td><strong>Creator</strong></td>
                 <td>{{obj.creator.first_name}}</td>
         </tr>
+	{{form}}<!--
+	<tr>
+		<td>{{form}}</td>
+	</tr>-->
+	<tr>
+		<td></td>
+		<td><input type='submit' value='Submit'></td>
+	</tr>
+		
 </tbody>
 </table>
+</form>
 </div>
 <div class="col-sm-1"></div>
 <div class="col-sm-8">
@@ -100,8 +112,11 @@
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-sm-12">			
+</div>
+</div>
+<div class="row">
+		<div class="col-sm-1"></div>
+		<div class="col-sm-11">			
 			<table class="table">
 			<thead>
 				<tr>
@@ -112,24 +127,22 @@
 					<th>Old Classification</th>
 					<th>New Classification</th>
 					<th>Status</th>
+					<th>Masking</th>
+					<th>Notes</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for item in result %}
 					<tr>
 						<td>{{item.time}}</td>
-						{% if item.flag == 1 %}
-							<td>MODIFY</td>
-						{% elif item.flag == 0 %}
-							<td>DELETE</td>
-						{% elif item.flag == 2 %}
-							<td>CREATE</td>
-						{% endif %}
+						<td>{{flag_translate|get_item:item.flag}}</td>
 						<td>{{item.user.first_name}}</td>
 						<td>{{item.approver.first_name}}</td>
 						<td>{{translate|get_item:item.old_classification}}</td>
 						<td>{{translate|get_item:item.new_classification}}</td>
 						<td>{{state_translate|get_item:item.state}}</td>
+						<td>{{item.masking_change}}</td>
+						<td>{{item.note_change}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
