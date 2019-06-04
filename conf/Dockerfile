@@ -18,11 +18,16 @@ RUN touch /var/run/nginx.pid && \
 RUN chmod -R g+rwx /var/cache/nginx/ && \
     chmod -R g+rw /etc/nginx /var/log/nginx /tmp/classy.conf.tmpl /var/run/nginx.pid && \
     mkdir -p /opt/modsecurity/audit/ && \
-    chmod -R g+rw /opt/owasp-modsecurity-crs-3.2 /opt/modsecurity && \
+    chmod -R g+rw /opt/owasp-modsecurity-crs-3.2 && \
+    chmod -R 666 /opt/modsecurity && \
     chmod -R g+r /var/www/classy
 
 
 USER 1001
+
+RUN ls -la /opt/modsecurity && \
+    ls -la /opt/modsecurity/audit && \
+    groups
 
 CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
 
