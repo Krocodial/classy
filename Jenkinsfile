@@ -183,7 +183,7 @@ pipeline {
     APP_NAME = 'classy'
     
     GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
-    GIT_REF = 'release-2'
+    GIT_REF = 'release-3'
     
     PR_NUM = "${BUILD_NUMBER}"
    
