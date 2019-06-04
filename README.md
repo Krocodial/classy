@@ -80,7 +80,7 @@ $ source envs/bin/activate
 $ python manage.py runserver <host>:<port>  
 ```  
 
-Congratz! You now have a running metadata classification repo  
+Congratulations! You now have a running metadata classification repository  
 
 # Deployment  
   
