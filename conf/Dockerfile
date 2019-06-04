@@ -17,9 +17,8 @@ RUN touch /var/run/nginx.pid && \
 
 RUN chmod -R g+rwx /var/cache/nginx/ && \
     chmod -R g+rw /etc/nginx /var/log/nginx /tmp/classy.conf.tmpl /var/run/nginx.pid && \
-    mkdir /opt/modsecurity && mkdir /opt/modsecurity/audit/ && \
-    touch /opt/modsecurity/audit/modsec_audit.log && \
-    chmod -R g+rw /opt/owasp-modsecurity-crs-3.2 /opt/modsecurity/audit/modsec_audit.log && \
+    mkdir -p /opt/modsecurity/audit/ && \
+    chmod -R g+rw /opt/owasp-modsecurity-crs-3.2 /opt/modsecurity && \
     chmod -R g+r /var/www/classy
 
 
