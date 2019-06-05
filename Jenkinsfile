@@ -38,7 +38,7 @@ def intTests(String env, String pr_num) {
         pods.objects()[0].metadata.name,
         "--",
         "bash -c '\
-            cd /opt/app-root/src; \
+            cd /opt/app-root; \
             python manage.py test integration-tests \
         '"
         )
@@ -69,7 +69,7 @@ def unitTests(String env, String pr_num) {
         pods.objects()[0].metadata.name,
         "--",
         "bash -c '\
-            cd /home/classy; \
+            cd /opt/app-root; \
             python manage.py test tests/unit-tests --noinput \
         '"
         )
