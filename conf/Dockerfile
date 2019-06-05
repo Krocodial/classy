@@ -17,7 +17,8 @@ COPY conf.d/classy.conf.tmpl /tmp/
 COPY nginx.conf /etc/nginx/nginx.conf
 #COPY modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 
-RUN sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/modsecurity.d/modsecurity.conf
+RUN sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/modsecurity.d/modsecurity.conf && \
+    sed -i 's/SecRequestBodyLimit 13107200/SecRequestBodyLimit 104857600/' /etc/modsecurity.d/modsecurity.conf
 
 RUN touch /var/run/nginx.pid && \
     mkdir /etc/nginx/logs
