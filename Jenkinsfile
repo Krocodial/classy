@@ -38,7 +38,7 @@ def intTests(String env, String pr_num) {
         pods.objects()[0].metadata.name,
         "--",
         "bash -c '\
-            cd /opt/app-root/src; \
+            cd /opt/app-root; \
             python manage.py test integration-tests \
         '"
         )
@@ -69,7 +69,7 @@ def unitTests(String env, String pr_num) {
         pods.objects()[0].metadata.name,
         "--",
         "bash -c '\
-            cd /home/classy; \
+            cd /opt/app-root; \
             python manage.py test tests/unit-tests --noinput \
         '"
         )
@@ -183,7 +183,7 @@ pipeline {
     APP_NAME = 'classy'
     
     GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
-    GIT_REF = 'release-2'
+    GIT_REF = 'feature-3'
     
     PR_NUM = "${BUILD_NUMBER}"
    
@@ -227,7 +227,7 @@ pipeline {
   
   agent any
   options {
-    timeout(time: 40, unit: 'MINUTES')
+    timeout(time: 50, unit: 'MINUTES')
   }
   stages {
     stage('preamble & sweeping floor') {

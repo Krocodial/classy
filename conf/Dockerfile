@@ -1,46 +1,38 @@
-#ARG docker_repo=classy
-#RUN echo '${docker_repo}'
+FROM owasp/modsecurity:3-nginx
+RUN echo 'deb http://deb.debian.org/debian stretch-backports main' >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y certbot python-certbot-nginx -t stretch-backports
 
-#FROM "${docker_repo}" as builder
-#FROM docker-registry.default.svc:5000/l9fjgg-tools/classy as builder
-#RUN python manage.py collectstatic --noinput
-#RUN chmod -R +r conf
+WORKDIR /opt/modsecurity
+RUN wget https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v3.1.0.tar.gz && \
+    tar xzvf v3.1.0.tar.gz && \
+    cp /opt/modsecurity/owasp-modsecurity-crs-3.1.0/crs-setup.conf.example /etc/modsecurity.d/crs-setup.conf && \
+    cp -r /opt/modsecurity/owasp-modsecurity-crs-3.1.0/rules /etc/modsecurity.d/rules
 
-FROM nginx
-#FROM registry.access.redhat.com/rhscl/nginx-112-rhel7
-WORKDIR /etc/nginx
+RUN echo "include /etc/modsecurity.d/crs-setup.conf\ninclude /etc/modsecurity.d/rules/*.conf" >> /etc/modsecurity.d/include.conf
 
-#RUN rm -rf /usr/share/nginx/html/*
-RUN rm -f /etc/nginx/conf.d/default.conf
+RUN rm -f /etc/nginx/conf.d/*
 COPY html/ /var/www/classy/
-#COPY --from=builder /home/classy/conf/html /var/www/classy/
 COPY conf.d/classy.conf.tmpl /tmp/
 COPY nginx.conf /etc/nginx/nginx.conf
+#COPY modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 
-#RUN useradd --gid 0 -c "SVR usr" www-svr &&\
+RUN sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/modsecurity.d/modsecurity.conf && \
+    sed -i 's/SecRequestBodyLimit 13107200/SecRequestBodyLimit 104857600/' /etc/modsecurity.d/modsecurity.conf
+
 RUN touch /var/run/nginx.pid && \
     mkdir /etc/nginx/logs
-#RUN chown -R www-svr:0 /var/run/nginx.pid
-#RUN chown -R www-svr:0 /var/cache/nginx
-#RUN chown -R www-svr:0 /usr/share/nginx
-#RUN chown -R www-svr:0 /etc/nginx
-#RUN chown -R www-svr:0 /var/log/nginx
-#RUN chown -R www-svr:0 /tmp/classy.conf.tmpl
 
-#USER www-svr
-
-#RUN ln -sf /dev/stdout /etc/nginx/logs/nginx-proxy.access.log;
-#RUN ln -sf /dev/stderr /etc/nginx/logs/nginx-proxy.error.log;
-
-#RUN chmod g+rw /var/run/nginx.pid
 RUN chmod -R g+rwx /var/cache/nginx/ && \
     chmod -R g+rw /etc/nginx /var/log/nginx /tmp/classy.conf.tmpl /var/run/nginx.pid && \
-    chmod -R g+r /var/www/classy
-#RUN chmod +rw /etc/nginx/conf.d
-#RUN chown -R nginx:nginx /usr/share/nginx
-#RUN chown -R nginx:nginx /etc/nginx
-#USER nginx
+    chmod -R g+r /var/www/classy && \
+    touch /var/log/modsec_audit.log && chmod g+rw /var/log/modsec_audit.log 
+#    chmod -R g+r /etc/modsecurity.d/ /opt/
+#    mkdir -p /opt/modsecurity/uploads/ && \
+
+
 USER 1001
+
 CMD /bin/bash -c "envsubst < /tmp/classy.conf.tmpl > /etc/nginx/conf.d/classy.conf && exec nginx -g 'daemon off;'"
 
 EXPOSE 1337

@@ -12,6 +12,8 @@ Release 2.0.0
 ## Technology Stack Used
 Python ~3.6 (Django)  
 PostgreSQL 9.6 (or latest)  
+NGINX 1.15.12  
+ModSecurity v3.2  
 
 ## Getting Started  
 These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
@@ -78,7 +80,7 @@ $ source envs/bin/activate
 $ python manage.py runserver <host>:<port>  
 ```  
 
-Congratz! You now have a running metadata classification repo  
+Congratulations! You now have a running metadata classification repository  
 
 # Deployment  
   
@@ -108,7 +110,7 @@ Authorization is a customization of Django's provided authorization functionalit
 
 Policies for use will be provided by the FLNR security team.  
 
-tes
+
 
 ## Files in this repository  
 ```sh  

@@ -81,7 +81,7 @@
         "name": "upload"
       },
       "spec": {
-        "schedule": "* * * * *",
+        "schedule": "*/5 * * * *",
         "concurrencyPolicy": "Forbid",
         "successfulJobsHistoryLimit": 3,
         "failedJobsHistoryLimit": 1,
@@ -164,7 +164,7 @@
         "name": "counter"
       },
       "spec": {
-        "schedule": "* * * * *",
+        "schedule": "*/5 * * * *",
         "concurrencyPolicy": "Forbid",
         "successfulJobsHistoryLimit": 3,
         "failedJobsHistoryLimit": 1,
