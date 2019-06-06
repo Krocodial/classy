@@ -227,7 +227,7 @@ pipeline {
   
   agent any
   options {
-    timeout(time: 40, unit: 'MINUTES')
+    timeout(time: 50, unit: 'MINUTES')
   }
   stages {
     stage('preamble & sweeping floor') {
