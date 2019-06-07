@@ -124,7 +124,7 @@ class Classification(models.Model):
     
 class ClassificationLogs(models.Model):
     classy = models.ForeignKey(Classification, on_delete=models.CASCADE)
-    previous_log = models.OneToOneField('self', on_delete=models.CASCADE, blank=True)
+    previous_log = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
     time = models.DateTimeField(auto_now_add=True)
     flag = models.SmallIntegerField(choices=flag_choices)
     classification = models.CharField(max_length=2, choices=classification_choices, blank=True)

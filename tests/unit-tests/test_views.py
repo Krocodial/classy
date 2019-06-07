@@ -2,7 +2,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from classy.models import classification_review_groups, classification, classification_review, data_authorization
+from classy.models import ClassificationReviewGroups, Classification, ClassificationReview, DataAuthorization
 from classy.views import home, login_complete, download, review, exceptions, log_list, log_detail, modi, search, uploader
 
 import json
@@ -64,9 +64,9 @@ class renderTest(TestCase):
         response_codes_post_invalid = {self.anon: 302, self.basic: 302, self.staff: 400, self.supa: 400}
         response_codes_post_valid = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa:200}
         for i in range(1,5):
-            rev = classification_review.objects.create(
-                    classy=classification.objects.create(
-                        classification_name='PA',
+            rev = ClassificationReview.objects.create(
+                    classy=Classification.objects.create(
+                        classification='PA',
                         datasource='UWU',
                         schema='owo',
                         table='uwu',
@@ -74,10 +74,10 @@ class renderTest(TestCase):
                         creator=self.basic,
                         state='A'
                         ),
-                    group = classification_review_groups.objects.create(user=self.basic),
-                    classification_name = 'PU',
+                    group = ClassificationReviewGroups.objects.create(user=self.basic),
+                    classification = 'PU',
                     flag = 0)
-        for user, group in zip(self.users, classification_review_groups.objects.all()):
+        for user, group in zip(self.users, ClassificationReviewGroups.objects.all()):
             request = self.factory.get(reverse('classy:review'))
             request.user = user
             response = review(request)
@@ -121,8 +121,8 @@ class renderTest(TestCase):
     
     def test_log_detail_view(self):
         response_codes = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
-        rev = classification.objects.create(
-            classification_name='PA',
+        rev = Classification.objects.create(
+            classification='PA',
             datasource='Avengers',
             schema='endgame',
             table='hype',
@@ -130,7 +130,7 @@ class renderTest(TestCase):
             creator=self.basic,
             state='A'
             )
-        d1 = data_authorization.objects.create(
+        d1 = DataAuthorization.objects.create(
                 name='All',
             )
         for user in self.users:
@@ -155,8 +155,8 @@ class renderTest(TestCase):
         response_codes_post = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
 
         for user in self.users:
-            rev = classification.objects.create (
-                    classification_name='CO',
+            rev = Classification.objects.create (
+                    classification='CO',
                     datasource='game',
                     schema='of',
                     table='thrones',
@@ -182,7 +182,7 @@ class renderTest(TestCase):
 
             rev.refresh_from_db()
             if user.is_staff:
-                self.assertEquals(rev.classification_name, 'PU')
+                self.assertEquals(rev.classification, 'PU')
                 self.assertEquals(rev.state, 'A')
             elif user.is_authenticated:
                 self.assertEquals(rev.state, 'P')
