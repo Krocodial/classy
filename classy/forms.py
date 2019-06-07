@@ -2,6 +2,8 @@ from django import forms
 from django.forms import ModelForm
 
 from .models import *
+from .models import classification_choices
+
 
 class UploadFileForm(forms.ModelForm):
     class Meta:
@@ -9,15 +11,15 @@ class UploadFileForm(forms.ModelForm):
         fields = ('document',)
         #file = forms.FileField(widget=forms.FileInput(attrs={'class': 'form-control-file'}))
 
-class thread:
+class Thread:
     def __init__(self, running):
         self.name = ''
         self.running = running
 
-class basic_search(forms.Form):
+class BasicSearch(forms.Form):
     query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
 
-class advancedSearch(forms.Form):
+class AdvancedSearch(forms.Form):
     
     classi_choices = (
         ('UN', 'UNCLASSIFIED'),
@@ -50,53 +52,48 @@ class advancedSearch(forms.Form):
     size = forms.ChoiceField(required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm', 'onchange': 'this.form.submit();'}))
 
 
-class loginform(forms.Form):
+class LoginForm(forms.Form):
     if settings.BYPASS_AUTH:
         username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
     password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'AUTOCOMPLETE': 'off'}))
 
 class ClassificationForm(ModelForm):
     class Meta:
-        model = classification
-        fields = ['classification_name', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
+        model = Classification
+        fields = ['classification', 'protected_type', 'owner', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
 
-class classificationCountForm(ModelForm):
+class ClassificationCountForm(ModelForm):
     class Meta:
-        model = classification_count
-        fields = ['classification_name', 'count', 'date', 'user']   
+        model = ClassificationCount
+        fields = ['classification', 'count', 'date', 'user']   
 
-class classificationExceptionForm(ModelForm):
+class ClassificationLogForm(ModelForm):
     class Meta:
-        model = classification_exception
-        fields = ['classy']
+        model = ClassificationLogs
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'user', 'state', 'approver']
 
-class classificationLogForm(ModelForm):
+class ClassificationReviewGroupForm(ModelForm):
     class Meta:
-        model = classification_logs
-        fields = ['classy', 'flag', 'new_classification', 'old_classification', 'user', 'state', 'approver']
-
-class classificationReviewGroupForm(ModelForm):
-    class Meta:
-        model = classification_review_groups
+        model = ClassificationReviewGroups
         fields = ['user']
 
-class classificationReviewForm(ModelForm):
+class ClassificationReviewForm(ModelForm):
     class Meta:
-        model = classification_review
-        fields = ['classy', 'group', 'classification_name', 'flag']
+        model = ClassificationReview
+        fields = ['classy', 'group', 'classification', 'flag']
 
-class logDetailForm(ModelForm):
+class LogDetailForm(ModelForm):
     class Meta:
-        model = classification
-        fields = ['classification_name']
+        model = Classification
+        fields = ['classification']
 
-class logDetailMNForm(ModelForm):
+class LogDetailMNForm(ModelForm):
     class Meta:
-        model = classification
+        model = Classification
         fields = ['masking', 'notes']
 
-class classificationFullLogForm(ModelForm):
+class ClassificationFullLogForm(ModelForm):
     class Meta:
-        model = classification_logs
-        fields = ['classy', 'flag', 'new_classification', 'old_classification', 'user', 'state', 'approver', 'masking_change', 'note_change']
+        model = ClassificationLogs
+        fields = ['classy', 'flag', 'classification', 'user', 'state', 'approver', 'masking_change', 'note_change']
 

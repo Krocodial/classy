@@ -2,7 +2,7 @@ from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.conf import settings
 from .helper import query_constructor
-from classy.models import classification, classification_count, classification_logs
+from classy.models import Classification, ClassificationCount, ClassificationLogs
 from classy.forms import *
 
 from background_task import background
@@ -16,80 +16,15 @@ translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protec
 
 #Called once at web server initialization to check current counts for graphing purposes.
 #@background(schedule=60, queue='calculate_count')
-def calculate_count(user): 
+def calculate_count(user):
+
+    #Sort logs by date, +1 for create, -1 + 1 for mod?, -1 for del?
+    #Get all pks, grab logs individually.  
     error = ''
-    try: 
-        counts = {}
-        for op in options:
-            count = query_constructor(classification.objects.filter(classification_name=op), user).count()
-            counts[op] = count
-        d = timezone.now().date()
-        for classi, count in counts.items():
-            try:
-                cobj = classification_count.objects.get(date=d, classification_name=classi, user=user)
-                cobj.count = count
-                cobj.save()
-            except classification_count.DoesNotExist:
-                new = classification_count(classification_name=classi, count=count, date=d, user=user)
-                new.save()
-            except classification_count.MultipleObjectsReturned:
-                pass
-        permitted = query_constructor(classification.objects.all(), user)
-        permitted = permitted.values_list('pk', flat=True)
+    tmp = query_constructor(Classification.objects.all(), user).values_list('pk', flat=True)
+    print(tmp)
 
-        for i in range(60):
-            d = timezone.now().date() - timezone.timedelta(days=i)
-            logs = classification_logs.objects.filter(
-                            time__startswith=d)
-            logs = logs.filter(classy__in=permitted)
 
-            for log in logs:
-                if log.flag == 2:
-                   counts[log.old_classification] = counts[log.old_classification] - 1 
-                elif log.flag == 1:
-                    counts[log.old_classification] = counts[log.old_classification] + 1
-                    counts[log.new_classification] = counts[log.new_classification] - 1
-                elif log.flag == 0:
-                    counts[log.old_classification] = counts[log.old_classification] + 1
-            d = timezone.now().date() - timezone.timedelta(days=i+1)
-            for classi, count in counts.items():
-                try:  
-                    classification_count.objects.get(date=d, classification_name=classi, user=user)
-                except classification_count.DoesNotExist:
-                    new = classification_count(classification_name=classi, count=count, date=d, user=user)
-                    new.save()
-                except classification_count.MultipleObjectsReturned:
-                    pass
-    except Exception as e:
-        print(e)
-    
-    '''
-    try:
-        tmp = task.objects.get(queue='counter')
-        run_at = tmp.run_at
-        priority = tmp.priority
-    except:
-        run_at = timezone.now()
-        priority = 0
-    try:
-        tmp = completed_task.objects.get(queue='counter')
-        tmp.error = error
-        tmp.run_at = run_at
-        tmp.priority = priority
-        tmp.save()
-    except:
-        info = {}
-        info['name'] = 'counter'
-        info['queue'] = 'counter'
-        info['user'] = 1
-        info['progress'] = 1
-        info['error'] = error
-        info['run_at'] = run_at
-        info['priority'] = priority
-        form = completed_taskForm(info)
-        if form.is_valid():
-            form.save()
-    '''
 
 @background(queue='counter')
 def calc_scheduler():
@@ -131,7 +66,7 @@ def process_file(filename, user):
                 #    tsk.save()  
                 data_list = re.split(':', row['Datasource Description'])
                 database = data_list[3].strip()
-                entCount = classification.objects.filter(
+                entCount = Classification.objects.filter(
                         datasource__exact=database,
                         schema__exact=row['Schema'],
                         table__exact=row['Table Name'],
@@ -152,7 +87,8 @@ def process_file(filename, user):
                     classy = translate[classy]
 
                     data = {}
-                    data['classification_name'] = classy 
+                    data['classification'] = classy 
+                    data['protected_type'] = ''
                     data['datasource'] = database
                     data['schema'] = row['Schema']
                     data['table'] =  row['Table Name']
@@ -167,28 +103,19 @@ def process_file(filename, user):
                         log_data = {}
                         log_data['classy'] = tmp.id
                         log_data['flag'] = 2
-                        log_data['new_classification'] = classy
-                        log_data['old_classification'] = classy
+                        log_data['classification'] = classy
+                        log_data['protected_type'] = ''
                         log_data['user'] = user
                         log_data['state'] = 'A'
                         log_data['approver'] = user
-                        log_form = classificationLogForm(log_data)
+                        log_form = ClassificationLogForm(log_data)
                         if log_form.is_valid():
                             log_form.save()
-                        if classy != 'UN':
-                            exc_data = {}
-                            exc_data['classy'] = tmp.id
-                            exc_form = classificationExceptionForm(exc_data)
-                            if exc_form.is_valid():
-                                exc_form.save() 
-                            else:
-                                #Exception form error
-                                pass
                     else:
                         #Invalid value in form
                         pass
                 elif entCount == 1:
-                    classy = classification.objects.get(
+                    classy = Classification.objects.get(
                             datasource__exact=database,
                             schema__exact=row['Schema'],
                             table__exact=row['Table Name'],
@@ -205,10 +132,10 @@ def process_file(filename, user):
                     if notes:
                         if len(row['notes']) > len(classy.notes):
                             MN['notes'] = row['notes'][:400]
-                    form = logDetailMNForm(MN, instance=classy)
+                    form = LogDetailMNForm(MN, instance=classy)
                     if form.is_valid() and (old_masking != MN['masking'] or old_notes != MN['notes']):
-                        log_data = {'classy': classy.pk, 'flag': 1, 'new_classification': classy.classification_name, 'old_classification': classy.classification_name, 'user': user, 'state': 'A', 'approver': user, 'masking_change': form.cleaned_data['masking'], 'note_change': form.cleaned_data['notes']}
-                        log_form = classificationFullLogForm(log_data)
+                        log_data = {'classy': classy.pk, 'flag': 1, 'new_Classification': classy.Classification_name, 'old_Classification': classy.Classification_name, 'user': user, 'state': 'A', 'approver': user, 'masking_change': form.cleaned_data['masking'], 'note_change': form.cleaned_data['notes']}
+                        log_form = ClassificationFullLogForm(log_data)
                         if log_form.is_valid():
                             form.save()
                             log_form.save()

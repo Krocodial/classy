@@ -1,4 +1,4 @@
-from .models import classification
+from .models import Classification
 import os
 from django.contrib.auth import logout
 
@@ -34,34 +34,34 @@ def role_checker(user, payload, request):
 def wildcard_handler(auth):
 
     if auth.datasource == '':
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             datasource__icontains=auth.datasource)
     else:
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             datasource__iexact=auth.datasource)
     permitted = tmp
 
     if auth.schema == '':
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             schema__icontains=auth.schema)
     else:
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             schema__iexact=auth.schema)
     permitted = permitted & tmp
 
     if auth.table == '':
-        tmp =  classification.objects.filter(
+        tmp =  Classification.objects.filter(
             table__icontains=auth.table)
     else:
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             table__iexact=auth.table)
     permitted = permitted & tmp
 
     if auth.column == '':
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             column__icontains=auth.column)
     else:
-        tmp = classification.objects.filter(
+        tmp = Classification.objects.filter(
             column__iexact=auth.column)
    
     permitted = permitted & tmp
@@ -76,7 +76,7 @@ def group_deconstructor(permitted, group):
 
 def query_constructor(queryset, user):
     user = user.profile
-    permitted = classification.objects.none()
+    permitted = Classification.objects.none()
 
     for auth in user.data_authorizations.all():
         permitted = permitted | wildcard_handler(auth)
