@@ -31,12 +31,12 @@ from background_task.models import Task
 
 
 #To translate Classifications between the templates and the DB. (For database size optimization)
-ex_options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C']
+ex_options = ['Unclassified', 'Public', 'Confidential', 'Protected A', 'Protected B', 'Protected C']
 options = ['UN', 'PU', 'CO', 'PA', 'PB', 'PC']
-translate = {'UN': 'UNCLASSIFIED', 'CO': 'CONFIDENTIAL', 'PU': 'PUBLIC', 'PA': 'PROTECTED A', 'PB': 'PROTECTED B', 'PC': 'PROTECTED C'}
-untranslate = {'UNCLASSIFIED': 'UN', 'CONFIDENTIAL': 'CO', 'PUBLIC': 'PU', 'PROTECTED A': 'PA', 'PROTECTED B': 'PB', 'PROTECTED C': 'PC'}
+translate = {'UN': 'Unclassified', 'CO': 'Confidential', 'PU': 'Public', 'PE': 'Personal', 'PA': 'Protected A', 'PB': 'Protected B', 'PC': 'Protected C', '': ''}
+untranslate = {'Unclassified': 'UN', 'Confidential': 'CO', 'Public': 'PU', 'Personal': 'PE', 'Protected A': 'PA', 'Protected B': 'PB', 'Protected C': 'PC'}
 state_translate = {'A': 'Active', 'P': 'Pending', 'I': 'Inactive'}
-flag_translate = {'0': 'DELETE', '1': 'MODIFY', '2': 'CREATE'}
+flag_translate = {'0': 'Delete', '1': 'Modify', '2': 'Create'}
 
 
 threads = []
@@ -64,7 +64,7 @@ def tutorial(request):
 def download(request):
     if not request.method == 'POST':
             return redirect('classy:home')
-    form = advancedSearch(request.POST)
+    form = AdvancedSearch(request.POST)
     if form.is_valid():
         if(form.cleaned_data['query'] != ''):
             value = form.cleaned_data['query']
@@ -85,7 +85,7 @@ def download(request):
                 stati = ['A', 'P']
             if len(classi) == 0:
                 classi = options
-            sql = Classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, Classification_name__in=classi, state__in=stati);
+            sql = Classification.objects.filter(column__icontains=co, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification__in=classi, state__in=stati);
             queryset = sql
 
         queryset = query_constructor(queryset, request.user)
@@ -98,8 +98,10 @@ def download(request):
         writer.writerow(['Classification', 'Application', 'Datasource', 'Schema', 'Table', 'Column', 'Created', 'Creator', 'State', 'Masking instructions', 'Notes'])
         
         for tuple in queryset:
-            writer.writerow([translate[tuple.Classification_name], tuple.owner.acronym, tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator.first_name, state_translate[tuple.state], tuple.masking, tuple.notes])
+            writer.writerow([translate[tuple.classification], tuple.owner.acronym, tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator.first_name, state_translate[tuple.state], tuple.masking, tuple.notes])
         return response
+    else:
+        print(form.errors)
 
     return redirect('classy:index')
 
@@ -136,18 +138,18 @@ def review(request):
                 
                     #modify
                     if tup.flag == 1:
-                        log['classification'] = tup.Classification_name
+                        log['classification'] = tup.classification
                         log['state'] = 'A'
                         form = ClassificationLogForm(log)
                         if form.is_valid():
-                            item.Classification_name = tup.Classification_name
+                            item.classification = tup.classification
                             item.state='A'
                             item.save()
                             form.save()
 
                     #delete
                     elif tup.flag == 0:
-                        log['classification'] = tup.Classification_name
+                        log['classification'] = tup.classification
                         log['state'] = 'I'
                         form = ClassificationLogForm(log)
                         if form.is_valid():
@@ -174,7 +176,7 @@ def exceptions(request):
     if not request.user.is_staff:
         return redirect('classy:index')        
     num = ClassificationReviewGroups.objects.all().count()
-    form = basic_search(request.GET)
+    form = BasicSearch(request.GET)
 
     if request.method == 'POST':
         if form.is_valid():
@@ -182,7 +184,7 @@ def exceptions(request):
 
         
             clas = ClassificationLogs.objects.filter(classification__icontains=value)
-            prot = ClassificationLogs.objects.filter(protected_type__icontainer=value)
+            prot = ClassificationLogs.objects.filter(protected_type__icontains=value)
             data = ClassificationLogs.objects.filter(classy__datasource__icontains=value)
             sche = ClassificationLogs.objects.filter(classy__schema__icontains=value)
             tabl = ClassificationLogs.objects.filter(classy__table__icontains=value)
@@ -193,7 +195,7 @@ def exceptions(request):
             if value.isdigit():
                 clas = ClassificationLogs.objects.filter(classy_id=int(value)) 
 
-            queryset = nclas | oclas | flag | use | appro | clas
+            queryset = prot | data | sche | tabl | colu | user | appo | clas
             
     else:
         queryset = ClassificationLogs.objects.all()
@@ -209,7 +211,7 @@ def exceptions(request):
     queryset = queryset.order_by('-classy__created')
     paginator = Paginator(queryset, 50)
     query = paginator.get_page(page)
-    form = basic_search()
+    form = BasicSearch()
 
     prev = False
     nex = False
@@ -255,32 +257,27 @@ def exceptions(request):
 # List all of the Classification logs, filtered down to the Classification objects you are allowed to view. Searchable by Classification, flag, username, approver, and index
 @login_required
 def log_list(request):
-    form = basic_search(request.GET)
+    form = BasicSearch(request.GET)
 
     #middleware candidate
     num = ClassificationReviewGroups.objects.all().count()
+    if form.is_valid():
+        value = form.cleaned_data['query']
 
-    if request.method == 'POST':
-        if form.is_valid():
-            value = form.cleaned_data['query']
+    
+        clas = ClassificationLogs.objects.filter(classification__icontains=value)
+        prot = ClassificationLogs.objects.filter(protected_type__icontains=value)
+        data = ClassificationLogs.objects.filter(classy__datasource__icontains=value)
+        sche = ClassificationLogs.objects.filter(classy__schema__icontains=value)
+        tabl = ClassificationLogs.objects.filter(classy__table__icontains=value)
+        colu = ClassificationLogs.objects.filter(classy__column__icontains=value)
+        user = ClassificationLogs.objects.filter(classy__creator__first_name__icontains=value)
+        appo = ClassificationLogs.objects.filter(classy__owner__name__icontains=value)
 
-        
-            clas = ClassificationLogs.objects.filter(classification__icontains=value)
-            prot = ClassificationLogs.objects.filter(protected_type__icontainer=value)
-            data = ClassificationLogs.objects.filter(classy__datasource__icontains=value)
-            sche = ClassificationLogs.objects.filter(classy__schema__icontains=value)
-            tabl = ClassificationLogs.objects.filter(classy__table__icontains=value)
-            colu = ClassificationLogs.objects.filter(classy__column__icontains=value)
-            user = ClassificationLogs.objects.filter(classy__creator__first_name__icontains=value)
-            appo = ClassificationLogs.objects.filter(classy__owner__name__icontains=value)
+        if value.isdigit():
+            clas = ClassificationLogs.objects.filter(classy_id=int(value)) 
 
-            if value.isdigit():
-                clas = ClassificationLogs.objects.filter(classy_id=int(value)) 
-
-            queryset = nclas | oclas | flag | use | appro | clas
-            
-    else:
-        queryset = ClassificationLogs.objects.all()
+        queryset = prot | data | sche | tabl | colu | user | appo | clas
         
     permitted = query_constructor(Classification.objects.all(), request.user)
     permitted = permitted.values_list('pk', flat=True)
@@ -295,7 +292,7 @@ def log_list(request):
     paginator = Paginator(queryset, 50)
     query = paginator.get_page(page)
 
-    form = basic_search()
+    form = BasicSearch()
 
     prev = False
     nex = False
@@ -356,49 +353,61 @@ def log_detail(request, classy_id):
     if queryset.count() == 1:
         obj = Classification.objects.get(id=classy_id)
         tup = ClassificationLogs.objects.filter(classy_id__exact=classy_id)
+
+        prev = ClassificationLogs.objects.filter(classy_id__exact=classy_id).order_by('-id')[0]
+
     else:
         return redirect('classy:index')        
     if request.method == 'POST':
         if 'masking' in request.POST and 'notes' in request.POST:
             old_masking = obj.masking
             old_notes = obj.notes
-            form = logDetailMNForm(request.POST, instance=obj)
+            form = LogDetailMNForm(request.POST, instance=obj)
             if form.is_valid():
                 if form.cleaned_data['masking'] != old_masking or form.cleaned_data['notes'] != old_notes:
 
                     log_data = {}
                     log_data['classy'] = obj.pk
                     log_data['flag'] = 1
-                    log_data['classification'] = obj.Classification_name 
+                    log_data['classification'] = obj.classification 
+                    log_data['protected_type'] = obj.protected_type
                     log_data['user'] = request.user.pk
                     log_data['state'] = 'A'
                     log_data['approver'] = request.user.pk
                     log_data['masking_change'] = form.cleaned_data['masking']
                     log_data['note_change'] = form.cleaned_data['notes']
+                    log_data['previous_log'] = prev.pk
                     log_form = ClassificationFullLogForm(log_data)
                     if log_form.is_valid():
                         form.save()
                         log_form.save()
 
-        if 'Classification_name' in request.POST:
-            if not request.POST['classification_name'] == obj.classification:
-                form = logDetailForm(request.POST, instance=obj)
-                log_data = {}
-                log_data['classy'] = obj.pk
-                log_data['flag'] = 1
-                log_data['classification'] = request.POST['classification']
-                log_data['user'] = request.user.pk
-                log_data['state'] = 'A'
-                log_data['approver'] = request.user.pk
-                log_form = ClassificationLogForm(log_data)
+        elif 'classification' in request.POST and 'protected_type' in request.POST:
+            old_clas = obj.classification
+            old_prot = obj.protected_type
+            form = LogDetailForm(request.POST, instance=obj)
+            if form.is_valid():
+                if form.cleaned_data['classification'] != old_clas or form.cleaned_data['protected_type'] != old_prot:
 
-                if form.is_valid() and log_form.is_valid():
-                    form.save()
-                    log_form.save()
+                    form = LogDetailForm(request.POST, instance=obj)
+                    log_data = {}
+                    log_data['classy'] = obj.pk
+                    log_data['previous_log'] = prev.pk
+                    log_data['flag'] = 1
+                    log_data['classification'] = request.POST['classification']
+                    log_data['protected_type'] = request.POST['protected_type']
+                    log_data['user'] = request.user.pk
+                    log_data['state'] = 'A'
+                    log_data['approver'] = request.user.pk
+                    log_form = ClassificationLogForm(log_data)
+
+                    if form.is_valid() and log_form.is_valid():
+                        form.save()
+                        log_form.save()
 
     tup = tup.order_by('-time')
 
-    form = logDetailForm(initial={'classification': obj.classification})
+    form = LogDetailForm(initial={'classification': obj.classification, 'protected_type': obj.protected_type})
 
     context = {
         'form': form,
@@ -451,18 +460,17 @@ def modi(request):
 
             if request.user.is_staff:
                 info['state'] = 'A'
-                info['new_classification'] = untranslate[classy]
-                info['old_classification'] = tup.Classification_name
+                info['classification'] = untranslate[classy]
                 info['user'] = request.user.pk
                 info['approver'] = request.user.pk
 
                 form = ClassificationLogForm(info)
-                tup.Classification_name = untranslate[classy]
+                tup.classification = untranslate[classy]
                 tup.state = 'A'
             
             else:
                 info['group'] = new_group.pk
-                info['Classification_name'] = untranslate[classy]
+                info['classification'] = untranslate[classy]
                 
                 form = ClassificationReviewForm(info)
                 tup.state = 'P'
@@ -493,7 +501,7 @@ def modi(request):
 
             else:
                 info['group'] = new_group.pk
-                info['Classification_name'] = tup.Classification_name
+                info['classification'] = tup.classification
                 form = ClassificationReviewForm(info)
                 tup.state = 'P'
 
@@ -510,7 +518,7 @@ def modi(request):
 def search(request):
     num = ClassificationReviewGroups.objects.all().count()
     if request.method == 'GET':
-        form = advancedSearch(request.GET)
+        form = AdvancedSearch(request.GET)
         if form.is_valid():
             value=''
             ds=''
@@ -538,7 +546,7 @@ def search(request):
             if len(classi) == 0:
                 classi = options                
 
-            queryset2 = Classification.objects.filter(column__icontains=col, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, Classification_name__in=classi, state__in=stati)
+            queryset2 = Classification.objects.filter(column__icontains=col, table__icontains=tab, schema__icontains=sch, datasource__icontains=ds, classification__in=classi, state__in=stati)
 
             queryset = queryset & queryset2
             queryset = query_constructor(queryset, request.user)
@@ -546,7 +554,7 @@ def search(request):
             mapping = {}
             pie_information = []
             for op in options:
-                tmp = queryset.filter(Classification_name=op).count()
+                tmp = queryset.filter(classification=op).count()
                 pie_information.append(tmp)
                 mapping[op] = tmp
 
@@ -594,7 +602,7 @@ def search(request):
                 init = 1
                 for i in range(paginator.num_pages):
                     pags.append(init + i)
-            form = advancedSearch(initial={'size': size})
+            form = AdvancedSearch(initial={'size': size})
         
             recent = {}
             for tup in query:
@@ -628,7 +636,7 @@ def search(request):
             }
             return render(request, 'classy/data_tables.html', context)
         else:
-            form = advancedSearch()
+            form = AdvancedSearch()
             context = {
                 'num': num,
                 'form': form,
@@ -912,7 +920,7 @@ def data(request):
             return redirect('classy:index')
 
     num = ClassificationReviewGroups.objects.all().count()
-    form = advancedSearch()
+    form = AdvancedSearch()
     message = 'Results will appear after you have made a search'
     result = ''
     if 'success' in request.POST:

@@ -53,30 +53,15 @@
                                 </div>
                             </div>
                             <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="data_source">Datasource</label>
-                                    {{form.data_source}}
-                                </div>
-                                <div class="form-group">
-                                    <label for="schema">Schema</label>
-                                    {{form.schema}}
-                                </div>
-                                <div class="form-group">
-                                    <label for="table">Table</label>
-                                    {{form.table}}
-                                </div>
-                                <div class="form-group">
-                                    <label for="column">Column</label>
-                                    {{form.column}}
-                                </div>
-                                <div class="form-group">
-                                    <label class="mr-sm-2" for "customSel">Classification</label>
-                                    {{form.classi}}
-                                </div>
-                                <div class="form-group">
-                                    <label class="mr-sm-2">State</label>
-                                    {{form.stati}}
-                                </div>
+                                {% for field in form %}
+                                    <div class="form-group">
+                                        {{field.errors}}
+                                        {{field.label_tag}}
+                                        {{field}}
+                                        {{field.help_text}}
+                                    </div>
+                                {% endfor %}
+
                                 <input type='hidden' name='size' value='{{size}}'>
                             </div>
                             <div class="modal-footer">
@@ -269,6 +254,7 @@
                         <th class='th-cus'>Table</th>
                         <th class='th-cus'>Column</th>
                         <th class='th-cus'>Classification</th>
+                        <th class='th-cus'>Protected</th>
                     </tr>
                 </thead>
                 <tbody id="contentArea">
@@ -283,10 +269,11 @@
                             <td>{{tuple.schema}}</td>
                             <td>{{tuple.table}}</td>
                             <td>{{tuple.column}}</td>
-                            <td>{{translate|get_item:tuple.classification_name}}
+                            <td>{{translate|get_item:tuple.classification}}</td>
+                            <td>{{translate|get_item:tuple.protected_type}}</td>
                         </tr>
                         <tr class="hiddenRows{{forloop.counter}}">
-                            <td colspan="6">
+                            <td colspan="7">
                                 <div class="collapse row{{forloop.counter}} accordion-body">
                                     <div class="row">
                                     <div class="col-sm-1"></div>
@@ -302,8 +289,8 @@
                                     <select class="form-control form-control-sm cla"
                                         id="{{forloop.counter}}">
                                         <option selected>
-                                            {{ translate|get_item:tuple.classification_name }}
-                        <!--{{tuple.classification_name}}-->    </option>
+                                            {{ translate|get_item:tuple.classification }}
+                        <!--{{tuple.classification}}-->    </option>
                                         {% for op in ex_options %}
                                         <option value="{{forloop.counter}}">{{op}}</option>
                                         {% endfor %}

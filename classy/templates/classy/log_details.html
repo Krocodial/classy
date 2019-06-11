@@ -37,6 +37,10 @@
                 <td>{{state_translate|get_item:obj.state}}</td>
                 <!--<td>{{obj.state}}</td>-->
         </tr>
+    <tr>
+        <td><strong>Application</strong></td>
+        <td>{{obj.application_name}}</td>
+    </tr>
 	<tr>
 		<td><strong>Datasource</strong></td>
 		<td>{{obj.datasource}}</td>
@@ -124,8 +128,8 @@
 					<th>Action</th>
 					<th>User</th>
 					<th>Approver</th>
-					<th>Old Classification</th>
-					<th>New Classification</th>
+					<th>Classification</th>
+                    <th>Protected Type</th>
 					<th>Status</th>
 					<th>Masking</th>
 					<th>Notes</th>
@@ -138,8 +142,8 @@
 						<td>{{flag_translate|get_item:item.flag}}</td>
 						<td>{{item.user.first_name}}</td>
 						<td>{{item.approver.first_name}}</td>
-						<td>{{translate|get_item:item.old_classification}}</td>
-						<td>{{translate|get_item:item.new_classification}}</td>
+						<td>{{translate|get_item:item.classification}}</td>
+                        <td>{{translate|get_item:item.protected_type}}</td> 
 						<td>{{state_translate|get_item:item.state}}</td>
 						<td>{{item.masking_change}}</td>
 						<td>{{item.note_change}}</td>

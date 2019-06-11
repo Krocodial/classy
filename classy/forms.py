@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import ModelForm
 
+from django.utils.translation import gettext_lazy as _
+
 from .models import *
 from .models import classification_choices
 
@@ -17,12 +19,47 @@ class Thread:
         self.running = running
 
 class BasicSearch(forms.Form):
-    query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
+    #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
+    query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))
 
+class AdvancedSearch(ModelForm):
+    
+    datasource = forms.CharField(required=False, label='Datasource', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    schema = forms.CharField(required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    table = forms.CharField(required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    column = forms.CharField(required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Classification
+        exclude = ['created', 'creator', 'masking', 'notes']
+        help_texts = {
+            'classification': _('Help text'),
+        }
+        labels = {
+            'owner': _('Application')
+        }
+        widgets = {
+            'classification': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+            }),
+            'protected_type': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+            }),
+            'owner': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+            }),
+            'state': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+            }),
+        }
+
+
+
+'''
 class AdvancedSearch(forms.Form):
     
     classi_choices = (
-        ('UN', 'UNCLASSIFIED'),
+        ('UN', 'Unclassified'),
         ('PU', 'PUBLIC'),
         ('CO', 'CONFIDENTIAL'),
         ('PA', 'PROTECTED A'),
@@ -33,7 +70,7 @@ class AdvancedSearch(forms.Form):
     schema = forms.CharField(required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     table = forms.CharField(required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     column = forms.CharField(required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    classi = forms.MultipleChoiceField(required=False, choices=classi_choices, widget=forms.SelectMultiple(attrs={'class':'form-control'}))
+    classi = forms.MultipleChoiceField(required=False, choices=classification_choices, widget=forms.SelectMultiple(attrs={'class':'form-control'}))
 
     query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))
     state_choices = (
@@ -51,6 +88,7 @@ class AdvancedSearch(forms.Form):
     )
     size = forms.ChoiceField(required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm', 'onchange': 'this.form.submit();'}))
 
+'''
 
 class LoginForm(forms.Form):
     if settings.BYPASS_AUTH:
@@ -85,7 +123,7 @@ class ClassificationReviewForm(ModelForm):
 class LogDetailForm(ModelForm):
     class Meta:
         model = Classification
-        fields = ['classification']
+        fields = ['classification', 'protected_type']
 
 class LogDetailMNForm(ModelForm):
     class Meta:
@@ -95,5 +133,5 @@ class LogDetailMNForm(ModelForm):
 class ClassificationFullLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'user', 'state', 'approver', 'masking_change', 'note_change']
+        fields = ['classy', 'previous_log', 'flag', 'classification', 'protected_type', 'user', 'state', 'approver', 'masking_change', 'note_change']
 

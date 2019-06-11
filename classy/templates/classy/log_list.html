@@ -29,28 +29,30 @@
                     <thead style="color:#fff;" class="thead-inverse">
                         <tr>
                             
-			    <th class="th-cus">ID</th>
-                            <th class="th-cus">Action Time</th>
+			                <th class="th-cus">ID</th>
                             <th class="th-cus">Action Flag</th>
-                            <th class="th-cus">Old Classification</th>
-                            <th class="th-cus">New Classification</th>
+                            <th class="th-cus">Application</th>
+                            <th class="th-cus">Classification</th>
+                            <th class="th-cus">Protected</th>
                             <th class="th-cus">User</th>
                             <th class="th-cus">Approver</th>
                             <th class="th-cus">State</th>
+                            <th class="th-cus">Action Time</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for tuple in queryset %}
                         <tr>
                             
-			    <td><a href={% url 'classy:log_detail' tuple.classy_id %}>{{tuple.classy_id}}</a></td>
-                            <td>{{tuple.time}}</td>
-			    <td>{{flag_translate|get_item:tuple.flag}}</td>
-                            <td>{{translate|get_item:tuple.previous_log__classification}}{{tuple.previous_log__protected}}</td>
-                            <td>{{translate|get_item:tuple.classification}}{{tuple.protected}}</td>
+			                <td><a href={% url 'classy:log_detail' tuple.classy_id %}>{{tuple.classy_id}}</a></td>
+			                <td>{{flag_translate|get_item:tuple.flag}}</td>
+                            <td>{{tuple.application.acronym}}</td>
+                            <td>{{translate|get_item:tuple.classification}}</td>
+                            <td>{{translate|get_item:tuple.protected_type}}</td>
                             <td>{{tuple.user.first_name}}</td>
                             <td>{{tuple.approver.first_name}}</td>
                             <td>{{state_translate|get_item:tuple.state}}</td>
+                            <td>{{tuple.time}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

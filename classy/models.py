@@ -6,16 +6,16 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 classification_choices = (
-    ('UN', 'unclassified'),
-    ('PU', 'public'),
-    ('PE', 'personal'),
-    ('CO', 'confidential')
+    ('UN', 'Unclassified'),
+    ('PU', 'Public'),
+    ('PE', 'Personal'),
+    ('CO', 'Confidential')
 )
 
 protected_series = (
-    ('PA', 'protected a'),
-    ('PB', 'protected b'),
-    ('PC', 'protected c')
+    ('PA', 'Protected A'),
+    ('PB', 'Protected B'),
+    ('PC', 'Protected C')
 )
 
 state_choices = (
@@ -123,7 +123,7 @@ class Classification(models.Model):
     notes = models.CharField(max_length=400, blank=True)
     
 class ClassificationLogs(models.Model):
-    classy = models.ForeignKey(Classification, on_delete=models.CASCADE)
+    classy = models.ForeignKey(Classification, on_delete=models.PROTECT)
     previous_log = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
     time = models.DateTimeField(auto_now_add=True)
     flag = models.SmallIntegerField(choices=flag_choices)

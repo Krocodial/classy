@@ -29,28 +29,30 @@
                     <thead style="color:#fff;" class="thead-inverse">
                         <tr>
                             <th class="th-cus">ID</th>
-                            <th class="th-cus">Creation Date</th>
                             <th class="th-cus">Datasource</th>
                             <th class="th-cus">Schema</th>
                             <th class="th-cus">Table</th>
                             <th class="th-cus">Column</th>
                             <th class="th-cus">Classification</th>
+                            <th class="th-cus">Protected</th>
                             <th class="th-cus">User</th>
+                            <th class="th-cus">Creation Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for tuple in queryset %}
                         <tr>
-			    <td>
-				<a href={% url 'classy:log_detail' tuple.classy.id %}>{{tuple.classy_id}}</a>
-			    </td>
-                            <td>{{tuple.classy.created}}</td>
+                            <td>
+                            <a href={% url 'classy:log_detail' tuple.classy.id %}>{{tuple.classy_id}}</a>
+                            </td>
                             <td>{{tuple.classy.datasource}}</td>
                             <td>{{tuple.classy.schema}}</td>
                             <td>{{tuple.classy.table}}</td>
                             <td>{{tuple.classy.column}}</td>
-                            <td>{{translate|get_item:tuple.classy.classification_name}}</td>
+                            <td>{{translate|get_item:tuple.classy.classification}}</td>
+                            <td>{{translate|get_item:tuple.classy.protected_type}}</td>
                             <td>{{tuple.classy.creator.first_name}}</td>
+                            <td>{{tuple.classy.created}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

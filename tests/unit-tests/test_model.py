@@ -6,7 +6,8 @@ from classy.forms import *
 
 import datetime
 
-choices = ['CO', 'PU', 'UN', 'PA', 'PB', 'PC']
+choices = ['UN', 'PU', 'PE', 'CO']
+protected = ['PA', 'PB', 'PC', '']
 states = ['A', 'I', 'P']
 
 
@@ -49,10 +50,30 @@ class existanceTests(TestCase):
             new = Classification.objects.get(classification=val,column='testo')
             self.assertEqual(tmp.pk, new.pk)
 
+    def test_invalid_protected(self):
+        data = self.data
+
+        invalid_vals = ['protected_a', 'PROT A', 'sd320', "'; DROP TABLE Classifications;--", '...', '023)(_+', 'CO']
+        
+        for val in invalid_vals:
+            data['protected_type'] = val
+            form = ClassificationForm(data)
+            self.assertEqual(form.is_valid(), False)
+            
+    def test_valid_protected(self):
+        data = self.data
+
+        for val in protected:
+            data['protected_type'] = val
+            form = ClassificationForm(data)
+            self.assertEqual(form.is_valid(), True)
+            tmp = form.save()
+            new = Classification.objects.get(protected_type=val,column='testo')
+            self.assertEqual(tmp.pk, new.pk)
     def test_invalid_states(self):
         data = self.data
 
-        invalid_states = ['', 'procte', '12093', ';;]293#@$%', 'active', 'pending', 'deleted']
+        invalid_states = ['', 'procte', '12093', ';;]293#@$%', 'active', 'pending', 'deleted', 'CO']
 
         for val in invalid_states:
             data['state'] = val
@@ -128,16 +149,18 @@ class creationTests(TestCase):
         self.assertIsNotNone(new)
 
     def test_deletion_protection(self):
-        data = {'classy': self.classy, 'flag': 2, 'new_Classification': 'PU', 'old_Classification': 'CO', 'user': self.user.id, 'state': 'A', 'approver': self.user.id}
+        data = {'classy': self.classy, 'flag': 2, 'classification': 'PU', 'user': self.user.id, 'state': 'A', 'approver': self.user.id}
         form = ClassificationLogForm(data)
         tmp = form.save()
     
         with self.assertRaises(IntegrityError):
             Classification.objects.get(pk=self.classy).delete() 
 
-        tmp.delete()
-        Classification.objects.get(pk=self.classy).delete()
-
+        try:
+            tmp.delete()
+            Classification.objects.get(pk=self.classy).delete()
+        except IntegrityError:
+            self.fail("test_deletion_protection raised IntegrityError")
             
 
 
