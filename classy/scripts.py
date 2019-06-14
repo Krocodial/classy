@@ -22,7 +22,6 @@ def calculate_count(user):
     #Get all pks, grab logs individually.  
     error = ''
     tmp = query_constructor(Classification.objects.all(), user).values_list('pk', flat=True)
-    print(tmp)
 
 
 

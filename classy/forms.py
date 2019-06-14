@@ -4,8 +4,13 @@ from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 
 from .models import *
-from .models import classification_choices
+from .models import classification_choices, state_choices, protected_series
 
+size_choices = (
+    (10, '10'),
+    (25, '25'),
+    (50, '50'),
+    (100, '100'),)
 
 class UploadFileForm(forms.ModelForm):
     class Meta:
@@ -21,38 +26,20 @@ class Thread:
 class BasicSearch(forms.Form):
     #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
     query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))
+    size = forms.ChoiceField(initial=10, required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm', 'onchange': 'this.form.submit();'}))
 
-class AdvancedSearch(ModelForm):
-    
-    datasource = forms.CharField(required=False, label='Datasource', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    schema = forms.CharField(required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    table = forms.CharField(required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    column = forms.CharField(required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+class AdvancedSearch(forms.Form):
+ 
+    datasource = forms.CharField(initial='', required=False, label='Datasource', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    schema = forms.CharField(initial='', required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    table = forms.CharField(initial='', required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    column = forms.CharField(initial='', required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-    class Meta:
-        model = Classification
-        exclude = ['created', 'creator', 'masking', 'notes']
-        help_texts = {
-            'classification': _('Help text'),
-        }
-        labels = {
-            'owner': _('Application')
-        }
-        widgets = {
-            'classification': forms.SelectMultiple(attrs={
-                'class': 'form-control',
-            }),
-            'protected_type': forms.SelectMultiple(attrs={
-                'class': 'form-control',
-            }),
-            'owner': forms.SelectMultiple(attrs={
-                'class': 'form-control',
-            }),
-            'state': forms.SelectMultiple(attrs={
-                'class': 'form-control',
-            }),
-        }
-
+    classification = forms.MultipleChoiceField(initial=[i[0] for i in Classification._meta.get_field('classification').flatchoices], required=False, choices=classification_choices, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+    protected_type = forms.MultipleChoiceField(required=False, choices=protected_series, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+    state = forms.MultipleChoiceField(initial=['A', 'P'], required=False, choices=state_choices, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+    #size for pagination
+    owner = forms.ModelMultipleChoiceField(queryset=Application.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
 
 
 '''

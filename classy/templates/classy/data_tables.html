@@ -53,19 +53,18 @@
                                 </div>
                             </div>
                             <div class="modal-body">
-                                {% for field in form %}
-                                    <div class="form-group">
-                                        {{field.errors}}
-                                        {{field.label_tag}}
-                                        {{field}}
-                                        {{field.help_text}}
-                                    </div>
-                                {% endfor %}
+                                <!--<div class="form-group">-->
+                                    {% for field in advanced %}
+                                    {{field.errors}}
+                                    {{field.label_tag}}
+                                    {{field}}
+                                    {{field.help_text}}
+                                    {% endfor %}
 
-                                <input type='hidden' name='size' value='{{size}}'>
+                                <input type='hidden' name='size' value='{{basic.size.value}}'>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-success">Search</button>
+                                <button type="submit" name='submit-advanced' class="btn btn-success">Search</button>
                             </div>
                         </div>
                     </div>
@@ -78,18 +77,13 @@
                 <form class="form-group" action="search" id="searchi">
                     <div class="input-group">
                         <label for="id_size">Results per page: &nbsp</label>
-                        {{form.size}}
-                        <input type="hidden" name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name="schema" value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type="hidden" name='column' value='{{col}}'>
-                        {% for i in classi %}
-                            <input type="hidden" name='classi' value='{{i}}'>
+                        {{basic.size}}
+
+                        {% for field in advanced %}
+                            {{ field.as_hidden }}
                         {% endfor %}
-                        {% for st in stati %}
-                            <input type="hidden" name='stati' value='{{st}}'>
-                        {% endfor %}
+
+                        <input type='hidden' name='submit-advanced' value=''/>
                     </div>
                 </form>
             </div>
@@ -97,14 +91,14 @@
                 <div class="row">
                 <form class="form-group" action="search" id="searchi">
                     <div class="input-group">   
-                        {{form.query}}
+                        {{basic.query}}
                         <span class="input-group-btn">
-                            <button type="submit" class="btn btn-primary" type="button">Search</button>
+                            <button type="submit" name="submit-basic" class="btn btn-primary" type="button">Search</button>
                         </span>
                     </div> 
                     <small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
                     <div class="input-group">
-                        <input type="hidden" value="{{size}}"></input>
+                        <input name="size" type="hidden" value="{{basic.size.value}}"></input>
                     </div>
                     <nav class="nav justify-content-center">
                         <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
@@ -117,6 +111,13 @@
                 <form class="form-group" action="download" method="post">
                     {% csrf_token %}
                     <div class="input-group">
+                        {% for field in basic %}
+                            <input type="hidden" name="{{field.name}}" value="{{field.value}}"/>
+                        {% endfor %}
+                        {% for field in advanced %}
+                            {{ field.as_hidden }}
+                        {% endfor %}
+                        <!--
                         <input type="hidden" name='query' value='{{query}}'>
                         <input type="hidden" name='data_source' value='{{ds}}'>
                         <input type="hidden" name="schema" value='{{sch}}'>
@@ -128,6 +129,7 @@
                         {% for st in stati %}
                             <input type="hidden" name='stati' value='{{st}}'>
                         {% endfor %}
+                        -->
                         <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
                     </div>
                 </form>

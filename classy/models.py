@@ -6,10 +6,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 classification_choices = (
-    ('UN', 'Unclassified'),
-    ('PU', 'Public'),
-    ('PE', 'Personal'),
-    ('CO', 'Confidential')
+    ("UN", "Unclassified"),
+    ("PU", "Public"),
+    ("PE", "Personal"),
+    ("CO", "Confidential")
 )
 
 protected_series = (
@@ -19,9 +19,9 @@ protected_series = (
 )
 
 state_choices = (
-    ('A', 'Active'),
-    ('I', 'Inactive'),
-    ('P', 'Pending')
+    ("A", "Active"),
+    ("I", "Inactive"),
+    ("P", "Pending")
     )
 
 #Defined during development and now heavily integrated in JS Ajax calls
