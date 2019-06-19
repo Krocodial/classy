@@ -3,7 +3,9 @@
 <title>Search - Classy</title>
 <link rel="stylesheet" href="{% static 'classy/css/index.css' %}">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 {% load classy_extras %}
 
 </head>
@@ -19,7 +21,7 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h3><strong><i class="fa fa-check-circle"></i> Success!</strong> Changes submitted for review.</strong></h3>
+                        <h3><strong><i class="fa fa-check-circle"></i> Success!</strong> Changes submitted.</strong></h3>
                         {% if not request.user.is_staff %}
                         <p>Changes will show once approved by an administrator</p>
                         {% endif %}
@@ -117,19 +119,6 @@
                         {% for field in advanced %}
                             {{ field.as_hidden }}
                         {% endfor %}
-                        <!--
-                        <input type="hidden" name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name="schema" value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type="hidden" name='column' value='{{col}}'>
-                        {% for i in classi %}
-                            <input type="hidden" name='classi' value='{{i}}'>
-                        {% endfor %}
-                        {% for st in stati %}
-                            <input type="hidden" name='stati' value='{{st}}'>
-                        {% endfor %}
-                        -->
                         <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
                     </div>
                 </form>
@@ -137,41 +126,19 @@
                 </div>
                 </div>
             </div>
-            <!--<div class="col-sm-1" style="bottom: 0;">
-                {% if queryset %}
-                <form class="form-group" action="download" method="post">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="hidden" name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name="schema" value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type="hidden" name='column' value='{{col}}'>
-                        {% for i in classi %}
-                            <input type="hidden" name='classi' value='{{i}}'>
-                        {% endfor %}
-                        {% for st in stati %}
-                            <input type="hidden" name='stati' value='{{st}}'>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
-                    </div>
-                </form>
-                {% endif %}
-            </div>-->
             <div class="col-sm-2">
                 {% if queryset %}
-                    <canvas id="pieChart"></canvas>
+                    <div id="canvas-holder" style="position: relative; height:100px; width:100px; margin: 0 auto;">
+                        <canvas id="donutChart"></canvas>
+                    </div>
                     <form action="search" method="get" id='pieChartForm'>
-                        <input type='hidden' name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name='schema' value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type='hidden' name='column' value='{{col}}'>
-                        <input type='hidden' name='size' value='{{size}}'>
-                        {% for st in stati %}
-                            <input type='hidden' name='stati' value='{{st}}'>
+                        {% for field in advanced %}
+                            {{ field.as_hidden }}
                         {% endfor %}
-                        <input type='hidden' name='classi' value=''  id='pieChartClassi'>
+                        {% for field in basic %}
+                            {{ field.as_hidden }}
+                        {% endfor %}
+                        <input type="hidden" name="classification" value="" id="pieChartClassi">
                     </form>
                 {% endif %}
             </div>
@@ -228,6 +195,8 @@
                             </button>
                         </div>
                         <div class="modal-body">
+                            {{ modifyForm }}
+                            <!--
                             <label for="newC"><strong>Classification</strong></label>
                             <select class="form-control form-control-sm" id="newC">
                                  <option selected>Please select a new classification...</option>
@@ -235,6 +204,14 @@
                                     <option value="{{forloop.counter}}">{{op}}</option>
                                  {% endfor %}
                             </select>
+                            <label for ="newP"><strong>Protected Series</strong></label>
+                            <select class="form-control form-control-sm" id="newP">
+                                <option selected>Optionally choose a protected series</option>
+                                {% for op in ex_poptions %}
+                                    <option value="{{forloop.counter}}">{{op}}</option>
+                                {% endfor %}
+                            </select>
+                            -->
                         </div>
                         <div class="modal-footer">
                             <p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
@@ -354,12 +331,14 @@
 <br/><br/>
 </div>
 {% include 'classy/tail.html' %}
+{{nodeData|json_script:"classification_mapping"}}
+<script src="{% static 'classy/js/d3sunburst.js' %}"></script>
 
 <script src="{% static 'classy/js/custom.js' %}"></script>
 
 <script>
 
-options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
+options = {{options | safe}};
 
 $body = $('body');
 $(document).on({
@@ -387,21 +366,31 @@ $(document).on('click', '#finSubby', function() {
     }
 });
 });
+
+
 {% if pie_information %}
 
 piedata = {
 	datasets: [{
 		data:{{pie_information}},
 		backgroundColor: [
-		'#94778B',
+		        '#94778B',
                 '#7CE577',
                 '#A0CCDA',
-                '#E9CE2C',
-                '#DE541E',
-                '#BF211E'
-		]
-	}],
-	labels: {{label_cons}}
+                '#E9CE2C'
+		],
+        labels: {{ex_options | safe}}
+	},
+    {
+        data:[],
+        backgroundColor: [
+		        '#94778B',
+                '#7CE577',
+                '#A0CCDA',
+                '#E9CE2C'
+        ],
+        labels: {{ex_poptions | safe }}
+    }]
 };
 pieoptions = {
 	onClick: graphClickEvent,
@@ -429,16 +418,17 @@ window.onload = function() {
 		data: piedata,
 		options: pieoptions
 	});
-    console.log(myDonut);
     var size = {width: myDonut.width, height: myDonut.height};
     afterResizing(myDonut, size);
+
 };
 
 function graphClickEvent(event, array) {
+    console.log(array);
 	if(array[0]){
-		//console.log($('#pieChartClassi').val());
+		console.log($('#pieChartClassi').value);
 		$("#pieChartClassi").val(untranslate[options[array[0]._index]]);
-		//console.log($('#pieChartClassi').val());	
+		console.log($('#pieChartClassi').val());	
 		$("#pieChartForm").submit();			
 	};
 };

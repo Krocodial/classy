@@ -82,6 +82,9 @@
 
     </div>
 {% include 'classy/tail.html' %}
+{{options|json_script:"options"}}
+{{classification_mapping|json_script:"classification_mapping"}}
+<script src="{% static 'classy/js/sunburst.js' %}"></script>
 <script>
 var config = {
         type: 'line',
@@ -113,7 +116,7 @@ var config = {
                         borderColor: '#A0CCDA',
                         data: {{conf}},
                         fill: '-1',
-                        }, {
+                        }/*, {
                         label: 'Protected A',
                         backgroundColor: '#f5e9a3',
                         borderColor: '#E9CE2C',
@@ -131,7 +134,7 @@ var config = {
                         borderColor: '#BF211E',
                         data: {{protc}},
                         fill: '-1',
-                        }]
+                        }*/]
                 },
                 options: {
                         elements: {

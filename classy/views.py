@@ -72,52 +72,60 @@ def tutorial(request):
 def download(request):
     if not request.method == 'POST':
             return redirect('classy:home')
+
     advanced = AdvancedSearch(request.POST)
     basic = BasicSearch(request.POST)
-    print(request.POST)
-    print(basic)
     if advanced.is_valid() and basic.is_valid():
-        if(basic.cleaned_data['query'] != ''):
-            print('basic')
-            value = basic.cleaned_data['query']
-            print(value)
-            cols = Classification.objects.filter(column__icontains=value)
-            print(cols)
-            tabs = Classification.objects.filter(table__icontains=value)
-            schemas = Classification.objects.filter(schema__icontains=value)
-            data = Classification.objects.filter(datasource__icontains=value)
-            queryset = cols | tabs | schemas | data
-            queryset = queryset.exclude(state__exact='I')
-            print(queryset)
+ 
+        classification = advanced.cleaned_data['classification']
+        protected_type = advanced.cleaned_data['protected_type']
+        owner =         advanced.cleaned_data['owner']
+        state =         advanced.cleaned_data['state']
+
+        #if no classification is chosen search all of them
+        if len(classification) == 0:
+            classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
+        #This might look weird but it's the only way to check foreign keys, as if they are empty we will be running owner__in=[] which will not give all values, but none. 
+        if len(protected_type) == 0:
+            prot = Classification.objects.all()
         else:
-            print('advanced')
-            datasource =    advanced.cleaned_data['datasource']
-            schema =        advanced.cleaned_data['schema']
-            table =         advanced.cleaned_data['table']
-            column =        advanced.cleaned_data['column']
-            classification = advanced.cleaned_data['classification']
-            protected_type = advanced.cleaned_data['protected_type']
-            owner =         advanced.cleaned_data['owner']
-            state =         advanced.cleaned_data['state']
+            prot = Classification.objects.filter(protected_type__in=protected_type)
 
-            if 'classification' not in request.POST:
-                classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
+        if len(owner) == 0:
+            own = Classification.objects.all() 
+        else:
+            own = Classification.objects.filter(owner__acronym__in=owner)
+      
+        if len(state) == 0:
+            state = ['A', 'P']
+         
+        queryset = Classification.objects.filter(
+            datasource__icontains=advanced.cleaned_data['datasource'], 
+            schema__icontains=advanced.cleaned_data['schema'],
+            table__icontains=advanced.cleaned_data['table'],
+            column__icontains=advanced.cleaned_data['column'],
+            classification__in=classification,
+            state__in=state)
 
-            if 'protected_type' not in request.POST:
-                prot = Classification.objects.all()
-            else:
-                prot = Classification.objects.filter(protected_type__in=protected_type)
+        queryset = queryset.intersection(own, prot)
 
-            if 'owner' not in request.POST:
-                own = Classification.objects.all() 
-            else:
-                own = Classification.objects.filter(owner__acronym__in=owner)
+        query = basic.cleaned_data['query']            
+        data = Classification.objects.filter(datasource__icontains=query)
+        sche = Classification.objects.filter(schema__icontains=query)
+        tabl = Classification.objects.filter(table__icontains=query)
+        colu = Classification.objects.filter(column__icontains=query)
+        stat = Classification.objects.filter(state__in=state)
 
-            queryset = Classification.objects.filter(datasource__icontains=datasource, schema__icontains=schema, table__icontains=table, column__icontains=column, classification__in=classification, state__in=state)
-            queryset = queryset & own & prot
+        #OR the querysets to search all fields for value
+        queryset2 = Classification.objects.none()
+        queryset2 = queryset2.union(data, sche, tabl, colu)
+        queryset2 = queryset2.intersection(stat)
 
+        queryset = queryset.intersection(queryset2)
 
         queryset = query_constructor(queryset, request.user)
+
+
         queryset = queryset.order_by('datasource', 'schema', 'table', 'column')
     
         response = HttpResponse(content_type='text/csv')
@@ -133,8 +141,6 @@ def download(request):
                 app = None
             writer.writerow([app, translate[tuple.classification], translate[tuple.protected_type], tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator.first_name, state_translate[tuple.state], tuple.masking, tuple.notes])
         return response
-    else:
-        print(form.errors)
 
     return redirect('classy:index')
 
@@ -549,66 +555,102 @@ def modi(request):
 #Once a user makes a search in the data view handle the request. Just search all the features of our Classification objects to find even partial matches and return them. The call to query_constructor will filter out values the user is not allowed to view.
 @login_required
 def search(request):
+    if request.method != 'GET':
+        return redirect('classy:home')
     num = ClassificationReviewGroups.objects.all().count()
     #advanced = AdvancedSearch(initial={'datasource': '', 'schema': '', 'table': '', 'column': '', 'classification': ['UN'], 'state': ['A', 'P']})
     size = 10
     if 'size' in request.GET:
         if request.GET['size'] is not None:
             size = request.GET['size']
-    if request.method == 'GET':
-        if 'submit-advanced' in request.GET:
-            form = AdvancedSearch(request.GET)
-            advanced = form
-            if form.is_valid():
-                datasource =    form.cleaned_data['datasource']
-                schema =        form.cleaned_data['schema']
-                table =         form.cleaned_data['table']
-                column =        form.cleaned_data['column']
-                classification = form.cleaned_data['classification']
-                protected_type = form.cleaned_data['protected_type']
-                owner =         form.cleaned_data['owner']
-                state =         form.cleaned_data['state']
-
-                if 'classification' not in request.GET:
-                    classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
-
-                if 'protected_type' not in request.GET:
-                    prot = Classification.objects.all()
-                else:
-                    prot = Classification.objects.filter(protected_type__in=protected_type)
-
-                if 'owner' not in request.GET:
-                    own = Classification.objects.all() 
-                else:
-                    own = Classification.objects.filter(owner__acronym__in=owner)
-
-                queryset = Classification.objects.filter(datasource__icontains=datasource, schema__icontains=schema, table__icontains=table, column__icontains=column, classification__in=classification, state__in=state)
-                queryset = queryset & own & prot
-                advanced = form                       
+    advanced = AdvancedSearch(request.GET)
+    basic = BasicSearch(request.GET)
+    if advanced.is_valid() and basic.is_valid():
  
-        elif 'submit-basic' in request.GET:
-            form = BasicSearch(request.GET)
-            if form.is_valid():
-                value = form.cleaned_data['query']            
-                data = Classification.objects.filter(datasource__icontains=value)
-                sche = Classification.objects.filter(schema__icontains=value)
-                tabl = Classification.objects.filter(table__icontains=value)
-                colu = Classification.objects.filter(column__icontains=value)
-                stat = Classification.objects.filter(state__in=['A', 'P'])
+        classification = advanced.cleaned_data['classification']
+        protected_type = advanced.cleaned_data['protected_type']
+        owner =         advanced.cleaned_data['owner']
+        state =         advanced.cleaned_data['state']
 
-                queryset = data | sche | tabl | colu
-
-            advanced = AdvancedSearch()
+        #if no classification is chosen search all of them
+        if len(classification) == 0:
+            classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
+        #This might look weird but it's the only way to check foreign keys, as if they are empty we will be running owner__in=[] which will not give all values, but none. 
+        if len(protected_type) == 0:
+            prot = Classification.objects.all()
         else:
-            queryset = Classification.objects.filter(state__in=['A', 'P'])
-            advanced = AdvancedSearch()
+            prot = Classification.objects.filter(protected_type__in=protected_type)
+
+        if len(owner) == 0:
+            own = Classification.objects.all() 
+        else:
+            own = Classification.objects.filter(owner__acronym__in=owner)
+      
+        if len(state) == 0:
+            state = ['A', 'P']
+         
+        queryset = Classification.objects.filter(
+            datasource__icontains=advanced.cleaned_data['datasource'], 
+            schema__icontains=advanced.cleaned_data['schema'],
+            table__icontains=advanced.cleaned_data['table'],
+            column__icontains=advanced.cleaned_data['column'],
+            classification__in=classification,
+            state__in=state)
+
+        queryset = queryset.intersection(own, prot)
+
+        query = basic.cleaned_data['query']            
+        data = Classification.objects.filter(datasource__icontains=query)
+        sche = Classification.objects.filter(schema__icontains=query)
+        tabl = Classification.objects.filter(table__icontains=query)
+        colu = Classification.objects.filter(column__icontains=query)
+        stat = Classification.objects.filter(state__in=state)
+
+        #OR the querysets to search all fields for value
+        queryset2 = Classification.objects.none()
+        queryset2 = queryset2.union(data, sche, tabl, colu)
+        queryset2 = queryset2.intersection(stat)
+
+        queryset = queryset.intersection(queryset2)
+
         queryset = query_constructor(queryset, request.user)
-        mapping = {}
-        pie_information = []
+
+        nodeData = {}
+        nodeData['datasets'] = []
+        colors = ["#F7464A",
+                "#46BFBD",
+                "#FDB45C",
+                "#949FB1",
+                "#4D5360",]
+
+
+        data = []
         for op in options:
-            tmp = queryset.filter(classification=op).count()
-            pie_information.append(tmp)
-            mapping[op] = tmp
+            count = Classification.objects.filter(classification__exact=op)
+            count = count.intersection(queryset).count()
+            data.append(count)
+        nodeData['datasets'].append({
+                'data': data,
+                'backgroundColor': colors})
+
+
+        data = []
+        for pop in poptions:
+            count = Classification.objects.filter(protected_type__exact=pop)
+            count = count.intersection(queryset).count()
+            data.append(count)
+        nodeData['datasets'].append({
+                'data': data,
+                'backgroundColor': colors})
+        
+        nodeData['labels'] = options
+
+
+            
+
+        clas_information = []       
+ 
+        prot_information = []
 
         label_cons = ex_options
         queryset = queryset.order_by('datasource', 'schema', 'table', 'column')
@@ -655,8 +697,6 @@ def search(request):
             if tup.created - datetime.timedelta(days=14):
                 recent[tup.id] = True
 
-        #advanced = AdvancedSearch(initial={'datasource': datasource, 'schema': schema, 'table': table, 'column': column, 'classification': classification, 'protected_type': protected_type})
-        basic = BasicSearch(initial={'size': size})
         context = {
             'num': num,
             'basic': basic,
@@ -681,15 +721,21 @@ def search(request):
             'translate': translate,
             'untranslate': mark_safe(untranslate),
             'ex_options': ex_options,
-            'label_cons': mark_safe(label_cons),
-            'pie_information': pie_information,
+            'ex_poptions': ex_poptions,
+            'nodeData': nodeData,
+            'modifyForm': ModifyForm()
         }
         return render(request, 'classy/data_tables.html', context)
     else:
-        form = AdvancedSearch()
+        advanced = AdvancedSearch()
+        basic = BasicSearch()
         context = {
             'num': num,
-            'form': form,
+            'basic': basic,
+            'advanced': advanced,
+            'options': options,
+            'ex_options': ex_options,
+            'ex_poptions': ex_poptions,
             'message': 'Invalid search'
         }
         return render(request, 'classy/data_tables.html', context)
@@ -832,12 +878,26 @@ def home(request):
     data_cons = []
     mapping = {}
 
+    classification_mapping = {}
+   
+    for op in options:
+        classification_mapping[op] = {}
+        for pop in poptions:
+            tmp = Classification.objects.filter(classification__exact=op, protected_type=pop)
+            tmp = query_constructor(tmp, request.user).count()
+            classification_mapping[op][pop] = tmp
+        tmp = Classification.objects.filter(classification__exact=op)
+        tmp = query_constructor(tmp, request.user).count()
+        classification_mapping[op]['orig'] = tmp
+
+    '''
     for op in options:
         tmp = Classification.objects.filter(classification__exact=op)
         tmp = query_constructor(tmp, request.user)
         tmp = tmp.count()
         data_cons.append(tmp)
         mapping[op] = tmp
+    '''
     num = ClassificationReviewGroups.objects.all().count()
 
     if query_constructor(Classification.objects.all(), request.user).count() == 0:
@@ -871,9 +931,11 @@ def home(request):
     context = {
         #'queryset': queryset,
         'empty': empty,
+        'options': options,
         'data_cons': data_cons,
         'label_cons': mark_safe(label_cons),
         'untranslate': mark_safe(untranslate),
+        'classification_mapping': classification_mapping,
         'num': num,
         'dates': dates,
         'unc': keys['UN'],
@@ -978,9 +1040,14 @@ def data(request):
         result = 'success'
     if 'failure' in request.POST:
         result = 'failed'
+
     context = {
         'num': num,
         'basic': basic,
+        'options': options,
+        'translate': translate,
+        'ex_options': ex_options,
+        'ex_poptions': ex_poptions,
         'advanced': advanced,
         'message': message,
         'result': result,

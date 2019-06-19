@@ -23,6 +23,12 @@ class Thread:
         self.name = ''
         self.running = running
 
+class ModifyForm(forms.Form):
+    classification = forms.ChoiceField(required=False, choices=classification_choices, widget=forms.Select(attrs={'class': 'form-control'}))
+    protected_type = forms.ChoiceField(required=False, choices=protected_series, widget=forms.Select(attrs={'class': 'form-control'}))
+    owner = forms.ModelChoiceField(queryset=Application.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+    targets = forms.ModelMultipleChoiceField(queryset=Classification.objects.all(), required=True, widget=forms.HiddenInput(attrs={'class': 'form-control'}))
+
 class BasicSearch(forms.Form):
     #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
     query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))
@@ -40,42 +46,6 @@ class AdvancedSearch(forms.Form):
     state = forms.MultipleChoiceField(initial=['A', 'P'], required=False, choices=state_choices, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
     #size for pagination
     owner = forms.ModelMultipleChoiceField(queryset=Application.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
-
-
-'''
-class AdvancedSearch(forms.Form):
-    
-    classi_choices = (
-        ('UN', 'Unclassified'),
-        ('PU', 'PUBLIC'),
-        ('CO', 'CONFIDENTIAL'),
-        ('PA', 'PROTECTED A'),
-        ('PB', 'PROTECTED B'),
-        ('PC', 'PROTECTED C'),
-    )
-    data_source = forms.CharField(required=False, label='Datasource', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    schema = forms.CharField(required=False, label='Schema', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    table = forms.CharField(required=False, label='Table', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    column = forms.CharField(required=False, label='Column', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    classi = forms.MultipleChoiceField(required=False, choices=classification_choices, widget=forms.SelectMultiple(attrs={'class':'form-control'}))
-
-    query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))
-    state_choices = (
-        ('I', 'Inactive'),
-        ('A', 'Active'),
-        ('P', 'Pending'),
-    )
-    stati = forms.MultipleChoiceField(required=False, choices=state_choices, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
-    #size for pagination
-    size_choices = (
-        (10, '10'),
-        (25, '25'),
-        (50, '50'),
-        (100, '100'),
-    )
-    size = forms.ChoiceField(required=False, choices=size_choices, widget=forms.Select(attrs={'class': 'custom-select custom-select-sm', 'onchange': 'this.form.submit();'}))
-
-'''
 
 class LoginForm(forms.Form):
     if settings.BYPASS_AUTH:

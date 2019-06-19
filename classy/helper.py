@@ -47,7 +47,7 @@ def wildcard_handler(auth):
     else:
         tmp = Classification.objects.filter(
             schema__iexact=auth.schema)
-    permitted = permitted & tmp
+    permitted = permitted.intersection(tmp)
 
     if auth.table == '':
         tmp =  Classification.objects.filter(
@@ -55,7 +55,7 @@ def wildcard_handler(auth):
     else:
         tmp = Classification.objects.filter(
             table__iexact=auth.table)
-    permitted = permitted & tmp
+    permitted = permitted.intersection(tmp)
 
     if auth.column == '':
         tmp = Classification.objects.filter(
@@ -64,13 +64,13 @@ def wildcard_handler(auth):
         tmp = Classification.objects.filter(
             column__iexact=auth.column)
    
-    permitted = permitted & tmp
+    permitted = permitted.intersection(tmp)
 
     return permitted
 
 def group_deconstructor(permitted, group):
     for auth in group.data_authorizations.all():
-        permitted = permitted | wildcard_handler(auth)
+        permitted = permitted.union(wildcard_handler(auth))
 
     return permitted
 
@@ -79,12 +79,12 @@ def query_constructor(queryset, user):
     permitted = Classification.objects.none()
 
     for auth in user.data_authorizations.all():
-        permitted = permitted | wildcard_handler(auth)
+        permitted = permitted.union(wildcard_handler(auth))
 
     for group in user.dataset_authorizations.all():
         permitted = group_deconstructor(permitted, group) 
 
-    return queryset & permitted
+    return queryset.intersection(permitted)
 
 
 
