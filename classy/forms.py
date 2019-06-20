@@ -23,11 +23,14 @@ class Thread:
         self.name = ''
         self.running = running
 
+clas_mod_options = tuple([(u'', '---------')] + list(classification_choices))
+prot_mod_options = tuple([(u'', '---------')] + list(protected_series))
+
 class ModifyForm(forms.Form):
-    classification = forms.ChoiceField(required=False, choices=classification_choices, widget=forms.Select(attrs={'class': 'form-control'}))
-    protected_type = forms.ChoiceField(required=False, choices=protected_series, widget=forms.Select(attrs={'class': 'form-control'}))
+    classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
+    protected_type = forms.ChoiceField(required=False, choices=prot_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
     owner = forms.ModelChoiceField(queryset=Application.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
-    targets = forms.ModelMultipleChoiceField(queryset=Classification.objects.all(), required=True, widget=forms.HiddenInput(attrs={'class': 'form-control'}))
+    targets = forms.ModelChoiceField(queryset=Classification.objects.all(), required=True, widget=forms.HiddenInput(attrs={'class': 'form-control'}))
 
 class BasicSearch(forms.Form):
     #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
@@ -65,7 +68,7 @@ class ClassificationCountForm(ModelForm):
 class ClassificationLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'protected_type', 'user', 'state', 'approver']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver']
 
 class ClassificationReviewGroupForm(ModelForm):
     class Meta:
@@ -75,7 +78,7 @@ class ClassificationReviewGroupForm(ModelForm):
 class ClassificationReviewForm(ModelForm):
     class Meta:
         model = ClassificationReview
-        fields = ['classy', 'group', 'classification', 'flag']
+        fields = ['classy', 'group', 'classification', 'protected_type', 'owner', 'flag']
 
 class LogDetailForm(ModelForm):
     class Meta:

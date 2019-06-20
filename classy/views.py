@@ -462,62 +462,85 @@ def log_detail(request, classy_id):
 #The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.
 @login_required
 def modi(request):
-    if request.method == 'POST':
-        if 'toMod' in request.POST:
-            toMod = request.POST['toMod']
-            toModRed = json.loads(toMod)
+    if request.method != 'POST':
+        return redirect('classy:home')
+    if 'toMod' in request.POST:
+        toMod = request.POST['toMod']
+        toModRed = json.loads(toMod)
+    else:
+        toModRed = []
+    if 'toDel' in request.POST:
+        toDel = request.POST['toDel']
+        toDelRed = json.loads(toDel)
+    else:
+        toDelRed = []
+
+
+    if not request.user.is_staff:
+        new_group = ClassificationReviewGroups(user=request.user)
+        new_group.save()
+
+    queryset = query_constructor(Classification.objects.all(), request.user)
+    #queryset = queryset.values_list("pk", flat=True)
+    
+
+
+    for i in toModRed:
+        ide = i['id']
+        queryset = query_constructor(Classification.objects.filter(id__exact=ide), request.user)
+        if queryset.count() != 1:
+            continue
+        tup = Classification.objects.get(id__exact=ide)
+        try: 
+            classy = untranslate[i['classy']]
+        except:
+            classy = tup.classification
+        try:
+            proty = untranslate[i['proty']]
+        except:
+            proty = tup.protected_type
+        if i['own'] == '---------':
+            own = tup.owner
         else:
-            toModRed = []
-        if 'toDel' in request.POST:
-            toDel = request.POST['toDel']
-            toDelRed = json.loads(toDel)
+            own = i['own']
+
+        if classy == tup.classification and proty == tup.protected_type and own == tup.owner:
+            continue
+        if tup.state == 'P':
+            continue
+        info = {}
+
+        info['classy'] = tup.pk
+        info['flag'] = 1
+        info['classification'] = classy
+        info['protected_type'] = proty
+        info['owner'] = own                 
+
+
+
+        if request.user.is_staff:
+            info['state'] = 'A'
+            info['user'] = request.user.pk
+            info['approver'] = request.user.pk
+
+            form = ClassificationLogForm(info)
+            tup.classification = classy
+            tup.protected_type = proty
+            tup.owner = own
+            tup.state = 'A'
+        
         else:
-            toDelRed = []
-
-
-        if not request.user.is_staff:
-            new_group = ClassificationReviewGroups(user=request.user)
-            new_group.save()
-
-        for i in toModRed:
-            try:
-                ide = i['id']
-                classy = i['classy']
-            except:
-                #invalid json obj
-                continue
-
-            tup = Classification.objects.get(id=ide)
-            if tup.state == 'P':
-                continue
+            info['group'] = new_group.pk
             
-            info = {}
+            form = ClassificationReviewForm(info)
+            tup.state = 'P'
+        if form.is_valid():
+            tup.save()
+            form.save()
 
-            info['classy'] = tup.pk
-            info['flag'] = 1
-                        
 
-            if request.user.is_staff:
-                info['state'] = 'A'
-                info['classification'] = untranslate[classy]
-                info['user'] = request.user.pk
-                info['approver'] = request.user.pk
-
-                form = ClassificationLogForm(info)
-                tup.classification = untranslate[classy]
-                tup.state = 'A'
-            
-            else:
-                info['group'] = new_group.pk
-                info['classification'] = untranslate[classy]
-                
-                form = ClassificationReviewForm(info)
-                tup.state = 'P'
-
-            if form.is_valid():
-                tup.save()
-                form.save()
-        for i in toDelRed:
+    for i in toDelRed:
+        if int(i) in queryset:
             try:
                 tup = Classification.objects.get(id=int(i))
             except:
@@ -540,17 +563,14 @@ def modi(request):
 
             else:
                 info['group'] = new_group.pk
-                info['classification'] = tup.classification
                 form = ClassificationReviewForm(info)
                 tup.state = 'P'
 
             if form.is_valid():
                 tup.save()
                 form.save()
-        response = {'status': 1, 'message': 'ok'}
-        return HttpResponse(json.dumps(response), content_type='application/json')
-    else:
-        return redirect('classy:data')
+    response = {'status': 1, 'message': 'ok'}
+    return HttpResponse(json.dumps(response), content_type='application/json')
 
 #Once a user makes a search in the data view handle the request. Just search all the features of our Classification objects to find even partial matches and return them. The call to query_constructor will filter out values the user is not allowed to view.
 @login_required

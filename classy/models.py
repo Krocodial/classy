@@ -129,6 +129,7 @@ class ClassificationLogs(models.Model):
     flag = models.SmallIntegerField(choices=flag_choices)
     classification = models.CharField(max_length=2, choices=classification_choices, blank=True)
     protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
+    owner = models.ForeignKey(Application, on_delete=models.CASCADE, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Modifier')
     approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Approver')
     state = models.CharField(max_length=1, choices=state_choices)
@@ -148,8 +149,10 @@ class ClassificationReviewGroups(models.Model):
 class ClassificationReview(models.Model):
     classy = models.ForeignKey(Classification, on_delete=models.CASCADE)
     group = models.ForeignKey(ClassificationReviewGroups, on_delete=models.CASCADE)
-    classification = models.CharField(max_length=2, choices=classification_choices)
-    flag = models.SmallIntegerField()
+    classification = models.CharField(max_length=2, choices=classification_choices, blank=True)
+    protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
+    owner = models.ForeignKey(Application, on_delete=models.CASCADE, blank=True, null=True)
+    flag = models.SmallIntegerField(choices=flag_choices)
     
     class Meta:
         default_permissions = ()

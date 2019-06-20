@@ -160,7 +160,9 @@
                                     <tr>
                                         <th class="th-cus">ID</th>
                                         <th class="th-cus">New Classification</th>
-                                        <th class="actions th-cus">Actions</th>
+                                        <th class="th-cus">Protected Type</th>
+                                        <th class="th-cus">Owner</th>
+                                        <th class="actions th-cus"></th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -171,7 +173,7 @@
                                 <thead class="thead thead-inverse">
                                     <tr>
                                         <th class="th-cus">ID</th>
-                                        <th class="actions th-cus">Actions</th>
+                                        <th class="actions th-cus"></th>
                                     </tr>   
                                 </thead>
                                 <tbody>
@@ -195,23 +197,10 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            {{ modifyForm }}
-                            <!--
-                            <label for="newC"><strong>Classification</strong></label>
-                            <select class="form-control form-control-sm" id="newC">
-                                 <option selected>Please select a new classification...</option>
-                                 {% for op in ex_options %}
-                                    <option value="{{forloop.counter}}">{{op}}</option>
-                                 {% endfor %}
-                            </select>
-                            <label for ="newP"><strong>Protected Series</strong></label>
-                            <select class="form-control form-control-sm" id="newP">
-                                <option selected>Optionally choose a protected series</option>
-                                {% for op in ex_poptions %}
-                                    <option value="{{forloop.counter}}">{{op}}</option>
-                                {% endfor %}
-                            </select>
-                            -->
+                            <form id="modify-form" name="modify">
+                                {{ modifyForm }}
+                                
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
