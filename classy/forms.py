@@ -63,7 +63,7 @@ class ClassificationForm(ModelForm):
 class ClassificationCountForm(ModelForm):
     class Meta:
         model = ClassificationCount
-        fields = ['classification', 'count', 'date', 'user']   
+        fields = ['classification', 'protected_type', 'count', 'date', 'user']   
 
 class ClassificationLogForm(ModelForm):
     class Meta:

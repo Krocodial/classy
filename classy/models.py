@@ -102,6 +102,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 class ClassificationCount(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices)
+    protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
     count = models.BigIntegerField()
     date = models.DateField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

@@ -217,40 +217,30 @@ def exceptions(request):
     num = ClassificationReviewGroups.objects.all().count()
     form = BasicSearch(request.GET)
 
-    if request.method == 'POST':
-        if form.is_valid():
-            value = form.cleaned_data['query']
+    if form.is_valid():
+        value = form.cleaned_data['query']
+    
+        data = ClassificationLogs.objects.filter(classy__datasource__icontains=value)
+        sche = ClassificationLogs.objects.filter(classy__schema__icontains=value)
+        tabl = ClassificationLogs.objects.filter(classy__table__icontains=value)
+        colu = ClassificationLogs.objects.filter(classy__column__icontains=value)
+        user = ClassificationLogs.objects.filter(classy__creator__first_name__icontains=value)
+        appo = ClassificationLogs.objects.filter(classy__owner__name__icontains=value)
 
-        
-            clas = ClassificationLogs.objects.filter(classification__icontains=value)
-            prot = ClassificationLogs.objects.filter(protected_type__icontains=value)
-            data = ClassificationLogs.objects.filter(classy__datasource__icontains=value)
-            sche = ClassificationLogs.objects.filter(classy__schema__icontains=value)
-            tabl = ClassificationLogs.objects.filter(classy__table__icontains=value)
-            colu = ClassificationLogs.objects.filter(classy__column__icontains=value)
-            user = ClassificationLogs.objects.filter(classy__creator__first_name__icontains=value)
-            appo = ClassificationLogs.objects.filter(classy__owner__name__icontains=value)
+        queryset = data | sche | tabl | colu | user | appo
+        queryset = queryset.filter(flag__exact=2).exclude(classification__exact='UN')
 
-            if value.isdigit():
-                clas = ClassificationLogs.objects.filter(classy_id=int(value)) 
-
-            queryset = prot | data | sche | tabl | colu | user | appo | clas
-            
-    else:
-        queryset = ClassificationLogs.objects.all()
-        
-    queryset = queryset.filter(flag=2).exclude(classification='UN')
     permitted = query_constructor(Classification.objects.all(), request.user)
     permitted = permitted.values_list('pk', flat=True)
     queryset = queryset.filter(classy__in=permitted)
 
+    queryset = queryset.order_by('-classy__created')
+
     page = 1
     if 'page' in request.GET:
         page = request.GET.get('page')
-    queryset = queryset.order_by('-classy__created')
     paginator = Paginator(queryset, 50)
     query = paginator.get_page(page)
-    form = BasicSearch()
 
     prev = False
     nex = False
@@ -522,6 +512,7 @@ def modi(request):
             info['state'] = 'A'
             info['user'] = request.user.pk
             info['approver'] = request.user.pk
+            info['previous_log'] = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('time')[0]
 
             form = ClassificationLogForm(info)
             tup.classification = classy
@@ -558,6 +549,7 @@ def modi(request):
                 info['state'] = 'I'
                 info['user'] = request.user.pk
                 info['approver'] = request.user.pk
+                info['previous_log'] = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('time')[0]
                 form = ClassificationLogForm(info)
                 tup.state = 'I'
 
