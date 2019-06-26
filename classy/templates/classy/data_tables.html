@@ -223,6 +223,7 @@
                         <th class='th-cus'>Column</th>
                         <th class='th-cus'>Classification</th>
                         <th class='th-cus'>Protected</th>
+                        <th class='th-cus'>Application</th>
                     </tr>
                 </thead>
                 <tbody id="contentArea">
@@ -239,9 +240,10 @@
                             <td>{{tuple.column}}</td>
                             <td>{{translate|get_item:tuple.classification}}</td>
                             <td>{{translate|get_item:tuple.protected_type}}</td>
+                            <td>{{tuple.owner.name}}</td>
                         </tr>
                         <tr class="hiddenRows{{forloop.counter}}">
-                            <td colspan="7">
+                            <td colspan="8">
                                 <div class="collapse row{{forloop.counter}} accordion-body">
                                     <div class="row">
                                     <div class="col-sm-1"></div>

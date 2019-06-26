@@ -26,11 +26,25 @@ class Thread:
 clas_mod_options = tuple([(u'', '---------')] + list(classification_choices))
 prot_mod_options = tuple([(u'', '---------')] + list(protected_series))
 
-class ModifyForm(forms.Form):
+class ModifyForm(ModelForm):
+
     classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
     protected_type = forms.ChoiceField(required=False, choices=prot_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
     owner = forms.ModelChoiceField(queryset=Application.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
-    targets = forms.ModelChoiceField(queryset=Classification.objects.all(), required=True, widget=forms.HiddenInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Classification
+        fields = ['classification', 'protected_type', 'owner']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        classification = cleaned_data.get("classification")
+        protected_type = cleaned_data.get("protected_type")
+        if classification == 'UN' or classification == 'PU':
+            if protected_type != '':
+                raise forms.ValidationError(
+                    "Is this really protected?"
+                )
 
 class BasicSearch(forms.Form):
     #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
@@ -60,6 +74,16 @@ class ClassificationForm(ModelForm):
         model = Classification
         fields = ['classification', 'protected_type', 'owner', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
 
+    def clean(self):
+        cleaned_data = super().clean()
+        classification = cleaned_data.get("classification")
+        protected_type = cleaned_data.get("protected_type")
+        if classification == 'UN' or classification == 'PU':
+            if protected_type != '':
+                raise forms.ValidationError(
+                    "Is this really protected?"
+                )
+
 class ClassificationCountForm(ModelForm):
     class Meta:
         model = ClassificationCount
@@ -68,7 +92,7 @@ class ClassificationCountForm(ModelForm):
 class ClassificationLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'previous_log', 'owner', 'user', 'state', 'approver']
 
 class ClassificationReviewGroupForm(ModelForm):
     class Meta:
@@ -84,6 +108,17 @@ class LogDetailForm(ModelForm):
     class Meta:
         model = Classification
         fields = ['classification', 'protected_type']
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        classification = cleaned_data.get("classification")
+        protected_type = cleaned_data.get("protected_type")
+        if classification == 'UN' or classification == 'PU':
+            if protected_type != '':
+                raise forms.ValidationError(
+                    "Is this really protected?"
+                )
+
 
 class LogDetailMNForm(ModelForm):
     class Meta:

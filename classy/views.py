@@ -480,6 +480,7 @@ def modi(request):
         queryset = query_constructor(Classification.objects.filter(id__exact=ide), request.user)
         if queryset.count() != 1:
             continue
+    
         tup = Classification.objects.get(id__exact=ide)
         try: 
             classy = untranslate[i['classy']]
@@ -506,29 +507,33 @@ def modi(request):
         info['protected_type'] = proty
         info['owner'] = own                 
 
-
-
         if request.user.is_staff:
             info['state'] = 'A'
             info['user'] = request.user.pk
             info['approver'] = request.user.pk
-            info['previous_log'] = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('time')[0]
+            info['previous_log'] = ClassificationLogs.objects.filter(classy_id__exact=tup.pk).order_by('-id')[0].pk
+
+            data = info
 
             form = ClassificationLogForm(info)
-            tup.classification = classy
-            tup.protected_type = proty
-            tup.owner = own
-            tup.state = 'A'
-        
+            #tup.classification = classy
+            #tup.protected_type = proty
+            #tup.owner = own
+            #tup.state = 'A'
+            
         else:
             info['group'] = new_group.pk
-            
+            data = {'state': 'P'}
             form = ClassificationReviewForm(info)
-            tup.state = 'P'
-        if form.is_valid():
-            tup.save()
-            form.save()
+            #tup.state = 'P'
+        
+        clas_form = ModifyForm(data, instance=tup)        
 
+    
+        if form.is_valid() and clas_form.is_valid():
+            #tup.save()
+            clas_form.save()
+            form.save()
 
     for i in toDelRed:
         if int(i) in queryset:
@@ -549,17 +554,18 @@ def modi(request):
                 info['state'] = 'I'
                 info['user'] = request.user.pk
                 info['approver'] = request.user.pk
-                info['previous_log'] = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('time')[0]
+                info['previous_log'] = ClassificationLogs.objects.filter(classy_id__exact=tup.pk).order_by('-id')[0].pk
                 form = ClassificationLogForm(info)
-                tup.state = 'I'
+                data = {'state': 'I'}
 
             else:
                 info['group'] = new_group.pk
                 form = ClassificationReviewForm(info)
-                tup.state = 'P'
+                data = {'state': 'P'}
 
-            if form.is_valid():
-                tup.save()
+            clas_form = ModifyForm(data, instance=tup)
+            if form.is_valid() and clas_form.is_valid():
+                clas_form.save()
                 form.save()
     response = {'status': 1, 'message': 'ok'}
     return HttpResponse(json.dumps(response), content_type='application/json')
@@ -629,12 +635,15 @@ def search(request):
 
         nodeData = {}
         nodeData['datasets'] = []
-        colors = ["#F7464A",
-                "#46BFBD",
-                "#FDB45C",
-                "#949FB1",
-                "#4D5360",]
-
+        colors = [
+            "#F7464A",
+            "#46BFBD",
+            "#FDB45C",
+            "#949FB1",
+            "#9FFFF5",
+            "#7CFFC4",
+            "#6ABEA7",
+                ]
 
         data = []
         for op in options:
@@ -647,6 +656,8 @@ def search(request):
 
 
         data = []
+        for op in options:
+            data.append(0)
         for pop in poptions:
             count = Classification.objects.filter(protected_type__exact=pop)
             count = count.intersection(queryset).count()
@@ -655,7 +666,7 @@ def search(request):
                 'data': data,
                 'backgroundColor': colors})
         
-        nodeData['labels'] = options
+        nodeData['labels'] = ex_options + ex_poptions
 
 
             

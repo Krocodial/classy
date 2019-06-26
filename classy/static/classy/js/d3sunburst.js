@@ -25,5 +25,8 @@ var mydog = new Chart(ctx, config);
 
 
 function searchEvent(event, array) {
-    console.log(array);
+    if (array[0]) {
+        $("#pieChartClassi").val(untranslate[options[array[0]._index]]);
+        console.log(array[0]._index);
+    }
 };

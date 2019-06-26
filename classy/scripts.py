@@ -29,7 +29,6 @@ def calculate_count(user):
     logs = ClassificationLogs.objects.filter(classy__in=tmp).order_by('time')
     
     if logs.count() > 0:
-        print('here')
         current = logs[0].time.date()
         mapping = {}    
         
@@ -37,12 +36,16 @@ def calculate_count(user):
             if log.time.date() != current:
                 for key, value in mapping.items():
                     dic = key.split(':')
+                    if dic[1]:
+                        protected_type = dic[1]
+                    else:
+                        protected_type = ''
                     data = {
                         'classification': dic[0], 
-                        'protected_type': dic[1], 
+                        'protected_type': protected_type, 
                         'count': value, 
                         'date': current, 
-                        'user': request.user}
+                        'user': user.pk}
                     try:
                         item = ClassificationCount.objects.get(
                             date__exact=current,
@@ -57,8 +60,8 @@ def calculate_count(user):
                             form.save()
                     except ClassificationCount.MultipleObjectsReturned:
                         print('ERROR')
+                current = log.time.date()
             key = log.classification + ':' + log.protected_type
-            print(key)
             if log.flag == 0:
                 mapping[key] = mapping[key] - 1 
 
@@ -70,16 +73,19 @@ def calculate_count(user):
             elif log.flag == 2:
                 mapping[key] = mapping[key] + 1 if key in mapping else 1
      
-            print(mapping)
 
         for key, value in mapping.items():
             dic = key.split(':')
+            if dic[1]:
+                protected_type = dic[1]
+            else:
+                protected_type = ''
             data = {
                 'classification': dic[0], 
-                'protected_type': dic[1], 
+                'protected_type': protected_type, 
                 'count': value, 
                 'date': current, 
-                'user': request.user}
+                'user': user.pk}
             try:
                 item = ClassificationCount.objects.get(
                     date__exact=current,
