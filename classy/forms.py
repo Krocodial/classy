@@ -92,7 +92,7 @@ class ClassificationCountForm(ModelForm):
 class ClassificationLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'protected_type', 'previous_log', 'owner', 'user', 'state', 'approver']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver']
 
 class ClassificationReviewGroupForm(ModelForm):
     class Meta:
@@ -128,5 +128,5 @@ class LogDetailMNForm(ModelForm):
 class ClassificationFullLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'previous_log', 'flag', 'classification', 'protected_type', 'user', 'state', 'approver', 'masking_change', 'note_change']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'user', 'state', 'approver', 'masking_change', 'note_change']
 

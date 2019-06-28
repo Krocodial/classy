@@ -31,7 +31,7 @@ def calculate_count(user):
     if logs.count() > 0:
         current = logs[0].time.date()
         mapping = {}    
-        
+        previous = ''        
         for log in logs:
             if log.time.date() != current:
                 for key, value in mapping.items():
@@ -66,13 +66,12 @@ def calculate_count(user):
                 mapping[key] = mapping[key] - 1 
 
             elif log.flag == 1:
-                old = log.previous_log.classification + ':' + log.previous_log.protected_type
-                mapping[old] = mapping[old] - 1 
+                mapping[previous] = mapping[previous] - 1 
                 mapping[key] = mapping[key] + 1 if key in mapping else 1
 
             elif log.flag == 2:
                 mapping[key] = mapping[key] + 1 if key in mapping else 1
-     
+            previous = key 
 
         for key, value in mapping.items():
             dic = key.split(':')

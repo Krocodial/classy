@@ -721,6 +721,7 @@ def search(request):
                 recent[tup.id] = True
 
         context = {
+            'poptions': ex_options + ex_poptions,
             'num': num,
             'basic': basic,
             'advanced': advanced,
@@ -894,34 +895,45 @@ def index(request):
 @login_required
 def home(request):
 
-    #Just in case the appConfig fails
-    #if not Task.objects.filter(queue='counter').count() > 0:
-    #    calc_scheduler(repeat=180)
-
-    data_cons = []
-    mapping = {}
-
-    classification_mapping = {}
-   
-    for op in options:
-        classification_mapping[op] = {}
-        for pop in poptions:
-            tmp = Classification.objects.filter(classification__exact=op, protected_type=pop)
-            tmp = query_constructor(tmp, request.user).count()
-            classification_mapping[op][pop] = tmp
-        tmp = Classification.objects.filter(classification__exact=op)
-        tmp = query_constructor(tmp, request.user).count()
-        classification_mapping[op]['orig'] = tmp
-
-    '''
-    for op in options:
-        tmp = Classification.objects.filter(classification__exact=op)
-        tmp = query_constructor(tmp, request.user)
-        tmp = tmp.count()
-        data_cons.append(tmp)
-        mapping[op] = tmp
-    '''
     num = ClassificationReviewGroups.objects.all().count()
+
+
+    queryset = query_constructor(Classification.objects.all(), request.user)
+    nodeData = {}
+    nodeData['datasets'] = []
+    colors = [
+            "#F7464A",
+            "#46BFBD",
+            "#FDB45C",
+            "#949FB1",
+            "#9FFFF5",
+            "#7CFFC4",
+            "#6ABEA7"]
+    data = []
+    for op in options:
+        count = Classification.objects.filter(classification__exact=op)
+        count = count.intersection(queryset).count()
+        data.append(count)
+    nodeData['datasets'].append({
+        'data': data,
+        'backgroundColor': colors})
+
+    data = []
+    for op in options:
+        data.append(0)
+    for pop in poptions:
+        count = Classification.objects.filter(protected_type__exact=pop)
+        count = count.intersection(queryset).count()
+        data.append(count)
+    nodeData['datasets'].append({
+        'data': data,
+        'backgroundColor': colors})
+
+    nodeData['labels'] = ex_options + ex_poptions
+
+
+
+
 
     if query_constructor(Classification.objects.all(), request.user).count() == 0:
         empty = True
@@ -931,39 +943,73 @@ def home(request):
     label_cons = ex_options
     dates = []
     keys = {}
-    
+    lineDataset = []   
+ 
+    colors = {
+        'CO:PA': '#E4B7E5',
+        'CO:PB': '#B288C0',
+        'CO:PC': '#7E5A9B',
+        'PE:PA': '#A9FDAC',
+        'PE:PB': '#44CF6C',
+        'PE:PC': '#32A287',
+        'CO': '#A358D4',
+        'PE': '#29856F',
+        'PU': '#E9D985',
+        'UN': '#DBD5B5'
+        }
+
 
     for op in options:
-        keys[op] = []
+        if op in ['CO', 'PE']:
+            for pop in poptions:
+                keys[op+':'+pop] = []
+        else:
+            keys[op] = []
 
-    for i in range(45):
-        t = 44 - i
+    for i in range(30):
+        t = 29 - i
         d = timezone.now().date() - timezone.timedelta(days=t)
         dates.append(str(d))
         for clas, arr in keys.items():
+            clas = clas + ':'
+            dic = clas.split(':')
             #print(clas, d)
             try:
-                tmp = ClassificationCount.objects.get(date=d, classification=clas, user=request.user)
+                tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
                 arr.append(tmp.count)
             except ClassificationCount.DoesNotExist:
-                #print('dne')
-                pass
+                arr.append(0)
             except ClassificationCount.MultipleObjectsReturned:
                 #print('too many')
                 pass
+    print(keys)
+    for clas, arr in keys.items():
+        obj = {}
+        dic = clas.split(':')
+        if len(dic) > 1:
+            obj['label'] = translate[dic[0]] + ' ' + translate[dic[1]]
+        else:
+            obj['label'] = translate[dic[0]]
+        obj['borderColor'] = colors[clas]
+        obj['data'] = arr
+        obj['fill'] = 'origin'
+        lineDataset.append(obj)        
+
     context = {
         #'queryset': queryset,
+        'poptions': ex_options + ex_poptions,
+        'nodeData': nodeData,
         'empty': empty,
         'options': options,
-        'data_cons': data_cons,
         'label_cons': mark_safe(label_cons),
         'untranslate': mark_safe(untranslate),
-        'classification_mapping': classification_mapping,
         'num': num,
         'dates': dates,
-        'unc': keys['UN'],
-        'pub': keys['PU'],
-        'conf': keys['CO']
+        'keys': keys,
+        'lineDataset': lineDataset,
+        #'unc': keys['UN'],
+        #'pub': keys['PU'],
+        #'conf': keys['CO']
         #'prota': keys['PA'],
         #'protb': keys['PB'],
         #'protc': keys['PC']

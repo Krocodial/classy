@@ -54,7 +54,7 @@
                                 </div>
                                 </div>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body" id="advanced-form">
                                 <!--<div class="form-group">-->
                                     {% for field in advanced %}
                                     {{field.errors}}
@@ -322,7 +322,9 @@
 <br/><br/>
 </div>
 {% include 'classy/tail.html' %}
-{{nodeData|json_script:"classification_mapping"}}
+{{nodeData|json_script:"nodeData"}}
+{{untranslate|json_script:"untranslate"}}
+{{poptions|json_script:"poptions"}}
 <script src="{% static 'classy/js/d3sunburst.js' %}"></script>
 
 <script src="{% static 'classy/js/custom.js' %}"></script>
