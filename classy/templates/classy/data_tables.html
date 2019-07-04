@@ -56,13 +56,14 @@
                             </div>
                             <div class="modal-body" id="advanced-form">
                                 <!--<div class="form-group">-->
+                                    {{advanced}}
+                                    <!--
                                     {% for field in advanced %}
+                                    {{field}}
                                     {{field.errors}}
                                     {{field.label_tag}}
-                                    {{field}}
-                                    {{field.help_text}}
                                     {% endfor %}
-
+                                    -->
                                 <input type='hidden' name='size' value='{{basic.size.value}}'>
                             </div>
                             <div class="modal-footer">
@@ -128,7 +129,7 @@
             </div>
             <div class="col-sm-2">
                 {% if queryset %}
-                    <div id="canvas-holder" style="position: relative; height:100px; width:100px; margin: 0 auto;">
+                    <div id="canvas-holder" style="position: relative; margin: 0 auto;">
                         <canvas id="donutChart"></canvas>
                     </div>
                     <form action="search" method="get" id='pieChartForm'>
@@ -325,13 +326,15 @@
 {{nodeData|json_script:"nodeData"}}
 {{untranslate|json_script:"untranslate"}}
 {{poptions|json_script:"poptions"}}
+{{ex_options|json_script:"ex_options"}}
+{{ex_poptions|json_script:"ex_poptions"}}
+{{options|json_script:"options"}}
 <script src="{% static 'classy/js/d3sunburst.js' %}"></script>
 
 <script src="{% static 'classy/js/custom.js' %}"></script>
 
 <script>
-
-options = {{options | safe}};
+var options = JSON.parse(document.getElementById("options").textContent);
 
 $body = $('body');
 $(document).on({
@@ -361,84 +364,7 @@ $(document).on('click', '#finSubby', function() {
 });
 
 
-{% if pie_information %}
 
-piedata = {
-	datasets: [{
-		data:{{pie_information}},
-		backgroundColor: [
-		        '#94778B',
-                '#7CE577',
-                '#A0CCDA',
-                '#E9CE2C'
-		],
-        labels: {{ex_options | safe}}
-	},
-    {
-        data:[],
-        backgroundColor: [
-		        '#94778B',
-                '#7CE577',
-                '#A0CCDA',
-                '#E9CE2C'
-        ],
-        labels: {{ex_poptions | safe }}
-    }]
-};
-pieoptions = {
-	onClick: graphClickEvent,
-
-	legend: {
-		display: false,
-		position: 'bottom',
-	},
-	title: {
-		display: false,
-		position: 'top',
-		text: 'Classification Sizes',
-		fontSize: '11'
-	},
-    onResize: afterResizing,
-};
-
-untranslate = {{untranslate}}
-
-var pie = document.getElementById('pieChart').getContext('2d');
-
-window.onload = function() {
-	var myDonut = new Chart(pie, {
-		type: 'doughnut',
-		data: piedata,
-		options: pieoptions
-	});
-    var size = {width: myDonut.width, height: myDonut.height};
-    afterResizing(myDonut, size);
-
-};
-
-function graphClickEvent(event, array) {
-    console.log(array);
-	if(array[0]){
-		console.log($('#pieChartClassi').value);
-		$("#pieChartClassi").val(untranslate[options[array[0]._index]]);
-		console.log($('#pieChartClassi').val());	
-		$("#pieChartForm").submit();			
-	};
-};
-//document.getElementById('id_classi').value = options[array[0]._index];
-		//$('#searchi').submit();
-		//console.log(options[array[0]._index]);
-
-function afterResizing(chart, size) {
-    if(size.width <= 200 | size.height > 150) {
-        $("#pieChart").hide();
-    } else {
-        $("#pieChart").show();
-    }
-    chart.update();
-};
-
-{% endif %}
 
 </script>
 </body>

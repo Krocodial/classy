@@ -36,7 +36,7 @@
             </div>
             <div class="col-lg-6">
                 {% if not empty %}
-                <div id="canvas-holder" style="position: relative; height: 200px; width: 200px; margin: 0 auto;">
+                <div id="canvas-holder" style="position: relative; margin: 0 auto;">
                     <canvas id="donutChart"></canvas>
                 </div>
                 {% endif %}
@@ -89,7 +89,8 @@
 {{poptions|json_script:"poptions"}}
 {{lineDataset|json_script:"lineDataset"}}
 
-<script src="{% static 'classy/js/d3sunburst.js' %}"></script>
+
+<script src="{% static 'classy/js/sunburst.js' %}"></script>
 
 {{dates|json_script:"dates"}}
 {{keys|json_script:"keys"}}

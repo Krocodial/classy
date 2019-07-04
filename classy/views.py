@@ -42,7 +42,8 @@ ex_poptions = [i[1] for i in Classification._meta.get_field('protected_type').fl
 #options = ['UN', 'PU', 'CO', 'PE']
 
 translate = {'UN': 'Unclassified', 'CO': 'Confidential', 'PU': 'Public', 'PE': 'Personal', 'PA': 'Protected A', 'PB': 'Protected B', 'PC': 'Protected C', '': ''}
-untranslate = {'Unclassified': 'UN', 'Confidential': 'CO', 'Public': 'PU', 'Personal': 'PE', 'Protected A': 'PA', 'Protected B': 'PB', 'Protected C': 'PC'}
+#untranslate = {'Unclassified': 'UN', 'Confidential': 'CO', 'Public': 'PU', 'Personal': 'PE', 'Protected A': 'PA', 'Protected B': 'PB', 'Protected C': 'PC'}
+untranslate = {"Unclassified": "UN", "Confidential": "CO", "Public": "PU", "Personal": "PE", "Protected A": "PA", "Protected B": "PB", "Protected C": "PC"}
 state_translate = {'A': 'Active', 'P': 'Pending', 'I': 'Inactive'}
 flag_translate = {'0': 'Delete', '1': 'Modify', '2': 'Create'}
 
@@ -584,7 +585,6 @@ def search(request):
     advanced = AdvancedSearch(request.GET)
     basic = BasicSearch(request.GET)
     if advanced.is_valid() and basic.is_valid():
- 
         classification = advanced.cleaned_data['classification']
         protected_type = advanced.cleaned_data['protected_type']
         owner =         advanced.cleaned_data['owner']
@@ -606,7 +606,6 @@ def search(request):
       
         if len(state) == 0:
             state = ['A', 'P']
-         
         queryset = Classification.objects.filter(
             datasource__icontains=advanced.cleaned_data['datasource'], 
             schema__icontains=advanced.cleaned_data['schema'],
@@ -615,7 +614,7 @@ def search(request):
             classification__in=classification,
             state__in=state)
 
-        queryset = queryset.intersection(own, prot)
+        #queryset = queryset.intersection(own, prot)
 
         query = basic.cleaned_data['query']            
         data = Classification.objects.filter(datasource__icontains=query)
@@ -623,16 +622,11 @@ def search(request):
         tabl = Classification.objects.filter(table__icontains=query)
         colu = Classification.objects.filter(column__icontains=query)
         stat = Classification.objects.filter(state__in=state)
-
         #OR the querysets to search all fields for value
-        queryset2 = Classification.objects.none()
-        queryset2 = queryset2.union(data, sche, tabl, colu)
-        queryset2 = queryset2.intersection(stat)
-
-        queryset = queryset.intersection(queryset2)
+        queryset2 = data | sche | tabl | colu
+        queryset = (queryset2 & queryset & stat & own & prot).distinct()
 
         queryset = query_constructor(queryset, request.user)
-
         nodeData = {}
         nodeData['datasets'] = []
         colors = [
@@ -647,29 +641,23 @@ def search(request):
 
         data = []
         for op in options:
-            count = Classification.objects.filter(classification__exact=op)
-            count = count.intersection(queryset).count()
+            count = queryset.filter(classification__exact=op).count()
             data.append(count)
         nodeData['datasets'].append({
                 'data': data,
                 'backgroundColor': colors})
 
-
         data = []
         for op in options:
             data.append(0)
         for pop in poptions:
-            count = Classification.objects.filter(protected_type__exact=pop)
-            count = count.intersection(queryset).count()
+            count = queryset.filter(protected_type__exact=pop).count()
             data.append(count)
         nodeData['datasets'].append({
                 'data': data,
                 'backgroundColor': colors})
         
         nodeData['labels'] = ex_options + ex_poptions
-
-
-            
 
         clas_information = []       
  
@@ -743,7 +731,7 @@ def search(request):
             'last': last,
             'recent': recent,
             'translate': translate,
-            'untranslate': mark_safe(untranslate),
+            'untranslate': untranslate,
             'ex_options': ex_options,
             'ex_poptions': ex_poptions,
             'nodeData': nodeData,
@@ -911,9 +899,10 @@ def home(request):
             "#6ABEA7"]
     data = []
     for op in options:
-        count = Classification.objects.filter(classification__exact=op)
-        count = count.intersection(queryset).count()
+        count = queryset.filter(classification__exact=op).count()
         data.append(count)
+    for pop in poptions:
+        data.append(0)
     nodeData['datasets'].append({
         'data': data,
         'backgroundColor': colors})
@@ -922,8 +911,7 @@ def home(request):
     for op in options:
         data.append(0)
     for pop in poptions:
-        count = Classification.objects.filter(protected_type__exact=pop)
-        count = count.intersection(queryset).count()
+        count = queryset.filter(protected_type__exact=pop).count()
         data.append(count)
     nodeData['datasets'].append({
         'data': data,
@@ -935,7 +923,7 @@ def home(request):
 
 
 
-    if query_constructor(Classification.objects.all(), request.user).count() == 0:
+    if queryset.count() == 0:
         empty = True
     else:
         empty = False
@@ -982,7 +970,6 @@ def home(request):
             except ClassificationCount.MultipleObjectsReturned:
                 #print('too many')
                 pass
-    print(keys)
     for clas, arr in keys.items():
         obj = {}
         dic = clas.split(':')
@@ -1002,7 +989,7 @@ def home(request):
         'empty': empty,
         'options': options,
         'label_cons': mark_safe(label_cons),
-        'untranslate': mark_safe(untranslate),
+        'untranslate': untranslate,
         'num': num,
         'dates': dates,
         'keys': keys,
