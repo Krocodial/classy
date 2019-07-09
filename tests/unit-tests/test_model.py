@@ -7,6 +7,10 @@ from classy.forms import *
 import datetime
 
 choices = ['UN', 'PU', 'PE', 'CO']
+#Define what can be protected and what cannot for testing
+prot_choices = ['PE', 'CO']
+
+#Public and Unclassified require empty string val
 protected = ['PA', 'PB', 'PC', '']
 states = ['A', 'I', 'P']
 
@@ -52,24 +56,27 @@ class existanceTests(TestCase):
 
     def test_invalid_protected(self):
         data = self.data
-
-        invalid_vals = ['protected_a', 'PROT A', 'sd320', "'; DROP TABLE Classifications;--", '...', '023)(_+', 'CO']
         
-        for val in invalid_vals:
-            data['protected_type'] = val
-            form = ClassificationForm(data)
-            self.assertEqual(form.is_valid(), False)
+        invalid_vals = ['protected_a', 'PROT A', 'sd320', "'; DROP TABLE Classifications;--", '...', '023)(_+', 'CO']
+        for clas in choices:
+            data['classification'] = clas
+            for val in invalid_vals:
+                data['protected_type'] = val
+                form = ClassificationForm(data)
+                self.assertEqual(form.is_valid(), False)
             
     def test_valid_protected(self):
         data = self.data
 
-        for val in protected:
-            data['protected_type'] = val
-            form = ClassificationForm(data)
-            self.assertEqual(form.is_valid(), True)
-            tmp = form.save()
-            new = Classification.objects.get(protected_type=val,column='testo')
-            self.assertEqual(tmp.pk, new.pk)
+        for clas in prot_choices:
+            data['classification'] = clas
+            for val in protected:
+                data['protected_type'] = val
+                form = ClassificationForm(data)
+                self.assertEqual(form.is_valid(), True)
+                tmp = form.save()
+                new = Classification.objects.get(pk=tmp.pk)
+
     def test_invalid_states(self):
         data = self.data
 

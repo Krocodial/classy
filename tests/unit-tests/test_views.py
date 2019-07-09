@@ -7,6 +7,10 @@ from classy.views import home, login_complete, download, review, exceptions, log
 
 import json
 
+choices = ['Public', 'Confidential', 'Personal', 'Unclassified']
+protected = ['Protected A', 'Protected B', 'Protected C', '']
+prot_choices = ['Personal', 'Confidential']
+
 class renderTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -154,6 +158,10 @@ class renderTest(TestCase):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 302, self.supa: 302}
         response_codes_post = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
 
+        d1 = DataAuthorization.objects.create(
+                name='All',
+            )
+
         for user in self.users:
             rev = Classification.objects.create (
                     classification='CO',
@@ -165,7 +173,7 @@ class renderTest(TestCase):
                     state='A'
                     )
 
-            toMod = json.dumps([{"id": rev.pk, "classy": "PUBLIC"}])
+            toMod = json.dumps([{"id": rev.pk, "classy": "Personal", "proty": "Protected B", "own": "---------"}])
             toDel = json.dumps([rev.pk])
             modData = {"toMod": toMod}
             delData = {"toDel": toDel}
@@ -182,7 +190,42 @@ class renderTest(TestCase):
 
             rev.refresh_from_db()
             if user.is_staff:
-                self.assertEquals(rev.classification, 'PU')
+                #self.assertEquals(rev.classification, clas)
+                self.assertEquals(rev.state, 'A')
+            elif user.is_authenticated:
+                self.assertEquals(rev.state, 'A')
+            else:
+                self.assertEquals(rev.state, 'A')
+
+            request = self.factory.post(reverse('classy:modi'), data={'toDel': toDel})
+            request.user = user
+            response = modi(request)
+            self.assertEquals(response.status_code, response_codes_post[user])
+
+            if user.is_staff:
+                rev.refresh_from_db()
+                self.assertEquals(rev.state, 'A')
+            elif user.is_authenticated:
+                self.assertEquals(rev.state, 'A')
+            else:
+                self.assertEquals(rev.state, 'A')
+            
+            #Anon does not have profile
+            if user == self.anon:
+                continue
+
+            user.profile.data_authorizations.add(d1)
+            user.profile.save()
+
+            request = self.factory.post(reverse('classy:modi'), data={'toMod': toMod})
+            request.user = user
+            response = modi(request)
+            self.assertEquals(response.status_code, response_codes_post[user])
+
+            rev.refresh_from_db()
+            if user.is_staff:
+                self.assertEquals(rev.classification, "PE")
+                self.assertEquals(rev.protected_type, "PB")
                 self.assertEquals(rev.state, 'A')
             elif user.is_authenticated:
                 self.assertEquals(rev.state, 'P')
@@ -201,6 +244,7 @@ class renderTest(TestCase):
                 self.assertEquals(rev.state, 'P')
             else:
                 self.assertEquals(rev.state, 'A')
+
 
     def test_search_view(self):
         response_codes_get = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}

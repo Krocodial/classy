@@ -31,10 +31,11 @@ class ModifyForm(ModelForm):
     classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
     protected_type = forms.ChoiceField(required=False, choices=prot_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
     owner = forms.ModelChoiceField(queryset=Application.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+    
 
     class Meta:
         model = Classification
-        fields = ['classification', 'protected_type', 'owner']
+        fields = ['classification', 'protected_type', 'owner', 'state']
 
     def clean(self):
         cleaned_data = super().clean()

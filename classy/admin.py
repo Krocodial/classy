@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.views.decorators.debug import sensitive_post_parameters
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from classy.models import Profile, DataAuthorization, DatasetAuthorization
+from classy.models import Profile, DataAuthorization, DatasetAuthorization, Application
 csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
 
@@ -31,8 +31,12 @@ class DatasetAdmin(admin.ModelAdmin):
     ordering = ('name',)
     filter_horizontal = ('data_authorizations',)
 
+class ApplicationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'acronym')
+    list_filter = ('poc',)
+    ordering = ('name',)
 
-
+admin.site.register(Application, ApplicationAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(DataAuthorization, DataAdmin)
 admin.site.register(DatasetAuthorization, DatasetAdmin)

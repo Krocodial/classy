@@ -384,8 +384,6 @@ def log_detail(request, classy_id):
         obj = Classification.objects.get(id=classy_id)
         tup = ClassificationLogs.objects.filter(classy_id__exact=classy_id)
 
-        prev = ClassificationLogs.objects.filter(classy_id__exact=classy_id).order_by('-id')[0]
-
     else:
         return redirect('classy:index')        
     if request.method == 'POST':
@@ -406,7 +404,6 @@ def log_detail(request, classy_id):
                     log_data['approver'] = request.user.pk
                     log_data['masking_change'] = form.cleaned_data['masking']
                     log_data['note_change'] = form.cleaned_data['notes']
-                    log_data['previous_log'] = prev.pk
                     log_form = ClassificationFullLogForm(log_data)
                     if log_form.is_valid():
                         form.save()
@@ -422,7 +419,6 @@ def log_detail(request, classy_id):
                     form = LogDetailForm(request.POST, instance=obj)
                     log_data = {}
                     log_data['classy'] = obj.pk
-                    log_data['previous_log'] = prev.pk
                     log_data['flag'] = 1
                     log_data['classification'] = request.POST['classification']
                     log_data['protected_type'] = request.POST['protected_type']
@@ -472,17 +468,13 @@ def modi(request):
         new_group.save()
 
     queryset = query_constructor(Classification.objects.all(), request.user)
-    #queryset = queryset.values_list("pk", flat=True)
-    
-
-
     for i in toModRed:
         ide = i['id']
-        queryset = query_constructor(Classification.objects.filter(id__exact=ide), request.user)
-        if queryset.count() != 1:
+        try:
+            tup = queryset.get(id__exact=ide)
+        except:
             continue
-    
-        tup = Classification.objects.get(id__exact=ide)
+
         try: 
             classy = untranslate[i['classy']]
         except:
@@ -512,7 +504,6 @@ def modi(request):
             info['state'] = 'A'
             info['user'] = request.user.pk
             info['approver'] = request.user.pk
-            info['previous_log'] = ClassificationLogs.objects.filter(classy_id__exact=tup.pk).order_by('-id')[0].pk
 
             data = info
 
@@ -529,45 +520,43 @@ def modi(request):
             #tup.state = 'P'
         
         clas_form = ModifyForm(data, instance=tup)        
-
     
         if form.is_valid() and clas_form.is_valid():
             #tup.save()
             clas_form.save()
             form.save()
+        else:
+            print('invalid')
 
     for i in toDelRed:
-        if int(i) in queryset:
-            try:
-                tup = Classification.objects.get(id=int(i))
-            except:
-                #invalid list of vals
-                continue
+        try:
+            tup = queryset.get(id=int(i))
+        except:
+            continue
 
-            if tup.state == 'P':
-                continue
+        if tup.state == 'P':
+            continue
 
-            info  = {}
-            info['classy'] = tup.pk
-            info['flag'] = 0
+        info  = {}
+        info['classy'] = tup.pk
+        info['flag'] = 0
 
-            if request.user.is_staff:
-                info['state'] = 'I'
-                info['user'] = request.user.pk
-                info['approver'] = request.user.pk
-                info['previous_log'] = ClassificationLogs.objects.filter(classy_id__exact=tup.pk).order_by('-id')[0].pk
-                form = ClassificationLogForm(info)
-                data = {'state': 'I'}
+        if request.user.is_staff:
+            info['state'] = 'I'
+            info['user'] = request.user.pk
+            info['approver'] = request.user.pk
+            form = ClassificationLogForm(info)
+            data = {'state': 'I'}
 
-            else:
-                info['group'] = new_group.pk
-                form = ClassificationReviewForm(info)
-                data = {'state': 'P'}
+        else:
+            info['group'] = new_group.pk
+            form = ClassificationReviewForm(info)
+            data = {'state': 'P'}
 
-            clas_form = ModifyForm(data, instance=tup)
-            if form.is_valid() and clas_form.is_valid():
-                clas_form.save()
-                form.save()
+        clas_form = ModifyForm(data, instance=tup)
+        if form.is_valid() and clas_form.is_valid():
+            clas_form.save()
+            form.save()
     response = {'status': 1, 'message': 'ok'}
     return HttpResponse(json.dumps(response), content_type='application/json')
 
@@ -630,7 +619,7 @@ def search(request):
         nodeData = {}
         nodeData['datasets'] = []
         colors = [
-            "#F7464A",
+            "#DBD5B5",
             "#46BFBD",
             "#FDB45C",
             "#949FB1",
@@ -890,7 +879,7 @@ def home(request):
     nodeData = {}
     nodeData['datasets'] = []
     colors = [
-            "#F7464A",
+            "#DBD5B5",
             "#46BFBD",
             "#FDB45C",
             "#949FB1",
@@ -934,18 +923,30 @@ def home(request):
     lineDataset = []   
  
     colors = {
-        'CO:PA': '#E4B7E5',
-        'CO:PB': '#B288C0',
-        'CO:PC': '#7E5A9B',
-        'PE:PA': '#A9FDAC',
-        'PE:PB': '#44CF6C',
-        'PE:PC': '#32A287',
-        'CO': '#A358D4',
-        'PE': '#29856F',
-        'PU': '#E9D985',
-        'UN': '#DBD5B5'
+        'CO:PA': 'rgb(228,183,229)',
+        'CO:PB': 'rgb(178,136,192)',
+        'CO:PC': 'rgb(126,90,155)',
+        'PE:PA': 'rgb(169,253,172)',
+        'PE:PB': 'rgb(68,207,108)',
+        'PE:PC': 'rgb(50,162,135)',
+        'CO': 'rgb(163,88,212)',
+        'PE': 'rgb(41,133,111)',
+        'PU': 'rgb(70,191,189)',
+        'UN': 'rgb(219,213,181)'
         }
 
+    bak_colors = {
+        'CO:PA': 'rgb(228,183,229,0.3)',
+        'CO:PB': 'rgb(178,136,192,0.3)',
+        'CO:PC': 'rgb(126,90,155,0.3)',
+        'PE:PA': 'rgb(169,253,172,0.3)',
+        'PE:PB': 'rgb(68,207,108,0.3)',
+        'PE:PC': 'rgb(50,162,135,0.3)',
+        'CO': 'rgb(163,88,212,0.3)',
+        'PE': 'rgb(41,133,111,0.3)',
+        'PU': 'rgb(70,191,189,0.3)',
+        'UN': 'rgb(219,213,181,0.3)'
+        }
 
     for op in options:
         if op in ['CO', 'PE']:
@@ -974,10 +975,11 @@ def home(request):
         obj = {}
         dic = clas.split(':')
         if len(dic) > 1:
-            obj['label'] = translate[dic[0]] + ' ' + translate[dic[1]]
+            obj['label'] = translate[dic[0]] + ' [' + dic[1] + ']' #translate[dic[1]]
         else:
             obj['label'] = translate[dic[0]]
         obj['borderColor'] = colors[clas]
+        obj['backgroundColor'] = bak_colors[clas]
         obj['data'] = arr
         obj['fill'] = 'origin'
         lineDataset.append(obj)        

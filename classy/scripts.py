@@ -30,7 +30,10 @@ def calculate_count(user):
     
     if logs.count() > 0:
         current = logs[0].time.date()
-        mapping = {}    
+        mapping = {}   
+        for op in options:
+            for pop in poptions:
+                mapping[op + ':' + pop] = 0
         previous = ''        
         for log in logs:
             if log.time.date() != current:

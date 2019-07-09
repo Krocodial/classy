@@ -1,4 +1,5 @@
 
+
 //$('li').attr('unselectable', 'on'); //IE
 var keys = [];
 var shifted = false;
@@ -122,10 +123,20 @@ $(document).on('click', '#changeC', function() {
 	/*$.each(keys, function(index, value) {
 		console.log($(value).attr('id'));
 	});*/
-	var newy = $('#newC').find(':selected').text();
+	var newy = $('#modify-form > #id_classification').find(':selected').text();
+    var newp = $("#modify-form > #id_protected_type").find(":selected").text();
+    var newo = $("#modify-form > #id_owner").find(":selected").text();
 	$.each(keys, function(index, value) {
-		chan = {id: $('#prodId' + value).attr('value'), classy: newy};
+		chan = {id: $('#prodId' + value).attr('value'), classy: newy, proty: newp, own: newo};
 		toMod.push(chan);
+        /*
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", "targets");
+        input.setAttribute("id", "id_targets");
+        input.setAttribute("value", $("#prodId" + value).attr("value"));
+        document.getElementById("modify-form").appendChild(input);
+        */
 	});
 
 	//console.log($('#newC').find(':selected').text());
@@ -170,7 +181,7 @@ $(document).on('click', '#subby', function() {
         $('#delTable tbody').html(rows.join(''));
 
         var rows = $.map(toMod, function(value, index) {
-        return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td><td>' +
+        return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td><td>' + value.proty + "</td><td>" + value.own + "</td><td>" + 
                 '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
                 '</td></tr>';
 });
