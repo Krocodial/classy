@@ -123,9 +123,10 @@ $(document).on('click', '#changeC', function() {
 	/*$.each(keys, function(index, value) {
 		console.log($(value).attr('id'));
 	});*/
-	var newy = $('#modify-form > #id_classification').find(':selected').text();
-    var newp = $("#modify-form > #id_protected_type").find(":selected").text();
-    var newo = $("#modify-form > #id_owner").find(":selected").text();
+	var newy = $('#modify-form > .form-group > #id_classification').find(':selected').text();
+    var newp = $("#modify-form > .form-group > #id_protected_type").find(":selected").text();
+    var newo = $("#modify-form > .form-group > #id_owner").find(":selected").text();
+    console.log(newo);
 	$.each(keys, function(index, value) {
 		chan = {id: $('#prodId' + value).attr('value'), classy: newy, proty: newp, own: newo};
 		toMod.push(chan);

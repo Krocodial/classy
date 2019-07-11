@@ -17,21 +17,21 @@
             <div class="col-sm-3"></div>
             <div class="col-sm-6">
                 {% if result == 'success' %}
-                    <div class="alert gov-alert-success alert-dismissible" role="alert" style='max-height:70px;'>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h3><strong><i class="fa fa-check-circle"></i> Success!</strong> Changes submitted.</strong></h3>
+                    <div class="alert alert-success alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        {% if request.user.is_staff %}
+                        <strong> Success!</strong>
+                        {% endif %}
                         {% if not request.user.is_staff %}
-                        <p>Changes will show once approved by an administrator</p>
+                            <strong> Your changes will show once approved by a member of staff</strong>
                         {% endif %}
                     </div>
+
                 {% elif result == 'failure' %}
-                    <div class="alert gov-alert-failure alert-dismissable" role="alert" aria-live="assertive">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h3><strong><i class="fa fa-times-circle"></i> Oops! </strong> Please try again.</h3>
+                    
+                    <div class="alert alert-warning alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <strong> Oops!</strong> Looks like something went wrong, please try again
                     </div>
                 {% endif %}
             </div>
@@ -43,27 +43,17 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <div class="row">
-                                <div class="col-lg-8">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h5 class="modal-title custom-colour" id="modalLab">Advanced Search</h5>
-                                </div>
-                                <div class="col-lg-4">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="false">&times;</span>
-                                </button>
-                                </div>
-                                </div>
                             </div>
                             <div class="modal-body" id="advanced-form">
-                                <!--<div class="form-group">-->
-                                    {{advanced}}
-                                    <!--
                                     {% for field in advanced %}
+                                    <div class="form-group">
+                                    {{field.label_tag}}
                                     {{field}}
                                     {{field.errors}}
-                                    {{field.label_tag}}
+                                    </div>
                                     {% endfor %}
-                                    -->
                                 <input type='hidden' name='size' value='{{basic.size.value}}'>
                             </div>
                             <div class="modal-footer">
@@ -149,10 +139,8 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h5 class="modal-title custom-colour" id="modalBo">Confirm changes</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                         </div>
                         <div class="modal-body">
                             <h6 class="text-center">Pending modifications</h6>
@@ -192,14 +180,18 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h5 class="modal-title custom-colour" id="batchH">Change Classification</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                         </div>
                         <div class="modal-body">
                             <form id="modify-form" name="modify">
-                                {{ modifyForm }}
+                                {% for field in modifyForm %}
+                                    <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.help_text }}
+                                    </div>
+                                {% endfor %}
                             </form>
                         </div>
                         <div class="modal-footer">

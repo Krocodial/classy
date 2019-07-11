@@ -475,44 +475,41 @@ def modi(request):
         except:
             continue
 
-        try: 
-            classy = untranslate[i['classy']]
-        except:
-            classy = tup.classification
-        try:
-            proty = untranslate[i['proty']]
-        except:
-            proty = tup.protected_type
-        if i['own'] == '---------':
-            own = tup.owner
-        else:
-            own = i['own']
-
-        if classy == tup.classification and proty == tup.protected_type and own == tup.owner:
-            continue
-        if tup.state == 'P':
-            continue
+        same = True
         info = {}
+
+        try: 
+            info['classification'] = untranslate[i['classy']]
+            same = False
+        except:
+            pass
+        try:
+            info['protected_type'] = untranslate[i['proty']]
+            same = False
+        except:
+            pass
+        try:
+            info['owner'] = Application.objects.get(name__exact=i['own']).pk
+            same = False
+        except Exception as e:
+            print(e)
+            pass
+
+        if tup.state == 'P' or same:
+            continue
 
         info['classy'] = tup.pk
         info['flag'] = 1
-        info['classification'] = classy
-        info['protected_type'] = proty
-        info['owner'] = own                 
 
         if request.user.is_staff:
-            info['state'] = 'A'
             info['user'] = request.user.pk
             info['approver'] = request.user.pk
+            info['state'] = 'A'
 
             data = info
-
-            form = ClassificationLogForm(info)
-            #tup.classification = classy
-            #tup.protected_type = proty
-            #tup.owner = own
-            #tup.state = 'A'
             
+            latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
+            form = ClassificationLogForm(info, instance=latest)
         else:
             info['group'] = new_group.pk
             data = {'state': 'P'}
@@ -525,8 +522,6 @@ def modi(request):
             #tup.save()
             clas_form.save()
             form.save()
-        else:
-            print('invalid')
 
     for i in toDelRed:
         try:

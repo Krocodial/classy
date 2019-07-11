@@ -41,6 +41,10 @@ class Application(models.Model):
     name = models.CharField(max_length=100, unique=True)
     poc = models.CharField(max_length=100, blank=True, help_text='Point of contact for the application')
     description = models.CharField(max_length=200, blank=True)
+    
+    def __str__(self):
+        return self.name
+
 
 class DataAuthorization(models.Model):
 

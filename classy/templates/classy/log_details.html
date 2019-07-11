@@ -39,7 +39,7 @@
         </tr>
     <tr>
         <td><strong>Application</strong></td>
-        <td>{{obj.application_name}}</td>
+        <td>{{obj.owner.name}}</td>
     </tr>
 	<tr>
 		<td><strong>Datasource</strong></td>
@@ -130,6 +130,7 @@
 					<th>Approver</th>
 					<th>Classification</th>
                     <th>Protected Type</th>
+                    <th>Application</th>
 					<th>Status</th>
 					<th>Masking</th>
 					<th>Notes</th>
@@ -144,6 +145,7 @@
 						<td>{{item.approver.first_name}}</td>
 						<td>{{translate|get_item:item.classification}}</td>
                         <td>{{translate|get_item:item.protected_type}}</td> 
+                        <td>{{item.owner}}</td>
 						<td>{{state_translate|get_item:item.state}}</td>
 						<td>{{item.masking_change}}</td>
 						<td>{{item.note_change}}</td>

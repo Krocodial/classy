@@ -30,8 +30,14 @@ class ModifyForm(ModelForm):
 
     classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
     protected_type = forms.ChoiceField(required=False, choices=prot_mod_options, widget=forms.Select(attrs={'class': 'form-control'}))
-    owner = forms.ModelChoiceField(queryset=Application.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+    owner = forms.ModelChoiceField(
+                    queryset=Application.objects.all(), 
+                    required=False, 
+                    label="Application",
+                    help_text="What application does this data belong to?",
+                    widget=forms.Select(attrs={'class': 'form-control'}))
     
+    state = forms.ChoiceField(required=False, label='', choices=state_choices, widget=forms.HiddenInput())
 
     class Meta:
         model = Classification
@@ -63,7 +69,7 @@ class AdvancedSearch(forms.Form):
     protected_type = forms.MultipleChoiceField(required=False, choices=protected_series, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
     state = forms.MultipleChoiceField(initial=['A', 'P'], required=False, choices=state_choices, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
     #size for pagination
-    owner = forms.ModelMultipleChoiceField(queryset=Application.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
+    owner = forms.ModelMultipleChoiceField(queryset=Application.objects.all(), required=False, label="Application", widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
 
 class LoginForm(forms.Form):
     if settings.BYPASS_AUTH:
