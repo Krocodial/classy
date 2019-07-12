@@ -14,6 +14,7 @@ from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.html import escape
+from django.forms.models import model_to_dict
 
 from ratelimit.decorators import ratelimit
 
@@ -482,18 +483,17 @@ def modi(request):
             info['classification'] = untranslate[i['classy']]
             same = False
         except:
-            pass
+            info['classification'] = tup.classification
         try:
             info['protected_type'] = untranslate[i['proty']]
             same = False
         except:
-            pass
+            info['protected_type'] = tup.protected_type
         try:
             info['owner'] = Application.objects.get(name__exact=i['own']).pk
             same = False
-        except Exception as e:
-            print(e)
-            pass
+        except:
+            info['owner'] = tup.owner.pk
 
         if tup.state == 'P' or same:
             continue
@@ -509,7 +509,7 @@ def modi(request):
             data = info
             
             latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
-            form = ClassificationLogForm(info, instance=latest)
+            form = ClassificationLogForm(info, initial=model_to_dict(latest))
         else:
             info['group'] = new_group.pk
             data = {'state': 'P'}
@@ -522,7 +522,8 @@ def modi(request):
             #tup.save()
             clas_form.save()
             form.save()
-
+        else:
+            pass
     for i in toDelRed:
         try:
             tup = queryset.get(id=int(i))

@@ -53,6 +53,8 @@ class ModifyForm(ModelForm):
                     "Is this really protected?"
                 )
 
+    
+
 class BasicSearch(forms.Form):
     #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
     query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to search for?', 'aria-describedby': 'descript'}))

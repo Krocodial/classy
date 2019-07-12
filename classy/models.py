@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 classification_choices = (
     ("UN", "Unclassified"),
@@ -126,7 +127,12 @@ class Classification(models.Model):
     state = models.CharField(max_length=1, choices=state_choices)
     masking = models.CharField(max_length=200, blank=True)
     notes = models.CharField(max_length=400, blank=True)
-    
+
+    def clean(self):
+        if self.classification == "UN" or self.classification =="PU":
+            if self.protected_type != '':
+                raise ValidationError("Unclassified or Public cannot be protected")         
+ 
 class ClassificationLogs(models.Model):
     classy = models.ForeignKey(Classification, on_delete=models.PROTECT)
     #previous_log = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
