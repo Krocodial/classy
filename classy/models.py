@@ -41,7 +41,7 @@ class Application(models.Model):
     acronym = models.CharField(max_length=20, unique=True, blank=True)
     name = models.CharField(max_length=100, unique=True)
     poc = models.CharField(max_length=100, blank=True, help_text='Point of contact for the application')
-    description = models.CharField(max_length=200, blank=True)
+    description = models.TextField(max_length=300, blank=True)
     
     def __str__(self):
         return self.name
@@ -54,11 +54,11 @@ class DataAuthorization(models.Model):
     schema = models.CharField(max_length=100, blank=True)
     table = models.CharField(max_length=100, blank=True)
     column = models.CharField(max_length=100, blank=True)
-
+    
     class Meta:
-        verbose_name = _('Data Authorization')
-        verbose_name_plural = _('Data Authorizations')
-
+        verbose_name = _('Permission')
+        verbose_name_plural = _('Permissions')
+    
     def __str__(self):
         return self.name
 
@@ -71,30 +71,36 @@ class DatasetAuthorization(models.Model):
     name = models.CharField(max_length=255, unique=True)
     data_authorizations = models.ManyToManyField(
         DataAuthorization,
-        verbose_name=_('Data Authorization'),
+        verbose_name=_('Permission'),
         blank=True,
     )
-
+    
     class Meta:
-        verbose_name = _('Dataset Authorization')
-        verbose_name_plural = _('Dataset Authorizations')
-
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
+    
     def __str__(self):
         return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = models.CharField(max_length=30, blank=True)
     data_authorizations = models.ManyToManyField(
         DataAuthorization,
-        verbose_name=_('Data Authorizations'),
+        verbose_name=_('Permissions'),
         blank=True,
     )
     dataset_authorizations = models.ManyToManyField(
         DatasetAuthorization,
-        verbose_name=_('Dataset Authorizations'),
+        verbose_name=_('Groups'),
         blank=True,
     )
+
+    def __str__(self):
+        return self.user.email
+
+    class Meta:
+        verbose_name = _('user Authorization')
+        verbose_name_plural = _('user Authorizations')
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -117,7 +123,7 @@ class ClassificationCount(models.Model):
 class Classification(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices, default='UN')
     protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
-    owner = models.ForeignKey(Application, on_delete=models.PROTECT, blank=True, null=True)
+    owner = models.ForeignKey(Application, verbose_name="application", on_delete=models.PROTECT, blank=True, null=True)
     datasource = models.CharField(max_length=100)
     schema = models.CharField(max_length=100)
     table = models.CharField(max_length=100)
@@ -128,13 +134,21 @@ class Classification(models.Model):
     masking = models.CharField(max_length=200, blank=True)
     notes = models.CharField(max_length=400, blank=True)
 
+    class Meta:
+        unique_together = [['datasource', 'schema', 'table', 'column']]
+
+    
+    def __str__(self):
+        return self.datasource + '/' + self.schema + '/' + self.table + '/' + self.column
+
     def clean(self):
         if self.classification == "UN" or self.classification =="PU":
-            if self.protected_type != '':
-                raise ValidationError("Unclassified or Public cannot be protected")         
+            self.protected_type = ''
+            #if self.protected_type != '':
+            #    raise ValidationError("Unclassified or Public cannot be protected")         
  
 class ClassificationLogs(models.Model):
-    classy = models.ForeignKey(Classification, on_delete=models.PROTECT)
+    classy = models.ForeignKey(Classification, on_delete=models.CASCADE)
     #previous_log = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
     time = models.DateTimeField(auto_now_add=True)
     flag = models.SmallIntegerField(choices=flag_choices)
@@ -149,6 +163,11 @@ class ClassificationLogs(models.Model):
 
     class Meta:
         default_permissions = ()
+
+    def clean(self):
+        if self.classification == "UN" or self.classification =="PU":
+            self.protected_type = ''
+
 
 class ClassificationReviewGroups(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -174,3 +193,7 @@ class Document(models.Model):
     document = models.FileField()
     uploaded_at = models.DateField(auto_now_add=True)
 
+def get_email(self):
+    return self.email
+
+User.add_to_class("__str__", get_email)

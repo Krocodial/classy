@@ -39,6 +39,8 @@ class ModifyForm(ModelForm):
     
     state = forms.ChoiceField(required=False, label='', choices=state_choices, widget=forms.HiddenInput())
 
+
+
     class Meta:
         model = Classification
         fields = ['classification', 'protected_type', 'owner', 'state']
@@ -49,11 +51,10 @@ class ModifyForm(ModelForm):
         protected_type = cleaned_data.get("protected_type")
         if classification == 'UN' or classification == 'PU':
             if protected_type != '':
-                raise forms.ValidationError(
-                    "Is this really protected?"
-                )
-
-    
+                protected_type = ''
+                #raise forms.ValidationError(
+                #    "Public or Unclassified cannot be protected"
+                #)
 
 class BasicSearch(forms.Form):
     #query = forms.CharField(required=False, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your query'}))
@@ -103,15 +104,12 @@ class ClassificationLogForm(ModelForm):
         model = ClassificationLogs
         fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver']
 
-class ClassificationReviewGroupForm(ModelForm):
-    class Meta:
-        model = ClassificationReviewGroups
-        fields = ['user']
-
-class ClassificationReviewForm(ModelForm):
-    class Meta:
-        model = ClassificationReview
-        fields = ['classy', 'group', 'classification', 'protected_type', 'owner', 'flag']
+    def clean(self):
+        cleaned_data = super().clean()
+        classification = cleaned_data.get("classification")
+        protected_type = cleaned_data.get("protected_type")
+        if classification == 'UN' or classification == 'PU':
+            protected_type = ''
 
 class LogDetailForm(ModelForm):
     class Meta:
@@ -128,6 +126,15 @@ class LogDetailForm(ModelForm):
                     "Is this really protected?"
                 )
 
+class ClassificationReviewGroupForm(ModelForm):
+    class Meta:
+        model = ClassificationReviewGroups
+        fields = ['user']
+
+class ClassificationReviewForm(ModelForm):
+    class Meta:
+        model = ClassificationReview
+        fields = ['classy', 'group', 'classification', 'protected_type', 'owner', 'flag']
 
 class LogDetailMNForm(ModelForm):
     class Meta:
@@ -137,5 +144,5 @@ class LogDetailMNForm(ModelForm):
 class ClassificationFullLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'protected_type', 'user', 'state', 'approver', 'masking_change', 'note_change']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver', 'masking_change', 'note_change']
 

@@ -378,30 +378,25 @@ def log_list(request):
 def log_detail(request, classy_id):
     num = ClassificationReviewGroups.objects.all().count()
     #try:
-    fil = Classification.objects.filter(id=classy_id)
-    queryset = query_constructor(fil, request.user)
 
-    if queryset.count() == 1:
-        obj = Classification.objects.get(id=classy_id)
-        tup = ClassificationLogs.objects.filter(classy_id__exact=classy_id)
+    queryset = query_constructor(Classification.objects.all(), request.user)
+    try:
+        obj = queryset.get(id=classy_id)
+        tup = ClassificationLogs.objects.filter(classy_id__exact=classy_id).order_by('-time')
+    except:
+        return redirect('classy:index')
 
-    else:
-        return redirect('classy:index')        
     if request.method == 'POST':
         if 'masking' in request.POST and 'notes' in request.POST:
             old_masking = obj.masking
             old_notes = obj.notes
             form = LogDetailMNForm(request.POST, instance=obj)
             if form.is_valid():
-                if form.cleaned_data['masking'] != old_masking or form.cleaned_data['notes'] != old_notes:
-
-                    log_data = {}
-                    log_data['classy'] = obj.pk
+                #if form.cleaned_data['masking'] != old_masking or form.cleaned_data['notes'] != old_notes:
+                if form.has_changed():
+                    log_data = model_to_dict(tup[0])
                     log_data['flag'] = 1
-                    log_data['classification'] = obj.classification 
-                    log_data['protected_type'] = obj.protected_type
                     log_data['user'] = request.user.pk
-                    log_data['state'] = 'A'
                     log_data['approver'] = request.user.pk
                     log_data['masking_change'] = form.cleaned_data['masking']
                     log_data['note_change'] = form.cleaned_data['notes']
@@ -413,26 +408,19 @@ def log_detail(request, classy_id):
         elif 'classification' in request.POST and 'protected_type' in request.POST:
             old_clas = obj.classification
             old_prot = obj.protected_type
-            form = LogDetailForm(request.POST, instance=obj)
+            form = ModifyForm(request.POST, instance=obj)
             if form.is_valid():
-                if form.cleaned_data['classification'] != old_clas or form.cleaned_data['protected_type'] != old_prot:
-
-                    form = LogDetailForm(request.POST, instance=obj)
-                    log_data = {}
-                    log_data['classy'] = obj.pk
+                if form.has_changed():
+                    log_data = model_to_dict(tup[0])
                     log_data['flag'] = 1
                     log_data['classification'] = request.POST['classification']
                     log_data['protected_type'] = request.POST['protected_type']
                     log_data['user'] = request.user.pk
-                    log_data['state'] = 'A'
                     log_data['approver'] = request.user.pk
-                    log_form = ClassificationLogForm(log_data)
-
-                    if form.is_valid() and log_form.is_valid():
+                    log_form = ClassificationFullLogForm(log_data)
+                    if log_form.is_valid():
                         form.save()
                         log_form.save()
-
-    tup = tup.order_by('-time')
 
     form = LogDetailForm(initial={'classification': obj.classification, 'protected_type': obj.protected_type})
 
@@ -477,25 +465,22 @@ def modi(request):
             continue
 
         same = True
-        info = {}
+        latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
+        info = model_to_dict(latest)
 
-        try: 
+        if i['classy'] in untranslate:
             info['classification'] = untranslate[i['classy']]
-            same = False
-        except:
-            info['classification'] = tup.classification
-        try:
-            info['protected_type'] = untranslate[i['proty']]
-            same = False
-        except:
-            info['protected_type'] = tup.protected_type
+            if info['classification'] in ['UN', 'PU']:
+                info['protected_type'] = ''
+            elif i['proty'] in untranslate:
+                info['protected_type'] = untranslate[i['proty']]
+
         try:
             info['owner'] = Application.objects.get(name__exact=i['own']).pk
-            same = False
-        except:
-            info['owner'] = tup.owner.pk
-
-        if tup.state == 'P' or same:
+        except Application.DoesNotExist:
+            pass  
+        
+        if tup.state == 'P':
             continue
 
         info['classy'] = tup.pk
@@ -507,23 +492,25 @@ def modi(request):
             info['state'] = 'A'
 
             data = info
-            
-            latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
-            form = ClassificationLogForm(info, initial=model_to_dict(latest))
+            form = ClassificationLogForm(info)
+
         else:
             info['group'] = new_group.pk
             data = {'state': 'P'}
             form = ClassificationReviewForm(info)
-            #tup.state = 'P'
         
         clas_form = ModifyForm(data, instance=tup)        
-    
+   
+        if not clas_form.has_changed():
+            continue
+ 
         if form.is_valid() and clas_form.is_valid():
-            #tup.save()
             clas_form.save()
             form.save()
         else:
-            pass
+            response = {'status': 0, 'message': clas_form.errors}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+
     for i in toDelRed:
         try:
             tup = queryset.get(id=int(i))
@@ -533,16 +520,18 @@ def modi(request):
         if tup.state == 'P':
             continue
 
-        info  = {}
+        latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
+        info  = model_to_dict(latest)
         info['classy'] = tup.pk
         info['flag'] = 0
 
         if request.user.is_staff:
-            info['state'] = 'I'
             info['user'] = request.user.pk
             info['approver'] = request.user.pk
+            info['state'] = 'I'
+
+            data = info
             form = ClassificationLogForm(info)
-            data = {'state': 'I'}
 
         else:
             info['group'] = new_group.pk
@@ -958,14 +947,12 @@ def home(request):
         for clas, arr in keys.items():
             clas = clas + ':'
             dic = clas.split(':')
-            #print(clas, d)
             try:
                 tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
                 arr.append(tmp.count)
             except ClassificationCount.DoesNotExist:
                 arr.append(0)
             except ClassificationCount.MultipleObjectsReturned:
-                #print('too many')
                 pass
     for clas, arr in keys.items():
         obj = {}
@@ -1089,11 +1076,13 @@ def data(request):
     basic = BasicSearch()
     advanced = AdvancedSearch()
     message = 'Results will appear after you have made a search'
+    if 'message' in request.POST:
+        message = request.POST['message']
     result = ''
     if 'success' in request.POST:
         result = 'success'
     if 'failure' in request.POST:
-        result = 'failed'
+        result = 'failure'
 
     context = {
         'num': num,
