@@ -387,10 +387,27 @@ def log_detail(request, classy_id):
         return redirect('classy:index')
 
     if request.method == 'POST':
+        pos = ['classification', 'protected_type', 'notes', 'masking']
+
+        data = model_to_dict(obj)
+        #print(data)
+
+        for p in pos:
+            if p in request.POST:
+                data[p] = request.POST[p]
+
+        form = ClassificationForm(data, instance=obj)
+
+        if form.is_valid() and form.has_changed():
+            form.save(request.user.pk, request.user.pk, 1)
+
+        '''
         if 'masking' in request.POST and 'notes' in request.POST:
             old_masking = obj.masking
             old_notes = obj.notes
             form = LogDetailMNForm(request.POST, instance=obj)
+            form['user'] = request.user.pk
+            form['approver'] = request.user.pk
             if form.is_valid():
                 #if form.cleaned_data['masking'] != old_masking or form.cleaned_data['notes'] != old_notes:
                 if form.has_changed():
@@ -421,9 +438,8 @@ def log_detail(request, classy_id):
                     if log_form.is_valid():
                         form.save()
                         log_form.save()
-
+        '''
     form = LogDetailForm(initial={'classification': obj.classification, 'protected_type': obj.protected_type})
-
     context = {
         'form': form,
         'result': tup,
@@ -436,6 +452,7 @@ def log_detail(request, classy_id):
     return render(request, 'classy/log_details.html', context)
 
 #The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.
+#modifications will now auto-create logs if using the ClassificationForm
 @login_required
 def modi(request):
     if request.method != 'POST':
@@ -457,13 +474,39 @@ def modi(request):
         new_group.save()
 
     queryset = query_constructor(Classification.objects.all(), request.user)
-    for i in toModRed:
-        ide = i['id']
+    for index in toModRed:
+        ide = index['id']
         try:
             tup = queryset.get(id__exact=ide)
         except:
             continue
 
+        if tup.state == 'P':
+            continue
+
+        data = model_to_dict(tup)
+    
+        if index['classy'] in untranslate:
+            data['classification'] = untranslate[index['classy']]
+
+        if index['proty'] in untranslate:
+            data['protected_type'] = untranslate[index['proty']]
+
+        try:
+            data['owner'] = Application.objects.get(name__exact=index['own']).pk
+        except Application.DoesNotExist:
+            pass  
+        
+        form = ClassificationForm(data, instance=tup)
+
+        if form.is_valid() and form.has_changed():
+            form.save(request.user.pk, request.user.pk, 1)
+        else:
+            response = {'status': 0, 'message': 'error'}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+
+
+        '''
         same = True
         latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
         info = model_to_dict(latest)
@@ -510,7 +553,7 @@ def modi(request):
         else:
             response = {'status': 0, 'message': clas_form.errors}
             return HttpResponse(json.dumps(response), content_type='application/json')
-
+        '''
     for i in toDelRed:
         try:
             tup = queryset.get(id=int(i))

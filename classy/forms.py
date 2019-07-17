@@ -1,10 +1,12 @@
 from django import forms
 from django.forms import ModelForm
-
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 
-from .models import *
-from .models import classification_choices, state_choices, protected_series
+from .models import Application, DataAuthorization, DatasetAuthorization, Profile, ClassificationCount, Classification, ClassificationLogs, ClassificationReviewGroups, ClassificationReview, Document, classification_choices, state_choices, protected_series
+#from .models import classification_choices, state_choices, protected_series
 
 size_choices = (
     (10, '10'),
@@ -79,7 +81,18 @@ class LoginForm(forms.Form):
         username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
     password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'AUTOCOMPLETE': 'off'}))
 
+
 class ClassificationForm(ModelForm):
+
+    user = forms.ModelChoiceField(
+                    queryset=User.objects.all(), 
+                    required=False, 
+                    widget=forms.HiddenInput())
+    
+    #approver = forms.ModelChoiceField(
+    #                queryset=User.objects.all(), 
+    #                required=False, 
+    #                widget=forms.HiddenInput())
     class Meta:
         model = Classification
         fields = ['classification', 'protected_type', 'owner', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
@@ -89,10 +102,23 @@ class ClassificationForm(ModelForm):
         classification = cleaned_data.get("classification")
         protected_type = cleaned_data.get("protected_type")
         if classification == 'UN' or classification == 'PU':
-            if protected_type != '':
-                raise forms.ValidationError(
-                    "Is this really protected?"
-                )
+            protected_type = ''
+        
+    def save(self, user, approver, flag):
+        classy = super(ClassificationForm, self).save(commit=False)
+        data = model_to_dict(classy)
+        data['classy'] = classy.pk
+        data['user'] = user
+        data['approver'] = approver
+        data['flag'] = flag
+        data['masking_change'] = data['masking']
+        data['note_change'] = data['notes']
+        new_log = ClassificationLogForm(data)
+        if new_log.is_valid():
+            classy.save()
+            new_log.save()
+        else:
+            print(new_log.errors)
 
 class ClassificationCountForm(ModelForm):
     class Meta:
@@ -102,7 +128,7 @@ class ClassificationCountForm(ModelForm):
 class ClassificationLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver', 'masking_change', 'note_change']
 
     def clean(self):
         cleaned_data = super().clean()

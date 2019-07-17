@@ -19,7 +19,8 @@ class renderTest(TestCase):
         self.supa = User.objects.create_superuser('super', 'xx@xx.com', 'password')
         self.anon = AnonymousUser()
         self.users = [self.anon, self.basic, self.staff, self.supa]
-    '''
+   
+    ''' 
     def test_index_view(self):
         index_request = self.factory.get(reverse('classy:index'))
         users = [self.anon, self.basic, self.staff, self.supa]
@@ -63,6 +64,7 @@ class renderTest(TestCase):
             response = download(request)
             self.assertEquals(response.status_code, response_codes_post[user])
 
+    '''
     def test_review_view(self):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
         response_codes_post_invalid = {self.anon: 302, self.basic: 302, self.staff: 400, self.supa: 400}
@@ -96,6 +98,7 @@ class renderTest(TestCase):
             request.user = user
             response = review(request)
             self.assertEquals(response.status_code, response_codes_post_valid[user])
+    '''
 
     def test_exceptions_view(self):
         response_codes = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
@@ -168,7 +171,7 @@ class renderTest(TestCase):
                     datasource='game',
                     schema='of',
                     table='thrones',
-                    column='hype',
+                    column=user.username,
                     creator=self.basic,
                     state='A'
                     )

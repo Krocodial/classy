@@ -8,8 +8,6 @@ from classy.forms import ClassificationForm
 class authTests(TestCase):
     def setUp(self):
 	
-
-	
         user = User.objects.create(username='no_access', is_staff=False)
         user.set_password('password')
         user.save()

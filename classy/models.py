@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
+
 classification_choices = (
     ("UN", "Unclassified"),
     ("PU", "Public"),
@@ -137,7 +138,21 @@ class Classification(models.Model):
     class Meta:
         unique_together = [['datasource', 'schema', 'table', 'column']]
 
-    
+    '''
+    def save(self, user, approver, flag, *args, **kwargs):
+        print(model_to_dict(self))
+        data = model_to_dict(self)
+        data['user'] = user
+        data['approver'] = approver
+        data['flag'] = flag
+        form = ClassificationLogForm(data)
+        if form.is_valid():
+            form.save()        
+            return super(Classification, self).save(*args, **kwargs)
+        else:
+            raise ValidationError("log creation failed")
+    '''    
+
     def __str__(self):
         return self.datasource + '/' + self.schema + '/' + self.table + '/' + self.column
 
@@ -146,6 +161,17 @@ class Classification(models.Model):
             self.protected_type = ''
             #if self.protected_type != '':
             #    raise ValidationError("Unclassified or Public cannot be protected")         
+
+'''
+@receiver(post_save, sender=Classification)
+def create_log(instance, created, **kwargs):
+    if created: 
+        print('created')
+    else:
+        print(kwargs)
+        print(instance)
+        print('modified')
+''' 
  
 class ClassificationLogs(models.Model):
     classy = models.ForeignKey(Classification, on_delete=models.CASCADE)

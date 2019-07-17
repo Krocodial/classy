@@ -48,6 +48,7 @@ class existanceTests(TestCase):
 
         for val in choices:
             data['classification'] = val
+            data['table'] = data['table'] + 'a'
             form = ClassificationForm(data)
             self.assertEqual(form.is_valid(), True)
             tmp = form.save()
@@ -68,14 +69,17 @@ class existanceTests(TestCase):
     def test_valid_protected(self):
         data = self.data
 
-        for clas in prot_choices:
+        for clas in choices:
             data['classification'] = clas
             for val in protected:
                 data['protected_type'] = val
+                data['table'] = data['table'] + 'a'
                 form = ClassificationForm(data)
                 self.assertEqual(form.is_valid(), True)
                 tmp = form.save()
                 new = Classification.objects.get(pk=tmp.pk)
+                if tmp.classification in ['UN', 'PU']:
+                    self.assertEqual('', tmp.protected_type)
 
     def test_invalid_states(self):
         data = self.data
@@ -92,6 +96,7 @@ class existanceTests(TestCase):
         data['classification'] = 'PU'
         for val in states:
             data['state'] = val
+            data['table'] = data['table'] + 'b'
             form = ClassificationForm(data)
             self.assertEqual(form.is_valid(), True)
             tmp = form.save()
@@ -155,6 +160,7 @@ class creationTests(TestCase):
         new = ClassificationReview.objects.get(pk=tmp.pk)
         self.assertIsNotNone(new)
 
+    '''
     def test_deletion_protection(self):
         data = {'classy': self.classy, 'flag': 2, 'classification': 'PU', 'user': self.user.id, 'state': 'A', 'approver': self.user.id}
         form = ClassificationLogForm(data)
@@ -168,7 +174,7 @@ class creationTests(TestCase):
             Classification.objects.get(pk=self.classy).delete()
         except IntegrityError:
             self.fail("test_deletion_protection raised IntegrityError")
-            
+    '''     
 
 
 
