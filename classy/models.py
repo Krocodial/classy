@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
-
+from django.forms.models import model_to_dict
 
 classification_choices = (
     ("UN", "Unclassified"),
@@ -121,6 +121,7 @@ class ClassificationCount(models.Model):
     class Meta:
         default_permissions = ()
 
+#I modified the save() function of this model to allow for the auto-creation of internal logs, the only variables we need to pass here are the request.user and approver since these are only readable from the view. These variables are set as attributes on the instance, and then read in the post_save signal
 class Classification(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices, default='UN')
     protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
@@ -138,20 +139,10 @@ class Classification(models.Model):
     class Meta:
         unique_together = [['datasource', 'schema', 'table', 'column']]
 
-    '''
-    def save(self, user, approver, flag, *args, **kwargs):
-        print(model_to_dict(self))
-        data = model_to_dict(self)
-        data['user'] = user
-        data['approver'] = approver
-        data['flag'] = flag
-        form = ClassificationLogForm(data)
-        if form.is_valid():
-            form.save()        
-            return super(Classification, self).save(*args, **kwargs)
-        else:
-            raise ValidationError("log creation failed")
-    '''    
+    def save(self, user, approver, *args, **kwargs):
+        self._user = user
+        self._approver = approver
+        super(Classification, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.datasource + '/' + self.schema + '/' + self.table + '/' + self.column
@@ -162,16 +153,30 @@ class Classification(models.Model):
             #if self.protected_type != '':
             #    raise ValidationError("Unclassified or Public cannot be protected")         
 
-'''
 @receiver(post_save, sender=Classification)
 def create_log(instance, created, **kwargs):
-    if created: 
-        print('created')
+    if instance.state == 'P':
+        pass
+        #We haven't modified anything yet, awaiting approval from data custodian (don't want to clutter log list)
     else:
-        print(kwargs)
-        print(instance)
-        print('modified')
-''' 
+        from classy.forms import ClassificationLogForm
+        data = model_to_dict(instance)
+        data['classy'] = instance.pk
+        data['user'] = instance._user
+        data['approver'] = instance._approver
+        data['masking_change'] = data.pop('masking')
+        data['note_change'] = data.pop('notes')
+        if created:
+            data['flag'] = 2 
+        else:
+            if data['state'] == 'A':
+                data['flag'] = 1
+            else:
+                data['flag'] = 0
+            
+        form = ClassificationLogForm(data)
+        if form.is_valid():
+            form.save()
  
 class ClassificationLogs(models.Model):
     classy = models.ForeignKey(Classification, on_delete=models.CASCADE)

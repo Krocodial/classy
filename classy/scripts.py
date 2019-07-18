@@ -120,16 +120,7 @@ def process_file(filename, user):
     cinfo = {}
     fs = FileSystemStorage(location=settings.MEDIA_ROOT)
     reader = csv.DictReader(fs.open(filename, 'r'))
-    notes = False
-    masking_ins = False
-    protected = False
     if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
-        if 'notes' in reader.fieldnames:
-            notes = True
-        if 'masking instructions' in reader.fieldnames:
-            masking_ins = True  
-        if 'Protected Type' in reader.fieldnames:
-            protected = True
         for row in reader:
             data_list = re.split(':', row['Datasource Description'])
             database = data_list[3].strip()
@@ -139,15 +130,15 @@ def process_file(filename, user):
                     table__exact=row['Table Name'],
                     column__exact=row['Column Name']).count()
             if entCount < 1:
-                if notes:
+                if 'notes' in reader.fieldnames:
                     note = row['notes'][:400]
                 else:
                     note = ''
-                if masking_ins:
+                if 'masking instructions' in reader.fieldnames:
                     masking = row['masking instructions'][:200]
                 else:
                     masking = ''
-                if protected:
+                if 'Protected Type' in reader.fieldnames:
                     protected_type = row['Protected Type']
                 else:
                     protected_type = ''
@@ -171,24 +162,16 @@ def process_file(filename, user):
                 data['notes'] = note
                 form = ClassificationForm(data)
                 if form.is_valid():
-                    tmp = form.save()
-                    log_data = {}
-                    log_data['classy'] = tmp.id
-                    log_data['flag'] = 2
-                    log_data['classification'] = classy
-                    log_data['protected_type'] = protected_type
-                    log_data['user'] = user
-                    log_data['state'] = 'A'
-                    log_data['approver'] = user
-                    log_form = ClassificationLogForm(log_data)
-                    if log_form.is_valid():
-                        log_form.save()
+                    tmp = form.save(user, user)
+
             elif entCount == 1:
                 classy = Classification.objects.get(
                         datasource__exact=database,
                         schema__exact=row['Schema'],
                         table__exact=row['Table Name'],
                         column__exact=row['Column Name'])
+                '''
+                form = ClassificationForm(instance=classy)
                 MN = {}
                 MN['masking'] = classy.masking
                 MN['notes'] = classy.notes
@@ -208,6 +191,7 @@ def process_file(filename, user):
                     if log_form.is_valid():
                         form.save()
                         log_form.save()
+                '''
             else:
                 #Now we have encountered a critical issue with the upload function. Consider raising an error on the admin console or even sending an email. 
                 pass

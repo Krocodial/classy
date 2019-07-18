@@ -44,12 +44,12 @@ class authTests(TestCase):
 
         form = ClassificationForm(data)
         self.assertEqual(form.is_valid(), True)
-        form.save()
+        form.save(user.pk, user.pk)
 		
         data['table'] = 'UWU'
         form = ClassificationForm(data)
         self.assertEqual(form.is_valid(), True)
-        form.save()
+        form.save(user.pk, user.pk)
 		
         d1 = DataAuthorization.objects.create(
             name="All",

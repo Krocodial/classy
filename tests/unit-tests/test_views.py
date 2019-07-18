@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from classy.models import ClassificationReviewGroups, Classification, ClassificationReview, DataAuthorization
 from classy.views import home, login_complete, download, review, exceptions, log_list, log_detail, modi, search, uploader
+from classy.forms import ClassificationForm
 
 import json
 
@@ -19,7 +20,19 @@ class renderTest(TestCase):
         self.supa = User.objects.create_superuser('super', 'xx@xx.com', 'password')
         self.anon = AnonymousUser()
         self.users = [self.anon, self.basic, self.staff, self.supa]
-   
+  
+        self.data = {
+            'datasource': 'testo',
+            'schema': 'testo',
+            'table': 'testo',
+            'column': 'testo',
+            'creator': self.basic.id,
+            'state': 'A',
+            'classification': 'PU',
+            'masking': '',
+            'notes': ''
+            }
+ 
     ''' 
     def test_index_view(self):
         index_request = self.factory.get(reverse('classy:index'))
@@ -164,8 +177,13 @@ class renderTest(TestCase):
         d1 = DataAuthorization.objects.create(
                 name='All',
             )
-
+        data = self.data
         for user in self.users:
+            data['column'] = data['column'] + 'c'
+            form = ClassificationForm(data)
+            if form.is_valid():
+                rev = form.save(self.basic.pk, self.basic.pk)
+            '''
             rev = Classification.objects.create (
                     classification='CO',
                     datasource='game',
@@ -175,7 +193,8 @@ class renderTest(TestCase):
                     creator=self.basic,
                     state='A'
                     )
-
+            '''
+            print(rev)
             toMod = json.dumps([{"id": rev.pk, "classy": "Personal", "proty": "Protected B", "own": "---------"}])
             toDel = json.dumps([rev.pk])
             modData = {"toMod": toMod}

@@ -84,19 +84,11 @@ class LoginForm(forms.Form):
 
 class ClassificationForm(ModelForm):
 
-    user = forms.ModelChoiceField(
-                    queryset=User.objects.all(), 
-                    required=False, 
-                    widget=forms.HiddenInput())
-    
-    #approver = forms.ModelChoiceField(
-    #                queryset=User.objects.all(), 
-    #                required=False, 
-    #                widget=forms.HiddenInput())
     class Meta:
         model = Classification
         fields = ['classification', 'protected_type', 'owner', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
 
+    #For usability, don't deny this change just adjust is according to standards. 
     def clean(self):
         cleaned_data = super().clean()
         classification = cleaned_data.get("classification")
@@ -104,27 +96,17 @@ class ClassificationForm(ModelForm):
         if classification == 'UN' or classification == 'PU':
             protected_type = ''
         
-    def save(self, user, approver, flag):
+    def save(self, user, approver):
         classy = super(ClassificationForm, self).save(commit=False)
-        data = model_to_dict(classy)
-        data['classy'] = classy.pk
-        data['user'] = user
-        data['approver'] = approver
-        data['flag'] = flag
-        data['masking_change'] = data['masking']
-        data['note_change'] = data['notes']
-        new_log = ClassificationLogForm(data)
-        if new_log.is_valid():
-            classy.save()
-            new_log.save()
-        else:
-            print(new_log.errors)
+        classy.save(user, approver)
+        return classy
 
 class ClassificationCountForm(ModelForm):
     class Meta:
         model = ClassificationCount
         fields = ['classification', 'protected_type', 'count', 'date', 'user']   
 
+#It might seem like this isn't used, but it's used by the Classification model for auto-log generation
 class ClassificationLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
