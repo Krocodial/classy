@@ -441,21 +441,22 @@ def modi(request):
             tup = queryset.get(id__exact=ide)
         except:
             continue
-
+        print(index)
         if tup.state == 'P':
             continue
 
         data = model_to_dict(tup)
-    
-        if index['classy'] in untranslate:
-            data['classification'] = untranslate[index['classy']]
-
-        if index['proty'] in untranslate:
-            data['protected_type'] = untranslate[index['proty']]
+   
+        if 'classy' in index:
+            if index['classy'] in untranslate:
+                data['classification'] = untranslate[index['classy']]
+        if 'proty' in index:
+            if index['proty'] in untranslate:
+                data['protected_type'] = untranslate[index['proty']]
 
         try:
             data['owner'] = Application.objects.get(name__exact=index['own']).pk
-        except Application.DoesNotExist:
+        except:
             pass  
 
         if request.user.is_staff:        
@@ -469,14 +470,18 @@ def modi(request):
         else:
             info = model_to_dict(tup)
             info['state'] = 'P'
-            form = ClassificationForm(info)
-            data['group'] = new_group.pk
-            review_form = ClassificationReviewForm(data)
+            form = ClassificationForm(info, instance=tup)
+            info['group'] = new_group.pk
+            info['classy'] = tup.pk
+            info['flag'] = 1
+            review_form = ClassificationReviewForm(info)
 
             if form.is_valid() and review_form.is_valid():
-                form.save()
+                form.save(request.user.pk, request.user.pk)
                 review_form.save()
             else:
+                print(form.errors)
+                print(review_form.errors)
                 response = {'status': 0, 'message': 'error'}
                 return HttpResponse(json.dumps(response), content_type='application/json')
 
@@ -489,11 +494,29 @@ def modi(request):
         if tup.state == 'P':
             continue
         data = model_to_dict(tup)
-        data['state'] = 'I'
-        form = ClassificationForm(data, instance=tup)        
-        if form.is_valid() and form.has_changed() and request.user.is_staff:
-            form.save(request.user.pk, request.user.pk)
+        
+        if request.user.is_staff:
+            data['state'] = 'I'
+            form = ClassificationForm(data, instance=tup)        
+            if form.is_valid() and form.has_changed():
+                form.save(request.user.pk, request.user.pk)
 
+        else:
+            data['state'] = 'P'
+            form = ClassificationForm(info, instance=tup)
+            info['group'] = new_group.pk
+            info['classy'] = tup.pk
+            info['flag'] = 1
+            review_form = ClassificationReviewForm(info)
+
+            if form.is_valid() and review_form.is_valid():
+                form.save(request.user.pk, request.user.pk)
+                review_form.save()
+            else:
+                print(form.errors)
+                print(review_form.errors)
+                response = {'status': 0, 'message': 'error'}
+                return HttpResponse(json.dumps(response), content_type='application/json')
         '''
         latest = ClassificationLogs.objects.filter(classy__exact=tup.pk).order_by('-time')[0]
         info  = model_to_dict(latest)
