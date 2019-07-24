@@ -17,10 +17,10 @@
 <div class="row">
 
 
-<div class="col-sm-3">
-<form action="{% url 'classy:log_detail' obj.id %}" method='post'>
+<div class="col-sm-4">
+<form action="{% url 'classy:log_detail' obj.id %}" method='post' class="form-horizontal">
 {% csrf_token %}
-<table class="table">
+<table class="table table-condensed">
 <thead>
 	<tr>
 		<th>Category</th>
@@ -32,53 +32,58 @@
 		<td><strong>ID</strong></td>
 		<td>{{obj.id}}</td>
 	</tr>
-        <tr>
-                <td><strong>State</strong></td>
-                <td>{{state_translate|get_item:obj.state}}</td>
-                <!--<td>{{obj.state}}</td>-->
-        </tr>
     <tr>
-        <td><strong>Application</strong></td>
-        <td>{{obj.owner.name}}</td>
+            <td><strong>State</strong></td>
+            <td>{{state_translate|get_item:obj.state}}</td>
+            <!--<td>{{obj.state}}</td>-->
     </tr>
 	<tr>
 		<td><strong>Datasource</strong></td>
 		<td>{{obj.datasource}}</td>
 	</tr>
-        <tr>
-                <td><strong>Schema</strong></td>
-                <td>{{obj.schema}}</td>
-        </tr>
-        <tr>
-                <td><strong>Table</strong></td>
-                <td>{{obj.table}}</td>
-        </tr>
-        <tr>
-                <td><strong>Column</strong></td>
-                <td>{{obj.column}}</td>
-        </tr>
-        <tr>
-                <td><strong>Created</strong></td>
-                <td>{{obj.created}}</td>
-        </tr>
-        <tr>
-                <td><strong>Creator</strong></td>
-                <td>{{obj.creator.first_name}}</td>
-        </tr>
-	{{form}}<!--
-	<tr>
-		<td>{{form}}</td>
-	</tr>-->
-	<tr>
-		<td></td>
-		<td><input type='submit' value='Submit'></td>
-	</tr>
-		
-</tbody>
+    <tr>
+            <td><strong>Schema</strong></td>
+            <td>{{obj.schema}}</td>
+    </tr>
+    <tr>
+            <td><strong>Table</strong></td>
+            <td>{{obj.table}}</td>
+    </tr>
+    <tr>
+            <td><strong>Column</strong></td>
+            <td>{{obj.column}}</td>
+    </tr>
+    <tr>
+            <td><strong>Created</strong></td>
+            <td>{{obj.created}}</td>
+    </tr>
+    <tr>
+            <td><strong>Creator</strong></td>
+            <td>{{obj.creator.first_name}}</td>
+    </tr>
+    {{form}}
+    <tr>
+        <td></td><td><input class="btn btn-primary btn-sm" type="submit" value="submit"></td>
+    </tr>
+    </tbody>
 </table>
 </form>
+<!--<form action="{% url 'classy:log_detail' obj.id %}" method='post' class="form-horizontal">
+{% csrf_token %}
+        {% for field in form %}
+            <div class="form-group form-group-sm">
+                <label class="col-sm-4 control-label" for="{{field.auto_id}}">{{ field.label }}</label>
+                <div class="col-sm-8">
+                {{ field }}
+                </div>
+            </div>
+        {% endfor %}
+        <div class="form-group row input-group-sm">
+		    <input class="btn btn-primary btn-sm" type='submit' value='Submit'>
+        </div>
+</form>-->
 </div>
-<div class="col-sm-1"></div>
+<!--<div class="col-sm-1"></div>-->
 <div class="col-sm-8">
 	<div class="row">
 		<div class="col-sm-12">

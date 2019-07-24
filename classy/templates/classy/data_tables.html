@@ -147,9 +147,10 @@
                                 <thead class="thead thead-sm thead-inverse">
                                     <tr>
                                         <th class="th-cus">ID</th>
-                                        <th class="th-cus">New Classification</th>
+                                        <th class="th-cus">Classification</th>
                                         <th class="th-cus">Protected Type</th>
-                                        <th class="th-cus">Owner</th>
+                                        <th class="th-cus">Application</th>
+                                        <th class="th-cus">New Dependencies</th>
                                         <th class="actions th-cus"></th>
                                     </tr>
                                 </thead>
@@ -184,7 +185,10 @@
                         </div>
                         <div class="modal-body">
                             <form id="modify-form" name="modify">
-                                {% for field in modifyForm %}
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                {% for field in modifyForm.visible_fields %}
                                     <div class="form-group">
                                     {{ field.label_tag }}
                                     {{ field }}

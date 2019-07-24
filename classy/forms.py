@@ -38,6 +38,13 @@ class ModifyForm(ModelForm):
                     label="Application",
                     help_text="What application does this data belong to?",
                     widget=forms.Select(attrs={'class': 'form-control'}))
+
+    dependents = forms.ModelMultipleChoiceField(
+        queryset=Application.objects.all(),
+        required=False,
+        label="Dependencies",
+        help_text="What applications rely on this data?",
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
     
     state = forms.ChoiceField(required=False, label='', choices=state_choices, widget=forms.HiddenInput())
 
@@ -45,7 +52,7 @@ class ModifyForm(ModelForm):
 
     class Meta:
         model = Classification
-        fields = ['classification', 'protected_type', 'owner', 'state']
+        fields = ['classification', 'protected_type', 'owner', 'dependents', 'state']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -86,7 +93,7 @@ class ClassificationForm(ModelForm):
 
     class Meta:
         model = Classification
-        fields = ['classification', 'protected_type', 'owner', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
+        fields = ['classification', 'protected_type', 'owner', 'dependents', 'datasource', 'schema', 'table', 'column', 'creator', 'state', 'masking', 'notes']
 
     #For usability, don't deny this change just adjust is according to standards. 
     def clean(self):
@@ -99,6 +106,8 @@ class ClassificationForm(ModelForm):
     def save(self, user, approver):
         classy = super(ClassificationForm, self).save(commit=False)
         classy.save(user, approver)
+        for dep in self.cleaned_data['dependents']:
+            classy.dependents.add(dep.pk)
         return classy
 
 class ClassificationCountForm(ModelForm):
@@ -120,9 +129,25 @@ class ClassificationLogForm(ModelForm):
             protected_type = ''
 
 class LogDetailForm(ModelForm):
+
+    
+    classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control input-sm'}))
+    protected_type = forms.ChoiceField(required=False, choices=prot_mod_options, widget=forms.Select(attrs={'class': 'form-control input-sm'}))
+    owner = forms.ModelChoiceField(
+                    queryset=Application.objects.all(), 
+                    required=False, 
+                    label="Application",
+                    widget=forms.Select(attrs={'class': 'form-control input-sm'}))
+
+    dependents = forms.ModelMultipleChoiceField(
+        queryset=Application.objects.all(),
+        required=False,
+        label="Dependencies",
+        widget=forms.SelectMultiple(attrs={'class': 'form-control input-sm'}))
+
     class Meta:
         model = Classification
-        fields = ['classification', 'protected_type']
+        fields = ['classification', 'protected_type', 'owner', 'dependents']
     
     def clean(self):
         cleaned_data = super().clean()

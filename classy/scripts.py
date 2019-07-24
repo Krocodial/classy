@@ -130,40 +130,60 @@ def process_file(filename, user):
                     table__exact=row['Table Name'],
                     column__exact=row['Column Name']).count()
             if entCount < 1:
-                if 'notes' in reader.fieldnames:
-                    note = row['notes'][:400]
-                else:
-                    note = ''
-                if 'masking instructions' in reader.fieldnames:
-                    masking = row['masking instructions'][:200]
-                else:
-                    masking = ''
-                if 'Protected Type' in reader.fieldnames:
-                    protected_type = row['Protected Type']
-                else:
-                    protected_type = ''
+                data = {}
+            
 
+                if 'notes' in reader.fieldnames:
+                    data['notes'] = row['notes'][:400]
+                #else:
+                #    note = ''
+                if 'masking instructions' in reader.fieldnames:
+                    data['masking'] = row['masking instructions'][:200]
+                #else:
+                #    masking = ''
+                if 'Protected Type' in reader.fieldnames:
+                    data['protected_type'] = row['Protected Type']
+                #else:
+                #    protected_type = ''
+                if 'Application' in reader.fieldnames:
+                    if row['Application'] != '':
+                        try:
+                            data['owner'] = Application.objects.get(acronym__exact=row['Application']).pk
+                        except Application.DoesNotExist:
+                            data['owner'] = Application.objects.create(name=row['Application'], acronym=row['Application']).pk
 
                 classy = row['Classification Name']
                 classy = classy.lower()
                 classy = re.sub(' ', '_', classy)
                 classy = translate[classy]
 
-                data = {}
+                #data = {}
                 data['classification'] = classy 
-                data['protected_type'] = protected_type
+                #data['protected_type'] = protected_type
                 data['datasource'] = database
                 data['schema'] = row['Schema']
                 data['table'] =  row['Table Name']
                 data['column'] = row['Column Name']
                 data['creator'] = user
                 data['state'] = 'A'
-                data['masking'] = masking
-                data['notes'] = note
+                #data['masking'] = masking
+                #data['notes'] = note
                 form = ClassificationForm(data)
                 if form.is_valid():
                     tmp = form.save(user, user)
-
+                    if 'Dependencies' in reader.fieldnames:
+                        if row['Dependencies'] != '':
+                            depens = row['Dependencies'].split(',')
+                            for dep in depens:
+                                try:
+                                    app = Application.objects.get(acronym__exact=dep)
+                                    tmp.dependents.add(app)
+                                except Application.DoesNotExist:
+                                    app = Application.objects.create(name=dep, acronym=dep)
+                                    tmp.dependents.add(app)
+                else:
+                    print(form.errors)
+          
             elif entCount == 1:
                 classy = Classification.objects.get(
                         datasource__exact=database,

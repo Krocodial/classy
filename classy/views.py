@@ -441,7 +441,6 @@ def modi(request):
             tup = queryset.get(id__exact=ide)
         except:
             continue
-        print(index)
         if tup.state == 'P':
             continue
 
@@ -453,20 +452,24 @@ def modi(request):
         if 'proty' in index:
             if index['proty'] in untranslate:
                 data['protected_type'] = untranslate[index['proty']]
-
+        if index['newd']:
+            data['dependents'] = list(set(([dep.pk for dep in data['dependents']] or []) + ([int(newd) for newd in index['newd']] or [])))
+            
         try:
-            data['owner'] = Application.objects.get(name__exact=index['own']).pk
+            data['owner'] = Application.objects.get(id__exact=index['own']).pk
         except:
             pass  
+
+        #print(data)
 
         if request.user.is_staff:        
             form = ClassificationForm(data, instance=tup)
 
             if form.is_valid() and form.has_changed():
                 form.save(request.user.pk, request.user.pk)
-            else:
-                response = {'status': 0, 'message': 'error'}
-                return HttpResponse(json.dumps(response), content_type='application/json')
+                
+                #response = {'status': 0, 'message': 'error'}
+                #return HttpResponse(json.dumps(response), content_type='application/json')
         else:
             info = model_to_dict(tup)
             info['state'] = 'P'
@@ -477,13 +480,11 @@ def modi(request):
             review_form = ClassificationReviewForm(info)
 
             if form.is_valid() and review_form.is_valid():
-                form.save(request.user.pk, request.user.pk)
-                review_form.save()
-            else:
-                print(form.errors)
-                print(review_form.errors)
-                response = {'status': 0, 'message': 'error'}
-                return HttpResponse(json.dumps(response), content_type='application/json')
+                if form.has_changed():
+                    form.save(request.user.pk, request.user.pk)
+                    review_form.save()
+                    #response = {'status': 0, 'message': 'error'}
+                    #return HttpResponse(json.dumps(response), content_type='application/json')
 
     for i in toDelRed:
         try:
@@ -643,7 +644,7 @@ def search(request):
         else:
             page = 1
         paginator = Paginator(queryset, size)
-        query = paginator.get_page(page)
+        queryset = paginator.get_page(page)
         prev = False
         nex = False
         first = False
@@ -677,7 +678,7 @@ def search(request):
             for i in range(paginator.num_pages):
                 pags.append(init + i)
         recent = {}
-        for tup in query:
+        for tup in queryset:
             if tup.created - datetime.timedelta(days=14):
                 recent[tup.id] = True
 
@@ -686,9 +687,9 @@ def search(request):
             'num': num,
             'basic': basic,
             'advanced': advanced,
-            'queryset': query,
+            'queryset': queryset,
             'options': options,
-            'query': 'value',
+            'query': query,
             #'ds': ds,
             #'sch': sch,
             #'tab': tab,

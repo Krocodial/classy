@@ -126,6 +126,7 @@ class Classification(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices, default='UN')
     protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
     owner = models.ForeignKey(Application, verbose_name="application", on_delete=models.PROTECT, blank=True, null=True)
+    dependents = models.ManyToManyField(Application, related_name="dependant_classification", blank=True)
     datasource = models.CharField(max_length=100)
     schema = models.CharField(max_length=100)
     table = models.CharField(max_length=100)
@@ -142,6 +143,17 @@ class Classification(models.Model):
     def save(self, user, approver, *args, **kwargs):
         self._user = user
         self._approver = approver
+        #print(self.owner)
+        #print(self.dependents.all)
+        '''
+        for dep in apps:
+            print(apps)
+            try:
+                print(dep)
+                Application.objects.get(id=dep)
+            except Exception as e:
+                print(e)
+        '''
         super(Classification, self).save(*args, **kwargs)
 
     def __str__(self):
