@@ -136,6 +136,7 @@
 					<th>Classification</th>
                     <th>Protected Type</th>
                     <th>Application</th>
+                    <th>Dependencies</th>
 					<th>Status</th>
 					<th>Masking</th>
 					<th>Notes</th>
@@ -151,6 +152,7 @@
 						<td>{{translate|get_item:item.classification}}</td>
                         <td>{{translate|get_item:item.protected_type}}</td> 
                         <td>{{item.owner}}</td>
+                        <td>{{convert_queryset:item.dependents}}</td>
 						<td>{{state_translate|get_item:item.state}}</td>
 						<td>{{item.masking_change}}</td>
 						<td>{{item.note_change}}</td>

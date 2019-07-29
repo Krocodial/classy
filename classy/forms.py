@@ -119,7 +119,7 @@ class ClassificationCountForm(ModelForm):
 class ClassificationLogForm(ModelForm):
     class Meta:
         model = ClassificationLogs
-        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'user', 'state', 'approver', 'masking_change', 'note_change']
+        fields = ['classy', 'flag', 'classification', 'protected_type', 'owner', 'dependents', 'user', 'state', 'approver', 'masking_change', 'note_change']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -129,7 +129,6 @@ class ClassificationLogForm(ModelForm):
             protected_type = ''
 
 class LogDetailForm(ModelForm):
-
     
     classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control input-sm'}))
     protected_type = forms.ChoiceField(required=False, choices=prot_mod_options, widget=forms.Select(attrs={'class': 'form-control input-sm'}))
@@ -158,6 +157,12 @@ class LogDetailForm(ModelForm):
                 raise forms.ValidationError(
                     "Is this really protected?"
                 )
+
+
+    def save(self, user, approver):
+        classy = super(LogDetailForm, self).save(commit=False)
+        classy.save(user, approver)
+        return classy
 
 class ClassificationReviewGroupForm(ModelForm):
     class Meta:

@@ -387,21 +387,32 @@ def log_detail(request, classy_id):
         return redirect('classy:index')
 
     if request.method == 'POST':
-        pos = ['classification', 'protected_type', 'notes', 'masking']
+        #print(request.POST)
+        pos = ['classification', 'protected_type', 'notes', 'masking', 'owner', 'dependents']
 
         data = model_to_dict(obj)
         #print(data)
 
+        form = LogDetailForm(request.POST, instance=obj)
+        
+        '''
         for p in pos:
             if p in request.POST:
-                data[p] = request.POST[p]
+                data[p] = request.POST.get(p)
 
-        form = ClassificationForm(data, instance=obj)
+        if 'dependents' in request.POST:
+            data['dependents'] = request.POST['dependents']
+
+        form = LogDetailForm(data, instance=obj)
+        #form = ClassificationForm(data, instance=obj)
+        '''
 
         if form.is_valid() and form.has_changed() and request.user.is_staff:
             form.save(request.user.pk, request.user.pk)
+            form.save_m2m()
+            #print(tmp.dependents.all())
 
-    form = LogDetailForm(initial={'classification': obj.classification, 'protected_type': obj.protected_type})
+    form = LogDetailForm(initial=model_to_dict(obj))
     context = {
         'form': form,
         'result': tup,

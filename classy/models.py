@@ -2,10 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.forms.models import model_to_dict
+from django.db import transaction
 
 classification_choices = (
     ("UN", "Unclassified"),
@@ -121,12 +122,17 @@ class ClassificationCount(models.Model):
     class Meta:
         default_permissions = ()
 
+def createLog(instance):
+    print('here')
+    #print(instance.dependents.all())
+    print(Classification.objects.get(id=instance.pk).dependents.all())
+
 #I modified the save() function of this model to allow for the auto-creation of internal logs, the only variables we need to pass here are the request.user and approver since these are only readable from the view. These variables are set as attributes on the instance, and then read in the post_save signal
 class Classification(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices, default='UN')
     protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
     owner = models.ForeignKey(Application, verbose_name="application", on_delete=models.PROTECT, blank=True, null=True)
-    dependents = models.ManyToManyField(Application, related_name="dependant_classification", blank=True)
+    dependents = models.ManyToManyField(Application, related_name="dependent", blank=True)
     datasource = models.CharField(max_length=100)
     schema = models.CharField(max_length=100)
     table = models.CharField(max_length=100)
@@ -143,17 +149,6 @@ class Classification(models.Model):
     def save(self, user, approver, *args, **kwargs):
         self._user = user
         self._approver = approver
-        #print(self.owner)
-        #print(self.dependents.all)
-        '''
-        for dep in apps:
-            print(apps)
-            try:
-                print(dep)
-                Application.objects.get(id=dep)
-            except Exception as e:
-                print(e)
-        '''
         super(Classification, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -164,6 +159,12 @@ class Classification(models.Model):
             self.protected_type = ''
             #if self.protected_type != '':
             #    raise ValidationError("Unclassified or Public cannot be protected")         
+
+
+@receiver(m2m_changed, sender=Classification.dependents.through)
+def m2m_change(instance, **kwargs):
+    log = ClassificationLogs.objects.filter(classy_id=instance.pk).order_by('-id')[0]
+    log.dependents.set(instance.dependents.all())
 
 @receiver(post_save, sender=Classification)
 def create_log(instance, created, **kwargs):
@@ -185,11 +186,11 @@ def create_log(instance, created, **kwargs):
                 data['flag'] = 1
             else:
                 data['flag'] = 0
-            
+        
         form = ClassificationLogForm(data)
         if form.is_valid():
             form.save()
- 
+
 class ClassificationLogs(models.Model):
     classy = models.ForeignKey(Classification, on_delete=models.CASCADE)
     #previous_log = models.OneToOneField('self', on_delete=models.CASCADE, blank=True, null=True)
@@ -198,6 +199,7 @@ class ClassificationLogs(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices, blank=True)
     protected_type = models.CharField(max_length=2, choices=protected_series, blank=True)
     owner = models.ForeignKey(Application, on_delete=models.CASCADE, blank=True, null=True)
+    dependents = models.ManyToManyField(Application, related_name="log_dependent", blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Modifier')
     approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Approver')
     state = models.CharField(max_length=1, choices=state_choices)
