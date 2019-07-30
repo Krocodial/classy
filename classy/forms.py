@@ -128,6 +128,16 @@ class ClassificationLogForm(ModelForm):
         if classification == 'UN' or classification == 'PU':
             protected_type = ''
 
+class LogDetailSubmitForm(ModelForm):
+    class Meta:
+        model = Classification
+        fields = ['classification', 'protected_type', 'owner', 'dependents', 'notes', 'masking']
+
+    def save(self, user, approver):
+        classy = super(LogDetailSubmitForm, self).save(commit=False)
+        classy.save(user, approver)
+        return classy
+
 class LogDetailForm(ModelForm):
     
     classification = forms.ChoiceField(required=False, choices=clas_mod_options, widget=forms.Select(attrs={'class': 'form-control input-sm'}))
@@ -163,6 +173,8 @@ class LogDetailForm(ModelForm):
         classy = super(LogDetailForm, self).save(commit=False)
         classy.save(user, approver)
         return classy
+
+
 
 class ClassificationReviewGroupForm(ModelForm):
     class Meta:
