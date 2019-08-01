@@ -27,16 +27,59 @@ def calculate_count(user):
     tmp = query_constructor(Classification.objects.all(), user).values_list('pk', flat=True)
     
     logs = ClassificationLogs.objects.filter(classy__in=tmp).order_by('time')
-    
+   
+    mapping = {}
+    for op in options:
+        for pop in poptions:
+            mapping[op + ':' + pop] = 0
+
+    for i in range(30):
+        t = 29 - i
+        d = timezone.now().date() - timezone.timedelta(days=t)
+        
+
+
+ 
     if logs.count() > 0:
         current = logs[0].time.date()
         mapping = {}   
         for op in options:
             for pop in poptions:
                 mapping[op + ':' + pop] = 0
-        previous = ''        
+        previous = ''     
+
+
+        minus = {}
+        for key in tmp:
+            logs = ClassificationLogs.objects.filter(classy__exact=key).order_by('time')
+            previous = ''
+            for log in logs:
+                date = log.time.date()
+                if date not in minus:
+                    tmp = {}
+                    for op in options:
+                        for pop in poptions:
+                            tmp[op + ':' + pop] = 0
+                    minus[date] = tmp
+                key = log.classification + ':' + log.protected_type
+                if log.flag == 0:    
+                    minus[date][key] = minus[date][key] + 1
+                elif log.flag == 1:
+                    minus[date][previous] = minus[date][previous] + 1
+                previous = key
+
+        print(minus)
+
         for log in logs:
-            if log.time.date() != current:
+            date = log.time.date()
+            if date != current:
+                for key in mapping.items():
+                    try:
+                        mapping[key] = mapping[key] - minus[date][key]
+                    except KeyError:
+                        pass
+                        #Just means no modifications or deletions for that key on that date
+
                 for key, value in mapping.items():
                     dic = key.split(':')
                     if dic[1]:
@@ -53,7 +96,8 @@ def calculate_count(user):
                         item = ClassificationCount.objects.get(
                             date__exact=current,
                             classification__exact=dic[0],
-                            protected_type__exact=dic[1])
+                            protected_type__exact=dic[1],
+                            user__exact=user.pk)
                         if item.count != value:
                             item.count = value
                             item.save()
@@ -75,6 +119,7 @@ def calculate_count(user):
             elif log.flag == 2:
                 mapping[key] = mapping[key] + 1 if key in mapping else 1
             previous = key 
+            print(mapping)
 
         for key, value in mapping.items():
             dic = key.split(':')
@@ -92,7 +137,8 @@ def calculate_count(user):
                 item = ClassificationCount.objects.get(
                     date__exact=current,
                     classification__exact=dic[0],
-                    protected_type__exact=dic[1])
+                    protected_type__exact=dic[1],
+                    user__exact=user.pk)
                 if item.count != value:
                     item.count = value
                     item.save()
@@ -107,6 +153,7 @@ def calculate_count(user):
 @background(queue='counter')
 def calc_scheduler():
     for user in User.objects.all():
+        print(user.email)
         calculate_count(user)
     
     #print(CompletedTask.objects.all().order_by('run_at'))
