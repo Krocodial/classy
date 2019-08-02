@@ -12,7 +12,7 @@ import csv, re, time, os, threading
 options = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
 ex_options = [i[1] for i in Classification._meta.get_field('classification').flatchoices]
 
-poptions = [i[0] for i in Classification._meta.get_field('protected_type').flatchoices]
+poptions = [i[0] for i in Classification._meta.get_field('protected_type').flatchoices] + ['']
 ex_poptions = [i[1] for i in Classification._meta.get_field('protected_type').flatchoices]
 
 translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protected_a': 'PA', 'protected_b': 'PB', 'protected_c': 'PC'}
@@ -21,39 +21,29 @@ translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protec
 #@background(schedule=60, queue='calculate_count')
 def calculate_count(user):
 
+    
+
     #Sort logs by date, +1 for create, -1 + 1 for mod?, -1 for del?
     #Get all pks, grab logs individually.  
     error = ''
     tmp = query_constructor(Classification.objects.all(), user).values_list('pk', flat=True)
     
     logs = ClassificationLogs.objects.filter(classy__in=tmp).order_by('time')
-   
-    mapping = {}
-    for op in options:
-        for pop in poptions:
-            mapping[op + ':' + pop] = 0
 
-    for i in range(30):
-        t = 29 - i
-        d = timezone.now().date() - timezone.timedelta(days=t)
-        
+    if tmp.count() > 0:
 
-
- 
-    if logs.count() > 0:
-        current = logs[0].time.date()
-        mapping = {}   
+        previous = ''   
+        mapping = {}
         for op in options:
             for pop in poptions:
                 mapping[op + ':' + pop] = 0
-        previous = ''     
 
-
+        #Find previous classification of modified tuples. 
         minus = {}
         for key in tmp:
-            logs = ClassificationLogs.objects.filter(classy__exact=key).order_by('time')
+            classy_logs = logs.filter(classy__exact=key).order_by('id')
             previous = ''
-            for log in logs:
+            for log in classy_logs:
                 date = log.time.date()
                 if date not in minus:
                     tmp = {}
@@ -68,18 +58,16 @@ def calculate_count(user):
                     minus[date][previous] = minus[date][previous] + 1
                 previous = key
 
-        print(minus)
-
+        current = logs[0].time.date()
         for log in logs:
             date = log.time.date()
             if date != current:
-                for key in mapping.items():
+                for key in mapping:
                     try:
                         mapping[key] = mapping[key] - minus[date][key]
                     except KeyError:
                         pass
                         #Just means no modifications or deletions for that key on that date
-
                 for key, value in mapping.items():
                     dic = key.split(':')
                     if dic[1]:
@@ -109,17 +97,19 @@ def calculate_count(user):
                         print('ERROR')
                 current = log.time.date()
             key = log.classification + ':' + log.protected_type
+            #This needs to be handled by minus iterator to track previous classification
             if log.flag == 0:
-                mapping[key] = mapping[key] - 1 
-
-            elif log.flag == 1:
-                mapping[previous] = mapping[previous] - 1 
+                pass                
+            elif log.flag > 0:
+                #If modifying or creating increment count of current classification
                 mapping[key] = mapping[key] + 1 if key in mapping else 1
 
-            elif log.flag == 2:
-                mapping[key] = mapping[key] + 1 if key in mapping else 1
-            previous = key 
-            print(mapping)
+        for key in mapping:
+            try:
+                mapping[key] = mapping[key] - minus[date][key]
+            except KeyError:
+                pass
+                #Just means no modifications or deletions for that key on that date
 
         for key, value in mapping.items():
             dic = key.split(':')
@@ -149,11 +139,9 @@ def calculate_count(user):
             except ClassificationCount.MultipleObjectsReturned:
                 print('ERROR')
 
-
 @background(queue='counter')
 def calc_scheduler():
     for user in User.objects.all():
-        print(user.email)
         calculate_count(user)
     
     #print(CompletedTask.objects.all().order_by('run_at'))

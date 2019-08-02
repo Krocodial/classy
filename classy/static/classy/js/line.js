@@ -42,23 +42,28 @@ var config = {
                                 display: true,
                                 position: 'bottom',
                         },
-                        responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: '5',
-            onResize: lineResizing,
+                        layout: {
+                            padding: {
+                                right: '10'
+                            }
+                        },
+                        //responsive: true,
+                        //maintainAspectRatio: true,
+                        aspectRatio: '5',
+                        onResize: lineResizing,
                         title: {
                                 display: true,
-                text: 'Activity over last 2 months',
-                position: 'top',
-                fontSize: '13'
+                                text: 'Your data over the last 2 months',
+                                position: 'top',
+                                fontSize: '12'
                         },
                         tooltips: {
                                 mode: 'index',
                                 intersect: false,
                         },
                         hover: {
-                                mode: 'nearest',
-                                intersect: true
+                                //mode: 'nearest',
+                                //intersect: true
                         },
                         scales: {
                                 xAxes: [{

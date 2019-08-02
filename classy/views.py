@@ -960,9 +960,13 @@ def home(request):
                 tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
                 arr.append(tmp.count)
             except ClassificationCount.DoesNotExist:
-                arr.append(0)
+                if len(arr) > 0:
+                    arr.append(arr[-1])
+                else:
+                    arr.append(0)
             except ClassificationCount.MultipleObjectsReturned:
-                pass
+                arr.append(0)
+                
     for clas, arr in keys.items():
         obj = {}
         dic = clas.split(':')
