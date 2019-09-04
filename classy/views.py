@@ -27,8 +27,8 @@ from .helper import query_constructor, role_checker
 
 from background_task.models import Task
 
-#if not Task.objects.filter(queue='counter').count() > 0:
-#    calc_scheduler(repeat=300)
+from django.views.decorators.csrf import csrf_protect, requires_csrf_token
+from django.middleware.csrf import get_token
 
 
 #To translate Classifications between the templates and the DB. (For database size optimization)
@@ -387,15 +387,12 @@ def log_detail(request, classy_id):
         return redirect('classy:index')
 
     if request.method == 'POST' and request.user.is_staff:
-        #print(request.POST)
-        pos = ['classification', 'protected_type', 'notes', 'masking', 'owner', 'dependents']
+        
+        data = request.POST.copy()
+        if data['classification'] in ['PU', 'UN']:
+            data['protected_type'] = ''
 
-        data = model_to_dict(obj)
-        #print(data)
-
-        #form = LogDetailForm(request.POST, instance=obj)
-      
-        form = LogDetailSubmitForm(request.POST, instance=obj)
+        form = LogDetailSubmitForm(data, instance=obj)
         '''
         for p in pos:
             if p in request.POST:
@@ -463,15 +460,17 @@ def modi(request):
         if 'proty' in index:
             if index['proty'] in untranslate:
                 data['protected_type'] = untranslate[index['proty']]
-        if index['newd']:
-            data['dependents'] = list(set(([dep.pk for dep in data['dependents']] or []) + ([int(newd) for newd in index['newd']] or [])))
+        if 'newd' in index:
+            if index['newd']:
+                data['dependents'] = list(set(([dep.pk for dep in data['dependents']] or []) + ([int(newd) for newd in index['newd']] or [])))
             
         try:
             data['owner'] = Application.objects.get(id__exact=index['own']).pk
         except:
             pass  
 
-        #print(data)
+        if data['classification'] in ['PU', 'UN']:
+            data['protected_type'] = ''
 
         if request.user.is_staff:        
             form = ClassificationForm(data, instance=tup)
@@ -494,8 +493,9 @@ def modi(request):
                 if form.has_changed():
                     form.save(request.user.pk, request.user.pk)
                     review_form.save()
-                    #response = {'status': 0, 'message': 'error'}
-                    #return HttpResponse(json.dumps(response), content_type='application/json')
+            else:
+                response = {'status': 0, 'message': 'error'}
+                return HttpResponse(json.dumps(response), content_type='application/json')
 
     for i in toDelRed:
         try:
@@ -525,8 +525,6 @@ def modi(request):
                 form.save(request.user.pk, request.user.pk)
                 review_form.save()
             else:
-                print(form.errors)
-                print(review_form.errors)
                 response = {'status': 0, 'message': 'error'}
                 return HttpResponse(json.dumps(response), content_type='application/json')
         '''
@@ -570,6 +568,7 @@ def search(request):
     advanced = AdvancedSearch(request.GET)
     basic = BasicSearch(request.GET)
     if advanced.is_valid() and basic.is_valid():
+        print('valid')
         classification = advanced.cleaned_data['classification']
         protected_type = advanced.cleaned_data['protected_type']
         owner =         advanced.cleaned_data['owner']
@@ -587,6 +586,7 @@ def search(request):
         if len(owner) == 0:
             own = Classification.objects.all() 
         else:
+            print(owner)
             own = Classification.objects.filter(owner__acronym__in=owner)
       
         if len(state) == 0:
@@ -744,6 +744,7 @@ def gov_temp(request):
     return render(request, 'classy/gov_temp.html')
     
 #A work in progress. Node tree displaying all of the information in the DB, drill-down is enabled. 
+'''
 @login_required
 def test(request):
 
@@ -813,18 +814,17 @@ def test(request):
 
     context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
     return render(request, 'classy/test.html', context)
-
+'''
 # User is redirected here after authentication is complete via keycloak authentication server with a long, short-lived code. We exchange this code via an out-of-band REST call to the keycloak auth server for an access and refresh token. In the token is a list of permissions the user has, we check and set these via middleware. Once the token is verified we log the user in via a local session and give them a session cookie (they will never see the tokens so no risk of mishandling)
+#@requires_csrf_token
 @ratelimit(key='ip', rate='6/m', method=['GET'], block=True)
 def login_complete(request):
     try:
         redirect_uri = os.getenv('REDIRECT_URI') +  reverse('classy:login_complete')
         token = settings.OIDC_CLIENT.authorization_code(code=request.GET['code'], redirect_uri=redirect_uri)
-        payload = settings.OIDC_CLIENT.decode_token(token['access_token'], settings.OIDC_CLIENT.certs()['keys'][0])
-    
+        payload = settings.OIDC_CLIENT.decode_token(token['access_token'], settings.OIDC_CLIENT.certs()['keys'][0], options={"verify_signature": True, "verify_aud": True, "exp": True})
         request.session['access_token'] = token['access_token']
         request.session['refresh_token'] = token['refresh_token']
-
     except Exception as e:
         return HttpResponseForbidden('Invalid JWT token') 
 
@@ -857,11 +857,14 @@ def login_complete(request):
     return redirect('classy:home')
  
 # If user is authenticated redirect to home, otherwise redirect to the auth url of the keycloak server. Here the user chooses how to authenticate (IDIR or local keycloak account). Once authenticated they are redirected to /login_complete
+#@csrf_protect
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home')
 
-    auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf')
+    #print(get_token(request))
+
+    auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'))#, scope='username email', state='alskdfjl;isiejf'
     return redirect(auth_url)   
 
 #Home page once logged in. Pulls from ClassificationCounts to show statistics for the rows you are allowed to view (query_constructor)

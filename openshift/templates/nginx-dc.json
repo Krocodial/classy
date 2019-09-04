@@ -165,10 +165,6 @@
                 {
                     "mountPath": "/etc/nginx/logs",
                     "name": "nginx-logs"
-                },
-                {
-                    "mountPath": "/opt/modsecurity",
-                    "name": "modsecurity-files"
                 }
                 ],
                 "readinessProbe": {
@@ -210,12 +206,6 @@
                 "name": "nginx-logs",
                 "persistentVolumeClaim": {
                   "claimName": "nginx-logs"
-                }
-              },
-              {
-                "name": "modsecurity-files",
-                "persistentVolumeClaim": {
-                  "claimName": "modsecurity-files"
                 }
               }
             ]
