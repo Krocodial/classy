@@ -568,7 +568,6 @@ def search(request):
     advanced = AdvancedSearch(request.GET)
     basic = BasicSearch(request.GET)
     if advanced.is_valid() and basic.is_valid():
-        print('valid')
         classification = advanced.cleaned_data['classification']
         protected_type = advanced.cleaned_data['protected_type']
         owner =         advanced.cleaned_data['owner']
@@ -586,9 +585,8 @@ def search(request):
         if len(owner) == 0:
             own = Classification.objects.all() 
         else:
-            print(owner)
             own = Classification.objects.filter(owner__acronym__in=owner)
-      
+
         if len(state) == 0:
             state = ['A', 'P']
         queryset = Classification.objects.filter(
