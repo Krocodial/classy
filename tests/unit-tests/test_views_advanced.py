@@ -16,6 +16,16 @@ choices = ['Public', 'Confidential', 'Personal', 'Unclassified']
 protected = ['Protected A', 'Protected B', 'Protected C', '']
 prot_choices = ['Personal', 'Confidential']
 
+class DataAuthFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DataAuthorization
+
+    name = 'All'
+    datasource = ''
+    schema = ''
+    table = ''
+    column = ''
+
 class OwnerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Application
@@ -29,6 +39,9 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: 'user' + str(n))
     email = factory.Sequence(lambda n: 'user' + str(n) + '@email.com')
+    is_staff = False
+    is_superuser = False
+
 
 class ClassyFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -43,9 +56,13 @@ class ClassyFactory(factory.django.DjangoModelFactory):
     classification = factory.Faker('random_element', elements=[x[0] for x in classification_choices])
     protected_type = factory.Faker('random_element', elements=[x[0] for x in protected_series])
     state = factory.Faker('random_element', elements=[x[0] for x in state_choices])
-  
-    creator = factory.SubFactory(UserFactory)
-    owner = factory.SubFactory(OwnerFactory)
+ 
+    creator = factory.Iterator(User.objects.all())
+    owner = factory.Iterator(Application.objects.all()) 
+
+    #creator = factory.SubFactory(UserFactory)
+    #owner = factory.SubFactory(OwnerFactory)
+
 
 #Since logon is forced in tests disable expiry/invalid token middleware.
 @override_settings(
@@ -55,19 +72,56 @@ class renderTest(TestCase):
     def setUp(self):
 
 
-        basic = User.objects.create_user(username='basic', email='basic@basic.com', password='password', is_staff=False)
-        staff = User.objects.create_user(username='staff', email='staff@staff.com', password='password', is_staff=True)
-        supa = User.objects.create_superuser('super', 'supa@supa.com', 'password')
+        #basic = User.objects.create_user(username='basic', email='basic@basic.com', password='password', is_staff=False)
+        #staff = User.objects.create_user(username='staff', email='staff@staff.com', password='password', is_staff=True)
+        #supa = User.objects.create_superuser('super', 'supa@supa.com', 'password')
         #anon = AnonymousUser()
 
-        self.users = [basic, staff, supa]        
-        
-        self.owner = Application.objects.create(
-            acronym='CLS',
-            name='CLASSY'
-        )  
+        #self.users = [basic, staff, supa]        
+       
+        users = ['basic', 'staff', 'superuser']
+        acces = {'full': '', 'partial': 'db01', 'none': 'nonexistantdatasource'}
+        options = ['db01', 'db02', '']
+        self.users = users
+        self.access = acces
+        self.options = options
+
+        for key, value in acces.items():
+            d1 = DataAuthFactory(name=key, datasource=value)
+            for username in users:
+                supa = False
+                staff = False
+                if username == 'superuser':
+                    supa = True    
+                    staff = True
+                if username == 'staff':
+                    staff = True
+            
+                user = UserFactory(username = username + '-' + key, email= username + '-' + key + '@bcgov.ca', is_staff=staff, is_superuser=supa)
+                user.profile.data_authorizations.add(d1)
+                user.save()
+
+        for i in range(10):
+            owner = OwnerFactory()
+
+
+        for ds in options:
+            for sc in options:
+                for ta in options:
+                    for co in options:
+                        classy = ClassyFactory.build(datasource=ds, schema=sc, table=ta, column=co)
+                        classy.save(user, user)
+
+        for i in range(200):
+            classy = ClassyFactory.build()
+            classy.save(user, user)    
+
+
+        print(Classification.objects.all())
+        print(User.objects.all())
         print(Application.objects.all())
 
+        ''' 
         self.basic = Client()
         self.staff = Client()
         self.supa = Client()
@@ -76,23 +130,7 @@ class renderTest(TestCase):
         self.basic.login(username='basic', password='password')
         self.staff.login(username='staff', password='password')
         self.supa.login(username='super', password='password')
-
-        self.clients = [self.anon, self.basic, self.staff, self.supa]
-   
-        #creator = UserFactory()
-        #owner = OwnerFactory() 
-        classy = ClassyFactory.build()
-        classy.save(basic.pk, basic.pk)
         '''
-
-        for i in range(20):        
-            classy = ClassyFactory.build()
-            classy.save(basic.pk, basic.pk)
-
-        '''
-        for i in Classification.objects.all():
-            print(i.owner.pk)
-
 
     '''        
  
@@ -330,11 +368,16 @@ class renderTest(TestCase):
     '''
 
     def test_search_view(self):
-        response_codes_get = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
+        #response_codes_get = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
 
-        #classy = ClassyFactory.stub()
-        #print(vars(classy))
-       
+        for user in User.objects.all():
+            c = Client()
+            c.force_login(user)
+   
+            classy = ClassyFactory.stub()
+            print(vars(classy))
+
+        '''
         clients = self.clients
 
         for client in clients:
@@ -358,6 +401,7 @@ class renderTest(TestCase):
                 response = client.get(reverse('classy:search'), data=vars(classy))
                 self.assertEquals(response.status_code, response_codes_get[client])
                 #print(len(response.content)) 
+        '''
     '''
 
     def test_uploader_view(self):
