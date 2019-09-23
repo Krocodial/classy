@@ -146,7 +146,7 @@ class Classification(models.Model):
     class Meta:
         unique_together = [['datasource', 'schema', 'table', 'column']]
 
-    def save(self, user, approver, *args, **kwargs):
+    def save(self, user=None, approver=None, *args, **kwargs):
         self._user = user
         self._approver = approver
         super(Classification, self).save(*args, **kwargs)

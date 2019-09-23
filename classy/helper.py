@@ -1,6 +1,8 @@
 from .models import Classification
 import os
 from django.contrib.auth import logout
+from .forms import AdvancedSearch, BasicSearch
+
 
 def role_checker(user, payload, request):
 
@@ -97,4 +99,55 @@ def query_constructor(queryset, user):
     #return queryset.intersection(permitted)
 
 
+
+
+def filter_results(request, data):
+    advanced = AdvancedSearch(data)
+    basic = BasicSearch(data)
+    if advanced.is_valid() and basic.is_valid():
+        classification = advanced.cleaned_data['classification']
+        protected_type = advanced.cleaned_data['protected_type']
+        owner =         advanced.cleaned_data['owner']
+        state =         advanced.cleaned_data['state']
+
+        #if no classification is chosen search all of them
+        if len(classification) == 0:
+            classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
+        #This might look weird but it's the only way to check foreign keys, as if they are empty we will be running owner__in=[] which will not give all values, but none.
+        if len(protected_type) == 0:
+            prot = Classification.objects.all()
+        else:
+            prot = Classification.objects.filter(protected_type__in=protected_type)
+
+        if len(owner) == 0:
+            own = Classification.objects.all()
+        else:
+            own = Classification.objects.filter(owner__pk__in=owner)
+
+        if len(state) == 0:
+            state = ['A', 'P']
+
+        queryset = Classification.objects.filter(
+            datasource__icontains=advanced.cleaned_data['datasource'],
+            schema__icontains=advanced.cleaned_data['schema'],
+            table__icontains=advanced.cleaned_data['table'],
+            column__icontains=advanced.cleaned_data['column'],
+            classification__in=classification,
+            state__in=state)
+
+
+        query = basic.cleaned_data['query']
+        data = Classification.objects.filter(datasource__icontains=query)
+        sche = Classification.objects.filter(schema__icontains=query)
+        tabl = Classification.objects.filter(table__icontains=query)
+        colu = Classification.objects.filter(column__icontains=query)
+        stat = Classification.objects.filter(state__in=state)
+        #OR the querysets to search all fields for value
+        queryset2 = data | sche | tabl | colu 
+        queryset = (queryset2 & queryset & stat & own & prot).distinct()
+
+        queryset = query_constructor(queryset, request.user)
+        return queryset
+    else:
+        return Classification.objects.none()
 

@@ -12,79 +12,21 @@ import json, os, factory
 
 from classy.models import classification_choices, protected_series, state_choices
 
+from .factories import DataAuthFactory, OwnerFactory, UserFactory, ClassyFactory
+
 choices = ['Public', 'Confidential', 'Personal', 'Unclassified']
 protected = ['Protected A', 'Protected B', 'Protected C', '']
 prot_choices = ['Personal', 'Confidential']
 
-class DataAuthFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = DataAuthorization
-
-    name = 'All'
-    datasource = ''
-    schema = ''
-    table = ''
-    column = ''
-
-class OwnerFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Application
-
-    acronym = factory.Sequence(lambda n: 'APP' + str(n))
-    name = factory.Sequence(lambda n: 'application' + str(n)) 
-
-class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = User
-
-    username = factory.Sequence(lambda n: 'user' + str(n))
-    email = factory.Sequence(lambda n: 'user' + str(n) + '@email.com')
-    is_staff = False
-    is_superuser = False
-
-
-class ClassyFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Classification
-        django_get_or_create = ('owner',)
-
-    datasource = factory.Faker('sentence', nb_words=4)
-    schema = factory.Faker('sentence', nb_words=4)
-    table = factory.Faker('sentence', nb_words=4)
-    column = factory.Faker('sentence', nb_words=4)
-
-    classification = factory.Faker('random_element', elements=[x[0] for x in classification_choices])
-    protected_type = factory.Faker('random_element', elements=[x[0] for x in protected_series])
-    state = factory.Faker('random_element', elements=[x[0] for x in state_choices])
- 
-    creator = factory.Iterator(User.objects.all())
-    owner = factory.Iterator(Application.objects.all()) 
-
-    #creator = factory.SubFactory(UserFactory)
-    #owner = factory.SubFactory(OwnerFactory)
-
-
 #Since logon is forced in tests disable expiry/invalid token middleware.
-@override_settings(
-    MIDDLEWARE = [mc for mc in settings.MIDDLEWARE if mc != 'classy.middleware.authentication.authentication_middleware']
-)
+@override_settings(MIDDLEWARE = [mc for mc in settings.MIDDLEWARE if mc != 'classy.middleware.authentication.authentication_middleware'])
 class renderTest(TestCase):
-    def setUp(self):
-
-
-        #basic = User.objects.create_user(username='basic', email='basic@basic.com', password='password', is_staff=False)
-        #staff = User.objects.create_user(username='staff', email='staff@staff.com', password='password', is_staff=True)
-        #supa = User.objects.create_superuser('super', 'supa@supa.com', 'password')
-        #anon = AnonymousUser()
-
-        #self.users = [basic, staff, supa]        
-       
+    #Create fake data, users, and associated permissions for testing. 
+    @classmethod
+    def setUpClass(cls):
         users = ['basic', 'staff', 'superuser']
         acces = {'full': '', 'partial': 'db01', 'none': 'nonexistantdatasource'}
         options = ['db01', 'db02', '']
-        self.users = users
-        self.access = acces
-        self.options = options
 
         for key, value in acces.items():
             d1 = DataAuthFactory(name=key, datasource=value)
@@ -101,89 +43,101 @@ class renderTest(TestCase):
                 user.profile.data_authorizations.add(d1)
                 user.save()
 
-        for i in range(10):
-            owner = OwnerFactory()
-
+        OwnerFactory.create_batch(10)
 
         for ds in options:
             for sc in options:
                 for ta in options:
                     for co in options:
-                        classy = ClassyFactory.build(datasource=ds, schema=sc, table=ta, column=co)
-                        classy.save(user, user)
+                        ClassyFactory(datasource=ds, schema=sc, table=ta, column=co)
 
-        for i in range(200):
-            classy = ClassyFactory.build()
-            classy.save(user, user)    
+        ClassyFactory.create_batch(200)
+        super(renderTest, cls).setUpClass()
 
+    def setUp(self):
+        self.options = ['db01', 'db02', '']
 
-        print(Classification.objects.all())
-        print(User.objects.all())
-        print(Application.objects.all())
-
-        ''' 
-        self.basic = Client()
-        self.staff = Client()
-        self.supa = Client()
-        self.anon = Client()
-
-        self.basic.login(username='basic', password='password')
-        self.staff.login(username='staff', password='password')
-        self.supa.login(username='super', password='password')
-        '''
-
-    '''        
- 
     def test_index_view(self):
-        index_request = self.factory.get(reverse('classy:index'))
-        users = [self.anon, self.basic, self.staff, self.supa]
-        tran = {self.anon: 'anon', self.basic: 'basic', self.staff: 'staff', self.supa: 'supa'}
+
+        for user in User.objects.all():
+            c = Client()
+
+            response = c.get(reverse('classy:index'))
+            self.assertRedirects(response, settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete')), status_code=302, target_status_code=200, fetch_redirect_response=False)
+
+            c.force_login(user)
+
+            response = c.get(reverse('classy:index'))
+            self.assertRedirects(response, reverse('classy:home'))
         
 
-        #pages = {'anon': settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf'), 'basic': reverse('classy:home'), 'staff': reverse('classy:home'), 'supa': reverse('classy:home')}
-
-        #print(settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete')))
-
-        for user in users:
-            request = index_request
-            request.user = user
-            response = index(request)
-            #print(response)
-            #print(response.url)
-            #response.client = Client()
-            #self.assertRedirects(response, pages[tran[user]], fetch_redirect_response=False)
-
     def test_login_complete_view(self):
-        users = self.users
-        for user in users:
-            request = self.factory.get(reverse('classy:login_complete'))
-            request.user = user
-            response = login_complete(request)
+        for user in User.objects.all():
+            c = Client()
+            c.force_login(user)        
+    
+            response = c.get(reverse('classy:login_complete'))
             self.assertEquals(response.status_code, 403)
+        
+        c = Client() 
+        response = c.get(reverse('classy:login_complete'))
+        self.assertEquals(response.status_code, 403)
 
     def test_home_view(self):
-        response_codes = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
-        users = self.users
-        for user in users:
-            request = self.factory.get(reverse('classy:home'))
-            request.user = user
-            response = home(request)
-            self.assertEquals(response.status_code, response_codes[user])
+        for user in User.objects.all():
+            c = Client()
+            
+            response = c.get(reverse('classy:home'))
+            self.assertEquals(response.status_code, 302)
+            url = reverse('classy:index') + '?next=' + reverse('classy:home')
+            self.assertRedirects(response, url, fetch_redirect_response=False)
+
+            c.force_login(user)
+            response = c.get(reverse('classy:home'))
+            self.assertEquals(response.status_code, 200)
 
     def test_download_view(self):
-        response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 302, self.supa: 302}
-        response_codes_post = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
-        users = self.users
-        for user in users:
-            request = self.factory.get(reverse('classy:download'))
-            request.user = user
-            response = download(request)
-            self.assertEquals(response.status_code, response_codes_get[user])
-            request = self.factory.post(reverse('classy:download'))
-            request.user = user
-            response = download(request)
-            self.assertEquals(response.status_code, response_codes_post[user])
+        options = ['datasource', 'schema', 'table', 'column']
+        for user in User.objects.all():
+            c = Client()
+            
+            
+            response = c.get(reverse('classy:download'))
+            self.assertEquals(response.status_code, 302)
+            url = reverse('classy:index') + '?next=' + reverse('classy:download')
+            self.assertRedirects(response, url, fetch_redirect_response=False)
 
+            c.force_login(user)
+            response = c.get(reverse('classy:download'))
+            self.assertEquals(response.status_code, 302)
+            url = reverse('classy:home')
+            self.assertRedirects(response, url)
+
+            for op in ['db01', 'db02']:
+                data = {key: str(op) for key in options}
+                #data =  {'datasource': op, 'schema': op, 'table': op, 'column': op}
+                response = c.post(reverse('classy:download'), data=data)
+                #print(Classification.objects.filter(datasource=op, schema=op, table=op))
+                #print(response.content)
+                self.assertEquals(response.status_code, 200)
+                try:
+                    text = "{},{},{},{}".format(op, op, op, op)
+                    perm = user.username.split('-')
+                    if perm[1] == 'full':
+                        self.assertContains(response, text)
+                    elif perm[1] == 'partial':
+                        if op == 'db01':
+                            self.assertContains(response, text)
+                        else:
+                            self.assertNotContains(response, text)
+                    elif perm[1] == 'none':
+                        self.assertNotContains(response, text)
+                except:
+                    print(response.content)
+                    print(model_to_dict(Classification.objects.get(datasource='db01', schema='db01', table='db01', column='db01')))
+                    self.assertEquals(200, 201)
+
+    '''
     def test_review_view(self):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
         response_codes_post_invalid = {self.anon: 302, self.basic: 302, self.staff: 400, self.supa: 400}
@@ -218,192 +172,186 @@ class renderTest(TestCase):
             response = review(request)
             self.assertEquals(response.status_code, response_codes_post_valid[user])
 
-    def test_exceptions_view(self):
-        response_codes = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
-        users = self.users
-        for user in users:
-            request = self.factory.get(reverse('classy:exceptions'))
-            request.user = user
-            response = exceptions(request)
-            self.assertEquals(response.status_code, response_codes[user])
+    '''
 
-            request = self.factory.post(reverse('classy:exceptions'), data={'query': 'password'})
-            request.user = user
-            response = exceptions(request)
-            self.assertEquals(response.status_code, response_codes[user])
+    def test_exceptions_view(self):
+        for user in User.objects.all():
+            c = Client()
+            
+            response = c.get(reverse('classy:exceptions'))
+            self.assertEquals(response.status_code, 302)
+            url = reverse('classy:index') + '?next=' + reverse('classy:exceptions')
+            self.assertRedirects(response, url, fetch_redirect_response=False)
+
+            response = c.post(reverse('classy:exceptions'), data={'query': 'db01'})
+            self.assertEquals(response.status_code, 302)
+            self.assertRedirects(response, url, fetch_redirect_response=False)
+    
+            c.force_login(user)
+            response = c.get(reverse('classy:exceptions'))
+            post_response = c.post(reverse('classy:exceptions'), data={'query': 'db01'})
+            if user.is_staff:
+                self.assertEquals(response.status_code, 200)
+                self.assertEquals(post_response.status_code, 200)
+            else:
+                self.assertEquals(response.status_code, 302)
+                self.assertEquals(post_response.status_code, 302)
+                url = reverse('classy:index')
+                self.assertRedirects(response, url, fetch_redirect_response=False)
+
 
     def test_log_list_view(self):
-        response_codes = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
-        users = self.users
-        for user in users:
-            request = self.factory.get(reverse('classy:log_list'))
-            request.user = user
-            response = log_list(request)
-            self.assertEquals(response.status_code, response_codes[user])
-
-            request = self.factory.post(reverse('classy:log_list'), data={'query': 'password'})
-            request.user = user
-            response = log_list(request)
-            self.assertEquals(response.status_code, response_codes[user])
-    
-    def test_log_detail_view(self):
-        response_codes = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
-        rev = Classification(
-            classification='PA',
-            datasource='Avengers',
-            schema='endgame',
-            table='hype',
-            column='yeet',
-            creator=self.basic,
-            state='A'
-            )
-        rev.save(user=1, approver=1)
-        d1,created = DataAuthorization.objects.get_or_create(
-                name='All',
-            )
-        users = self.users
-        for user in users:
-            request = self.factory.get(reverse('classy:log_detail', args=[rev.pk]))
-            request.user = user
-            response = log_detail(request, rev.pk)
+        for user in User.objects.all():
+            c = Client()
+            
+            response = c.get(reverse('classy:log_list'))
             self.assertEquals(response.status_code, 302)
+            url = reverse('classy:index') + '?next=' + reverse('classy:log_list')
+            self.assertRedirects(response, url, fetch_redirect_response=False)
 
-            if user == self.anon:
-                continue
+            response = c.post(reverse('classy:log_list'), data={'query': 'db01'})
+            self.assertEquals(response.status_code, 302)
+            self.assertRedirects(response, url, fetch_redirect_response=False)
+    
+            c.force_login(user)
+            response = c.get(reverse('classy:log_list'))
+            post_response = c.post(reverse('classy:log_list'), data={'query': 'db01'})
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(post_response.status_code, 200)
+   
+    def test_log_detail_view(self):
+        partial = Classification.objects.get(datasource='db01', schema='db01', table='db01', column='db01')
+        full = Classification.objects.get(datasource='db02', schema='db02', table='db02', column='db02')        
 
-            user.profile.data_authorizations.add(d1)
-            user.profile.save()
+        for user in User.objects.all():
+            c = Client()
+            
+            response = c.get(reverse('classy:log_detail', args=[partial.pk]))
+            self.assertEquals(response.status_code, 302)
+            url = reverse('classy:index') + '?next=' + reverse('classy:log_detail', args=[partial.pk])
+            self.assertRedirects(response, url, fetch_redirect_response=False)
 
-            request = self.factory.get(reverse('classy:log_detail', args=[rev.pk]))
-            request.user = user
-            response = log_detail(request, rev.pk)
-            self.assertEquals(response.status_code, response_codes[user])
+            c.force_login(user)
+            partial_response = c.get(reverse('classy:log_detail', args=[partial.pk]))
+            full_response = c.get(reverse('classy:log_detail', args=[full.pk]))
+
+            partial_html = "<td>{}</td>".format('db01')
+            full_html = "<td>{}</td>".format('db02')
+            perm = user.username.split('-')
+            if perm[1] == 'full':
+                self.assertEquals(full_response.status_code, 200)
+                self.assertEquals(partial_response.status_code, full_response.status_code)
+                self.assertContains(full_response, full_html, count=4, status_code=200)
+                self.assertContains(partial_response, partial_html, count=4, status_code=200)
+            elif perm[1] == 'partial':
+                self.assertEquals(partial_response.status_code, 200)
+                self.assertNotEquals(partial_response.status_code, full_response.status_code)
+                self.assertContains(partial_response, partial_html, count=4, status_code=200)
+            elif perm[1] == 'none':
+                self.assertEquals(partial_response.status_code, 302)
+                self.assertEquals(partial_response.status_code, full_response.status_code)
+
+
 
     def test_modi_view(self):
-        response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 302, self.supa: 302}
-        response_codes_post = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
+        for user in User.objects.all():
+            c = Client()
+            c.force_login(user)
 
-        d1,created = DataAuthorization.objects.get_or_create(
-                name='All',
-            )
-        data = self.data
-        users = self.users
-        for user in users:
-            data['column'] = data['column'] + 'c'
-            form = ClassificationForm(data)
-            if form.is_valid():
-                rev = form.save(self.basic.pk, self.basic.pk)
+            rev = ClassyFactory(classification='PU', protected_type='', state='A')
             toMod = json.dumps([{"id": rev.pk, "classy": "Personal", "proty": "Protected B", "own": "---------"}])
             toDel = json.dumps([rev.pk])
             modData = {"toMod": toMod}
             delData = {"toDel": toDel}
-        
-            request = self.factory.get(reverse('classy:modi'))
-            request.user = user
-            response = modi(request)
-            self.assertEquals(response.status_code, response_codes_get[user]) 
+ 
+            response = c.get(reverse('classy:modi'))
+            self.assertEquals(response.status_code, 302) 
 
-            request = self.factory.post(reverse('classy:modi'), data={'toMod': toMod})
-            request.user = user
-            response = modi(request)
-            self.assertEquals(response.status_code, response_codes_post[user])
+            response = c.post(reverse('classy:modi'), data={'toMod': toMod})
+            self.assertEquals(response.status_code, 200)
 
             rev.refresh_from_db()
-            if user.is_staff:
-                #self.assertEquals(rev.classification, clas)
-                self.assertEquals(rev.state, 'A')
-            elif user.is_authenticated:
-                self.assertEquals(rev.state, 'A')
+            perm = user.username.split('-')
+            if perm[1] == 'full':
+                if user.is_staff:
+                    self.assertEquals(rev.state, 'A')
+                    self.assertEquals(rev.classification, 'PE')
+                    self.assertEquals(rev.protected_type, 'PB')
+                else:
+                    self.assertEquals(rev.state, 'P')
+                    self.assertEquals(rev.classification, 'PU')
+                    self.assertEquals(rev.protected_type, '')
             else:
-                self.assertEquals(rev.state, 'A')
-
-            request = self.factory.post(reverse('classy:modi'), data={'toDel': toDel})
-            request.user = user
-            response = modi(request)
-            self.assertEquals(response.status_code, response_codes_post[user])
-
-            if user.is_staff:
-                rev.refresh_from_db()
-                self.assertEquals(rev.state, 'A')
-            elif user.is_authenticated:
-                self.assertEquals(rev.state, 'A')
-            else:
-                self.assertEquals(rev.state, 'A')
+                if user.is_staff:
+                    self.assertEquals(rev.state, 'A')
+                    self.assertEquals(rev.classification, 'PU')
+                    self.assertEquals(rev.protected_type, '')
+                else:
+                    self.assertEquals(rev.state, 'A')
+                    self.assertEquals(rev.classification, 'PU')
+                    self.assertEquals(rev.protected_type, '')
             
-            #Anon does not have profile
-            if not user.is_active:
-                continue
-
-            user.profile.data_authorizations.add(d1)
-            user.profile.save()
-
-            request = self.factory.post(reverse('classy:modi'), data={'toMod': toMod})
-            request.user = user
-            response = modi(request)
-            self.assertEquals(response.status_code, response_codes_post[user])
-
+            response = c.post(reverse('classy:modi'), data={'toDel': toDel})
+            self.assertEquals(response.status_code, 200)
+           
             rev.refresh_from_db()
-            if user.is_staff:
-                self.assertEquals(rev.classification, "PE")
-                self.assertEquals(rev.protected_type, "PB")
-                self.assertEquals(rev.state, 'A')
-            elif user.is_authenticated:
-                self.assertEquals(rev.state, 'P')
+            perm = user.username.split('-')
+            if perm[1] == 'full':
+                if user.is_staff:
+                    self.assertEquals(rev.state, 'I')
+                else:
+                    self.assertEquals(rev.state, 'P')
             else:
-                self.assertEquals(rev.state, 'A')
+                if user.is_staff:
+                    self.assertEquals(rev.state, 'A')
+                else:
+                    self.assertEquals(rev.state, 'A')
 
-            request = self.factory.post(reverse('classy:modi'), data={'toDel': toDel})
-            request.user = user
-            response = modi(request)
-            self.assertEquals(response.status_code, response_codes_post[user])
-
-            if user.is_staff:
-                rev.refresh_from_db()
-                self.assertEquals(rev.state, 'I')
-            elif user.is_authenticated:
-                self.assertEquals(rev.state, 'P')
-            else:
-                self.assertEquals(rev.state, 'A')
-
-    '''
 
     def test_search_view(self):
-        #response_codes_get = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
+        parameters = ['datasource', 'schema', 'table', 'column', 'classification', 'protected_type', 'state', 'owner']
 
         for user in User.objects.all():
             c = Client()
             c.force_login(user)
-   
-            classy = ClassyFactory.stub()
-            print(vars(classy))
+  
+            for i in range(50): 
+                classy = vars(ClassyFactory.build())
+                classy['owner'] = classy['owner_id']
+                classy = { key: classy[key] for key in parameters }
+                
+                response = c.get(reverse('classy:search'), data=classy)
+                self.assertEquals(response.status_code, 200)
 
-        '''
-        clients = self.clients
+            for op in ['db01', 'db02']:
+                classy = vars(ClassyFactory.build(datasource=op, schema=op, table=op, column=op))
+                classy = { key: classy[key] for key in parameters[:4] }    
+                response = c.get(reverse('classy:search'), data=classy)   
 
-        for client in clients:
-            for i in range(10):
-                classy = ClassyFactory.stub()
-                response = client.get(reverse('classy:search'), data=vars(classy))
-                self.assertEquals(response.status_code, response_codes_get[client])
-                #print(len(response.content)) 
+                html = "<td>{}</td>".format(op)
+                perm = user.username.split('-')
+                if perm[1] == 'full':
+                    self.assertContains(response, html, count=4, status_code=200, html=True)
+                elif perm[1] == 'partial':
+                    if op == 'db01':
+                        self.assertContains(response, html, count=4, status_code=200, html=True)
+                    else:
+                        self.assertNotContains(response, html, status_code=200, html=True)
+                elif perm[1] == 'none':
+                    self.assertNotContains(response, html, status_code=200, html=True)
 
-        users = self.users
-        for user in users:
-            d1,created = DataAuthorization.objects.get_or_create(
-                name="All",
-            )
-            user.profile.data_authorizations.add(d1)
-            user.save()
-                  
-        for client in clients:
-            for i in range(10):
-                classy = ClassyFactory.stub()
-                response = client.get(reverse('classy:search'), data=vars(classy))
-                self.assertEquals(response.status_code, response_codes_get[client])
-                #print(len(response.content)) 
-        '''
+        c = Client()
+         
+        for i in range(50): 
+            classy = vars(ClassyFactory.build())
+            classy['owner'] = classy['owner_id']
+            classy = { key: classy[key] for key in parameters }
+            
+            response = c.get(reverse('classy:search'), data=classy)
+            self.assertEquals(response.status_code, 302)
+        
+
     '''
-
     def test_uploader_view(self):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
         users = self.users
@@ -412,5 +360,4 @@ class renderTest(TestCase):
             request.user = user
             response = uploader(request)
             self.assertEquals(response.status_code, response_codes_get[user])
-
     '''

@@ -23,7 +23,7 @@ import threading, csv, json, random, os, difflib, datetime
 from .models import ClassificationCount, Classification, ClassificationLogs, ClassificationReviewGroups, ClassificationReview
 from .forms import *
 from .scripts import calc_scheduler, upload
-from .helper import query_constructor, role_checker
+from .helper import query_constructor, role_checker, filter_results
 
 from background_task.models import Task
 
@@ -75,76 +75,22 @@ def download(request):
     if not request.method == 'POST':
             return redirect('classy:home')
 
-    advanced = AdvancedSearch(request.POST)
-    basic = BasicSearch(request.POST)
-    if advanced.is_valid() and basic.is_valid():
- 
-        classification = advanced.cleaned_data['classification']
-        protected_type = advanced.cleaned_data['protected_type']
-        owner =         advanced.cleaned_data['owner']
-        state =         advanced.cleaned_data['state']
+    queryset = filter_results(request, request.POST)
+    queryset = queryset.order_by('datasource', 'schema', 'table', 'column')
 
-        #if no classification is chosen search all of them
-        if len(classification) == 0:
-            classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
-        #This might look weird but it's the only way to check foreign keys, as if they are empty we will be running owner__in=[] which will not give all values, but none. 
-        if len(protected_type) == 0:
-            prot = Classification.objects.all()
-        else:
-            prot = Classification.objects.filter(protected_type__in=protected_type)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="classification_report.csv"'
 
-        if len(owner) == 0:
-            own = Classification.objects.all() 
-        else:
-            own = Classification.objects.filter(owner__acronym__in=owner)
-      
-        if len(state) == 0:
-            state = ['A', 'P']
-         
-        queryset = Classification.objects.filter(
-            datasource__icontains=advanced.cleaned_data['datasource'], 
-            schema__icontains=advanced.cleaned_data['schema'],
-            table__icontains=advanced.cleaned_data['table'],
-            column__icontains=advanced.cleaned_data['column'],
-            classification__in=classification,
-            state__in=state)
-
-        queryset = queryset.intersection(own, prot)
-
-        query = basic.cleaned_data['query']            
-        data = Classification.objects.filter(datasource__icontains=query)
-        sche = Classification.objects.filter(schema__icontains=query)
-        tabl = Classification.objects.filter(table__icontains=query)
-        colu = Classification.objects.filter(column__icontains=query)
-        stat = Classification.objects.filter(state__in=state)
-
-        #OR the querysets to search all fields for value
-        queryset2 = Classification.objects.none()
-        queryset2 = queryset2.union(data, sche, tabl, colu)
-        queryset2 = queryset2.intersection(stat)
-
-        queryset = queryset.intersection(queryset2)
-
-        queryset = query_constructor(queryset, request.user)
-
-
-        queryset = queryset.order_by('datasource', 'schema', 'table', 'column')
+    writer = csv.writer(response)
+    writer.writerow(['Application', 'Classification', 'Protected Series', 'Datasource', 'Schema', 'Table', 'Column', 'Created', 'Creator', 'State', 'Masking instructions', 'Notes'])
     
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="classification_report.csv"'
-
-        writer = csv.writer(response)
-        writer.writerow(['Application', 'Classification', 'Protected Series', 'Datasource', 'Schema', 'Table', 'Column', 'Created', 'Creator', 'State', 'Masking instructions', 'Notes'])
-        
-        for tuple in queryset:
-            if tuple.owner is not None:
-                app = tuple.owner.acronym
-            else:
-                app = None
-            writer.writerow([app, translate[tuple.classification], translate[tuple.protected_type], tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator.first_name, state_translate[tuple.state], tuple.masking, tuple.notes])
-        return response
-
-    return redirect('classy:index')
+    for tuple in queryset:
+        if tuple.owner is not None:
+            app = tuple.owner.acronym
+        else:
+            app = None
+        writer.writerow([app, translate[tuple.classification], translate[tuple.protected_type], tuple.datasource, tuple.schema, tuple.table, tuple.column, tuple.created, tuple.creator.first_name, state_translate[tuple.state], tuple.masking, tuple.notes])
+    return response
 
 #Allow staff to review basic user changes, and accept/reject them
 @login_required
@@ -560,181 +506,118 @@ def search(request):
     if request.method != 'GET':
         return redirect('classy:home')
     num = ClassificationReviewGroups.objects.all().count()
-    #advanced = AdvancedSearch(initial={'datasource': '', 'schema': '', 'table': '', 'column': '', 'classification': ['UN'], 'state': ['A', 'P']})
     size = 10
     if 'size' in request.GET:
         if request.GET['size'] is not None:
             size = request.GET['size']
-    advanced = AdvancedSearch(request.GET)
-    basic = BasicSearch(request.GET)
-    if advanced.is_valid() and basic.is_valid():
-        classification = advanced.cleaned_data['classification']
-        protected_type = advanced.cleaned_data['protected_type']
-        owner =         advanced.cleaned_data['owner']
-        state =         advanced.cleaned_data['state']
 
-        #if no classification is chosen search all of them
-        if len(classification) == 0:
-            classification = [i[0] for i in Classification._meta.get_field('classification').flatchoices]
-        #This might look weird but it's the only way to check foreign keys, as if they are empty we will be running owner__in=[] which will not give all values, but none. 
-        if len(protected_type) == 0:
-            prot = Classification.objects.all()
-        else:
-            prot = Classification.objects.filter(protected_type__in=protected_type)
+    queryset = filter_results(request, request.GET)
+    queryset = queryset.order_by('datasource', 'schema', 'table', 'column')    
 
-        if len(owner) == 0:
-            own = Classification.objects.all() 
-        else:
-            own = Classification.objects.filter(owner__acronym__in=owner)
 
-        if len(state) == 0:
-            state = ['A', 'P']
-        queryset = Classification.objects.filter(
-            datasource__icontains=advanced.cleaned_data['datasource'], 
-            schema__icontains=advanced.cleaned_data['schema'],
-            table__icontains=advanced.cleaned_data['table'],
-            column__icontains=advanced.cleaned_data['column'],
-            classification__in=classification,
-            state__in=state)
+    nodeData = {}
+    nodeData['datasets'] = []
+    colors = [
+        "#DBD5B5",
+        "#46BFBD",
+        "#FDB45C",
+        "#949FB1",
+        "#9FFFF5",
+        "#7CFFC4",
+        "#6ABEA7",
+            ]
 
-        #queryset = queryset.intersection(own, prot)
+    data = []
+    for op in options:
+        count = queryset.filter(classification__exact=op).count()
+        data.append(count)
+    nodeData['datasets'].append({
+            'data': data,
+            'backgroundColor': colors})
 
-        query = basic.cleaned_data['query']            
-        data = Classification.objects.filter(datasource__icontains=query)
-        sche = Classification.objects.filter(schema__icontains=query)
-        tabl = Classification.objects.filter(table__icontains=query)
-        colu = Classification.objects.filter(column__icontains=query)
-        stat = Classification.objects.filter(state__in=state)
-        #OR the querysets to search all fields for value
-        queryset2 = data | sche | tabl | colu
-        queryset = (queryset2 & queryset & stat & own & prot).distinct()
+    data = []
+    for op in options:
+        data.append(0)
+    for pop in poptions:
+        count = queryset.filter(protected_type__exact=pop).count()
+        data.append(count)
+    nodeData['datasets'].append({
+            'data': data,
+            'backgroundColor': colors})
+    
+    nodeData['labels'] = ex_options + ex_poptions
 
-        queryset = query_constructor(queryset, request.user)
-        nodeData = {}
-        nodeData['datasets'] = []
-        colors = [
-            "#DBD5B5",
-            "#46BFBD",
-            "#FDB45C",
-            "#949FB1",
-            "#9FFFF5",
-            "#7CFFC4",
-            "#6ABEA7",
-                ]
+    clas_information = []       
 
-        data = []
-        for op in options:
-            count = queryset.filter(classification__exact=op).count()
-            data.append(count)
-        nodeData['datasets'].append({
-                'data': data,
-                'backgroundColor': colors})
+    prot_information = []
 
-        data = []
-        for op in options:
-            data.append(0)
-        for pop in poptions:
-            count = queryset.filter(protected_type__exact=pop).count()
-            data.append(count)
-        nodeData['datasets'].append({
-                'data': data,
-                'backgroundColor': colors})
-        
-        nodeData['labels'] = ex_options + ex_poptions
-
-        clas_information = []       
- 
-        prot_information = []
-
-        label_cons = ex_options
-        queryset = queryset.order_by('datasource', 'schema', 'table', 'column')
-        if 'page' in request.GET:
-            page = request.GET.get('page')
-        else:
-            page = 1
-        paginator = Paginator(queryset, size)
-        queryset = paginator.get_page(page)
-        prev = False
-        nex = False
-        first = False
-        last = False
-        current = int(page)
-
-        if current > 1:
-            prev = True
-        if current < paginator.num_pages:
-            nex = True
-        pags = []
-
-        if current > 3 and current < paginator.num_pages - 2:
-            init = current - 2
-            for i in range(5):
-                pags.append(init + i)
-            first = True
-            last = True
-        elif current > 3:
-            init = paginator.num_pages - 4
-            for i in range(5):
-                pags.append(init + i)
-            first = True
-        elif current < paginator.num_pages - 3:
-            init = 1
-            for i in range(5):
-                pags.append(init + i)
-            last = True
-        else:
-            init = 1
-            for i in range(paginator.num_pages):
-                pags.append(init + i)
-        recent = {}
-        for tup in queryset:
-            if tup.created - datetime.timedelta(days=14):
-                recent[tup.id] = True
-
-        context = {
-            'poptions': ex_options + ex_poptions,
-            'num': num,
-            'basic': basic,
-            'advanced': advanced,
-            'queryset': queryset,
-            'options': options,
-            'query': query,
-            #'ds': ds,
-            #'sch': sch,
-            #'tab': tab,
-            #'col': col,
-            #'classi': classi,
-            #'stati': stati,
-            'size': size,
-            'sizes': sizes,
-            'prev': prev,
-            'next': nex,
-            'pags': pags,
-            'first': first,
-            'last': last,
-            'recent': recent,
-            'translate': translate,
-            'untranslate': untranslate,
-            'ex_options': ex_options,
-            'ex_poptions': ex_poptions,
-            'nodeData': nodeData,
-            'modifyForm': ModifyForm()
-        }
-        return render(request, 'classy/data_tables.html', context)
+    label_cons = ex_options
+    if 'page' in request.GET:
+        page = request.GET.get('page')
     else:
-        advanced = AdvancedSearch()
-        basic = BasicSearch()
-        context = {
-            'num': num,
-            'basic': basic,
-            'advanced': advanced,
-            'options': options,
-            'ex_options': ex_options,
-            'ex_poptions': ex_poptions,
-            'message': 'Invalid search'
-        }
-        return render(request, 'classy/data_tables.html', context)
-    return redirect('classy:index')
+        page = 1
+    paginator = Paginator(queryset, size)
+    queryset = paginator.get_page(page)
+    prev = False
+    nex = False
+    first = False
+    last = False
+    current = int(page)
+
+    if current > 1:
+        prev = True
+    if current < paginator.num_pages:
+        nex = True
+    pags = []
+
+    if current > 3 and current < paginator.num_pages - 2:
+        init = current - 2
+        for i in range(5):
+            pags.append(init + i)
+        first = True
+        last = True
+    elif current > 3:
+        init = paginator.num_pages - 4
+        for i in range(5):
+            pags.append(init + i)
+        first = True
+    elif current < paginator.num_pages - 3:
+        init = 1
+        for i in range(5):
+            pags.append(init + i)
+        last = True
+    else:
+        init = 1
+        for i in range(paginator.num_pages):
+            pags.append(init + i)
+    recent = {}
+    for tup in queryset:
+        if tup.created - datetime.timedelta(days=14):
+            recent[tup.id] = True
+
+    context = {
+        'poptions': ex_options + ex_poptions,
+        'num': num,
+        'basic': BasicSearch(request.GET),
+        'advanced': AdvancedSearch(request.GET),
+        'queryset': queryset,
+        'options': options,
+        'size': size,
+        'sizes': sizes,
+        'prev': prev,
+        'next': nex,
+        'pags': pags,
+        'first': first,
+        'last': last,
+        'recent': recent,
+        'translate': translate,
+        'untranslate': untranslate,
+        'ex_options': ex_options,
+        'ex_poptions': ex_poptions,
+        'nodeData': nodeData,
+        'modifyForm': ModifyForm()
+    }
+    return render(request, 'classy/data_tables.html', context)
 
 # serve up the EX gov template for dev purposes
 @login_required

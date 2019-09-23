@@ -75,7 +75,7 @@
                             {{ field.as_hidden }}
                         {% endfor %}
 
-                        <input type='hidden' name='submit-advanced' value=''/>
+                        <input type='hidden' name='submit-advanced' value=''>
                     </div>
                 </form>
             </div>
@@ -90,7 +90,7 @@
                     </div> 
                     <small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
                     <div class="input-group">
-                        <input name="size" type="hidden" value="{{basic.size.value}}"></input>
+                        <input name="size" type="hidden" value="{{basic.size.value}}">
                     </div>
                     <nav class="nav justify-content-center">
                         <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
@@ -104,7 +104,7 @@
                     {% csrf_token %}
                     <div class="input-group">
                         {% for field in basic %}
-                            <input type="hidden" name="{{field.name}}" value="{{field.value}}"/>
+                            <input type="hidden" name="{{field.name}}" value="{{field.value}}">
                         {% endfor %}
                         {% for field in advanced %}
                             {{ field.as_hidden }}
@@ -226,7 +226,7 @@
                         <tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
                             <td>
                                 <button data-toggle="collapse" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align" data-target=".row{{forloop.counter}}" class="accordion-toggle">
-                                <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></img>
+                                <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon">
                                 </button>   
                             </td>
                             <td>{{tuple.datasource}}</td>
@@ -268,8 +268,7 @@
                                     <div class="col-sm-2">
                                         <button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
                                         
-                                    <input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
-                                    value="{{tuple.id}}"/>
+                                    <input id="prodId{{forloop.counter}}" name="prodId" type="hidden" value="{{tuple.id}}">
                                     </div>
                                     <div class="col-sm-1"></div>
                                     </div>
