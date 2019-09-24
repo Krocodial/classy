@@ -131,7 +131,7 @@ class ClassificationLogForm(ModelForm):
 class LogDetailSubmitForm(ModelForm):
     class Meta:
         model = Classification
-        fields = ['classification', 'protected_type', 'owner', 'dependents', 'notes', 'masking']
+        fields = ['classification', 'protected_type', 'owner', 'dependents', 'notes', 'masking', 'state']
 
     def save(self, user, approver):
         classy = super(LogDetailSubmitForm, self).save(commit=False)

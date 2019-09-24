@@ -323,7 +323,6 @@ def log_list(request):
 @login_required
 def log_detail(request, classy_id):
     num = ClassificationReviewGroups.objects.all().count()
-    #try:
 
     queryset = query_constructor(Classification.objects.all(), request.user)
     try:
@@ -335,22 +334,11 @@ def log_detail(request, classy_id):
     if request.method == 'POST' and request.user.is_staff:
         
         data = request.POST.copy()
+        data['state'] = 'A'
         if data['classification'] in ['PU', 'UN']:
             data['protected_type'] = ''
 
         form = LogDetailSubmitForm(data, instance=obj)
-        '''
-        for p in pos:
-            if p in request.POST:
-                data[p] = request.POST.get(p)
-
-        if 'dependents' in request.POST:
-            data['dependents'] = request.POST['dependents']
-
-        form = LogDetailForm(data, instance=obj)
-        #form = ClassificationForm(data, instance=obj)
-        '''
-
         if form.is_valid() and form.has_changed():
             form.save(request.user.pk, request.user.pk)
             form.save_m2m()
@@ -395,11 +383,12 @@ def modi(request):
             tup = queryset.get(id__exact=ide)
         except:
             continue
-        if tup.state == 'P':
-            continue
 
         data = model_to_dict(tup)
    
+        if tup.state == 'P':
+            continue
+
         if 'classy' in index:
             if index['classy'] in untranslate:
                 data['classification'] = untranslate[index['classy']]
@@ -418,7 +407,8 @@ def modi(request):
         if data['classification'] in ['PU', 'UN']:
             data['protected_type'] = ''
 
-        if request.user.is_staff:        
+        if request.user.is_staff:       
+            data['state'] = 'A' 
             form = ClassificationForm(data, instance=tup)
 
             if form.is_valid() and form.has_changed():

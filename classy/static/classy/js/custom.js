@@ -185,9 +185,6 @@ $('#contentArea').on('click', '.del', function() {
 
         var id = $(rowId).attr('value');
         toDel.push(id);
-
-        console.log(intid);
-
         $("#delTable tbody").append("<tr><td>" + id + "</td><td>" + 
                 '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
                 '</td></tr>');
