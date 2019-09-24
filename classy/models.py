@@ -46,7 +46,7 @@ class Application(models.Model):
     description = models.TextField(max_length=300, blank=True)
     
     def __str__(self):
-        return self.name
+        return self.acronym
 
 
 class DataAuthorization(models.Model):
