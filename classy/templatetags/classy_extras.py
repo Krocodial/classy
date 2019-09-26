@@ -14,3 +14,10 @@ def multiply(value, arg):
 def replace_font(value):
     value = value.replace('<font color="green">', '<font color="green">')
     return value
+
+@register.filter
+def convert_queryset(value):
+    vals = []
+    for val in value:
+        vals.append(val)
+    return vals

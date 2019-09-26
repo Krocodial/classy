@@ -1,4 +1,5 @@
 
+
 //$('li').attr('unselectable', 'on'); //IE
 var keys = [];
 var shifted = false;
@@ -122,11 +123,49 @@ $(document).on('click', '#changeC', function() {
 	/*$.each(keys, function(index, value) {
 		console.log($(value).attr('id'));
 	});*/
-	var newy = $('#newC').find(':selected').text();
+	var newy = $('#modify-form > .form-group > #id_classification').find(':selected').text();
+    var newp = $("#modify-form > .form-group > #id_protected_type").find(":selected").text();
+    var newo = $("#modify-form > .form-group > #id_owner").val();//find(":selected").text();
+    var newd = $("#modify-form > .form-group > #id_dependents").val();//find(":selected").text();
+    var newd_text = [];
+    var newo_text = $("#modify-form > .form-group > #id_owner").find(":selected").text();
+    $("#modify-form > .form-group > #id_dependents option:selected").each(function() {
+        var $this = $(this);
+        if ($this.length) {
+            newd_text.push($this.text());
+            //console.log($this.text());
+        }
+    });
 	$.each(keys, function(index, value) {
-		chan = {id: $('#prodId' + value).attr('value'), classy: newy};
+		chan = {id: $('#prodId' + value).attr('value'), classy: newy, proty: newp, own: newo, newd: newd};
 		toMod.push(chan);
+        
+
+        /*
+        var input = document.createElement("input");
+        input.setAttribute("type", "hidden");
+        input.setAttribute("name", "targets");
+        input.setAttribute("id", "id_targets");
+        input.setAttribute("value", $("#prodId" + value).attr("value"));
+        document.getElementById("modify-form").appendChild(input);
+        */
 	});
+    
+
+    var rows = $.map(keys, function(value, index) {
+    return '<tr><td>' + value + 
+            '</td><td>' + newy + 
+            '</td><td>' + newp + 
+            "</td><td>" + newo_text + 
+            "</td><td>" + newd_text + "" + 
+            "</td><td>" + 
+            '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
+            '</td></tr>';
+    });
+
+    $('#modTable tbody').append(rows.join(''));
+
+    $('#modify-form').trigger("reset");
 
 	//console.log($('#newC').find(':selected').text());
 	$.each(keys, function(index, value) {
@@ -146,8 +185,15 @@ $('#contentArea').on('click', '.del', function() {
 
         var id = $(rowId).attr('value');
         toDel.push(id);
+        $("#delTable tbody").append("<tr><td>" + id + "</td><td>" + 
+                '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
+                '</td></tr>');
+
         $(row).remove();
         $(mrow).remove();
+
+        
+
 });
 
 $(document).on('change', '.cla', function(e) {
@@ -161,6 +207,7 @@ $(document).on('change', '.cla', function(e) {
 });
 
 $(document).on('click', '#subby', function() {
+        /*
         var rows = $.map(toDel, function(value, index) {
         return '<tr><td>' + value + '</td><td>' +
                 '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
@@ -168,15 +215,17 @@ $(document).on('click', '#subby', function() {
 });
 
         $('#delTable tbody').html(rows.join(''));
+        */
 
-        var rows = $.map(toMod, function(value, index) {
-        return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td><td>' +
+
+        /*var rows = $.map(toMod, function(value, index) {
+        return '<tr><td>' + value.id + '</td><td>' + value.classy + '</td><td>' + value.proty + "</td><td>" + value.own + "</td><td>" + 
                 '<button class="btn btn-sm btn-danger float-right" type="button">Remove</button>' +
                 '</td></tr>';
 });
 
         $('#modTable tbody').html(rows.join(''));
-
+        */
 
 });
 

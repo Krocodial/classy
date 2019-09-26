@@ -1,11 +1,49 @@
 from django.contrib.auth.models import AnonymousUser, User
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from django.conf import settings
+from django.forms.models import model_to_dict
 
-from classy.models import classification_review_groups, classification, classification_review, data_authorization
-from classy.views import home, login_complete, download, review, exceptions, log_list, log_detail, modi, search, uploader
+from classy.models import Application, ClassificationReviewGroups, Classification, ClassificationReview, DataAuthorization
+from classy.views import index, home, login_complete, download, review, exceptions, log_list, log_detail, modi, search, uploader
+from classy.forms import ClassificationForm, AdvancedSearch, BasicSearch
 
-import json
+import json, os, factory
+
+from classy.models import classification_choices, protected_series, state_choices
+
+choices = ['Public', 'Confidential', 'Personal', 'Unclassified']
+protected = ['Protected A', 'Protected B', 'Protected C', '']
+prot_choices = ['Personal', 'Confidential']
+
+class ClassyFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Classification
+
+    datasource = factory.Faker('sentence', nb_words=4)
+    schema = factory.Faker('sentence', nb_words=4)
+    table = factory.Faker('sentence', nb_words=4)
+    column = factory.Faker('sentence', nb_words=4)
+
+    classification = factory.Faker('random_element', elements=[x[0] for x in classification_choices])
+    protected_type = factory.Faker('random_element', elements=[x[0] for x in protected_series])
+    state = factory.Faker('random_element', elements=[x[0] for x in state_choices])
+    creator,created = User.objects.get_or_create(
+        username='testoo',
+    )
+    creator = creator.pk
+
+    owner,created = Application.objects.get_or_create(
+        acronym='CLS',
+        name='CLASSY'
+    )
+    owner = owner.pk
+
+    dependents,created = Application.objects.get_or_create(
+        acronym='CLS',
+        name='CLASSY'
+    )
+    dependents = [dependents.pk]
 
 class renderTest(TestCase):
     def setUp(self):
@@ -15,20 +53,37 @@ class renderTest(TestCase):
         self.supa = User.objects.create_superuser('super', 'xx@xx.com', 'password')
         self.anon = AnonymousUser()
         self.users = [self.anon, self.basic, self.staff, self.supa]
-    '''
+  
+        self.data = {
+            'datasource': 'testo',
+            'schema': 'testo',
+            'table': 'testo',
+            'column': 'testo',
+            'creator': self.basic.id,
+            'state': 'A',
+            'classification': 'PU',
+            'masking': '',
+            'notes': ''
+            }
+ 
     def test_index_view(self):
         index_request = self.factory.get(reverse('classy:index'))
         users = [self.anon, self.basic, self.staff, self.supa]
         tran = {self.anon: 'anon', self.basic: 'basic', self.staff: 'staff', self.supa: 'supa'}
-        pages = {'anon': settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf'), 'basic': reverse('classy:home'), 'staff': reverse('classy:home'), 'supa': reverse('classy:home')}
+        
+
+        #pages = {'anon': settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'), scope='username email', state='alskdfjl;isiejf'), 'basic': reverse('classy:home'), 'staff': reverse('classy:home'), 'supa': reverse('classy:home')}
+
+        #print(settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete')))
 
         for user in users:
             request = index_request
             request.user = user
             response = index(request)
-            response.client = Client()
-            self.assertRedirects(response, pages[tran[user]], fetch_redirect_response=False)
-    '''
+            #print(response)
+            #print(response.url)
+            #response.client = Client()
+            #self.assertRedirects(response, pages[tran[user]], fetch_redirect_response=False)
 
     def test_login_complete_view(self):
         for user in self.users:
@@ -59,14 +114,15 @@ class renderTest(TestCase):
             response = download(request)
             self.assertEquals(response.status_code, response_codes_post[user])
 
+    '''
     def test_review_view(self):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
         response_codes_post_invalid = {self.anon: 302, self.basic: 302, self.staff: 400, self.supa: 400}
         response_codes_post_valid = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa:200}
         for i in range(1,5):
-            rev = classification_review.objects.create(
-                    classy=classification.objects.create(
-                        classification_name='PA',
+            rev = ClassificationReview.objects.create(
+                    classy=Classification.objects.create(
+                        classification='PA',
                         datasource='UWU',
                         schema='owo',
                         table='uwu',
@@ -74,10 +130,10 @@ class renderTest(TestCase):
                         creator=self.basic,
                         state='A'
                         ),
-                    group = classification_review_groups.objects.create(user=self.basic),
-                    classification_name = 'PU',
+                    group = ClassificationReviewGroups.objects.create(user=self.basic),
+                    classification = 'PU',
                     flag = 0)
-        for user, group in zip(self.users, classification_review_groups.objects.all()):
+        for user, group in zip(self.users, ClassificationReviewGroups.objects.all()):
             request = self.factory.get(reverse('classy:review'))
             request.user = user
             response = review(request)
@@ -92,6 +148,7 @@ class renderTest(TestCase):
             request.user = user
             response = review(request)
             self.assertEquals(response.status_code, response_codes_post_valid[user])
+    '''
 
     def test_exceptions_view(self):
         response_codes = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}
@@ -121,8 +178,8 @@ class renderTest(TestCase):
     
     def test_log_detail_view(self):
         response_codes = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
-        rev = classification.objects.create(
-            classification_name='PA',
+        rev = Classification(
+            classification='PA',
             datasource='Avengers',
             schema='endgame',
             table='hype',
@@ -130,7 +187,8 @@ class renderTest(TestCase):
             creator=self.basic,
             state='A'
             )
-        d1 = data_authorization.objects.create(
+        rev.save(user=1, approver=1)
+        d1 = DataAuthorization.objects.create(
                 name='All',
             )
         for user in self.users:
@@ -154,18 +212,27 @@ class renderTest(TestCase):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 302, self.supa: 302}
         response_codes_post = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
 
+        d1 = DataAuthorization.objects.create(
+                name='All',
+            )
+        data = self.data
         for user in self.users:
-            rev = classification.objects.create (
-                    classification_name='CO',
+            data['column'] = data['column'] + 'c'
+            form = ClassificationForm(data)
+            if form.is_valid():
+                rev = form.save(self.basic.pk, self.basic.pk)
+            '''
+            rev = Classification.objects.create (
+                    classification='CO',
                     datasource='game',
                     schema='of',
                     table='thrones',
-                    column='hype',
+                    column=user.username,
                     creator=self.basic,
                     state='A'
                     )
-
-            toMod = json.dumps([{"id": rev.pk, "classy": "PUBLIC"}])
+            '''
+            toMod = json.dumps([{"id": rev.pk, "classy": "Personal", "proty": "Protected B", "own": "---------"}])
             toDel = json.dumps([rev.pk])
             modData = {"toMod": toMod}
             delData = {"toDel": toDel}
@@ -182,7 +249,42 @@ class renderTest(TestCase):
 
             rev.refresh_from_db()
             if user.is_staff:
-                self.assertEquals(rev.classification_name, 'PU')
+                #self.assertEquals(rev.classification, clas)
+                self.assertEquals(rev.state, 'A')
+            elif user.is_authenticated:
+                self.assertEquals(rev.state, 'A')
+            else:
+                self.assertEquals(rev.state, 'A')
+
+            request = self.factory.post(reverse('classy:modi'), data={'toDel': toDel})
+            request.user = user
+            response = modi(request)
+            self.assertEquals(response.status_code, response_codes_post[user])
+
+            if user.is_staff:
+                rev.refresh_from_db()
+                self.assertEquals(rev.state, 'A')
+            elif user.is_authenticated:
+                self.assertEquals(rev.state, 'A')
+            else:
+                self.assertEquals(rev.state, 'A')
+            
+            #Anon does not have profile
+            if user == self.anon:
+                continue
+
+            user.profile.data_authorizations.add(d1)
+            user.profile.save()
+
+            request = self.factory.post(reverse('classy:modi'), data={'toMod': toMod})
+            request.user = user
+            response = modi(request)
+            self.assertEquals(response.status_code, response_codes_post[user])
+
+            rev.refresh_from_db()
+            if user.is_staff:
+                self.assertEquals(rev.classification, "PE")
+                self.assertEquals(rev.protected_type, "PB")
                 self.assertEquals(rev.state, 'A')
             elif user.is_authenticated:
                 self.assertEquals(rev.state, 'P')
@@ -202,13 +304,31 @@ class renderTest(TestCase):
             else:
                 self.assertEquals(rev.state, 'A')
 
+
     def test_search_view(self):
         response_codes_get = {self.anon: 302, self.basic: 200, self.staff: 200, self.supa: 200}
+
+        classy = ClassyFactory.stub()
+        print(vars(classy))
+
         for user in self.users:
-            request = self.factory.get(reverse('classy:search'))
-            request.user = user
-            response = search(request)
-            self.assertEquals(response.status_code, response_codes_get[user])
+            for i in range(20):
+                classy = ClassyFactory.stub()
+                advanced = AdvancedSearch(vars(classy))
+                basic = BasicSearch(vars(classy))
+                if not advanced.is_valid():
+                    print(advanced.errors)                    
+
+
+                self.assertTrue(advanced.is_valid())
+                self.assertTrue(basic.is_valid())
+
+                request = self.factory.get(reverse('classy:search'), data=vars(classy))
+                request.user = user
+                response = search(request)
+                self.assertEquals(response.status_code, response_codes_get[user])
+            
+
 
     def test_uploader_view(self):
         response_codes_get = {self.anon: 302, self.basic: 302, self.staff: 200, self.supa: 200}

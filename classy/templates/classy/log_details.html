@@ -3,117 +3,103 @@
 <title>History - Classy</title>
 {% load classy_extras %}
 </head>
-<body id="bootstrapoverride">
+<body>
 
 {% include 'classy/navbar.html' %}
 
-    <div id="topicTemplate" class="template container-fluid gov-container">
+<div id="topicTemplate" class="template container-fluid gov-container">
     <div class="row">
         <div class="col-lg-12">
         <h3 class=""><strong>Detailed view</strong></h3>
         </div>
     </div>
-{% if obj %}
-<div class="row">
-
-
-<div class="col-sm-3">
-<form action="{% url 'classy:log_detail' obj.id %}" method='post'>
-{% csrf_token %}
-<table class="table">
-<thead>
-	<tr>
-		<th>Category</th>
-		<th>Value</th>
-	</tr>
-</thead>
-<tbody>
-	<tr>
-		<td><strong>ID</strong></td>
-		<td>{{obj.id}}</td>
-	</tr>
-        <tr>
-                <td><strong>State</strong></td>
-                <td>{{state_translate|get_item:obj.state}}</td>
-                <!--<td>{{obj.state}}</td>-->
-        </tr>
-	<tr>
-		<td><strong>Datasource</strong></td>
-		<td>{{obj.datasource}}</td>
-	</tr>
-        <tr>
-                <td><strong>Schema</strong></td>
-                <td>{{obj.schema}}</td>
-        </tr>
-        <tr>
-                <td><strong>Table</strong></td>
-                <td>{{obj.table}}</td>
-        </tr>
-        <tr>
-                <td><strong>Column</strong></td>
-                <td>{{obj.column}}</td>
-        </tr>
-        <tr>
-                <td><strong>Created</strong></td>
-                <td>{{obj.created}}</td>
-        </tr>
-        <tr>
-                <td><strong>Creator</strong></td>
-                <td>{{obj.creator.first_name}}</td>
-        </tr>
-	{{form}}<!--
-	<tr>
-		<td>{{form}}</td>
-	</tr>-->
-	<tr>
-		<td></td>
-		<td><input type='submit' value='Submit'></td>
-	</tr>
-		
-</tbody>
-</table>
-</form>
-</div>
-<div class="col-sm-1"></div>
-<div class="col-sm-8">
-	<div class="row">
-		<div class="col-sm-12">
-			<div class="well">
-				<form class="form-horizontal" method="post">
-					{% csrf_token %}
-					<fieldset>
-						<legend>Masking instructions & notes</legend>
-						<div class="form-group">
-							<label for="maskingArea" class="col-lg-2 control-label">
-								Masking Instructions</label>
-							<div class="col-sm-10">
-								<textarea name="masking" class="form-control" rows="3" id="maskingArea">{{obj.masking}}</textarea>
-								<span class="help-block">
-									"How to mask this data element should it be moved to a lower environment."
-								</span>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="notesArea" class="col-lg-2 control-label">Notes</label>
-							<div class="col-sm-10">
-								<textarea name="notes" class="form-control" rows="3" id="notesArea">{{obj.notes}}</textarea>
-								<span class="help-block">
-									"General notes about this data element."
-								</span>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-sm-10 col-sm-offset-2">
-								<button type="submit" class="btn btn-primary">Submit</button>
-							</div>
-						</div>
-					</fieldset>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
+    {% if obj %}
+    
+    <form action="{% url 'classy:log_detail' obj.id %}" method='post' class="form-horizontal row">
+        <div class="col-sm-4">
+        {% csrf_token %}
+        <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>ID</strong></td>
+                <td>{{obj.id}}</td>
+            </tr>
+            <tr>
+                    <td><strong>State</strong></td>
+                    <td>{{state_translate|get_item:obj.state}}</td>
+                    <!--<td>{{obj.state}}</td>-->
+            </tr>
+            <tr>
+                <td><strong>Datasource</strong></td>
+                <td>{{obj.datasource}}</td>
+            </tr>
+            <tr>
+                    <td><strong>Schema</strong></td>
+                    <td>{{obj.schema}}</td>
+            </tr>
+            <tr>
+                    <td><strong>Table</strong></td>
+                    <td>{{obj.table}}</td>
+            </tr>
+            <tr>
+                    <td><strong>Column</strong></td>
+                    <td>{{obj.column}}</td>
+            </tr>
+            <tr>
+                    <td><strong>Created</strong></td>
+                    <td>{{obj.created}}</td>
+            </tr>
+            <tr>
+                    <td><strong>Creator</strong></td>
+                    <td>{{obj.creator.first_name}}</td>
+            </tr>
+            {{form}}
+            <tr>
+                <td></td><td><input class="btn btn-primary btn-sm" type="submit" value="submit"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-sm-8">
+        <div class="row">
+                <div class="well">
+                        <fieldset>
+                            <legend>Masking instructions & notes</legend>
+                            <div class="form-group">
+                                <label for="maskingArea" class="col-lg-2 control-label">
+                                    Masking Instructions</label>
+                                <div class="col-lg-10">
+                                    <textarea name="masking" class="form-control" rows="3" id="maskingArea">{{obj.masking}}</textarea>
+                                    <span class="help-block">
+                                        "How to mask this data element should it be moved to a lower environment."
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="notesArea" class="col-lg-2 control-label">Notes</label>
+                                <div class="col-lg-10">
+                                    <textarea name="notes" class="form-control" rows="3" id="notesArea">{{obj.notes}}</textarea>
+                                    <span class="help-block">
+                                        "General notes about this data element."
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-10 col-sm-offset-2">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                </div>
+            </div>
+        </div>
+    </form>
 <div class="row">
 		<div class="col-sm-1"></div>
 		<div class="col-sm-11">			
@@ -124,8 +110,10 @@
 					<th>Action</th>
 					<th>User</th>
 					<th>Approver</th>
-					<th>Old Classification</th>
-					<th>New Classification</th>
+					<th>Classification</th>
+                    <th>Protected Type</th>
+                    <th>Application</th>
+                    <th>Dependencies</th>
 					<th>Status</th>
 					<th>Masking</th>
 					<th>Notes</th>
@@ -138,8 +126,14 @@
 						<td>{{flag_translate|get_item:item.flag}}</td>
 						<td>{{item.user.first_name}}</td>
 						<td>{{item.approver.first_name}}</td>
-						<td>{{translate|get_item:item.old_classification}}</td>
-						<td>{{translate|get_item:item.new_classification}}</td>
+						<td>{{translate|get_item:item.classification}}</td>
+                        <td>{{translate|get_item:item.protected_type}}</td> 
+                        <td>{{item.owner}}</td>
+                        <td>[
+                            {% for dep in item.dependents.all %}
+                                {{dep.name}} 
+                            {% endfor %}
+                        ]</td>
 						<td>{{state_translate|get_item:item.state}}</td>
 						<td>{{item.masking_change}}</td>
 						<td>{{item.note_change}}</td>

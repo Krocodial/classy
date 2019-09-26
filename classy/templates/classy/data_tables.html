@@ -3,7 +3,9 @@
 <title>Search - Classy</title>
 <link rel="stylesheet" href="{% static 'classy/css/index.css' %}">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 {% load classy_extras %}
 
 </head>
@@ -15,21 +17,20 @@
             <div class="col-sm-3"></div>
             <div class="col-sm-6">
                 {% if result == 'success' %}
-                    <div class="alert gov-alert-success alert-dismissible" role="alert" style='max-height:70px;'>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h3><strong><i class="fa fa-check-circle"></i> Success!</strong> Changes submitted for review.</strong></h3>
+                    <div class="alert alert-success alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        {% if request.user.is_staff %}
+                        <strong> Success!</strong>
+                        {% endif %}
                         {% if not request.user.is_staff %}
-                        <p>Changes will show once approved by an administrator</p>
+                            <strong> Your changes will show once approved by a member of staff</strong>
                         {% endif %}
                     </div>
+
                 {% elif result == 'failure' %}
-                    <div class="alert gov-alert-failure alert-dismissable" role="alert" aria-live="assertive">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h3><strong><i class="fa fa-times-circle"></i> Oops! </strong> Please try again.</h3>
+                    <div class="alert alert-warning alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <strong> Oops!</strong> Looks like something went wrong, please try again
                     </div>
                 {% endif %}
             </div>
@@ -41,46 +42,21 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <div class="row">
-                                <div class="col-lg-8">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h5 class="modal-title custom-colour" id="modalLab">Advanced Search</h5>
-                                </div>
-                                <div class="col-lg-4">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="false">&times;</span>
-                                </button>
-                                </div>
-                                </div>
                             </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="data_source">Datasource</label>
-                                    {{form.data_source}}
-                                </div>
-                                <div class="form-group">
-                                    <label for="schema">Schema</label>
-                                    {{form.schema}}
-                                </div>
-                                <div class="form-group">
-                                    <label for="table">Table</label>
-                                    {{form.table}}
-                                </div>
-                                <div class="form-group">
-                                    <label for="column">Column</label>
-                                    {{form.column}}
-                                </div>
-                                <div class="form-group">
-                                    <label class="mr-sm-2" for "customSel">Classification</label>
-                                    {{form.classi}}
-                                </div>
-                                <div class="form-group">
-                                    <label class="mr-sm-2">State</label>
-                                    {{form.stati}}
-                                </div>
-                                <input type='hidden' name='size' value='{{size}}'>
+                            <div class="modal-body" id="advanced-form">
+                                    {% for field in advanced %}
+                                    <div class="form-group">
+                                    {{field.label_tag}}
+                                    {{field}}
+                                    {{field.errors}}
+                                    </div>
+                                    {% endfor %}
+                                <input type='hidden' name='size' value='{{basic.size.value}}'>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-success">Search</button>
+                                <button type="submit" name='submit-advanced' class="btn btn-success">Search</button>
                             </div>
                         </div>
                     </div>
@@ -93,18 +69,13 @@
                 <form class="form-group" action="search" id="searchi">
                     <div class="input-group">
                         <label for="id_size">Results per page: &nbsp</label>
-                        {{form.size}}
-                        <input type="hidden" name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name="schema" value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type="hidden" name='column' value='{{col}}'>
-                        {% for i in classi %}
-                            <input type="hidden" name='classi' value='{{i}}'>
+                        {{basic.size}}
+
+                        {% for field in advanced %}
+                            {{ field.as_hidden }}
                         {% endfor %}
-                        {% for st in stati %}
-                            <input type="hidden" name='stati' value='{{st}}'>
-                        {% endfor %}
+
+                        <input type='hidden' name='submit-advanced' value=''>
                     </div>
                 </form>
             </div>
@@ -112,14 +83,14 @@
                 <div class="row">
                 <form class="form-group" action="search" id="searchi">
                     <div class="input-group">   
-                        {{form.query}}
+                        {{basic.query}}
                         <span class="input-group-btn">
-                            <button type="submit" class="btn btn-primary" type="button">Search</button>
+                            <button type="submit" name="submit-basic" class="btn btn-primary" type="button">Search</button>
                         </span>
                     </div> 
                     <small id="descrip" class="form-text text-muted">By default all fields are searched, to customize use the advanced search</small>
                     <div class="input-group">
-                        <input type="hidden" value="{{size}}"></input>
+                        <input name="size" type="hidden" value="{{basic.size.value}}">
                     </div>
                     <nav class="nav justify-content-center">
                         <a class="nav-link cus-link active" data-toggle="modal" data-target="#adModal" href="">Advanced Search</a>
@@ -132,16 +103,11 @@
                 <form class="form-group" action="download" method="post">
                     {% csrf_token %}
                     <div class="input-group">
-                        <input type="hidden" name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name="schema" value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type="hidden" name='column' value='{{col}}'>
-                        {% for i in classi %}
-                            <input type="hidden" name='classi' value='{{i}}'>
+                        {% for field in basic %}
+                            <input type="hidden" name="{{field.name}}" value="{{field.value}}">
                         {% endfor %}
-                        {% for st in stati %}
-                            <input type="hidden" name='stati' value='{{st}}'>
+                        {% for field in advanced %}
+                            {{ field.as_hidden }}
                         {% endfor %}
                         <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
                     </div>
@@ -150,41 +116,19 @@
                 </div>
                 </div>
             </div>
-            <!--<div class="col-sm-1" style="bottom: 0;">
-                {% if queryset %}
-                <form class="form-group" action="download" method="post">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="hidden" name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name="schema" value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type="hidden" name='column' value='{{col}}'>
-                        {% for i in classi %}
-                            <input type="hidden" name='classi' value='{{i}}'>
-                        {% endfor %}
-                        {% for st in stati %}
-                            <input type="hidden" name='stati' value='{{st}}'>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-info btn-sm float-right" style="">Export results</button>
-                    </div>
-                </form>
-                {% endif %}
-            </div>-->
             <div class="col-sm-2">
                 {% if queryset %}
-                    <canvas id="pieChart"></canvas>
+                    <div id="canvas-holder" style="position: relative; margin: 0 auto;">
+                        <canvas id="donutChart"></canvas>
+                    </div>
                     <form action="search" method="get" id='pieChartForm'>
-                        <input type='hidden' name='query' value='{{query}}'>
-                        <input type="hidden" name='data_source' value='{{ds}}'>
-                        <input type="hidden" name='schema' value='{{sch}}'>
-                        <input type="hidden" name='table' value='{{tab}}'>
-                        <input type='hidden' name='column' value='{{col}}'>
-                        <input type='hidden' name='size' value='{{size}}'>
-                        {% for st in stati %}
-                            <input type='hidden' name='stati' value='{{st}}'>
+                        {% for field in advanced %}
+                            {{ field.as_hidden }}
                         {% endfor %}
-                        <input type='hidden' name='classi' value=''  id='pieChartClassi'>
+                        {% for field in basic %}
+                            {{ field.as_hidden }}
+                        {% endfor %}
+                        <input type="hidden" name="classification" value="" id="pieChartClassi">
                     </form>
                 {% endif %}
             </div>
@@ -194,10 +138,8 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h5 class="modal-title custom-colour" id="modalBo">Confirm changes</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                         </div>
                         <div class="modal-body">
                             <h6 class="text-center">Pending modifications</h6>
@@ -205,8 +147,11 @@
                                 <thead class="thead thead-sm thead-inverse">
                                     <tr>
                                         <th class="th-cus">ID</th>
-                                        <th class="th-cus">New Classification</th>
-                                        <th class="actions th-cus">Actions</th>
+                                        <th class="th-cus">Classification</th>
+                                        <th class="th-cus">Protected Type</th>
+                                        <th class="th-cus">Application</th>
+                                        <th class="th-cus">New Dependencies</th>
+                                        <th class="actions th-cus"></th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -217,7 +162,7 @@
                                 <thead class="thead thead-inverse">
                                     <tr>
                                         <th class="th-cus">ID</th>
-                                        <th class="actions th-cus">Actions</th>
+                                        <th class="actions th-cus"></th>
                                     </tr>   
                                 </thead>
                                 <tbody>
@@ -235,19 +180,22 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h5 class="modal-title custom-colour" id="batchH">Change Classification</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                         </div>
                         <div class="modal-body">
-                            <label for="newC"><strong>Classification</strong></label>
-                            <select class="form-control form-control-sm" id="newC">
-                                 <option selected>Please select a new classification...</option>
-                                 {% for op in ex_options %}
-                                    <option value="{{forloop.counter}}">{{op}}</option>
-                                 {% endfor %}
-                            </select>
+                            <form id="modify-form" name="modify">
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                {% for field in modifyForm.visible_fields %}
+                                    <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.help_text }}
+                                    </div>
+                                {% endfor %}
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <p><strong>Note:</strong> you will be able to review these changes before they are submitted</p>
@@ -269,6 +217,8 @@
                         <th class='th-cus'>Table</th>
                         <th class='th-cus'>Column</th>
                         <th class='th-cus'>Classification</th>
+                        <th class='th-cus'>Protected</th>
+                        <th class='th-cus'>Application</th>
                     </tr>
                 </thead>
                 <tbody id="contentArea">
@@ -276,17 +226,19 @@
                         <tr data-toggle="" data-target=".row{{ forloop.counter }}" class="accordion-toggle mrow{{forloop.counter}} {% if tuple.state == 'Pending' %}pending{% endif %}" id="{{forloop.counter}}">
                             <td>
                                 <button data-toggle="collapse" type="button" class="btn btn-sm btn-outline-info" aria-label="Left Align" data-target=".row{{forloop.counter}}" class="accordion-toggle">
-                                <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon"></img>
+                                <img src="{% static 'classy/open-iconic/chevron-bottom.svg' %}" class="icon">
                                 </button>   
                             </td>
                             <td>{{tuple.datasource}}</td>
                             <td>{{tuple.schema}}</td>
                             <td>{{tuple.table}}</td>
                             <td>{{tuple.column}}</td>
-                            <td>{{translate|get_item:tuple.classification_name}}
+                            <td>{{translate|get_item:tuple.classification}}</td>
+                            <td>{{translate|get_item:tuple.protected_type}}</td>
+                            <td>{{tuple.owner}}</td>
                         </tr>
                         <tr class="hiddenRows{{forloop.counter}}">
-                            <td colspan="6">
+                            <td colspan="8">
                                 <div class="collapse row{{forloop.counter}} accordion-body">
                                     <div class="row">
                                     <div class="col-sm-1"></div>
@@ -302,8 +254,8 @@
                                     <select class="form-control form-control-sm cla"
                                         id="{{forloop.counter}}">
                                         <option selected>
-                                            {{ translate|get_item:tuple.classification_name }}
-                        <!--{{tuple.classification_name}}-->    </option>
+                                            {{ translate|get_item:tuple.classification }}
+                        <!--{{tuple.classification}}-->    </option>
                                         {% for op in ex_options %}
                                         <option value="{{forloop.counter}}">{{op}}</option>
                                         {% endfor %}
@@ -316,8 +268,7 @@
                                     <div class="col-sm-2">
                                         <button id="{{forloop.counter}}" class="btn btn-sm btn-danger del float-right">Delete</button>
                                         
-                                    <input id="prodId{{forloop.counter}}" name="prodId" type="hidden"
-                                    value="{{tuple.id}}"/>
+                                    <input id="prodId{{forloop.counter}}" name="prodId" type="hidden" value="{{tuple.id}}">
                                     </div>
                                     <div class="col-sm-1"></div>
                                     </div>
@@ -365,12 +316,18 @@
 <br/><br/>
 </div>
 {% include 'classy/tail.html' %}
+{{nodeData|json_script:"nodeData"}}
+{{untranslate|json_script:"untranslate"}}
+{{poptions|json_script:"poptions"}}
+{{ex_options|json_script:"ex_options"}}
+{{ex_poptions|json_script:"ex_poptions"}}
+{{options|json_script:"options"}}
+<script src="{% static 'classy/js/d3sunburst.js' %}"></script>
 
 <script src="{% static 'classy/js/custom.js' %}"></script>
 
 <script>
-
-options = ['UNCLASSIFIED', 'PUBLIC', 'CONFIDENTIAL', 'PROTECTED A', 'PROTECTED B', 'PROTECTED C'];
+var options = JSON.parse(document.getElementById("options").textContent);
 
 $body = $('body');
 $(document).on({
@@ -398,75 +355,9 @@ $(document).on('click', '#finSubby', function() {
     }
 });
 });
-{% if pie_information %}
 
-piedata = {
-	datasets: [{
-		data:{{pie_information}},
-		backgroundColor: [
-		'#94778B',
-                '#7CE577',
-                '#A0CCDA',
-                '#E9CE2C',
-                '#DE541E',
-                '#BF211E'
-		]
-	}],
-	labels: {{label_cons}}
-};
-pieoptions = {
-	onClick: graphClickEvent,
 
-	legend: {
-		display: false,
-		position: 'bottom',
-	},
-	title: {
-		display: false,
-		position: 'top',
-		text: 'Classification Sizes',
-		fontSize: '11'
-	},
-    onResize: afterResizing,
-};
 
-untranslate = {{untranslate}}
-
-var pie = document.getElementById('pieChart').getContext('2d');
-
-window.onload = function() {
-	var myDonut = new Chart(pie, {
-		type: 'doughnut',
-		data: piedata,
-		options: pieoptions
-	});
-    console.log(myDonut);
-    var size = {width: myDonut.width, height: myDonut.height};
-    afterResizing(myDonut, size);
-};
-
-function graphClickEvent(event, array) {
-	if(array[0]){
-		//console.log($('#pieChartClassi').val());
-		$("#pieChartClassi").val(untranslate[options[array[0]._index]]);
-		//console.log($('#pieChartClassi').val());	
-		$("#pieChartForm").submit();			
-	};
-};
-//document.getElementById('id_classi').value = options[array[0]._index];
-		//$('#searchi').submit();
-		//console.log(options[array[0]._index]);
-
-function afterResizing(chart, size) {
-    if(size.width <= 200 | size.height > 150) {
-        $("#pieChart").hide();
-    } else {
-        $("#pieChart").show();
-    }
-    chart.update();
-};
-
-{% endif %}
 
 </script>
 </body>
