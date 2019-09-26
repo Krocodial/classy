@@ -196,7 +196,7 @@
                 "resources": {
                   "limits": {
                     "memory": "2Gi",
-                    "cpu": "500m"
+                    "cpu": "250m"
                   }
                 }
               }

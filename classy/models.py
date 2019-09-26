@@ -122,11 +122,6 @@ class ClassificationCount(models.Model):
     class Meta:
         default_permissions = ()
 
-def createLog(instance):
-    print('here')
-    #print(instance.dependents.all())
-    print(Classification.objects.get(id=instance.pk).dependents.all())
-
 #I modified the save() function of this model to allow for the auto-creation of internal logs, the only variables we need to pass here are the request.user and approver since these are only readable from the view. These variables are set as attributes on the instance, and then read in the post_save signal
 class Classification(models.Model):
     classification = models.CharField(max_length=2, choices=classification_choices, default='UN')
