@@ -158,20 +158,26 @@ class Classification(models.Model):
 
 @receiver(m2m_changed, sender=Classification.dependents.through)
 def m2m_change(instance, **kwargs):
+    # disable during fixture loading
+    if kwargs['raw']:
+        return
     log = ClassificationLogs.objects.filter(classy_id=instance.pk).order_by('-id')[0]
     log.dependents.set(instance.dependents.all())
 
 @receiver(post_save, sender=Classification)
 def create_log(instance, created, **kwargs):
+    # disable the handler during fixture loading
+    if kwargs['raw']:
+        return
     if instance.state == 'P':
         pass
         #We haven't modified anything yet, awaiting approval from data custodian (don't want to clutter log list)
     else:
         from classy.forms import ClassificationLogForm
         data = model_to_dict(instance)
-        data['classy'] = instance.pk
+        data['classy'] = instance._pk
         data['user'] = instance._user
-        data['approver'] = instance._approver
+        data['approver'] = instance.approver
         data['masking_change'] = data.pop('masking')
         data['note_change'] = data.pop('notes')
         if created:
