@@ -175,9 +175,9 @@ def create_log(instance, created, **kwargs):
     else:
         from classy.forms import ClassificationLogForm
         data = model_to_dict(instance)
-        data['classy'] = instance._pk
+        data['classy'] = instance.pk
         data['user'] = instance._user
-        data['approver'] = instance.approver
+        data['approver'] = instance._approver
         data['masking_change'] = data.pop('masking')
         data['note_change'] = data.pop('notes')
         if created:
