@@ -723,7 +723,7 @@ def login_complete(request):
     role_checker(user, payload, request)
 
     if not user.is_active:
-        return HttpResponseForbidden('Contact the appropriate responsible party for permission. This access attempt has been logged.')
+        return HttpResponseForbidden('Contact the appropriate party for permission. This access attempt has been logged.')
     login(request, user)
     return redirect('classy:home')
  
@@ -732,8 +732,6 @@ def login_complete(request):
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home')
-
-    #print(get_token(request))
 
     auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'))#, scope='username email', state='alskdfjl;isiejf'
     return redirect(auth_url)   
@@ -823,24 +821,51 @@ def home(request):
         else:
             keys[op] = []
 
+    d = timezone.now().date() - timezone.timedelta(days=29)
+    tmp = ClassificationCount.objects.filter(date__gte=d, user=request.user)
+    if tmp.count() > 0:
+        for i in range(30):
+            t = 29 - i
+            d = timezone.now().date() - timezone.timedelta(days=t)
+            for clas, arr in keys.items():
+                clas = clas + ':'
+                dic = clas.split(':')
+                try:
+                    tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
+                    arr.append(tmp.count)
+                except ClassificationCount.DoesNotExist:
+                    if len(arr) > 0:
+                        arr.append(arr[-1])
+                    else:
+                        arr.append(0)
+                except ClassificationCount.MultipleObjectsReturned:
+                    arr.append(0)
+                    
+    else:
+        arr = {}
+        date = ClassificationCount.objects.all().values('date').order_by('-date')
+        if date.count() < 1:
+            for key, array in keys.items():
+                array = [0 for i in range(30)]
+        else:
+            date = str(date[0]['date'])
+            for clas in keys:
+                clas = clas + ':'
+                dic = clas.split(':')
+                try:
+                    tmp = ClassificationCount.objects.get(date=date, classification=dic[0], protected_type=dic[1], user=request.user)
+
+                    arr[clas.strip(':')] = tmp.count
+                except:
+                    arr[clas.strip(':')] = 0
+            for i in range(30):
+                for key, array in keys.items():
+                    array.append(arr[key])
+
     for i in range(30):
         t = 29 - i
         d = timezone.now().date() - timezone.timedelta(days=t)
         dates.append(str(d))
-        for clas, arr in keys.items():
-            clas = clas + ':'
-            dic = clas.split(':')
-            try:
-                tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
-                arr.append(tmp.count)
-            except ClassificationCount.DoesNotExist:
-                if len(arr) > 0:
-                    arr.append(arr[-1])
-                else:
-                    arr.append(0)
-            except ClassificationCount.MultipleObjectsReturned:
-                arr.append(0)
-                
     for clas, arr in keys.items():
         obj = {}
         dic = clas.split(':')
@@ -854,7 +879,6 @@ def home(request):
         obj['fill'] = 'origin'
         lineDataset.append(obj)        
 
-
     context = {
         #'queryset': queryset,
         'poptions': ex_options + ex_poptions,
@@ -867,12 +891,6 @@ def home(request):
         'dates': dates,
         'keys': keys,
         'lineDataset': lineDataset,
-        #'unc': keys['UN'],
-        #'pub': keys['PU'],
-        #'conf': keys['CO']
-        #'prota': keys['PA'],
-        #'protb': keys['PB'],
-        #'protc': keys['PC']
     }
     return render(request, 'classy/home.html', context);
 
@@ -884,48 +902,16 @@ def uploader(request):
     if not request.user.is_staff:
         return redirect('classy:index')
 
-
     num = ClassificationReviewGroups.objects.all().count()
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            '''
-            form.save()
-            context = {
-                'status': '200',
-                'form': UploadFileForm(),
-                'num': num
-            }
-            return render(request, 'classy/jobs.html', context)
-            '''
             f = form.cleaned_data['document']
             if f.name.endswith('.csv'):
-                #inp = request.FILES['file']
-                #name = spaces.sub('_', inp.name)
-                #fs = FileSystemStorage()
-                #filename = fs.save(name, inp)
                 f = form.save() 
                 
                 upload(f.document.name, request.user.pk, priority=0, verbose_name=f.document.name, creator=request.user)
 
-                '''         
-                finfo = {}
-                finfo['name'] = f.document
-                finfo['queue'] = 'uploads'
-                finfo['user'] = request.user.pk
-                finfo['progress'] = 0
-                
-                form = taskForm(finfo)
-                if form.is_valid():
-                    form.save()
-                if not settings.CONCURRENCY:
-                    upload(thread(False))
-                else:
-                    if not uthread.running:
-                        t = threading.Thread(target=upload, args=(uthread,))
-                        uthread.running = True
-                        t.start()                 
-                '''
                 context = {
                     'status': '200',
                     'form': UploadFileForm(),

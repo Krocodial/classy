@@ -159,7 +159,7 @@ class Classification(models.Model):
 @receiver(m2m_changed, sender=Classification.dependents.through)
 def m2m_change(instance, **kwargs):
     # disable during fixture loading
-    if kwargs['raw']:
+    if 'raw' in kwargs:
         return
     log = ClassificationLogs.objects.filter(classy_id=instance.pk).order_by('-id')[0]
     log.dependents.set(instance.dependents.all())
@@ -202,7 +202,7 @@ class ClassificationLogs(models.Model):
     owner = models.ForeignKey(Application, on_delete=models.CASCADE, blank=True, null=True)
     dependents = models.ManyToManyField(Application, related_name="log_dependent", blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Modifier')
-    approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Approver')
+    approver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Approver', blank=True, null=True)
     state = models.CharField(max_length=1, choices=state_choices)
     masking_change = models.TextField(blank=True)
     note_change = models.TextField(blank=True)

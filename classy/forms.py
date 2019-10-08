@@ -103,7 +103,7 @@ class ClassificationForm(ModelForm):
         if classification == 'UN' or classification == 'PU':
             protected_type = ''
         
-    def save(self, user, approver):
+    def save(self, user, approver=None):
         classy = super(ClassificationForm, self).save(commit=False)
         classy.save(user, approver)
         for dep in self.cleaned_data['dependents']:

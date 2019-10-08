@@ -1,6 +1,7 @@
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from .helper import query_constructor
 from classy.models import Classification, ClassificationCount, ClassificationLogs
 from classy.forms import *
@@ -20,8 +21,6 @@ translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protec
 #Called once at web server initialization to check current counts for graphing purposes.
 #@background(schedule=60, queue='calculate_count')
 def calculate_count(user):
-
-    
 
     #Sort logs by date, +1 for create, -1 + 1 for mod?, -1 for del?
     #Get all pks, grab logs individually.  
@@ -158,28 +157,72 @@ def process_file(filename, user):
     if set(['Datasource Description', 'Schema', 'Table Name', 'Column Name', 'Classification Name']).issubset(reader.fieldnames):    
         for row in reader:
             data_list = re.split(':', row['Datasource Description'])
-            database = data_list[3].strip()
-            entCount = Classification.objects.filter(
-                    datasource__exact=database,
-                    schema__exact=row['Schema'],
-                    table__exact=row['Table Name'],
-                    column__exact=row['Column Name']).count()
-            if entCount < 1:
-                data = {}
-            
+            if len(data_list) > 3:
+                database = data_list[3].strip()
+            else:
+                database = row['Datasource Description'].strip()
+            try: 
+                obj = Classification.objects.get(
+                        datasource__exact=database,
+                        schema__exact=row['Schema'],
+                        table__exact=row['Table Name'],
+                        column__exact=row['Column Name'])
 
+                data = {}
+
+                mapping = {
+                    'Protected Type': 'protected_type',
+                    }
+                for key, value in mapping.items():
+                    if key in reader.fieldnames:
+                        data[value] = row[key]
+
+                if 'Application' in reader.fieldnames:
+                    try:
+                        data['owner'] = Application.objects.get(acronym__exact=row['Application']).pk
+                    except Application.DoesNotExist:
+                        data['owner'] = Application.objects.create(name=row['Application'], acronym=row['Application']).pk
+                
+
+                classy = row['Classification Name']
+                classy = classy.lower()
+                classy = re.sub(' ', '_', classy)
+                classy = translate[classy]
+
+
+                if classy in poptions:
+                    data['classification'] = 'PE'
+                    data['protected_type'] = classy
+                else:
+                    data['classification'] = classy 
+
+                form = ClassificationForm(data, instance=obj)
+
+                if form.is_valid() and form.has_changed():
+                    tmp = form.save(user, None)
+                    if 'Dependencies' in reader.fieldnames:
+                        if row['Dependencies'] != '':
+                            depens = row['Dependencies'].split(',')
+                            for dep in depens:
+                                try:
+                                    app = Application.objects.get(acronym__exact=dep)
+                                    tmp.dependents.add(app)
+                                except Application.DoesNotExist:
+                                    app = Application.objects.create(name=dep, acronym=dep)
+                                    tmp.dependents.add(app)
+                
+            except MultipleObjectsReturned:
+                # error
+                print('error')
+
+            except ObjectDoesNotExist:
+                data = {}
                 if 'notes' in reader.fieldnames:
                     data['notes'] = row['notes'][:400]
-                #else:
-                #    note = ''
                 if 'masking instructions' in reader.fieldnames:
                     data['masking'] = row['masking instructions'][:200]
-                #else:
-                #    masking = ''
                 if 'Protected Type' in reader.fieldnames:
                     data['protected_type'] = row['Protected Type']
-                #else:
-                #    protected_type = ''
                 if 'Application' in reader.fieldnames:
                     if row['Application'] != '':
                         try:
@@ -192,20 +235,21 @@ def process_file(filename, user):
                 classy = re.sub(' ', '_', classy)
                 classy = translate[classy]
 
-                #data = {}
-                data['classification'] = classy 
-                #data['protected_type'] = protected_type
+                if classy in poptions:
+                    data['classification'] = 'CO'
+                    data['protected_type'] = classy
+                else:
+                    data['classification'] = classy
+
                 data['datasource'] = database
                 data['schema'] = row['Schema']
                 data['table'] =  row['Table Name']
                 data['column'] = row['Column Name']
                 data['creator'] = user
                 data['state'] = 'A'
-                #data['masking'] = masking
-                #data['notes'] = note
                 form = ClassificationForm(data)
                 if form.is_valid():
-                    tmp = form.save(user, user)
+                    tmp = form.save(user)
                     if 'Dependencies' in reader.fieldnames:
                         if row['Dependencies'] != '':
                             depens = row['Dependencies'].split(',')
@@ -216,40 +260,6 @@ def process_file(filename, user):
                                 except Application.DoesNotExist:
                                     app = Application.objects.create(name=dep, acronym=dep)
                                     tmp.dependents.add(app)
-                else:
-                    print(form.errors)
-          
-            elif entCount == 1:
-                classy = Classification.objects.get(
-                        datasource__exact=database,
-                        schema__exact=row['Schema'],
-                        table__exact=row['Table Name'],
-                        column__exact=row['Column Name'])
-                '''
-                form = ClassificationForm(instance=classy)
-                MN = {}
-                MN['masking'] = classy.masking
-                MN['notes'] = classy.notes
-                #Once MN is assigned to the form the object values will also change
-                old_masking = classy.masking
-                old_notes = classy.notes
-                if masking_ins:
-                    if len(row['masking instructions']) > len(classy.masking):
-                        MN['masking'] = row['masking instructions'][:200]
-                if notes:
-                    if len(row['notes']) > len(classy.notes):
-                        MN['notes'] = row['notes'][:400]
-                form = LogDetailMNForm(MN, instance=classy)
-                if form.is_valid() and (old_masking != MN['masking'] or old_notes != MN['notes']):
-                    log_data = {'classy': classy.pk, 'flag': 1, 'new_Classification': classy.Classification_name, 'old_Classification': classy.Classification_name, 'user': user, 'state': 'A', 'approver': user, 'masking_change': form.cleaned_data['masking'], 'note_change': form.cleaned_data['notes']}
-                    log_form = ClassificationFullLogForm(log_data)
-                    if log_form.is_valid():
-                        form.save()
-                        log_form.save()
-                '''
-            else:
-                #Now we have encountered a critical issue with the upload function. Consider raising an error on the admin console or even sending an email. 
-                pass
     #consider keeping the files? Allowing security audit, although data duplication
     fs.delete(filename)
 
