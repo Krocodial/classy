@@ -340,7 +340,7 @@ def log_detail(request, classy_id):
 
         form = LogDetailSubmitForm(data, instance=obj)
         if form.is_valid() and form.has_changed():
-            form.save(request.user.pk, request.user.pk)
+            form.save(request.user.pk)
             form.save_m2m()
 
     form = LogDetailForm(initial=model_to_dict(obj))
@@ -776,8 +776,6 @@ def home(request):
 
     nodeData['labels'] = ex_options + ex_poptions
 
-
-
     if queryset.count() == 0:
         empty = True
     else:
@@ -814,57 +812,59 @@ def home(request):
         'UN': 'rgb(219,213,181,0.3)'
         }
 
+    today = timezone.now().date()
+    d = today - timezone.timedelta(days=29)
+    new = ClassificationCount.objects.filter(date__gte=d, user=request.user)
+    prev = ClassificationCount.objects.filter(date__lt=d, user=request.user).values('date').order_by('-date')
+    
+
+    initial = {}
+
     for op in options:
         if op in ['CO', 'PE']:
             for pop in poptions:
                 keys[op+':'+pop] = []
+                if prev.count() > 0:
+                    tmp = ClassificationCount.objects.get(date=str(prev[0]['date']), classification=op, protected_type=pop, user=request.user)
+                    initial[op+':'+pop] = tmp.count
+                else: 
+                    initial[op+':'+pop] = 0
         else:
             keys[op] = []
+            if prev.count() > 0:
+                tmp = ClassificationCount.objects.get(date=str(prev[0]['date']), classification=op, protected_type='', user=request.user)
+                initial[op] = tmp.count
+            else: 
+                initial[op] = 0
 
-    d = timezone.now().date() - timezone.timedelta(days=29)
-    tmp = ClassificationCount.objects.filter(date__gte=d, user=request.user)
-    if tmp.count() > 0:
+    
+
+    if new.count() > 0:
         for i in range(30):
             t = 29 - i
-            d = timezone.now().date() - timezone.timedelta(days=t)
+            d = today - timezone.timedelta(days=t)
             for clas, arr in keys.items():
-                clas = clas + ':'
                 dic = clas.split(':')
                 try:
-                    tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
-                    arr.append(tmp.count)
-                except ClassificationCount.DoesNotExist:
-                    if len(arr) > 0:
-                        arr.append(arr[-1])
+                    if len(dic) > 1:
+                        tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
                     else:
-                        arr.append(0)
+                        tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type='', user=request.user)
+                    arr.append(tmp.count)
+                    initial[clas] = tmp.count
+                except ClassificationCount.DoesNotExist:
+                    arr.append(initial[clas])
                 except ClassificationCount.MultipleObjectsReturned:
-                    arr.append(0)
+                    arr.append(initial[clas])
                     
     else:
-        arr = {}
-        date = ClassificationCount.objects.all().values('date').order_by('-date')
-        if date.count() < 1:
-            for key, array in keys.items():
-                array = [0 for i in range(30)]
-        else:
-            date = str(date[0]['date'])
-            for clas in keys:
-                clas = clas + ':'
-                dic = clas.split(':')
-                try:
-                    tmp = ClassificationCount.objects.get(date=date, classification=dic[0], protected_type=dic[1], user=request.user)
-
-                    arr[clas.strip(':')] = tmp.count
-                except:
-                    arr[clas.strip(':')] = 0
+        for key, array in keys.items():
             for i in range(30):
-                for key, array in keys.items():
-                    array.append(arr[key])
+                array.append(initial[key])
 
     for i in range(30):
         t = 29 - i
-        d = timezone.now().date() - timezone.timedelta(days=t)
+        d = today - timezone.timedelta(days=t)
         dates.append(str(d))
     for clas, arr in keys.items():
         obj = {}

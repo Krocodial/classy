@@ -235,7 +235,7 @@
                             <td>{{tuple.column}}</td>
                             <td>{{translate|get_item:tuple.classification}}</td>
                             <td>{{translate|get_item:tuple.protected_type}}</td>
-                            <td>{{tuple.owner}}</td>
+                            <td>{% if tuple.owner %}{{tuple.owner}}{% endif %}</td>
                         </tr>
                         <tr class="hiddenRows{{forloop.counter}}">
                             <td colspan="8">
