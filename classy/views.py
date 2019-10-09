@@ -412,7 +412,7 @@ def modi(request):
             form = ClassificationForm(data, instance=tup)
 
             if form.is_valid() and form.has_changed():
-                form.save(request.user.pk, request.user.pk)
+                form.save(request.user.pk)
                 
                 #response = {'status': 0, 'message': 'error'}
                 #return HttpResponse(json.dumps(response), content_type='application/json')
@@ -447,7 +447,7 @@ def modi(request):
             data['state'] = 'I'
             form = ClassificationForm(data, instance=tup)        
             if form.is_valid() and form.has_changed():
-                form.save(request.user.pk, request.user.pk)
+                form.save(request.user.pk)
 
         else:
             data['state'] = 'P'
