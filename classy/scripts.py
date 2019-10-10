@@ -93,7 +93,8 @@ def calculate_count(user):
                         if form.is_valid():
                             form.save()
                     except ClassificationCount.MultipleObjectsReturned:
-                        print('ERROR')
+                        #print('ERROR')
+                        pass
                 current = log.time.date()
             key = log.classification + ':' + log.protected_type
             #This needs to be handled by minus iterator to track previous classification
@@ -136,7 +137,8 @@ def calculate_count(user):
                 if form.is_valid():
                     form.save()
             except ClassificationCount.MultipleObjectsReturned:
-                print('ERROR')
+                #print('ERROR')
+                pass
 
 @background(queue='counter')
 def calc_scheduler():
@@ -213,7 +215,8 @@ def process_file(filename, user):
                 
             except MultipleObjectsReturned:
                 # error
-                print('error')
+                #print('error')
+                pass
 
             except ObjectDoesNotExist:
                 data = {}

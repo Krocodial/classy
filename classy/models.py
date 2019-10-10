@@ -40,8 +40,8 @@ queues = (
 )
 
 class Application(models.Model):
-    acronym = models.CharField(max_length=20, unique=True, blank=True)
-    name = models.CharField(max_length=100, unique=True)
+    acronym = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=100, unique=True, blank=True)
     poc = models.CharField(max_length=100, blank=True, help_text='Point of contact for the application')
     description = models.TextField(max_length=300, blank=True)
     
