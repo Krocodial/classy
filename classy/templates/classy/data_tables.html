@@ -69,8 +69,8 @@
                 <form class="form-group" action="search" id="searchi">
                     <div class="input-group">
                         <label for="id_size">Results per page: &nbsp</label>
-                        {{basic.size}}
-
+                        {{ basic.size }}
+                        {{ basic.query.as_hidden }}
                         {% for field in advanced %}
                             {{ field.as_hidden }}
                         {% endfor %}
@@ -104,7 +104,8 @@
                     {% csrf_token %}
                     <div class="input-group">
                         {% for field in basic %}
-                            <input type="hidden" name="{{field.name}}" value="{{field.value}}">
+                            {{ field.as_hidden }}
+                            <!--<input type="hidden" name="{{field.name}}" value="{{field.value}}">-->
                         {% endfor %}
                         {% for field in advanced %}
                             {{ field.as_hidden }}

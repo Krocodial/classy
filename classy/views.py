@@ -83,7 +83,7 @@ def download(request):
 
     writer = csv.writer(response)
     writer.writerow(['Application', 'Classification', 'Protected Series', 'Datasource', 'Schema', 'Table', 'Column', 'Created', 'Creator', 'State', 'Masking instructions', 'Notes'])
-    
+   
     for tuple in queryset:
         if tuple.owner is not None:
             app = tuple.owner.acronym
