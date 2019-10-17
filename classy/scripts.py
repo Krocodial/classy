@@ -16,7 +16,7 @@ ex_options = [i[1] for i in Classification._meta.get_field('classification').fla
 poptions = [i[0] for i in Classification._meta.get_field('protected_type').flatchoices] + ['']
 ex_poptions = [i[1] for i in Classification._meta.get_field('protected_type').flatchoices]
 
-translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protected_a': 'PA', 'protected_b': 'PB', 'protected_c': 'PC'}
+translate = {'confidential': 'CO', 'public': 'PU', 'unclassified': 'UN', 'protected_a': 'PA', 'protected_b': 'PB', 'protected_c': 'PC', 'personal': 'PE'}
 
 #Called once at web server initialization to check current counts for graphing purposes.
 #@background(schedule=60, queue='calculate_count')
@@ -225,7 +225,11 @@ def process_file(filename, user):
                 if 'masking instructions' in reader.fieldnames:
                     data['masking'] = row['masking instructions'][:200]
                 if 'Protected Type' in reader.fieldnames:
-                    data['protected_type'] = row['Protected Type']
+                    proty = row['Protected Type']
+                    proty = proty.lower()
+                    proty = re.sub(' ', '_', proty)
+                    proty = translate[proty]
+                    data['protected_type'] = proty
                 if 'Application' in reader.fieldnames:
                     if row['Application'] != '':
                         try:
@@ -239,7 +243,7 @@ def process_file(filename, user):
                 classy = translate[classy]
 
                 if classy in poptions:
-                    data['classification'] = 'CO'
+                    data['classification'] = 'PE'
                     data['protected_type'] = classy
                 else:
                     data['classification'] = classy
