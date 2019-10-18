@@ -172,19 +172,19 @@ def process_file(filename, user):
 
                 data = {}
 
-                mapping = {
-                    'Protected Type': 'protected_type',
-                    }
-                for key, value in mapping.items():
-                    if key in reader.fieldnames:
-                        data[value] = row[key]
-
                 if 'Application' in reader.fieldnames:
                     try:
                         data['owner'] = Application.objects.get(acronym__exact=row['Application']).pk
                     except Application.DoesNotExist:
                         data['owner'] = Application.objects.create(name=row['Application'], acronym=row['Application']).pk
                 
+
+                if 'Protected Type' in reader.fieldnames:
+                    proty = row['Protected Type']
+                    proty = proty.lower()
+                    proty = re.sub(' ', '_', proty)
+                    proty = translate[proty]
+                    data['protected_type'] = proty
 
                 classy = row['Classification Name']
                 classy = classy.lower()
