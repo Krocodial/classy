@@ -128,7 +128,7 @@
 						<td>{{item.approver.first_name}}</td>
 						<td>{{translate|get_item:item.classification}}</td>
                         <td>{{translate|get_item:item.protected_type}}</td> 
-                        <td>{{item.owner}}</td>
+                        <td>{% if item.owner %}{{item.owner}}{% endif %}</td>
                         <td>[
                             {% for dep in item.dependents.all %}
                                 {{dep.name}} 

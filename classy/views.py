@@ -83,7 +83,7 @@ def download(request):
 
     writer = csv.writer(response)
     writer.writerow(['Application', 'Classification', 'Protected Series', 'Datasource', 'Schema', 'Table', 'Column', 'Created', 'Creator', 'State', 'Masking instructions', 'Notes'])
-    
+   
     for tuple in queryset:
         if tuple.owner is not None:
             app = tuple.owner.acronym
@@ -340,7 +340,7 @@ def log_detail(request, classy_id):
 
         form = LogDetailSubmitForm(data, instance=obj)
         if form.is_valid() and form.has_changed():
-            form.save(request.user.pk, request.user.pk)
+            form.save(request.user.pk)
             form.save_m2m()
 
     form = LogDetailForm(initial=model_to_dict(obj))
@@ -412,7 +412,7 @@ def modi(request):
             form = ClassificationForm(data, instance=tup)
 
             if form.is_valid() and form.has_changed():
-                form.save(request.user.pk, request.user.pk)
+                form.save(request.user.pk)
                 
                 #response = {'status': 0, 'message': 'error'}
                 #return HttpResponse(json.dumps(response), content_type='application/json')
@@ -447,7 +447,7 @@ def modi(request):
             data['state'] = 'I'
             form = ClassificationForm(data, instance=tup)        
             if form.is_valid() and form.has_changed():
-                form.save(request.user.pk, request.user.pk)
+                form.save(request.user.pk)
 
         else:
             data['state'] = 'P'
@@ -723,7 +723,7 @@ def login_complete(request):
     role_checker(user, payload, request)
 
     if not user.is_active:
-        return HttpResponseForbidden('Contact the appropriate responsible party for permission. This access attempt has been logged.')
+        return HttpResponseForbidden('Contact the appropriate party for permission. This access attempt has been logged.')
     login(request, user)
     return redirect('classy:home')
  
@@ -732,8 +732,6 @@ def login_complete(request):
 def index(request):
     if request.user.is_authenticated:
         return redirect('classy:home')
-
-    #print(get_token(request))
 
     auth_url = settings.OIDC_CLIENT.authorization_url(redirect_uri=os.getenv('REDIRECT_URI') + reverse('classy:login_complete'))#, scope='username email', state='alskdfjl;isiejf'
     return redirect(auth_url)   
@@ -778,8 +776,6 @@ def home(request):
 
     nodeData['labels'] = ex_options + ex_poptions
 
-
-
     if queryset.count() == 0:
         empty = True
     else:
@@ -816,31 +812,60 @@ def home(request):
         'UN': 'rgb(219,213,181,0.3)'
         }
 
+    today = timezone.now().date()
+    d = today - timezone.timedelta(days=29)
+    new = ClassificationCount.objects.filter(date__gte=d, user=request.user)
+    prev = ClassificationCount.objects.filter(date__lt=d, user=request.user).values('date').order_by('-date')
+    
+
+    initial = {}
+
     for op in options:
         if op in ['CO', 'PE']:
             for pop in poptions:
                 keys[op+':'+pop] = []
+                if prev.count() > 0:
+                    tmp = ClassificationCount.objects.get(date=str(prev[0]['date']), classification=op, protected_type=pop, user=request.user)
+                    initial[op+':'+pop] = tmp.count
+                else: 
+                    initial[op+':'+pop] = 0
         else:
             keys[op] = []
+            if prev.count() > 0:
+                tmp = ClassificationCount.objects.get(date=str(prev[0]['date']), classification=op, protected_type='', user=request.user)
+                initial[op] = tmp.count
+            else: 
+                initial[op] = 0
+
+    
+
+    if new.count() > 0:
+        for i in range(30):
+            t = 29 - i
+            d = today - timezone.timedelta(days=t)
+            for clas, arr in keys.items():
+                dic = clas.split(':')
+                try:
+                    if len(dic) > 1:
+                        tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
+                    else:
+                        tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type='', user=request.user)
+                    arr.append(tmp.count)
+                    initial[clas] = tmp.count
+                except ClassificationCount.DoesNotExist:
+                    arr.append(initial[clas])
+                except ClassificationCount.MultipleObjectsReturned:
+                    arr.append(initial[clas])
+                    
+    else:
+        for key, array in keys.items():
+            for i in range(30):
+                array.append(initial[key])
 
     for i in range(30):
         t = 29 - i
-        d = timezone.now().date() - timezone.timedelta(days=t)
+        d = today - timezone.timedelta(days=t)
         dates.append(str(d))
-        for clas, arr in keys.items():
-            clas = clas + ':'
-            dic = clas.split(':')
-            try:
-                tmp = ClassificationCount.objects.get(date=d, classification=dic[0], protected_type=dic[1], user=request.user)
-                arr.append(tmp.count)
-            except ClassificationCount.DoesNotExist:
-                if len(arr) > 0:
-                    arr.append(arr[-1])
-                else:
-                    arr.append(0)
-            except ClassificationCount.MultipleObjectsReturned:
-                arr.append(0)
-                
     for clas, arr in keys.items():
         obj = {}
         dic = clas.split(':')
@@ -854,7 +879,6 @@ def home(request):
         obj['fill'] = 'origin'
         lineDataset.append(obj)        
 
-
     context = {
         #'queryset': queryset,
         'poptions': ex_options + ex_poptions,
@@ -867,12 +891,6 @@ def home(request):
         'dates': dates,
         'keys': keys,
         'lineDataset': lineDataset,
-        #'unc': keys['UN'],
-        #'pub': keys['PU'],
-        #'conf': keys['CO']
-        #'prota': keys['PA'],
-        #'protb': keys['PB'],
-        #'protc': keys['PC']
     }
     return render(request, 'classy/home.html', context);
 
@@ -884,48 +902,16 @@ def uploader(request):
     if not request.user.is_staff:
         return redirect('classy:index')
 
-
     num = ClassificationReviewGroups.objects.all().count()
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            '''
-            form.save()
-            context = {
-                'status': '200',
-                'form': UploadFileForm(),
-                'num': num
-            }
-            return render(request, 'classy/jobs.html', context)
-            '''
             f = form.cleaned_data['document']
             if f.name.endswith('.csv'):
-                #inp = request.FILES['file']
-                #name = spaces.sub('_', inp.name)
-                #fs = FileSystemStorage()
-                #filename = fs.save(name, inp)
                 f = form.save() 
                 
                 upload(f.document.name, request.user.pk, priority=0, verbose_name=f.document.name, creator=request.user)
 
-                '''         
-                finfo = {}
-                finfo['name'] = f.document
-                finfo['queue'] = 'uploads'
-                finfo['user'] = request.user.pk
-                finfo['progress'] = 0
-                
-                form = taskForm(finfo)
-                if form.is_valid():
-                    form.save()
-                if not settings.CONCURRENCY:
-                    upload(thread(False))
-                else:
-                    if not uthread.running:
-                        t = threading.Thread(target=upload, args=(uthread,))
-                        uthread.running = True
-                        t.start()                 
-                '''
                 context = {
                     'status': '200',
                     'form': UploadFileForm(),

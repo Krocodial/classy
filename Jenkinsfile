@@ -111,6 +111,9 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "SOURCE_REPOSITORY_URL=${git_repo}", 
         "SOURCE_REPOSITORY_REF=${git_branch}")
     
+
+
+    openshift.selector("cronjobs").delete()
     
     backend = openshift.process(
         readFile(file:"${backendDC}"),

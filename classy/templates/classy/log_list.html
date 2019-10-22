@@ -46,7 +46,7 @@
                             
 			                <td><a href={% url 'classy:log_detail' tuple.classy_id %}>{{tuple.classy_id}}</a></td>
 			                <td>{{flag_translate|get_item:tuple.flag}}</td>
-                            <td>{{tuple.owner}}</td>
+                            <td>{% if tuple.owner %}{{tuple.owner}}{% endif %}</td>
                             <td>{{translate|get_item:tuple.classification}}</td>
                             <td>{{translate|get_item:tuple.protected_type}}</td>
                             <td>{{tuple.user.first_name}}</td>

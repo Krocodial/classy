@@ -69,8 +69,8 @@
                 <form class="form-group" action="search" id="searchi">
                     <div class="input-group">
                         <label for="id_size">Results per page: &nbsp</label>
-                        {{basic.size}}
-
+                        {{ basic.size }}
+                        {{ basic.query.as_hidden }}
                         {% for field in advanced %}
                             {{ field.as_hidden }}
                         {% endfor %}
@@ -104,7 +104,8 @@
                     {% csrf_token %}
                     <div class="input-group">
                         {% for field in basic %}
-                            <input type="hidden" name="{{field.name}}" value="{{field.value}}">
+                            {{ field.as_hidden }}
+                            <!--<input type="hidden" name="{{field.name}}" value="{{field.value}}">-->
                         {% endfor %}
                         {% for field in advanced %}
                             {{ field.as_hidden }}
@@ -235,7 +236,7 @@
                             <td>{{tuple.column}}</td>
                             <td>{{translate|get_item:tuple.classification}}</td>
                             <td>{{translate|get_item:tuple.protected_type}}</td>
-                            <td>{{tuple.owner}}</td>
+                            <td>{% if tuple.owner %}{{tuple.owner}}{% endif %}</td>
                         </tr>
                         <tr class="hiddenRows{{forloop.counter}}">
                             <td colspan="8">
@@ -249,18 +250,6 @@
                                     <a class="cus-link" href="{%url 'classy:data'%}/{{tuple.id}}" target="_blank">Detailed View</a>
                                     </div>
                                     <div class="col-sm-3">
-                                    <form class="form-inline">
-                                    <label class="mr-sm-2" for="{{forloop.counter}}"><strong>Classification:</strong></label>
-                                    <select class="form-control form-control-sm cla"
-                                        id="{{forloop.counter}}">
-                                        <option selected>
-                                            {{ translate|get_item:tuple.classification }}
-                        <!--{{tuple.classification}}-->    </option>
-                                        {% for op in ex_options %}
-                                        <option value="{{forloop.counter}}">{{op}}</option>
-                                        {% endfor %}
-                                    </select>
-                                    </form>
                                     </div>
                                     <div class="col-sm-1">
                                     {% if recent|get_item:tuple.id %} NEW {%endif%}

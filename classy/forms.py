@@ -103,7 +103,7 @@ class ClassificationForm(ModelForm):
         if classification == 'UN' or classification == 'PU':
             protected_type = ''
         
-    def save(self, user, approver):
+    def save(self, user, approver=None):
         classy = super(ClassificationForm, self).save(commit=False)
         classy.save(user, approver)
         for dep in self.cleaned_data['dependents']:
@@ -133,7 +133,7 @@ class LogDetailSubmitForm(ModelForm):
         model = Classification
         fields = ['classification', 'protected_type', 'owner', 'dependents', 'notes', 'masking', 'state']
 
-    def save(self, user, approver):
+    def save(self, user, approver=None):
         classy = super(LogDetailSubmitForm, self).save(commit=False)
         classy.save(user, approver)
         return classy
@@ -169,7 +169,7 @@ class LogDetailForm(ModelForm):
                 )
 
 
-    def save(self, user, approver):
+    def save(self, user, approver=None):
         classy = super(LogDetailForm, self).save(commit=False)
         classy.save(user, approver)
         return classy
