@@ -24,23 +24,23 @@
         </div>
         <!-- Page Content -->
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-{{ empty|yesno:'1,0' }}"></div>
+            <div class="col-lg-{{ empty|yesno:'10,6' }}">
                 <h2 class="mt-4">About this application</h2>
-                <p>The Data Security Classification repository, known as DSC for short, is a tool developed by the Corporate Services for the Natural Resource ministries with 
-    the purpose of keeping an inventory of the data that is managed, and where that data is stored. This tool will allow users to view high level information about 
-      tables, modify table classifications, upload new information, and flag deprecated data</p>
+                <p>Classy, otherwise known as the Data Security Classification repository, is a tool developed by IITD with the intent of keeping an inventory of all managed data. This app will allow users to view high-level information about databases, modify column classifications, upload classification reports, and flag any data that has been deprecated</p>
 
-                <p>This tool is managed by the FLNR security team, with custom access granted to business areas based on privilege. All changes will be reviewed and approved before 
-        they reflect in the main dataset. If you need access to a larger dataset due to business changes, please send a request to 
-     the FLNR security team.
+                <p>This tool is managed by the IITD security team, with custom access granted to business areas by request. All changes by non-super users will be given a sanity check before final approval</p>
             </div>
+            <div class="col-lg-{{ empty|yesno:'1,0' }}"></div>
+            {% if not empty %}
             <div class="col-lg-6">
-                {% if not empty %}
+                
                 <div id="canvas-holder" style="position: relative; margin: 0 auto;">
                     <canvas id="donutChart"></canvas>
                 </div>
-                {% endif %}
+                
             </div>
+            {% endif %}
         </div>
         <div class="row">
             <div class="col-sm-4 my-4" style="padding-top:25px; ">
@@ -48,7 +48,7 @@
                     <img class="panel-header img-thumbnail img-responsive center-block" src="https://www.nps.gov/whsa/learn/nature/images/mountain_pepperweed.JPG" alt="">
                     <div class="panel-body">
                         <h4 class="card-title">Getting Started</h4>
-                        <p class="card-text">Lost and not sure where to start? This page will give you a quick overview of DSC's main functionality.</p>
+                        <p class="card-text">Lost and not sure where to start? This page will give you a quick overview of Classy's main functionality.</p>
                     </div>
                     <div class="panel-footer">
                         <a href="tutorial" target="_blank" class="btn btn-info">Tutorial</a>

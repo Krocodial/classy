@@ -7,11 +7,11 @@ A metadata classification repository for tracking and auditing purposes
 
 ## Status
   
-Release 2.0.0 
+Release 1.3.0 
   
 ## Technology Stack Used
-Python ~3.6 (Django)  
-PostgreSQL 9.6 (or latest)  
+Python 3.6.x  
+PostgreSQL 9.6  
 NGINX 1.15.12  
 ModSecurity v3.2  
 
@@ -19,7 +19,7 @@ ModSecurity v3.2
 These instructions will help you get a quick copy of the project up and running for development and testing purposes. See deployment if you want more in-depth setup instructions  
   
 ## Prerequisites 
-You'll need an instance of OpenShift currently running. The current project hardware requests are 8 cores, 32GBs RAM, and 200GB persistant storage per project space.  
+You'll need an instance of OpenShift currently running. The current project hardware limits are 8 cores, 32GBs RAM, and 200GB persistant storage per project space.  
 
 Go through the Jenkinsfile in the project root directory and modify the global values accordingly. The most important will be the namespace.   
    
