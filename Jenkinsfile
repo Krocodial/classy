@@ -221,7 +221,8 @@ pipeline {
         returnStdout: true
         )
     
-    TARGET_ROUTE = 'proxy-nginx'
+    TARGET_ROUTE = 'proxy-nginx-dev'
+	API_TARGET_ROUTE = 'classy-dev'
     TARGET_PROJECT_NAMESPACE = 'l9fjgg-dev'
     ZAP_REPORT_NAME = "zap-report.xml"
     ZAP_REPORT_PATH = "/zap/wrk/${ZAP_REPORT_NAME}"
@@ -314,11 +315,6 @@ pipeline {
                 openshift.withProject(TOOLS_PROJECT) {
                     checkout scm
                     echo "Performing static SonarQube code analysis ..."
-
-                    
-                    echo "URL: ${SONARQUBE_URL}"
-                    //echo "PWD: ${SONARQUBE_PWD}"
-
                     dir('sonar-runner') {
                         sh (
                           returnStdout: true,
@@ -331,7 +327,7 @@ pipeline {
                           script: "./gradlew sonarqube --stacktrace --info \
                             -Dsonar.verbose=true \
                             -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY}-static \
                             -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
                             -Dsonar.sources=${SONAR_SOURCES} \
                             -Dsonar.host.url=${SONARQUBE_URL}"
@@ -409,62 +405,7 @@ pipeline {
             }
         }
     }//end stage
-    stage('deploy to test') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject(TEST_PROJECT) {
-                        input "Ready to promote to TEST?"
-
-                        deployTemplates(
-                            APP_NAME,
-                            TEST_SUFFIX,
-                            TEST_TAG,
-                            PR_NUM,
-                            GIT_REPOSITORY,
-                            GIT_REF,
-                            databaseBC,
-                            backendDC,
-                            databaseDC,
-                            nginxDC,
-                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME)
-                    }
-                }
-            }
-        }
-    }// end of stage
-    stage('Promoting images to test') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject(TEST_PROJECT) {
-                    
-                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-                            "${TEST_PROJECT}/classy:test")
-
-                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-                            "${TEST_PROJECT}/proxy-nginx:test")
-                            
-                        openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
-                            "${TEST_PROJECT}/postgresql:test")
-
-                        //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
-                        //dcs.rollout().latest()
-
-                        //dcs.rollout().status()
-
-
-                        def dcs = openshift.selector("dc", [ comp : 'back' ])
-                        dcs.rollout().status()
-
-                        dcs = openshift.selector("dc", [ comp : 'front' ])
-                        dcs.rollout().status()
-                    }
-                }
-            }
-        }
-    }// end of stage
-    stage('ZAP & SonarQube scan') {
+	stage('ZAP & SonarQube scan') {
         steps {
             script {
                 openshift.withCluster() {
@@ -492,9 +433,10 @@ pipeline {
                             stage('ZAP Security Scan') {
 
                               def TARGET_URL = getUrlForRoute(TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
+						      def API_TARGET_URL = getUrlForRoute(API_TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
 
                               echo "Target URL: ${TARGET_URL}"
-                              //echo "API Target URL: ${API_TARGET_URL}"
+                              echo "API Target URL: ${API_TARGET_URL}"
 
                               dir('zap') {
 
@@ -566,8 +508,7 @@ pipeline {
 
                               SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME).trim()
                               //SONARQUBE_PWD = getSonarQubePwd().trim()
-                              echo "URL: ${SONARQUBE_URL}"
-                              //echo "PWD: ${SONARQUBE_PWD}"
+       
 
                               echo "Publishing the report ..."
                               // The `sonar-runner` MUST exist in your project and contain a Gradle environment consisting of:
@@ -596,7 +537,7 @@ pipeline {
                                     -Dsonar.verbose=true \
                                     -Dsonar.host.url=${SONARQUBE_URL} \
                                     -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                    -Dsonar.projectKey=${SONAR_PROJECT_KEY}-zap \
                                     -Dsonar.projectBaseDir=../ \
                                     -Dsonar.sources=${SONAR_SOURCES} \
                                     -Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
@@ -610,6 +551,61 @@ pipeline {
                 }
             }
         }//steps end
+    }// end of stage
+    stage('deploy to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+                        input "Ready to promote to TEST?"
+
+                        deployTemplates(
+                            APP_NAME,
+                            TEST_SUFFIX,
+                            TEST_TAG,
+                            PR_NUM,
+                            GIT_REPOSITORY,
+                            GIT_REF,
+                            databaseBC,
+                            backendDC,
+                            databaseDC,
+                            nginxDC,
+                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME)
+                    }
+                }
+            }
+        }
+    }// end of stage
+    stage('Promoting images to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+                    
+                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                            "${TEST_PROJECT}/classy:test")
+
+                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+                            "${TEST_PROJECT}/proxy-nginx:test")
+                            
+                        openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
+                            "${TEST_PROJECT}/postgresql:test")
+
+                        //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
+                        //dcs.rollout().latest()
+
+                        //dcs.rollout().status()
+
+
+                        def dcs = openshift.selector("dc", [ comp : 'back' ])
+                        dcs.rollout().status()
+
+                        dcs = openshift.selector("dc", [ comp : 'front' ])
+                        dcs.rollout().status()
+                    }
+                }
+            }
+        }
     }// end of stage
     stage('deploy to prod') {
         steps {
