@@ -57,8 +57,11 @@ sizes = [10, 25, 50, 100]
 def debugg(request):
     if not request.user.is_staff:
         return redirect('classy:home')
-    return JsonResponse(request.META) 
-    #HttpResponse(request.META)
+    http = ''
+    for key, value in request.META.items():
+    	http = http + '\n' + str(key) + ': ' + str(value) + '<br />'
+    
+    return HttpResponse(http)
 
 #Accessed from the home.html page
 @login_required
