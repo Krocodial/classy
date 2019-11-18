@@ -30,7 +30,7 @@ RUN chown -R 1001:0 /opt/app-root
 
 USER 1001
 
-CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && gunicorn --bind 0.0.0.0:8080 --access-logfile - --error-logfile - --access-logformat "'%({x-forwarded-for}i)s %(l)s %(u)s %(t)s '%(r)s' %(s)s %(b)s '%(f)s' '%(a)s'" --timeout 300 -w 3 --threads 2 --keep-alive 10 --graceful-timeout 300 wsgi
+CMD python manage.py migrate && python manage.py createcachetable && python manage.py check && gunicorn --bind 0.0.0.0:8080 --access-logfile - --error-logfile - --timeout 300 -w 3 --threads 4 --keep-alive 10 --graceful-timeout 300 wsgi
 
 #docker build --no-cache -t classy .
 #docker run -p 0.0.0.0:8080:8080 --env-file .env classy
