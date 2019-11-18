@@ -29,21 +29,19 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
-BYPASS_AUTH = os.getenv('BYPASS_AUTH', False)
 PRES = os.getenv('PRES', False)
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'auth.User'
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-#SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
-#CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', True)
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
-#SECURE_HSTS_SECONDS = 600
-#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#SECURE_HSTS_PRELOAD = True
-#SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = False if os.getenv('DEBUG') else True #os.getenv('SESSION_COOKIE_SECURE', True)
+CSRF_COOKIE_SECURE = False if os.getenv('DEBUG') else True  #os.getenv('CSRF_COOKIE_SECURE', True)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False if os.getenv('DEBUG') else True
+SECURE_HSTS_PRELOAD = False if os.getenv('DEBUG') else True
+SECURE_SSL_REDIRECT = False if os.getenv('DEBUG') else True
 X_FRAME_OPTIONS = 'DENY'
 #SESSION_COOKIE_AGE = 300 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
