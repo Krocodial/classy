@@ -139,7 +139,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
     certbot = openshift.process(
         readFile(file:"${certbotDC}"),
         "-p",
-        "EMAIL=Louis.kraak@gov.bc.ca",
+        "EMAIL='Louis.kraak@gov.bc.ca'",
         "IMAGE=$(oc get is/certbot '--output=jsonpath={.status.dockerImageRepository}:latest')")    
     
     openshift.apply(database).label(
