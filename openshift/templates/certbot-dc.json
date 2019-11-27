@@ -5,11 +5,13 @@
   "parameters": [
     {
       "name": "EMAIL",
-      "required": true
+      "required": true,
+      "value": "Louis.kraak@gov.bc.ca"
     },
     {
       "name": "IMAGE",
-      "required": true
+      "required": true,
+      "value": "$(oc get is/certbot '--output=jsonpath={.status.dockerImageRepository}:latest')"
     }
   ],
   "objects": [
