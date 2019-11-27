@@ -135,7 +135,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "ENV_TAG=${tag}",
         "APP_IMAGE_TAG=${pr}", 
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
-    
+
+    certbot = openshift.process(
+        readFile(file:"${certbotDC}"),
+        "-p",
+        "EMAIL=Louis.kraak@gov.bc.ca",
+        "IMAGE=$(oc get is/certbot '--output=jsonpath={.status.dockerImageRepository}:latest')")    
     
     openshift.apply(database).label(
         [
@@ -160,16 +165,25 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
             'comp': 'front'
         ], 
         "--overwrite")
+
+    openshift.apply(certbot).label(
+        [
+            'app':"classy${env}",
+            'app-name':"${name}"
+        ],
+        "--overwrite")
 }
 
 
 def backendBC = 'openshift/templates/classy-bc.json'
 def databaseBC = 'openshift/templates/postgres-bc.json'
 def nginxBC = 'openshift/templates/nginx-bc.json'
+def certbotBC = 'openshift/templates/certbot-bc.json'
 
 def backendDC = 'openshift/templates/classy-dc.json'
 def databaseDC = 'openshift/templates/postgres-dc.json'
 def nginxDC = 'openshift/templates/nginx-dc.json'
+def certbotDC = 'openshift/templates/certbot-dc.json'
 
 def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
@@ -289,7 +303,12 @@ pipeline {
                             )
                             
                         openshift.apply(nginx)
-                        
+                       
+                        certbot = openshift.process(
+                            readFile(file:"${certbotBC}"))
+ 
+                        openshift.apply(certbot)
+
                         echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
                         def builds = openshift.selector("bc",
                             "${APP_NAME}-${PR_NUM}")
