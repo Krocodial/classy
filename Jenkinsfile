@@ -326,8 +326,8 @@ pipeline {
                           returnStdout: true,
                           script: "./gradlew sonarqube --stacktrace --info \
                             -Dsonar.verbose=true \
-                            -Dsonar.projectName='${SONAR_PROJECT_NAME}-SonarQube' \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                            -Dsonar.projectKey='${SONAR_PROJECT_KEY}-sonarqube' \
                             -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
                             -Dsonar.sources=${SONAR_SOURCES} \
                             -Dsonar.host.url=${SONARQUBE_URL}"
@@ -536,8 +536,8 @@ pipeline {
                                   script: "./gradlew sonarqube --stacktrace --info \
                                     -Dsonar.verbose=true \
                                     -Dsonar.host.url=${SONARQUBE_URL} \
-                                    -Dsonar.projectName='${SONAR_PROJECT_NAME}-ZAP' \
-                                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                    -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                                    -Dsonar.projectKey='${SONAR_PROJECT_KEY}-ZAP' \
                                     -Dsonar.projectBaseDir=../ \
                                     -Dsonar.sources=${SONAR_SOURCES} \
                                     -Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
