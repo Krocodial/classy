@@ -263,21 +263,6 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject() {
-                        /*def result = openshift.raw(
-                            "import-image",
-                            "my-rhscl/postgresql-96-rhel7",
-                            "--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7",
-                            "--confirm",
-                            "--request-timeout=5m")
-                        echo "${result.out}"*/
-                    
-                        /*result = openshift.raw(
-                            "import-image",
-                            "my-rhscl/python-35-rhel7",
-                            "--from=registry.access.redhat.com/rhscl/python-35-rhel7",
-                            "--confirm",
-                            "--request-timeout=5m")
-                        echo "${result.out}"*/
                     
                         backend = openshift.process(
                             readFile(file:"${backendBC}"),
@@ -304,7 +289,7 @@ pipeline {
                         certbot = openshift.process(
                             readFile(file:"${certbotBC}"))
  
-                        openshift.apply(certbot)
+                        //openshift.apply(certbot)
 
                         echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
                         def builds = openshift.selector("bc",
