@@ -15,10 +15,12 @@ daemon = False
 errorlog = '-'
 loglevel = 'info'
 accesslog = '-'
-access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
+access_log_format = '%({x-forwarded-for}i)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 proc_name = None
 #clean up those pesky health checks
 logger_class = 'conf.classy_logger.CustomGunicornLogger'
+forwarded_allow_ips="*"
+
 
 #Ignore health checks
 def pre_request(worker, req):
