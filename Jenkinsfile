@@ -136,8 +136,8 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APP_IMAGE_TAG=${pr}", 
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
 
-    certbot = openshift.process(
-        readFile(file:"${certbotDC}"))
+    //certbot = openshift.process(
+    //    readFile(file:"${certbotDC}"))
     
     openshift.apply(database).label(
         [
@@ -163,12 +163,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         ], 
         "--overwrite")
 
-    openshift.apply(certbot).label(
+    /*openshift.apply(certbot).label(
         [
             'app':"classy${env}",
             'app-name':"${name}"
         ],
-        "--overwrite")
+        "--overwrite")*/
 }
 
 
@@ -286,8 +286,8 @@ pipeline {
                             
                         openshift.apply(nginx)
                        
-                        certbot = openshift.process(
-                            readFile(file:"${certbotBC}"))
+                        /*certbot = openshift.process(
+                            readFile(file:"${certbotBC}"))*/
  
                         //openshift.apply(certbot)
 
