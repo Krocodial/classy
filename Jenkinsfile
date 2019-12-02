@@ -175,12 +175,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
 def backendBC = 'openshift/templates/classy-bc.json'
 def databaseBC = 'openshift/templates/postgres-bc.json'
 def nginxBC = 'openshift/templates/nginx-bc.json'
-def certbotBC = 'openshift/templates/certbot-bc.yml'
+def certbotBC = 'openshift/templates/certbot-bc.yaml'
 
 def backendDC = 'openshift/templates/classy-dc.json'
 def databaseDC = 'openshift/templates/postgres-dc.json'
 def nginxDC = 'openshift/templates/nginx-dc.json'
-def certbotDC = 'openshift/templates/certbot-dc.yml'
+def certbotDC = 'openshift/templates/certbot-dc.yaml'
 
 def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
