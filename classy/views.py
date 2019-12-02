@@ -619,7 +619,7 @@ def gov_temp(request):
 
 # User is redirected here after authentication is complete via keycloak authentication server with a long, short-lived code. We exchange this code via an out-of-band REST call to the keycloak auth server for an access and refresh token. In the token is a list of permissions the user has, we check and set these via middleware. Once the token is verified we log the user in via a local session and give them a session cookie (they will never see the tokens so no risk of mishandling)
 #@requires_csrf_token
-@ratelimit(key='ip', rate='6/m', method=['GET'], block=True)
+@ratelimit(key='header:x-forwarded-for', rate='6/m', method=['GET'], block=True)
 def login_complete(request):
     try:
         redirect_uri = os.getenv('REDIRECT_URI') +  reverse('classy:login_complete')

@@ -286,8 +286,7 @@ pipeline {
                             
                         openshift.apply(nginx)
                        
-                        /*certbot = openshift.process(
-                            readFile(file:"${certbotBC}"))*/
+                        certbot = openshift.process(readFile(file:"${certbotBC}"))
  
                         //openshift.apply(certbot)
 
