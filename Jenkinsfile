@@ -175,12 +175,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
 def backendBC = 'openshift/templates/classy-bc.json'
 def databaseBC = 'openshift/templates/postgres-bc.json'
 def nginxBC = 'openshift/templates/nginx-bc.json'
-def certbotBC = 'openshift/templates/certbot-bc.json'
+def certbotBC = 'openshift/templates/certbot-bc.yml'
 
 def backendDC = 'openshift/templates/classy-dc.json'
 def databaseDC = 'openshift/templates/postgres-dc.json'
 def nginxDC = 'openshift/templates/nginx-dc.json'
-def certbotDC = 'openshift/templates/certbot-dc.json'
+def certbotDC = 'openshift/templates/certbot-dc.yml'
 
 def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
@@ -286,7 +286,7 @@ pipeline {
                             
                         openshift.apply(nginx)
                        
-                        //certbot = openshift.process(readFile(file:"${certbotBC}"))
+                        certbot = openshift.process(readFile(file:"${certbotBC}"))
  
                         //openshift.apply(certbot)
 
