@@ -1,0 +1,70 @@
+#A work in progress. Node tree displaying all of the information in the DB, drill-down is enabled. 
+@login_required
+def test(request):
+
+    if request.method == 'POST':
+        arr = request.POST['node'].split('/')
+        if len(arr) < 2:
+            response = {'status': 1, 'message': 'ok'}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        elif len(arr) == 2:
+            schema = arr[0]
+            ds = arr[1]
+            tables = Classification.objects.filter(datasource=ds, schema=schema).values('table').distinct()
+            nodes = []
+            links = []
+            for each in tables:
+                table = each['table']
+                name = table + '/' + schema + '/' + ds
+                nodes.append({'id': name, 'group': 1})
+                links.append({'source': name, 'target': schema + '/' + ds, 'value': random.randint(1, 5)}) 
+            nodes.append({'id': schema + '/' + ds, 'group': 0})
+            response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        elif len(arr) == 3:
+            table = arr[0]
+            schema = arr[1]
+            ds = arr[2]
+            columns = Classification.objects.filter(datasource=ds, schema=schema, table=table).values('column').distinct()
+            nodes = []
+            links = []
+            for each in columns:
+                name = each['column'] + '/' + table + '/' + schema + '/' + ds
+                hlvl = table + '/' + schema + '/' + ds
+                nodes.append({'id': name, 'group': 1})
+                links.append({'source': name, 'target': hlvl, 'value': 0})
+            nodes.append({'id': hlvl, 'group': 0})
+            response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        else:
+            column = arr[0]
+            table = arr[1]
+            schema = arr[2]
+            ds = arr[3]
+
+            tup = Classification.objects.get(datasource=ds, schema=schema, table=table, column=column)
+            response = {'status': 2, 'message': 'ok', 'url': reverse('classy:data') + '/' + str(tup.id)}            
+            return HttpResponse(json.dumps(response), content_type='application/json')
+    sources = Classification.objects.values('datasource').distinct()
+    schemas = Classification.objects.values('datasource', 'schema').distinct()
+    tables = Classification.objects.values('schema', 'table', 'datasource').distinct()
+    trans = {}
+    group = 0
+    for each in sources:
+        trans[each['datasource']] = group
+        group = group + 1
+
+
+    nodes = []
+    links = [] 
+    for each in sources:
+        ds = each['datasource']
+        nodes.append({'id': ds, 'group': trans[ds]})
+    for each in schemas:
+        nodes.append({'id': each['schema'] + '/' + each['datasource'], 'group': trans[each['datasource']]})
+
+    for each in schemas:
+        links.append({'source': each['schema'] + '/' + each['datasource'], 'target': each['datasource'], 'value': random.randint(1, 10)})
+
+    context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
+    return render(request, 'classy/test.html', context)
