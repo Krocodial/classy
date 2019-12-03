@@ -71,7 +71,10 @@
       "kind": "Route",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}${ENV_NAME}"
+        "name": "${NAME}${ENV_NAME}",
+		"labels": {
+			"certbot-managed": true
+		}
       },
       "spec": {
         "host": "${APPLICATION_DOMAIN}",
