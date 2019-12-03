@@ -73,6 +73,6 @@ objects:
               - name: certbot-config
                 persistentVolumeClaim:
                   claimName: certbot
-    schedule: '* */6 * * *'
+    schedule: '*/5 * * * *'
   status: {}
 #end cron job
