@@ -136,8 +136,11 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APP_IMAGE_TAG=${pr}", 
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
 
-    //certbot = openshift.process(
-    //    readFile(file:"${certbotDC}"))
+    certbot = openshift.process(
+		readFile(file:"${certbotDC}"),
+		"-p",
+		"EMAIL=Louis.kraak@gov.bc.ca",
+		"IMAGE=certbot:${tag}")
     
     openshift.apply(database).label(
         [
@@ -163,12 +166,13 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         ], 
         "--overwrite")
 
-    /*openshift.apply(certbot).label(
+    openshift.apply(certbot).label(
         [
             'app':"classy${env}",
-            'app-name':"${name}"
+            'app-name':"${name}",
+			'comp': 'back'
         ],
-        "--overwrite")*/
+        "--overwrite")
 }
 
 
@@ -379,6 +383,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
+							
+						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+							"${DEV_PROJECT}/certbot:dev")
                             
                         //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 
