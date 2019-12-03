@@ -162,7 +162,8 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         [
             'app':"classy${env}", 
             'app-name':"${name}",
-            'comp': 'front'
+            'comp': 'front',
+			'certbot-managed':'true'
         ], 
         "--overwrite")
 
