@@ -87,7 +87,7 @@ def unitTests(String env, String pr_num) {
 }
 
 
-def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, String img_repo) {
+def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, certbotDC, String img_repo) {
     
     if (!openshift.selector("pvc", "postgresql").exists()) {
     
@@ -362,6 +362,7 @@ pipeline {
                             backendDC, 
                             databaseDC, 
                             nginxDC,
+							certbotDC,
                             IMG_BASE + DEV_PROJECT + '/' + APP_NAME)
                         
                     }
