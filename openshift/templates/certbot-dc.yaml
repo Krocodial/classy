@@ -69,6 +69,7 @@ objects:
                 - mountPath: /etc/letsencrypt
                   name: certbot-config
             restartPolicy: Never
+            serviceAccountName: certbot
             volumes:
               - name: certbot-config
                 persistentVolumeClaim:
