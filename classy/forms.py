@@ -84,8 +84,7 @@ class AdvancedSearch(forms.Form):
     owner = forms.ModelMultipleChoiceField(queryset=Application.objects.all(), required=False, label="Application", widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
 
 class LoginForm(forms.Form):
-    if settings.BYPASS_AUTH:
-        username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
+    username = forms.CharField(label='username', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
     password = forms.CharField(label='password', max_length=100, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password', 'AUTOCOMPLETE': 'off'}))
 
 

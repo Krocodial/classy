@@ -4,6 +4,15 @@ from django.contrib.auth import logout
 from .forms import AdvancedSearch, BasicSearch
 
 
+def custom_rate(group, request):
+    if request.user.is_authenticated:
+      if request.user.username == '105a1a41-543f-44c8-a7e6-5270fa6ad8a6':
+        return None
+      else:
+        return '20/m'
+    else:
+      return '6/m'
+
 def role_checker(user, payload, request):
 
     try:

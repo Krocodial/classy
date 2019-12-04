@@ -87,7 +87,7 @@ def unitTests(String env, String pr_num) {
 }
 
 
-def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, String img_repo) {
+def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, certbotDC, String img_repo, certbot_img_repo) {
     
     if (!openshift.selector("pvc", "postgresql").exists()) {
     
@@ -135,7 +135,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "ENV_TAG=${tag}",
         "APP_IMAGE_TAG=${pr}", 
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
-    
+
+    certbot = openshift.process(
+		readFile(file:"${certbotDC}"),
+		"-p",
+		"EMAIL=Louis.kraak@gov.bc.ca",
+		"IMAGE=${certbot_img_repo}")
     
     openshift.apply(database).label(
         [
@@ -157,8 +162,17 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         [
             'app':"classy${env}", 
             'app-name':"${name}",
-            'comp': 'front'
+            'comp': 'front',
+			'certbot-managed':'true'
         ], 
+        "--overwrite")
+
+    openshift.apply(certbot).label(
+        [
+            'app':"classy${env}",
+            'app-name':"${name}",
+			'comp': 'back'
+        ],
         "--overwrite")
 }
 
@@ -166,10 +180,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
 def backendBC = 'openshift/templates/classy-bc.json'
 def databaseBC = 'openshift/templates/postgres-bc.json'
 def nginxBC = 'openshift/templates/nginx-bc.json'
+def certbotBC = 'openshift/templates/certbot-bc.yaml'
 
 def backendDC = 'openshift/templates/classy-dc.json'
 def databaseDC = 'openshift/templates/postgres-dc.json'
 def nginxDC = 'openshift/templates/nginx-dc.json'
+def certbotDC = 'openshift/templates/certbot-dc.yaml'
 
 def backendBcTag = 'classy-bc'
 def backendDcTag = 'classy-dc'
@@ -186,7 +202,9 @@ pipeline {
     APP_NAME = 'classy'
     
     GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
+
     GIT_REF = 'master'
+
     
     PR_NUM = "${BUILD_NUMBER}"
    
@@ -211,7 +229,7 @@ pipeline {
   
     SONAR_ROUTE_NAME = 'sonarqube'
     SONAR_ROUTE_NAMESPACE = 'l9fjgg-tools'
-    SONAR_PROJECT_NAME = 'Data Security classification Repository'
+    SONAR_PROJECT_NAME = 'Classy'
     SONAR_PROJECT_KEY = 'classy'
     SONAR_PROJECT_BASE_DIR = '../classy/'
     SONAR_SOURCES = './'
@@ -221,7 +239,8 @@ pipeline {
         returnStdout: true
         )
     
-    TARGET_ROUTE = 'proxy-nginx'
+    TARGET_ROUTE = 'proxy-nginx-dev'
+	API_TARGET_ROUTE = 'classy-dev'
     TARGET_PROJECT_NAMESPACE = 'l9fjgg-dev'
     ZAP_REPORT_NAME = "zap-report.xml"
     ZAP_REPORT_PATH = "/zap/wrk/${ZAP_REPORT_NAME}"
@@ -251,21 +270,6 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject() {
-                        /*def result = openshift.raw(
-                            "import-image",
-                            "my-rhscl/postgresql-96-rhel7",
-                            "--from=registry.access.redhat.com/rhscl/postgresql-96-rhel7",
-                            "--confirm",
-                            "--request-timeout=5m")
-                        echo "${result.out}"*/
-                    
-                        /*result = openshift.raw(
-                            "import-image",
-                            "my-rhscl/python-35-rhel7",
-                            "--from=registry.access.redhat.com/rhscl/python-35-rhel7",
-                            "--confirm",
-                            "--request-timeout=5m")
-                        echo "${result.out}"*/
                     
                         backend = openshift.process(
                             readFile(file:"${backendBC}"),
@@ -288,7 +292,11 @@ pipeline {
                             )
                             
                         openshift.apply(nginx)
-                        
+                       
+                        certbot = openshift.apply(readFile(file:"${certbotBC}"))
+ 
+                        //openshift.apply(certbot)
+
                         echo "select 'bc' ${APP_NAME}-${PR_NUM} and run startBuild() on them"
                         def builds = openshift.selector("bc",
                             "${APP_NAME}-${PR_NUM}")
@@ -314,11 +322,6 @@ pipeline {
                 openshift.withProject(TOOLS_PROJECT) {
                     checkout scm
                     echo "Performing static SonarQube code analysis ..."
-
-                    
-                    echo "URL: ${SONARQUBE_URL}"
-                    //echo "PWD: ${SONARQUBE_PWD}"
-
                     dir('sonar-runner') {
                         sh (
                           returnStdout: true,
@@ -330,8 +333,8 @@ pipeline {
                           returnStdout: true,
                           script: "./gradlew sonarqube --stacktrace --info \
                             -Dsonar.verbose=true \
-                            -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                            -Dsonar.projectKey='${SONAR_PROJECT_KEY}-sonarqube' \
                             -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
                             -Dsonar.sources=${SONAR_SOURCES} \
                             -Dsonar.host.url=${SONARQUBE_URL}"
@@ -362,7 +365,9 @@ pipeline {
                             backendDC, 
                             databaseDC, 
                             nginxDC,
-                            IMG_BASE + DEV_PROJECT + '/' + APP_NAME)
+							certbotDC,
+                            IMG_BASE + DEV_PROJECT + '/' + APP_NAME,
+							IMG_BASE + DEV_PROJECT + '/certbot:' + DEV_TAG)
                         
                     }
                 }
@@ -383,8 +388,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
-                            
-                        //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
+							
+						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+							"${DEV_PROJECT}/certbot:dev")
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
@@ -409,62 +415,7 @@ pipeline {
             }
         }
     }//end stage
-    stage('deploy to test') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject(TEST_PROJECT) {
-                        input "Ready to promote to TEST?"
-
-                        deployTemplates(
-                            APP_NAME,
-                            TEST_SUFFIX,
-                            TEST_TAG,
-                            PR_NUM,
-                            GIT_REPOSITORY,
-                            GIT_REF,
-                            databaseBC,
-                            backendDC,
-                            databaseDC,
-                            nginxDC,
-                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME)
-                    }
-                }
-            }
-        }
-    }// end of stage
-    stage('Promoting images to test') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject(TEST_PROJECT) {
-                    
-                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
-                            "${TEST_PROJECT}/classy:test")
-
-                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
-                            "${TEST_PROJECT}/proxy-nginx:test")
-                            
-                        openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
-                            "${TEST_PROJECT}/postgresql:test")
-
-                        //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
-                        //dcs.rollout().latest()
-
-                        //dcs.rollout().status()
-
-
-                        def dcs = openshift.selector("dc", [ comp : 'back' ])
-                        dcs.rollout().status()
-
-                        dcs = openshift.selector("dc", [ comp : 'front' ])
-                        dcs.rollout().status()
-                    }
-                }
-            }
-        }
-    }// end of stage
-    stage('ZAP & SonarQube scan') {
+	stage('ZAP & SonarQube scan') {
         steps {
             script {
                 openshift.withCluster() {
@@ -492,9 +443,10 @@ pipeline {
                             stage('ZAP Security Scan') {
 
                               def TARGET_URL = getUrlForRoute(TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
+						      def API_TARGET_URL = getUrlForRoute(API_TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
 
                               echo "Target URL: ${TARGET_URL}"
-                              //echo "API Target URL: ${API_TARGET_URL}"
+                              echo "API Target URL: ${API_TARGET_URL}"
 
                               dir('zap') {
 
@@ -565,9 +517,8 @@ pipeline {
                               unstash name: "${ZAP_REPORT_STASH}"
 
                               SONARQUBE_URL = getUrlForRoute(SONAR_ROUTE_NAME).trim()
-                              //SONARQUBE_PWD = getSonarQubePwd().trim()
-                              echo "URL: ${SONARQUBE_URL}"
-                              //echo "PWD: ${SONARQUBE_PWD}"
+                              
+       
 
                               echo "Publishing the report ..."
                               // The `sonar-runner` MUST exist in your project and contain a Gradle environment consisting of:
@@ -595,8 +546,8 @@ pipeline {
                                   script: "./gradlew sonarqube --stacktrace --info \
                                     -Dsonar.verbose=true \
                                     -Dsonar.host.url=${SONARQUBE_URL} \
-                                    -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                    -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                                    -Dsonar.projectKey='${SONAR_PROJECT_KEY}-ZAP' \
                                     -Dsonar.projectBaseDir=../ \
                                     -Dsonar.sources=${SONAR_SOURCES} \
                                     -Dsonar.zaproxy.reportPath=${WORKSPACE}${ZAP_REPORT_PATH} \
@@ -610,6 +561,66 @@ pipeline {
                 }
             }
         }//steps end
+    }// end of stage
+    stage('deploy to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+                        input "Ready to promote to TEST?"
+
+                        deployTemplates(
+                            APP_NAME,
+                            TEST_SUFFIX,
+                            TEST_TAG,
+                            PR_NUM,
+                            GIT_REPOSITORY,
+                            GIT_REF,
+                            databaseBC,
+                            backendDC,
+                            databaseDC,
+                            nginxDC,
+							certbotDC,
+                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME,
+							IMG_BASE + TEST_PROJECT + '/certbot:' + TEST_TAG)
+                    }
+                }
+            }
+        }
+    }// end of stage
+    stage('Promoting images to test') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(TEST_PROJECT) {
+                    
+                        openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
+                            "${TEST_PROJECT}/classy:test")
+
+                        openshift.tag("${TOOLS_PROJECT}/proxy-nginx:${PR_NUM}",
+                            "${TEST_PROJECT}/proxy-nginx:test")
+                            
+                        openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
+                            "${TEST_PROJECT}/postgresql:test")
+							
+						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+							"${TEST_PROJECT}/certbot:test")
+
+                        //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
+                        //dcs.rollout().latest()
+
+                        //dcs.rollout().status()
+
+
+                        def dcs = openshift.selector("dc", [ comp : 'back' ])
+                        dcs.rollout().status()
+
+                        dcs = openshift.selector("dc", [ comp : 'front' ])
+                        dcs.rollout().status()
+                    }
+                }
+            }
+        }
     }// end of stage
     stage('deploy to prod') {
         steps {
@@ -629,7 +640,9 @@ pipeline {
                             backendDC,
                             databaseDC,
                             nginxDC,
-                            IMG_BASE + PROD_PROJECT + '/' + APP_NAME)
+							certbotDC,
+                            IMG_BASE + PROD_PROJECT + '/' + APP_NAME,
+							IMG_BASE + PROD_PROJECT + '/certbot:' + PROD_TAG)
                     }
                 }
             }
@@ -649,11 +662,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${PROD_PROJECT}/postgresql:prod")
-
-                        //def dcs = openshift.selector("dc", [ app : 'classy' ])
-                        //dcs.rollout().latest()
-
-                        //dcs.rollout().status()
+							
+						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+							"${PROD_PROJECT}/certbot:prod")
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()

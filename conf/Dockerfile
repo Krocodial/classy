@@ -31,6 +31,8 @@ RUN chmod -R g+rwx /var/cache/nginx/ && \
 #    chmod -R g+r /etc/modsecurity.d/ /opt/
 #    mkdir -p /opt/modsecurity/uploads/ && \
 
+ENV TZ=America/Vancouver
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone 
 
 USER 1001
 

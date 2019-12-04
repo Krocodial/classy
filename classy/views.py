@@ -23,7 +23,7 @@ import threading, csv, json, random, os, difflib, datetime
 from .models import ClassificationCount, Classification, ClassificationLogs, ClassificationReviewGroups, ClassificationReview
 from .forms import *
 from .scripts import calc_scheduler, upload
-from .helper import query_constructor, role_checker, filter_results
+from .helper import query_constructor, role_checker, filter_results, custom_rate
 
 from background_task.models import Task
 
@@ -53,13 +53,6 @@ threads = []
 lock = threading.Lock()
 sizes = [10, 25, 50, 100]
 
-@login_required
-def debugg(request):
-    if not request.user.is_staff:
-        return redirect('classy:home')
-    return JsonResponse(request.META) 
-    #HttpResponse(request.META)
-
 #Accessed from the home.html page
 @login_required
 def tutorial(request):
@@ -71,6 +64,7 @@ def tutorial(request):
 
 #Download search results from the search function
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def download(request):
     if not request.method == 'POST':
             return redirect('classy:home')
@@ -94,6 +88,7 @@ def download(request):
 
 #Allow staff to review basic user changes, and accept/reject them
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def review(request):
     if not request.user.is_staff:
             return redirect('classy:home')
@@ -159,6 +154,7 @@ def review(request):
 
 #Allows us to see what has been pre-classified before upload into this tool, for verification purposes
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def exceptions(request):
     if not request.user.is_staff:
         return redirect('classy:index')        
@@ -233,6 +229,7 @@ def exceptions(request):
 
 # List all of the Classification logs, filtered down to the Classification objects you are allowed to view. Searchable by Classification, flag, username, approver, and index
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def log_list(request):
     form = BasicSearch(request.GET)
 
@@ -321,6 +318,7 @@ def log_list(request):
 
 #Shows all information known about a Classification object. History, variables, associated users, masking instructions.
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def log_detail(request, classy_id):
     num = ClassificationReviewGroups.objects.all().count()
 
@@ -358,6 +356,7 @@ def log_detail(request, classy_id):
 #The search page POSTs to here via an AJAX call, this will auto-change values for staff, and create a review group for basic users.
 #modifications will now auto-create logs if using the ClassificationForm
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def modi(request):
     if request.method != 'POST':
         return redirect('classy:home')
@@ -492,6 +491,7 @@ def modi(request):
 
 #Once a user makes a search in the data view handle the request. Just search all the features of our Classification objects to find even partial matches and return them. The call to query_constructor will filter out values the user is not allowed to view.
 @login_required
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def search(request):
     if request.method != 'GET':
         return redirect('classy:home')
@@ -613,82 +613,10 @@ def search(request):
 @login_required
 def gov_temp(request):
     return render(request, 'classy/gov_temp.html')
-    
-#A work in progress. Node tree displaying all of the information in the DB, drill-down is enabled. 
-'''
-@login_required
-def test(request):
 
-    if request.method == 'POST':
-        arr = request.POST['node'].split('/')
-        if len(arr) < 2:
-            response = {'status': 1, 'message': 'ok'}
-            return HttpResponse(json.dumps(response), content_type='application/json')
-        elif len(arr) == 2:
-            schema = arr[0]
-            ds = arr[1]
-            tables = Classification.objects.filter(datasource=ds, schema=schema).values('table').distinct()
-            nodes = []
-            links = []
-            for each in tables:
-                table = each['table']
-                name = table + '/' + schema + '/' + ds
-                nodes.append({'id': name, 'group': 1})
-                links.append({'source': name, 'target': schema + '/' + ds, 'value': random.randint(1, 5)}) 
-            nodes.append({'id': schema + '/' + ds, 'group': 0})
-            response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
-            return HttpResponse(json.dumps(response), content_type='application/json')
-        elif len(arr) == 3:
-            table = arr[0]
-            schema = arr[1]
-            ds = arr[2]
-            columns = Classification.objects.filter(datasource=ds, schema=schema, table=table).values('column').distinct()
-            nodes = []
-            links = []
-            for each in columns:
-                name = each['column'] + '/' + table + '/' + schema + '/' + ds
-                hlvl = table + '/' + schema + '/' + ds
-                nodes.append({'id': name, 'group': 1})
-                links.append({'source': name, 'target': hlvl, 'value': 0})
-            nodes.append({'id': hlvl, 'group': 0})
-            response = {'status': 1, 'message': 'ok', 'nodes': mark_safe(json.dumps(nodes)), 'links': mark_safe(json.dumps(links))}
-            return HttpResponse(json.dumps(response), content_type='application/json')
-        else:
-            column = arr[0]
-            table = arr[1]
-            schema = arr[2]
-            ds = arr[3]
-
-            tup = Classification.objects.get(datasource=ds, schema=schema, table=table, column=column)
-            response = {'status': 2, 'message': 'ok', 'url': reverse('classy:data') + '/' + str(tup.id)}            
-            return HttpResponse(json.dumps(response), content_type='application/json')
-    sources = Classification.objects.values('datasource').distinct()
-    schemas = Classification.objects.values('datasource', 'schema').distinct()
-    tables = Classification.objects.values('schema', 'table', 'datasource').distinct()
-    trans = {}
-    group = 0
-    for each in sources:
-        trans[each['datasource']] = group
-        group = group + 1
-
-
-    nodes = []
-    links = [] 
-    for each in sources:
-        ds = each['datasource']
-        nodes.append({'id': ds, 'group': trans[ds]})
-    for each in schemas:
-        nodes.append({'id': each['schema'] + '/' + each['datasource'], 'group': trans[each['datasource']]})
-
-    for each in schemas:
-        links.append({'source': each['schema'] + '/' + each['datasource'], 'target': each['datasource'], 'value': random.randint(1, 10)})
-
-    context = {'nodes': mark_safe(nodes), 'links': mark_safe(links)}
-    return render(request, 'classy/test.html', context)
-'''
 # User is redirected here after authentication is complete via keycloak authentication server with a long, short-lived code. We exchange this code via an out-of-band REST call to the keycloak auth server for an access and refresh token. In the token is a list of permissions the user has, we check and set these via middleware. Once the token is verified we log the user in via a local session and give them a session cookie (they will never see the tokens so no risk of mishandling)
 #@requires_csrf_token
-@ratelimit(key='ip', rate='6/m', method=['GET'], block=True)
+@ratelimit(key='header:x-forwarded-for', rate=custom_rate, block=True)
 def login_complete(request):
     try:
         redirect_uri = os.getenv('REDIRECT_URI') +  reverse('classy:login_complete')
@@ -896,7 +824,7 @@ def home(request):
 
 #Handles file uploads. Uploads file with progress bar, schedules a task to handle the file once uploaded. A thread spawned by the classy instance will handle this file upload. I might change this back to a cron job to allow multiple classy containers in the future for higher stability. I'll need to figure out a way to share file uploads cross pods though which I'm not too keen on for now. .
 @login_required
-@ratelimit(key='user', rate='5/m', block=True, method=['POST'])
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def uploader(request):
     spaces = re.compile(' ')
     if not request.user.is_staff:
@@ -941,7 +869,7 @@ def uploader(request):
 
 #Initial landing page for data table
 @login_required
-@ratelimit(key='user', rate='20/m', block=True, method=['POST'])
+@ratelimit(key='user', rate=custom_rate, block=True, method='ALL')
 def data(request):
     if not request.user.is_authenticated:
             return redirect('classy:index')
