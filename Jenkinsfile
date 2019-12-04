@@ -389,8 +389,6 @@ pipeline {
 							
 						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
 							"${DEV_PROJECT}/certbot:dev")
-                            
-                        //def dcs = openshift.selector("dc", [ app : 'classy-dev' ])
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
@@ -580,7 +578,9 @@ pipeline {
                             backendDC,
                             databaseDC,
                             nginxDC,
-                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME)
+							certbotDC,
+                            IMG_BASE + TEST_PROJECT + '/' + APP_NAME,
+							IMG_BASE + TEST_PROJECT + '/certbot:' + TEST_TAG)
                     }
                 }
             }
@@ -600,6 +600,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${TEST_PROJECT}/postgresql:test")
+							
+						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+							"${TEST_PROJECT}/certbot:test")
 
                         //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
                         //dcs.rollout().latest()
@@ -635,7 +638,9 @@ pipeline {
                             backendDC,
                             databaseDC,
                             nginxDC,
-                            IMG_BASE + PROD_PROJECT + '/' + APP_NAME)
+							certbotDC,
+                            IMG_BASE + PROD_PROJECT + '/' + APP_NAME,
+							IMG_BASE + PROD_PROJECT + '/certbot:' + PROD_TAG)
                     }
                 }
             }
@@ -655,11 +660,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${PROD_PROJECT}/postgresql:prod")
-
-                        //def dcs = openshift.selector("dc", [ app : 'classy' ])
-                        //dcs.rollout().latest()
-
-                        //dcs.rollout().status()
+							
+						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+							"${PROD_PROJECT}/certbot:prod")
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
