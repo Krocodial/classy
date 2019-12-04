@@ -87,7 +87,7 @@ def unitTests(String env, String pr_num) {
 }
 
 
-def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, certbotDC, String img_repo) {
+def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, certbotDC, String img_repo, certbot_img_repo) {
     
     if (!openshift.selector("pvc", "postgresql").exists()) {
     
@@ -140,7 +140,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
 		readFile(file:"${certbotDC}"),
 		"-p",
 		"EMAIL=Louis.kraak@gov.bc.ca",
-		"IMAGE=$(oc get is/certbot '--output=jsonpath={.status.dockerImageRepository}:${tag})")
+		"IMAGE=${certbot_img_repo}")
     
     openshift.apply(database).label(
         [
@@ -364,7 +364,8 @@ pipeline {
                             databaseDC, 
                             nginxDC,
 							certbotDC,
-                            IMG_BASE + DEV_PROJECT + '/' + APP_NAME)
+                            IMG_BASE + DEV_PROJECT + '/' + APP_NAME,
+							IMG_BASE + DEV_PROJECT + '/certbot:' + DEV_TAG)
                         
                     }
                 }
