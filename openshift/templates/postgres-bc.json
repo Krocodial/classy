@@ -52,7 +52,10 @@
 	  "kind": "PersistentVolumeClaim",
 	  "apiVersion": "v1",
 	  "metadata": {
-		"name": "postgresql"
+		"name": "postgresql",
+        "annotations": {
+            "volume.beta.kubernetes.io/storage-class": "gluster-file-db"
+        }
 	  },
 	  "spec": {
 		"accessModes": [
