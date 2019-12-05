@@ -143,7 +143,9 @@
                           }
                         }
                       }
-                    ],
+                    ]
+				}
+				],
                 "volumes": [
                   {
                     "name": "backups",
