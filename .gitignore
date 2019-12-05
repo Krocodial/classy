@@ -12,3 +12,4 @@ db.sqlite*
 sso*
 geckodriver*
 files/*
+backups/*

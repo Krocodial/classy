@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'background_task',
+    'dbbackup',
     'classy.apps.ClassyConfig',
 ]
 
@@ -149,6 +150,10 @@ FILE_UPLOAD_PERMISSIONS = 0o600
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'conf/html/')
+
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': os.getenv('BACKUP_LOCATION')}
+DBBACKUP_DATE_FORMAT = "%Y-%m-%d-%H%M%S"
 
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

@@ -64,6 +64,28 @@
 		  }
 		}
 	  }
-	}
+    },
+
+	{
+	  "kind": "PersistentVolumeClaim",
+	  "apiVersion": "v1",
+	  "metadata": {
+		"name": "backups",
+        "annotations": {
+            "volume.beta.kubernetes.io/storage-class": "gluster-file-db"
+        }
+	  },
+	  "spec": {
+		"accessModes": [
+		  "ReadWriteMany"
+		],
+		"resources": {
+		  "requests": {
+			"storage": "70Gi"
+		  }
+		}
+	  }
+    }
+
 	]
 }

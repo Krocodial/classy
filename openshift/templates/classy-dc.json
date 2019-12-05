@@ -78,6 +78,91 @@
       "apiVersion": "batch/v1beta1",
       "kind": "CronJob",
       "metadata": {
+        "name": "backup"
+      },
+      "spec": {
+        "schedule": "0 18 * * 5",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 3,
+        "failedJobsHistoryLimit": 1,
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "metadata": {
+                "labels": {
+                }
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "backup",
+                    "image": "${IMG_REPO}:${ENV_TAG}",
+                    "command": ["python", "manage.py", "dbbackup", "-zqc"],
+                    "volumeMounts": [
+                      {
+                        "mountPath": "/opt/app-root/backups",
+                        "name": "backups"
+                      }
+                    ],
+                    "env": [
+                      {
+                        "name": "BACKUP_LOCATION",
+                        "value": "/opt/app-root/backups"
+                      },
+                      {
+                        "name": "DATABASE_SERVICE_NAME",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_ENGINE",
+                        "value": "postgresql"
+                      },
+                      {
+                        "name": "DATABASE_NAME",
+                        "value": "default"
+                      },
+                      {
+                        "name": "POSTGRESQL_SERVICE_HOST",
+                        "value": "postgresql${ENV_NAME}"
+                      },
+                      {
+                        "name": "DATABASE_USER",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-user"
+                          }
+                        }
+                      },
+                      {
+                        "name": "DATABASE_PASSWORD",
+                        "valueFrom": {
+                          "secretKeyRef" : {
+                            "name" : "classy-${ENV_TAG}",
+                            "key" : "database-password"
+                          }
+                        }
+                      }
+                    ],
+                "volumes": [
+                  {
+                    "name": "backups",
+                    "persistentVolumeClaim": {
+                      "claimName": "backups"
+                    }
+                  }
+                ],
+                "restartPolicy": "Never"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "batch/v1beta1",
+      "kind": "CronJob",
+      "metadata": {
         "name": "upload"
       },
       "spec": {

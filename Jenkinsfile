@@ -89,7 +89,7 @@ def unitTests(String env, String pr_num) {
 
 def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, certbotDC, String img_repo, certbot_img_repo) {
     
-    if (!openshift.selector("pvc", "postgresql").exists()) {
+    /*if (!openshift.selector("pvc", "postgresql").exists()) {
     
         databasePVC = openshift.process(
             readFile(file:"${databaseBC}"),
@@ -99,8 +99,12 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         openshift.apply(databasePVC)
     } else {
         echo "PVC already exists"
-    }
+    }*/
     
+	pvc = openshift.process(readFile(file:"${databaseBC}"), "-p", "ENV_NAME=${env}")
+	openshift.apply(pvc)
+	
+	
     database = openshift.process(
         readFile(file:"${databaseDC}"),
         "-p", 
@@ -203,7 +207,7 @@ pipeline {
     
     GIT_REPOSITORY = 'https://github.com/Krocodial/classy.git'
 
-    GIT_REF = 'master'
+    GIT_REF = 'backups'
 
     
     PR_NUM = "${BUILD_NUMBER}"
