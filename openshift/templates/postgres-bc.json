@@ -40,7 +40,7 @@
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APP_NAME}-${ENV_NAME}"
+        "name": "${APP_NAME}${ENV_NAME}"
       },
       "stringData" : {
         "database-user" : "${DATABASE_USER}",

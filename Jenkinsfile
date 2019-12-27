@@ -89,22 +89,13 @@ def unitTests(String env, String pr_num) {
 
 def deployTemplates(String name, String env, String tag, String pr, String git_repo, String git_branch, String databaseBC, String backendDC, String databaseDC, String nginxDC, certbotDC, String img_repo, certbot_img_repo) {
     
-    /*if (!openshift.selector("pvc", "postgresql").exists()) {
-    
-        databasePVC = openshift.process(
-            readFile(file:"${databaseBC}"),
-            "-p",
-            "ENV_NAME=${env}")
-        
-        openshift.apply(databasePVC)
+    if (!openshift.selector("pvc", "postgresql").exists()) {
+        pvc = openshift.process(readFile(file:"${databaseBC}"), "-p", "ENV_NAME=${tag}")
+        openshift.apply(pvc)
     } else {
-        echo "PVC already exists"
-    }*/
+        echo "PVC already exists, don't overwrite secrets..."
+    }
     
-	pvc = openshift.process(readFile(file:"${databaseBC}"), "-p", "ENV_NAME=${tag}")
-	openshift.apply(pvc)
-	
-	
     database = openshift.process(
         readFile(file:"${databaseDC}"),
         "-p", 
@@ -141,10 +132,10 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         "APPLICATION_DOMAIN=${name}${env}.pathfinder.gov.bc.ca")
 
     certbot = openshift.process(
-		readFile(file:"${certbotDC}"),
-		"-p",
-		"EMAIL=Louis.kraak@gov.bc.ca",
-		"IMAGE=${certbot_img_repo}")
+        readFile(file:"${certbotDC}"),
+        "-p",
+        "EMAIL=Louis.kraak@gov.bc.ca",
+        "IMAGE=${certbot_img_repo}")
     
     openshift.apply(database).label(
         [
@@ -167,7 +158,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
             'app':"classy${env}", 
             'app-name':"${name}",
             'comp': 'front',
-			'certbot-managed':'true'
+            'certbot-managed':'true'
         ], 
         "--overwrite")
 
@@ -175,7 +166,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         [
             'app':"classy${env}",
             'app-name':"${name}",
-			'comp': 'back'
+            'comp': 'back'
         ],
         "--overwrite")
 }
@@ -244,7 +235,7 @@ pipeline {
         )
     
     TARGET_ROUTE = 'proxy-nginx-dev'
-	API_TARGET_ROUTE = 'classy-dev'
+    API_TARGET_ROUTE = 'classy-dev'
     TARGET_PROJECT_NAMESPACE = 'l9fjgg-dev'
     ZAP_REPORT_NAME = "zap-report.xml"
     ZAP_REPORT_PATH = "/zap/wrk/${ZAP_REPORT_NAME}"
@@ -308,7 +299,7 @@ pipeline {
 
                         openshift.tag("${TOOLS_PROJECT}/classy:${PR_NUM}",
                             "${TOOLS_PROJECT}/classy:latest")
-			            
+                        
                         echo "building nginx bc"
                         def nginx = openshift.selector("bc", 
                             "proxy-nginx-${PR_NUM}")
@@ -369,7 +360,7 @@ pipeline {
                             backendDC, 
                             databaseDC, 
                             nginxDC,
-							certbotDC,
+                            certbotDC,
                             IMG_BASE + DEV_PROJECT + '/' + APP_NAME,
                             IMG_BASE + DEV_PROJECT + '/certbot:' + DEV_TAG)
                         
@@ -392,9 +383,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",        
                             "${DEV_PROJECT}/postgresql:dev")
-							
-						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
-							"${DEV_PROJECT}/certbot:dev")
+                            
+                        openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+                            "${DEV_PROJECT}/certbot:dev")
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
@@ -419,7 +410,7 @@ pipeline {
             }
         }
     }//end stage
-	stage('ZAP & SonarQube scan') {
+    stage('ZAP & SonarQube scan') {
         steps {
             script {
                 openshift.withCluster() {
@@ -447,7 +438,7 @@ pipeline {
                             stage('ZAP Security Scan') {
 
                               def TARGET_URL = getUrlForRoute(TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
-						      def API_TARGET_URL = getUrlForRoute(API_TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
+                              def API_TARGET_URL = getUrlForRoute(API_TARGET_ROUTE, TARGET_PROJECT_NAMESPACE).trim()
 
                               echo "Target URL: ${TARGET_URL}"
                               echo "API Target URL: ${API_TARGET_URL}"
@@ -584,9 +575,9 @@ pipeline {
                             backendDC,
                             databaseDC,
                             nginxDC,
-							certbotDC,
+                            certbotDC,
                             IMG_BASE + TEST_PROJECT + '/' + APP_NAME,
-							IMG_BASE + TEST_PROJECT + '/certbot:' + TEST_TAG)
+                            IMG_BASE + TEST_PROJECT + '/certbot:' + TEST_TAG)
                     }
                 }
             }
@@ -606,9 +597,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${TEST_PROJECT}/postgresql:test")
-							
-						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
-							"${TEST_PROJECT}/certbot:test")
+                            
+                        openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+                            "${TEST_PROJECT}/certbot:test")
 
                         //def dcs = openshift.selector("dc", [ app : 'classy-test' ])
                         //dcs.rollout().latest()
@@ -644,9 +635,9 @@ pipeline {
                             backendDC,
                             databaseDC,
                             nginxDC,
-							certbotDC,
+                            certbotDC,
                             IMG_BASE + PROD_PROJECT + '/' + APP_NAME,
-							IMG_BASE + PROD_PROJECT + '/certbot:' + PROD_TAG)
+                            IMG_BASE + PROD_PROJECT + '/certbot:' + PROD_TAG)
                     }
                 }
             }
@@ -666,9 +657,9 @@ pipeline {
                             
                         openshift.tag("${TOOLS_PROJECT}/postgresql-96-rhel7:latest",
                             "${PROD_PROJECT}/postgresql:prod")
-							
-						openshift.tag("${TOOLS_PROJECT}/certbot:latest",
-							"${PROD_PROJECT}/certbot:prod")
+                            
+                        openshift.tag("${TOOLS_PROJECT}/certbot:latest",
+                            "${PROD_PROJECT}/certbot:prod")
 
                         def dcs = openshift.selector("dc", [ comp : 'back' ])
                         dcs.rollout().status()
