@@ -101,7 +101,7 @@ def deployTemplates(String name, String env, String tag, String pr, String git_r
         echo "PVC already exists"
     }*/
     
-	pvc = openshift.process(readFile(file:"${databaseBC}"), "-p", "ENV_NAME=${env}")
+	pvc = openshift.process(readFile(file:"${databaseBC}"), "-p", "ENV_NAME=${tag}")
 	openshift.apply(pvc)
 	
 	
@@ -371,7 +371,7 @@ pipeline {
                             nginxDC,
 							certbotDC,
                             IMG_BASE + DEV_PROJECT + '/' + APP_NAME,
-							IMG_BASE + DEV_PROJECT + '/certbot:' + DEV_TAG)
+                            IMG_BASE + DEV_PROJECT + '/certbot:' + DEV_TAG)
                         
                     }
                 }
