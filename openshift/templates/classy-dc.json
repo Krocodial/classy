@@ -144,8 +144,8 @@
                         }
                       }
                     ]
-				}
-				],
+                }
+                ],
                 "volumes": [
                   {
                     "name": "backups",
@@ -424,10 +424,10 @@
                     "mountPath": "/opt/app-root/files",
                     "name": "classy-files"
                   },
-				  {
-					"mountPath": "/opt/app-root/backups",
-					"name": "backups"
-				  }
+                  {
+                    "mountPath": "/opt/app-root/backups",
+                    "name": "backups"
+                  }
                 ],
                 "readinessProbe": {
                   "timeoutSeconds": 3,
@@ -446,6 +446,10 @@
                   }
                 },
                 "env": [
+                  {
+                    "name": "BACKUP_LOCATION",
+                    "value": "/opt/app-root/backups"
+                  },
                   {
                     "name": "DATABASE_SERVICE_NAME",
                     "value": "postgresql"
@@ -569,12 +573,12 @@
                   "claimName": "classy-files"
                 }
               },
-			  {
-				"name": "backups",
-				"persistentVolumeClaim": {
-				  "claimName": "backups"
-				}
-			  }
+              {
+                "name": "backups",
+                "persistentVolumeClaim": {
+                  "claimName": "backups"
+                }
+              }
             ],
             "restartPolicy": "Always",
             "terminationGracePeriodSeconds": 30,
