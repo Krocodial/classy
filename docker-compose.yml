@@ -1,0 +1,60 @@
+version: '3.3'
+services:
+    classy:
+        image: "classy"
+        build: .
+        ports: ["8080:8080"]
+        environment:
+            DATABASE_SERVICE_NAME: postgresql
+            DATABASE_ENGINE: postgresql
+            DATABASE_NAME: classy
+            POSTGRESQL_SERVICE_HOST: postgresql
+            DATABASE_USER: classy
+            DATABASE_PASSWORD: supasecret
+            DJANGO_SECRET_KEY: whatisjohntheripper
+            SSO_SERVER: /run/secrets/sso_server
+            SSO_REALM: /run/secrets/sso_realm
+            SSO_CLIENT_ID: /run/secrets/sso_client_id
+            SSO_CLIENT_SECRET: /run/secrets/sso_client_secret
+            REDIRECT_URI: http://localhost:1337
+            TEST_ACCOUNT_USERNAME: /run/secrets/test_account_username
+            TEST_ACCOUNT_PASSWORD: /run/secrets/test_account_password
+        secrets:
+            - sso_server
+            - sso_realm
+            - sso_client_id
+            - sso_client_secret
+            - test_account_username
+            - test_account_password
+        depends_on:
+            - postgresql
+
+    proxy:
+        image: 'proxy'
+        build: conf/
+        ports: ["1337:1337"]
+        environment:
+            NGINX_PROXY_URL: http://localhost:8080
+            DOLLAR: $$
+
+    postgresql:
+        image: postgres
+        environment:
+            POSTGRES_PASSWORD: imadatabasepassword
+            POSTGRES_USER: classy
+            POSTGRES_DB: classy
+        
+   
+secrets:
+    sso_server:
+        file: ./secrets/sso_server.txt 
+    sso_realm:
+        file: ./secrets/sso_realm
+    sso_client_id:
+        file: ./secrets/sso_client_id
+    sso_client_secret:
+        file: ./secrets/sso_client_secret
+    test_account_username:
+        file: ./secrets/test_account_username
+    test_account_password:
+        file: ./secrets/test_account_password

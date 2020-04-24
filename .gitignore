@@ -12,3 +12,5 @@ db.sqlite*
 sso*
 geckodriver*
 files/*
+*.txt
+secrets/
