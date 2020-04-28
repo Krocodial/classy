@@ -12,20 +12,11 @@ services:
             DATABASE_USER: classy
             DATABASE_PASSWORD: supasecret
             DJANGO_SECRET_KEY: whatisjohntheripper
-            SSO_SERVER: /run/secrets/sso_server
-            SSO_REALM: /run/secrets/sso_realm
-            SSO_CLIENT_ID: /run/secrets/sso_client_id
-            SSO_CLIENT_SECRET: /run/secrets/sso_client_secret
+            SSO_SERVER: ${SSO_SERVER}
+            SSO_REALM: ${SSO_REALM}
+            SSO_CLIENT_ID: ${SSO_CLIENT_ID}
+            SSO_CLIENT_SECRET: ${SSO_CLIENT_SECRET}
             REDIRECT_URI: http://localhost:1337
-            TEST_ACCOUNT_USERNAME: /run/secrets/test_account_username
-            TEST_ACCOUNT_PASSWORD: /run/secrets/test_account_password
-        secrets:
-            - sso_server
-            - sso_realm
-            - sso_client_id
-            - sso_client_secret
-            - test_account_username
-            - test_account_password
         depends_on:
             - postgresql
 
@@ -34,27 +25,12 @@ services:
         build: conf/
         ports: ["1337:1337"]
         environment:
-            NGINX_PROXY_URL: http://localhost:8080
+            NGINX_PROXY_URL: http://classy:8080
             DOLLAR: $$
 
     postgresql:
         image: postgres
         environment:
-            POSTGRES_PASSWORD: imadatabasepassword
+            POSTGRES_PASSWORD: supasecret
             POSTGRES_USER: classy
             POSTGRES_DB: classy
-        
-   
-secrets:
-    sso_server:
-        file: ./secrets/sso_server.txt 
-    sso_realm:
-        file: ./secrets/sso_realm
-    sso_client_id:
-        file: ./secrets/sso_client_id
-    sso_client_secret:
-        file: ./secrets/sso_client_secret
-    test_account_username:
-        file: ./secrets/test_account_username
-    test_account_password:
-        file: ./secrets/test_account_password
