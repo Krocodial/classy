@@ -1,2 +1,0 @@
-* * * * * echo "Hello World" >> /var/log/cron.log 2>&1
-#An empty blah

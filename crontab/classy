@@ -1,4 +1,0 @@
-* * * * * flock -n /opt/app-root/files/QRH7mA40aRL2NVyVUbcH.lockfile python /opt/app-root/manage.py process_tasks --queue=upload >> /var/log/cron.log 2>&1
-* * * * * flock -n /opt/app-root/files/uj5l6n7iAGtM8gx9fNuo.lockfile python /opt/app-root/manage.py process_tasks --queue=counter >> /var/log/cron.log 2>&1
-
-
