@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+    classy:
+        image: "classy"
+        build: classy/.
+        ports: ["8080:8080"]
+        environment:
+            #DATABASE_SERVICE_NAME: postgresql
+            #DATABASE_ENGINE: postgresql
+            #DATABASE_NAME: classy
+            #POSTGRESQL_SERVICE_HOST: postgresql
+            #DATABASE_USER: classy
+            #DATABASE_PASSWORD: supasecret
+            DJANGO_SECRET_KEY: whatisjohntheripper
+            SSO_SERVER: ${SSO_SERVER}
+            SSO_REALM: ${SSO_REALM}
+            SSO_CLIENT_ID: ${SSO_CLIENT_ID}
+            SSO_CLIENT_SECRET: ${SSO_CLIENT_SECRET}
+            REDIRECT_URI: http://localhost:1337
+    #    depends_on:
+    #        - postgresql
+
+    #proxy:
+    #    image: 'proxy'
+    #    build: conf/
+    #    ports: ["1337:1337"]
+    #    environment:
+    #        NGINX_PROXY_URL: http://classy:8080
+    #        DOLLAR: $$
+
+    #postgresql:
+    #    image: postgres
+    #    environment:
+    #        POSTGRES_PASSWORD: supasecret
+    #        POSTGRES_USER: classy
+    #        POSTGRES_DB: classy
